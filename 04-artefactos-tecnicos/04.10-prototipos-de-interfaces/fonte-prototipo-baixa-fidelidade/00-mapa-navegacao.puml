@@ -1,0 +1,77 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultTextAlignment center
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+title Mapa de Navegação - Gestão de Clínica Veterinária
+
+rectangle "APLICAÇÃO WEB" {
+  rectangle "W01\nLogin Web" as W01
+
+  rectangle "Administrador\n----\nW02 Funcionários\nW03 Criar/Editar Funcionário\nW04 Clientes\nW05 Detalhe Cliente\nW06 Clínica/Config./Horários" as ADMIN
+
+  rectangle "Rececionista\n----\nW04 Clientes\nW05 Detalhe Cliente\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda\nW10 Criar/Editar Marcação\nW11 Detalhe Marcação\nW14 Contas/Dívidas\nW15 Conta/Pagamentos" as REC
+
+  rectangle "Veterinário\n----\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda própria\nW11 Detalhe Marcação\nW13 Registo Clínico\nW16 Vacinação/Desparasitação\nW17 Internamentos\nW18 Detalhe Internamento" as VET
+
+  rectangle "Auxiliar Veterinário\n----\nW08 Ficha Paciente (leitura)\nW12 Consultas disponíveis\n+ Preparação/Apoio\nW13 Informação clínica (leitura)\nW17 Internamentos\nW18 Detalhe (leitura)" as AUX
+
+  W01 --> ADMIN
+  W01 --> REC
+  W01 --> VET
+  W01 --> AUX
+
+  ADMIN -[hidden]-> REC
+  REC -[hidden]-> VET
+  VET -[hidden]-> AUX
+}
+
+rectangle "APLICAÇÃO MOBILE" {
+  rectangle "M01\nLogin Mobile" as M01
+  rectangle "Cliente" as CLI
+  rectangle "M02\nOs Meus Animais" as M02
+  rectangle "M03\nDetalhe do Animal" as M03
+  rectangle "M04\nConsultas" as M04
+  rectangle "M05\nDespesas e Pagamentos" as M05
+  rectangle "M06\nBoletim" as M06
+
+  M01 --> CLI
+  CLI --> M02
+  CLI --> M04
+  CLI --> M05
+  M02 --> M03
+  M03 --> M06
+}
+
+note bottom of ADMIN
+Gestão de utilizadores, clientes,
+configuração e horários.
+end note
+
+note bottom of REC
+Gestão administrativa, agenda,
+marcações, chegadas e pagamentos.
+end note
+
+note bottom of VET
+W07 permite pesquisa por proprietário.\nSem acesso à gestão W04.\nAgenda própria, informação clínica,\nvacinação e internamentos.
+end note
+
+note bottom of AUX
+W12 inclui seleção das consultas disponíveis.\nPreparação/apoio e leitura autorizada.\nSem escrita clínica nem alta.
+end note
+
+note bottom of CLI
+Acesso de consulta e ação global de terminar sessão.
+Sem criar/alterar/cancelar marcações,
+editar animais ou registar pagamentos.
+end note
+@enduml

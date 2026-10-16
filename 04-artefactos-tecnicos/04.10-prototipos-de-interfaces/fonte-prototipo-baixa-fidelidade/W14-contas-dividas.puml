@@ -1,0 +1,40 @@
+@startuml
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+title W14 — Contas, Custos e Valores em Dívida
+
+rectangle "CLÍNICA VETERINÁRIA   |   CONTAS
+
+[ + REGISTAR CUSTO ]     Pesquisar cliente: [________________________]
+Estado: [ Todos v ]
+
+Cliente             Total        Em dívida       Estado
+----------------------------------------------------------
+Carlos Sousa        85,00 €      35,00 €         Pendente
+Rita Ferreira       40,00 €       0,00 €         Pago
+
+[ VER CONTA ]
+
+----------------------------------------------------------
+
+NOVO CUSTO
+Cliente: [________________]   Paciente: [________________]
+Consulta/Serviço: [________________________]
+Descrição: [___________________________________________]
+Valor: [________ €]
+
+[ CANCELAR ]                         [ GUARDAR CUSTO ]" as SCREEN
+
+note bottom of SCREEN
+Ator: Rececionista
+UC14
+RF037, RF038
+end note
+@enduml

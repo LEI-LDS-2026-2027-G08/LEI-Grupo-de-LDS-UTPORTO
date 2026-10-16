@@ -1,0 +1,46 @@
+@startuml
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+title W12 — Preparação e Apoio à Consulta
+
+rectangle "CLÍNICA VETERINÁRIA   |   APOIO À CONSULTA
+
+CONSULTAS DISPONÍVEIS
+Data: [ 09/10/2026 ]   Estado: [ Todos v ]   Pesquisar: [____________]
+
+09:00 | Kiko | Dr. Silva | Consulta geral | Confirmada
+10:00 | Lua  | Dra. Costa | Vacinação      | Confirmada
+
+[ SELECIONAR CONSULTA ]
+
+------------------------------------------------------------
+
+CONSULTA SELECIONADA
+Paciente: Kiko      Consulta: 09/10/2026 09:00
+Veterinário: Dr. Silva
+
+INFORMAÇÃO DE PREPARAÇÃO
+- Motivo da consulta
+- Dados administrativos relevantes
+- Informação clínica autorizada para preparação
+
+APOIO NÃO CLÍNICO
+Notas de apoio: [____________________________________]
+                [____________________________________]
+
+[ GUARDAR INFORMAÇÃO DE APOIO ]" as SCREEN
+
+note bottom of SCREEN
+Ator: Auxiliar Veterinário
+UC10
+RF026, RF027
+W12 é o ponto de entrada autónomo: listar -> selecionar -> preparar/apoiar
+end note
+@enduml
