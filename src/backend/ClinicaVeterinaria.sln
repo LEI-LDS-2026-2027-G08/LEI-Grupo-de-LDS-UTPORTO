@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.Api", "ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj", "{E37AF0C3-2AD9-4DBB-8D43-C81A011981B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.Application", "ClinicaVeterinaria.Application\ClinicaVeterinaria.Application.csproj", "{1E0A9D03-4238-4E91-A85F-6D8AA9BB23DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.Domain", "ClinicaVeterinaria.Domain\ClinicaVeterinaria.Domain.csproj", "{F9B73F10-9D1E-4EA7-9676-8CD4D01693AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.Infrastructure", "ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj", "{C14FBB87-6384-4656-BD7D-7F4ACCA0F13D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.UnitTests", "ClinicaVeterinaria.UnitTests\ClinicaVeterinaria.UnitTests.csproj", "{4CE375AF-241E-428F-89D3-7F6B06F15E26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicaVeterinaria.IntegrationTests", "ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj", "{874063FB-986F-4A63-821A-34088489AFC2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E37AF0C3-2AD9-4DBB-8D43-C81A011981B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E37AF0C3-2AD9-4DBB-8D43-C81A011981B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E37AF0C3-2AD9-4DBB-8D43-C81A011981B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E37AF0C3-2AD9-4DBB-8D43-C81A011981B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E0A9D03-4238-4E91-A85F-6D8AA9BB23DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E0A9D03-4238-4E91-A85F-6D8AA9BB23DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E0A9D03-4238-4E91-A85F-6D8AA9BB23DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E0A9D03-4238-4E91-A85F-6D8AA9BB23DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9B73F10-9D1E-4EA7-9676-8CD4D01693AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9B73F10-9D1E-4EA7-9676-8CD4D01693AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9B73F10-9D1E-4EA7-9676-8CD4D01693AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9B73F10-9D1E-4EA7-9676-8CD4D01693AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C14FBB87-6384-4656-BD7D-7F4ACCA0F13D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C14FBB87-6384-4656-BD7D-7F4ACCA0F13D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C14FBB87-6384-4656-BD7D-7F4ACCA0F13D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C14FBB87-6384-4656-BD7D-7F4ACCA0F13D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CE375AF-241E-428F-89D3-7F6B06F15E26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CE375AF-241E-428F-89D3-7F6B06F15E26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CE375AF-241E-428F-89D3-7F6B06F15E26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CE375AF-241E-428F-89D3-7F6B06F15E26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{874063FB-986F-4A63-821A-34088489AFC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{874063FB-986F-4A63-821A-34088489AFC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{874063FB-986F-4A63-821A-34088489AFC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{874063FB-986F-4A63-821A-34088489AFC2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
