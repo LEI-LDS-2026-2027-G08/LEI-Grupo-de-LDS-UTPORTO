@@ -34,7 +34,7 @@ O grupo pode acrescentar regras próprias, desde que as identifique como conteú
 | Curso | Licenciatura em Engenharia Informática |
 | Turma ou turno prático | Turma 1 |
 | Versão do regulamento | v02 |
-| Data de aprovação | Por aprovar em reunião formal (v02 em proposta) |
+| Data de aprovação | 21/10/2026 |
 
 ### 2.1. Elementos do grupo
 
