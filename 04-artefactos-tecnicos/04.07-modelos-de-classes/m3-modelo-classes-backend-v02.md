@@ -5,8 +5,10 @@
 **Milestone:** m3
 **Versão:** v02
 **Issue:** I020 — Modelo de Classes (Backend)
+**Executor:** André Filipe Moreira Mesquita
+**Revisor:** Ivan Cristiano Silva Mendes
+**Auditor:** Gonçalo Dinis Magalhães Teixeira
 **Estado:** Rascunho para revisão e auditoria
-**Executor / Revisor / Auditor:** a confirmar segundo o Backlog de Projeto em vigor
 
 ---
 
