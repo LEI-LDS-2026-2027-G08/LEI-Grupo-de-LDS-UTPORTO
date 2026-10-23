@@ -58,7 +58,7 @@
 
 Este documento define **o que será testado, como e com que critérios** no backend do sistema de Gestão de Clínica Veterinária (ASP.NET Core 10, Entity Framework Core 10, Microsoft SQL Server 2025), antes da escrita dos testes. Serve de base à Especificação dos Testes Unitários (I028), à Especificação dos Testes de Integração (I030), à infraestrutura de testes (I091), à configuração da análise estática e do quality gate (I101) e à pipeline CI/CD (I102, I103).
 
-O plano reflete a Declaração de Âmbito v05, que retirou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento). Os 37 endpoints em âmbito pertencem às funcionalidades F001, F002, F003, F004 e F006.
+O plano reflete a Declaração de Âmbito v05, que passou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) para o não-âmbito. Os 37 endpoints em âmbito pertencem às funcionalidades F001, F002, F003, F004 e F006.
 
 Cumpre o conteúdo exigido pela secção 19 do Regulamento de Funcionamento da UC para este artefacto: âmbito, estratégia, ambiente, dados, responsabilidades e critérios de entrada e de saída dos testes unitários e de integração do backend, e identificação da utilização da Collection Postman para verificar todas as funcionalidades da API.
 
