@@ -8,10 +8,7 @@
 | Ficheiro | `m3-documentacao-api-v02.md` |
 | Versão | v02 |
 | Milestone de Entrega | m3 |
-| Issue | I018 — Documentação de API |
-| Executor | André Filipe Moreira Mesquita |
-| Revisor | Ivan Cristiano Silva Mendes |
-| Auditor | Gonçalo Magalhães Ribeiro |
+| Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I018 (v01, m2) está concluída e não é reaberta. |
 | Estado | Rascunho para revisão e auditoria |
 | Pasta de destino | `/projeto/04-artefactos-tecnicos/04.11-documentacao-de-api` |
 | Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-proposta-sistema-v05.pdf`; `m2-especificacao-requisitos-v01.md`; `m2-especificacoes-casos-uso-v01.md`; `m2-documentacao-arquitetura-v01.md`; `m3-modelo-classes-backend-v02.md`; `m3-regulamento-grupo-v02.md`; `m2-documentacao-api-v01.md` (versão anterior) |
@@ -21,7 +18,7 @@
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | v01 | 2026-10-09 | André Filipe Moreira Mesquita | Versão inicial da documentação prevista da API para a m2, alinhada com a Especificação de Requisitos (RF001–RF052, RNF001–RNF006) e com os Casos de Uso (UC01–UC18). Mantém-se inalterada como histórico (`m2-documentacao-api-v01.md`). |
-| v02 | 2026-10-22 | André Filipe Moreira Mesquita | Reflete a Declaração de Âmbito v05: saem as funcionalidades F005 (contas e pagamentos, EP-035 a EP-041) e F007 (internamento, EP-045 a EP-051), ficando **37 endpoints**. Acrescenta a cada endpoint os DTOs de pedido e de resposta definidos em `m3-modelo-classes-backend-v02.md`, acrescenta a enumeração `DiaSemana`, retira as enumerações de pagamento e internamento, atualiza as tecnologias de referência (Regulamento de Grupo v02) e refaz a rastreabilidade. |
+| v02 | 2026-10-22 | Por atribuir | Reflete a Declaração de Âmbito v05: saem as funcionalidades F005 (contas e pagamentos, EP-035 a EP-041) e F007 (internamento, EP-045 a EP-051), ficando **37 endpoints**. Acrescenta a cada endpoint os DTOs de pedido e de resposta definidos em `m3-modelo-classes-backend-v02.md`, acrescenta a enumeração `DiaSemana`, retira as enumerações de pagamento e internamento, atualiza as tecnologias de referência (Regulamento de Grupo v02) e refaz a rastreabilidade. |
 
 ### Alterações da v02 em relação à v01
 
