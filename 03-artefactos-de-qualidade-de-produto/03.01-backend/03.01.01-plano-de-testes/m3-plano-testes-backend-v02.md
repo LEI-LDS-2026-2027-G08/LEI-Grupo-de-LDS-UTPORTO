@@ -27,6 +27,7 @@
 | Matriz endpoint × perfil | 51 × 6 = 306 → 37 × 6 = **222 verificações**. |
 | Tecnologias | ASP.NET Core 10 e EF Core 10, SQL Server 2025, frontend mobile Android (Kotlin) em vez de Flutter. ReportGenerator 5.5. Roslyn Analyzers do SDK 10. |
 | Quality gates | Acrescentado o QG-08 (formatação com `dotnet format`). A divergência de versões (D-02) fica decidida pelo Regulamento de Grupo v02. |
+| Rastreabilidade | Corrigidas as origens de CT-F006-01 (cálculo da próxima administração é RF045, não RF044) e CT-F006-02 (registar vacinação e desparasitação são RF043 e RF044, não RF043 e RF045), de acordo com a Especificação de Requisitos. |
 | Rastreabilidade | Tabela 15.1 com 37 endpoints; RF037–RF042 e RF048–RF052 identificados como fora do âmbito. |
 
 ---
@@ -319,8 +320,8 @@ As condições seguintes concretizam as regras críticas do Plano de Qualidade (
 
 | ID | Condição | Nível | Origem |
 |---|---|---|---|
-| CT-F006-01 | Cálculo automático da data prevista da próxima administração: data de administração + `intervaloDias`; sem intervalo, não é calculada data | U | RF044 |
-| CT-F006-02 | Registar vacinação ou desparasitação: tipo, produto, lote ou data em falta, data futura ou `intervaloDias` ≤ 0 → 400; animal inexistente → 404 | U, I | RF043, RF045 |
+| CT-F006-01 | Cálculo automático da data prevista da próxima administração: data de administração + `intervaloDias`; sem intervalo, não é calculada data | U | RF045 |
+| CT-F006-02 | Registar vacinação ou desparasitação: tipo, produto, lote ou data em falta, data futura ou `intervaloDias` ≤ 0 → 400; animal inexistente → 404 | U, I | RF043, RF044 |
 | CT-F006-03 | Só o Veterinário regista e consulta o boletim na web; outros perfis → 403 | I | RF043, RF046, RNF001 |
 | CT-F006-04 | O Cliente consulta apenas o boletim dos seus animais; animal de outro Cliente → 403 | I | RF047, RNF002 |
 
