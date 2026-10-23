@@ -15,7 +15,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Diagrama de sequência do UC01. Mantém-se inalterado como histórico (`m2-diagrama-sequencia-autenticar-utilizador-v01.md`). |
-| v02 | 23/10/2026 | Alinha o diagrama com a Documentação da API v02, os Modelos de Classes v02 e o Regulamento Interno do Grupo v02. O fluxo (passos, códigos de resposta e revogação do token) não muda. |
+| v02 | 23/10/2026 | Alinha o diagrama com a Documentação da API v02, os Modelos de Classes v02 e o Regulamento Interno do Grupo v02. O fluxo de sucesso, os códigos 401 e 403 e a revogação do token não mudam; acrescenta-se o ramo 400 (credenciais em falta), que a API v02 (EP-001) e o UC01 v02 (exceção E2) já previam. |
 
 ### Alterações da v02 em relação à v01
 
@@ -24,6 +24,7 @@
 | Tecnologia da API | ASP.NET Core 8 | ASP.NET Core 10 | Regulamento Interno do Grupo v02 (stack acordada em 21/10/2026). |
 | Resposta do login | `AuthResult(token, expiraEm, utilizador)` | `LoginResponseDto(token, expiraEm, utilizador)` | Nome do DTO na Documentação da API v02 (EP-001) e no Modelo de Classes do Backend v02. |
 | Armazenamento no Mobile | «secure storage» (Flutter) | Armazenamento cifrado com chave no Android Keystore | Modelo de Classes do Frontend Mobile v02 (Kotlin com Jetpack Compose). |
+| Credenciais em falta | Sem ramo; o diagrama só tinha 401, 403 e 200 | Ramo `alt` com a resposta `400 Bad Request` antes de chamar o `AuthService` | Documentação da API v02 (EP-001, erro 400) e UC01 v02 (exceção E2). |
 | Histórico e estado | — | Acrescentados | Controlo de versões. |
 
 O diagrama não inclui nenhuma funcionalidade de F005 ou F007; a Declaração de Âmbito v05 não o afeta.
@@ -59,57 +60,62 @@ User -> UI : Introduz email e palavra-passe
 activate UI
 UI -> Controller : POST /auth/login { email, password }
 activate Controller
-Controller -> AuthSvc : AutenticarAsync(email, password)
-activate AuthSvc
+alt E-mail ou palavra-passe em falta
+    Controller --> UI : 400 Bad Request
+    UI --> User : Credenciais obrigatórias
+else Credenciais indicadas
+    Controller -> AuthSvc : AutenticarAsync(email, password)
+    activate AuthSvc
 
-AuthSvc -> DB : Procurar Utilizador por email
-activate DB
-DB --> AuthSvc : Utilizador ou null
-deactivate DB
+    AuthSvc -> DB : Procurar Utilizador por email
+    activate DB
+    DB --> AuthSvc : Utilizador ou null
+    deactivate DB
 
-alt Utilizador inexistente
-    AuthSvc --> Controller : Falha de autenticação
-    Controller --> UI : 401 Unauthorized
-    UI --> User : Credenciais incorretas
-else Utilizador existente
-    AuthSvc -> AuthSvc : Verificar password com PasswordHash
-
-    alt Password inválida
+    alt Utilizador inexistente
         AuthSvc --> Controller : Falha de autenticação
         Controller --> UI : 401 Unauthorized
         UI --> User : Credenciais incorretas
-    else Conta bloqueada
-        AuthSvc --> Controller : Acesso recusado
-        Controller --> UI : 403 Forbidden
-        UI --> User : Conta bloqueada
-    else Credenciais válidas e conta ativa
-        AuthSvc -> JwtSvc : Gerar token (Utilizador)
-        activate JwtSvc
-        JwtSvc --> AuthSvc : JWT + data de expiração
-        deactivate JwtSvc
+    else Utilizador existente
+        AuthSvc -> AuthSvc : Verificar password com PasswordHash
 
-        AuthSvc --> Controller : LoginResponseDto(token, expiraEm, utilizador)
-        Controller --> UI : 200 OK (LoginResponseDto)
+        alt Password inválida
+            AuthSvc --> Controller : Falha de autenticação
+            Controller --> UI : 401 Unauthorized
+            UI --> User : Credenciais incorretas
+        else Conta bloqueada
+            AuthSvc --> Controller : Acesso recusado
+            Controller --> UI : 403 Forbidden
+            UI --> User : Conta bloqueada
+        else Credenciais válidas e conta ativa
+            AuthSvc -> JwtSvc : Gerar token (Utilizador)
+            activate JwtSvc
+            JwtSvc --> AuthSvc : JWT + data de expiração
+            deactivate JwtSvc
 
-        UI -> UI : Verificar se o perfil pertence ao canal atual
-        alt Perfil permitido no canal
-            UI -> UI : Guardar sessão\nWeb: sessionStorage\nMobile: armazenamento cifrado (Keystore)
-            UI --> User : Abrir área autorizada do respetivo perfil
-        else Perfil não permitido no canal
-            UI -> UI : Definir token apenas para revogação
-            UI -> Controller : POST /auth/logout\nAuthorization: Bearer <token>
-            Controller -> AuthSvc : TerminarSessaoAsync(jti)
-            AuthSvc -> DB : Registar TokenRevogado até à expiração
-            DB --> AuthSvc : Confirma gravação
-            AuthSvc --> Controller : Concluído
-            Controller --> UI : 204 No Content
-            UI -> UI : Limpar token / não criar sessão
-            UI --> User : Acesso recusado neste canal
+            AuthSvc --> Controller : LoginResponseDto(token, expiraEm, utilizador)
+            Controller --> UI : 200 OK (LoginResponseDto)
+
+            UI -> UI : Verificar se o perfil pertence ao canal atual
+            alt Perfil permitido no canal
+                UI -> UI : Guardar sessão\nWeb: sessionStorage\nMobile: armazenamento cifrado (Keystore)
+                UI --> User : Abrir área autorizada do respetivo perfil
+            else Perfil não permitido no canal
+                UI -> UI : Definir token apenas para revogação
+                UI -> Controller : POST /auth/logout\nAuthorization: Bearer <token>
+                Controller -> AuthSvc : TerminarSessaoAsync(jti)
+                AuthSvc -> DB : Registar TokenRevogado até à expiração
+                DB --> AuthSvc : Confirma gravação
+                AuthSvc --> Controller : Concluído
+                Controller --> UI : 204 No Content
+                UI -> UI : Limpar token / não criar sessão
+                UI --> User : Acesso recusado neste canal
+            end
         end
     end
-end
 
-deactivate AuthSvc
+    deactivate AuthSvc
+end
 deactivate Controller
 deactivate UI
 @enduml
@@ -117,6 +123,7 @@ deactivate UI
 
 ## 3. Regras representadas
 
+- `400 Bad Request` é utilizado quando falta o e-mail ou a palavra-passe; o pedido é recusado antes de qualquer consulta à base de dados (EP-001; UC01, exceção E2).
 - `401 Unauthorized` é utilizado quando o utilizador não existe ou a palavra-passe está incorreta (RF002).
 - `403 Forbidden` é utilizado quando a conta está bloqueada (RF002, RF009).
 - O JWT é emitido apenas depois da validação das credenciais e do estado da conta; a validade prevista é de 8 horas e não existe *refresh token* (RF004; DA-ARQ-06).
