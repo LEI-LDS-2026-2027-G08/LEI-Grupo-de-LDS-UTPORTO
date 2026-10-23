@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos requisitos RF001–RF052 e RNF001–RNF006. Mantém-se inalterada como histórico (`m2-especificacao-requisitos-v01.md`). |
-| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição autorizada pelo docente na reunião de 20/10/2026. Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: o texto da v01 é conservado e os identificadores permanecem reservados. |
+| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: o texto da v01 é conservado e os identificadores permanecem reservados. |
 
 ### Alterações da v02 em relação à v01
 
@@ -47,7 +47,7 @@ Esta especificação tem como fontes normativas principais:
 - `m3-proposta-sistema-v05.pdf`;
 - `m3-declaracao-ambito-v05.pdf`.
 
-A Declaração de Âmbito v05 mantém as funcionalidades F001 a F007, mas passa F005 e F007 a **fora do âmbito**: o grupo não se compromete a executá-las, por transição autorizada pelo docente na reunião de 20/10/2026. O âmbito funcional em vigor é o seguinte:
+A Declaração de Âmbito v05 mantém as funcionalidades F001 a F007, mas passa F005 e F007 a **fora do âmbito**: o grupo não se compromete a executá-las, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). O âmbito funcional em vigor é o seguinte:
 
 | Funcionalidade | Designação | Requisitos associados | Estado |
 |---|---|---|---|
@@ -527,7 +527,7 @@ O Auxiliar Veterinário consegue consultar apenas a informação clínica dispon
 
 ## 5.5. F005 — Gestão de contas e pagamentos
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição autorizada pelo docente na reunião de 20/10/2026. Os requisitos RF037 a RF042 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037 a RF042 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
 
 ### RF037 — Registar custos
 
@@ -664,7 +664,7 @@ O Cliente autenticado consegue visualizar apenas o boletim dos animais associado
 
 ## 5.7. F007 — Gestão de internamento (Hospitalização)
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição autorizada pelo docente na reunião de 20/10/2026. Os requisitos RF048 a RF052 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF048 a RF052 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
 
 ### RF048 — Registar internamento
 
