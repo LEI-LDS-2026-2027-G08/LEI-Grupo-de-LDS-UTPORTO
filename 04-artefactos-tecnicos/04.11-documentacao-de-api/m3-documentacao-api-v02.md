@@ -1185,10 +1185,10 @@ A matriz seguinte relaciona cada endpoint com os requisitos funcionais definidos
 | EP-028 | `PATCH /consultas/{id}/chegada` | RF025 | UC09 (A5) |
 | EP-029 | `POST /consultas/{id}/notas-preparacao` | RF027 | UC10 (A1) |
 | EP-030 | `GET /me/consultas` | RF028, RF029 | UC11 |
-| EP-031 | `POST /registos-clinicos` | RF030, RF031, RF032, RF033 | UC12 (fluxo principal, A1, A2, A3) |
-| EP-032 | `PUT /registos-clinicos/{id}` | RF034, RF032, RF033 | UC12 (A2, A3, A4) |
-| EP-033 | `GET /registos-clinicos/{id}` | RF035, RF036 | UC12 (A5), UC13 |
-| EP-034 | `GET /animais/{id}/historico-clinico` | RF035, RF036 | UC12 (A5), UC13 |
+| EP-031 | `POST /registos-clinicos` | RF030, RF031, RF032, RF033 | UC12 (fluxo principal, E1 a E5) |
+| EP-032 | `PUT /registos-clinicos/{id}` | RF034, RF032, RF033 | UC12 (A1) |
+| EP-033 | `GET /registos-clinicos/{id}` | RF035, RF036 | UC12 (A2), UC13 |
+| EP-034 | `GET /animais/{id}/historico-clinico` | RF035, RF036 | UC12 (A3), UC13 |
 | EP-042 | `GET /animais/{id}/vacinacoes` | RF046, RF045 | UC16 (A2) |
 | EP-043 | `POST /animais/{id}/vacinacoes` | RF043, RF044, RF045 | UC16, UC16 (A1) |
 | EP-044 | `GET /me/animais/{id}/vacinacoes` | RF047 | UC17 |
@@ -1253,3 +1253,4 @@ Todos os requisitos funcionais **em âmbito** estão cobertos por, pelo menos, u
 | 1 | **Veterinário como texto ou como objeto.** Ver pressuposto 4 da secção 12.6. | Decidir na revisão se `MinhaConsultaDto`, `RegistoClinicoDto`, `RegistoClinicoResumoDto` e `AdministracaoDto` passam a usar `VeterinarioRefDto`. Se sim, atualizam-se em conjunto esta documentação e o Modelo de Classes. |
 | 2 | **Requisitos RF053 a RF056 do Backlog de Projeto v03.** O backlog em preparação refere requisitos que ainda não constam de nenhuma Especificação de Requisitos aprovada: Cliente sem conta de acesso (RF053, RF054), horários regulares de atendimento por Veterinário (RF055) e atualização de um registo de vacinação ou desparasitação (RF056). | Esta v02 **não** cria endpoints para esses requisitos, para não documentar comportamento por aprovar. Quando a Especificação de Requisitos v02 estiver aprovada, prevê-se acrescentar, por exemplo, ajustes a EP-013 e EP-014 (conta de acesso opcional), um recurso de horários por Veterinário e uma operação de atualização em EP-043. Será uma v03 desta documentação. |
 | 3 | **Dependência do Modelo de Classes v02.** Os nomes dos DTOs referidos neste documento são os do `m3-modelo-classes-backend-v02.md`. | Aprovar os dois documentos em conjunto, ou aprovar primeiro o Modelo de Classes. |
+| 4 | **Informação clínica lida por outros perfis e por outros Veterinários.** O Auxiliar Veterinário lê o registo clínico completo (EP-033 e EP-034) e o histórico (EP-034) lista registos com o nome do Veterinário que os fez. A regra 3.3 só diz que o Veterinário acede às consultas que lhe estão atribuídas. | Decidir na revisão (1) se o Auxiliar continua a ler tudo, como nesta v02 (o UC13 já está escrito assim), ou se passa a haver um DTO reduzido para este perfil; e (2) se um Veterinário pode ler registos de consultas de colegas ou só os das suas. Se a resposta mudar, atualizam-se os casos de uso UC12 e UC13 e o Modelo de Classes. |
