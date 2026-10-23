@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos casos de uso UC01 a UC18. Mantém-se inalterada como histórico (`m2-especificacoes-casos-uso-v01.md`). |
-| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 saem do âmbito e do diagrama geral. Os casos de uso **UC01 e UC08** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. As precondições do UC01 e do UC08 são corrigidas e no UC09 fica explícito o papel do Administrador. Os restantes casos de uso mantêm o texto da v01. |
+| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 saem do âmbito e do diagrama geral. Os casos de uso **UC01, UC08, UC12 e UC13** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. As precondições do UC01 e do UC08 são corrigidas e no UC09 fica explícito o papel do Administrador. Os restantes casos de uso mantêm o texto da v01. |
 
 ### Alterações da v02 em relação à v01
 
@@ -24,6 +24,8 @@
 | UC01 (precondição) | Retirada a precondição «A conta possui acesso permitido», que contradizia a alternativa A1 (conta bloqueada): o acesso é verificado no passo 4 do fluxo principal, não antes dele. |
 | UC08 | A precondição «Existem animais associados à respetiva conta» foi retirada, porque contradizia a alternativa A1 (Cliente sem animais). Acrescentados o diagrama do fluxo, a correspondência com a API (EP-019 e EP-020), a lista dos dados básicos apresentados e a exceção E2 (animal inexistente). |
 | UC09 | Acrescentado o parágrafo «Papel do Administrador»: o Administrador só define o horário de funcionamento (RF019, EP-009 e EP-010) e não consulta nem altera marcações. O resto do texto mantém-se. |
+| UC12 | Reescrito para coincidir com a API v02: um único registo clínico por consulta (notas, diagnóstico, tratamentos e prescrições), criado uma vez (EP-031) e atualizado depois (EP-032), em vez de quatro registos separados. A precondição passa a exigir sempre uma consulta, atribuída ao Veterinário e Confirmada ou Realizada. Novas exceções: dados inválidos (400), consulta inexistente (404), consulta com registo (409), consulta Pendente ou Cancelada (422) e sem permissão ou consulta de outro Veterinário (403). Os fluxos alternativos passam a atualizar, consultar um registo e consultar o histórico. Acrescentados o diagrama do fluxo e a correspondência com a API. |
+| UC13 | Retirada a exceção «informação sem autorização de consulta», que não tem correspondência na API v02 (o Auxiliar lê o registo clínico completo); passa a exceção «registo ou paciente inexistente» (404). Retirada a precondição «Existe informação clínica disponibilizada às suas funções». Acrescentados o diagrama do fluxo e a correspondência com a API (EP-033 e EP-034). A decisão fica por confirmar na revisão. |
 | UC14, UC15, UC18 | Passam a **fora do âmbito** (F005 e F007, Declaração de Âmbito v05). Saem do diagrama geral. A numeração mantém-se reservada. |
 | Restantes | Sem alterações de conteúdo. |
 
@@ -902,106 +904,200 @@ RF028, RF029, RNF001, RNF002, RNF003.
 
 # 12. UC12 — Gerir registo clínico
 
-**Objetivo:**  
-Permitir exclusivamente ao Veterinário criar, consultar e atualizar os registos clínicos de um paciente.
+**Objetivo:**
+Permitir exclusivamente ao Veterinário criar, atualizar e consultar o registo clínico de uma consulta e o histórico clínico de um paciente.
 
-**Ator principal:**  
+**Ator principal:**
 Veterinário.
 
-**Requisitos relacionados:**  
+**Canal:**
+Aplicação web.
+
+**Requisitos relacionados:**
 RF030, RF031, RF032, RF033, RF034, RF035, RNF001, RNF004, RNF005.
+
+**Endpoints da API v02:**
+EP-031 (criar registo clínico), EP-032 (atualizar registo clínico), EP-033 (consultar registo clínico) e EP-034 (consultar histórico clínico do paciente).
+
+**Registo único por consulta:**
+Cada consulta tem no máximo um registo clínico, que reúne as notas clínicas, o diagnóstico, os tratamentos e as prescrições (RF030 a RF033). O registo é criado uma só vez; tudo o que se acrescenta ou corrige depois faz-se atualizando esse mesmo registo (A1).
 
 ## Precondições
 
 - O Veterinário encontra-se autenticado.
-- O paciente encontra-se registado.
-- Quando aplicável, existe uma consulta associada.
+- A consulta existe, está associada a um paciente registado, está atribuída ao Veterinário e encontra-se Confirmada ou Realizada.
 
-## Fluxo principal — Registar notas clínicas
+## Fluxo principal — Criar o registo clínico da consulta
 
-1. O Veterinário seleciona o paciente e a consulta.
-2. O sistema apresenta a área de registo clínico.
-3. O Veterinário introduz as notas clínicas.
-4. O sistema valida a informação.
-5. O Veterinário confirma.
-6. O sistema guarda as notas associadas à consulta e ao paciente.
+1. O Veterinário seleciona a consulta (e, através dela, o paciente).
+2. O sistema apresenta a área de registo clínico da consulta.
+3. O Veterinário introduz as notas clínicas, o diagnóstico, os tratamentos e as prescrições. Basta preencher um destes elementos.
+4. O Veterinário confirma.
+5. O sistema valida a informação e a consulta.
+6. O sistema guarda um único registo clínico, associado à consulta e ao paciente, e apresenta-o ao Veterinário.
 
 ## Fluxos alternativos
 
-### A1 — Registar diagnóstico
+### A1 — Atualizar o registo clínico
 
-1. O Veterinário seleciona o paciente e a consulta.
-2. O Veterinário introduz o diagnóstico.
+Aplica-se quando a consulta já tem registo clínico, incluindo o caso em que a criação foi recusada por E3.
+
+1. O Veterinário abre o registo clínico da consulta.
+2. O Veterinário altera as notas clínicas ou o diagnóstico e acrescenta ou altera tratamentos e prescrições.
 3. O Veterinário confirma.
-4. O sistema associa o diagnóstico à consulta e ao paciente.
+4. O sistema valida a alteração.
+5. O sistema guarda os novos valores e regista o autor e a data da atualização.
 
-### A2 — Registar tratamento
+### A2 — Consultar um registo clínico
 
-1. O Veterinário introduz o tratamento aplicado.
-2. O sistema valida os dados.
-3. O Veterinário confirma.
-4. O sistema associa o tratamento à consulta e ao paciente.
+1. O Veterinário seleciona a consulta ou um registo do histórico.
+2. O sistema apresenta o registo clínico completo: notas, diagnóstico, tratamentos e prescrições.
 
-### A3 — Registar prescrição
+### A3 — Consultar o histórico clínico de um paciente
 
-1. O Veterinário introduz os dados da prescrição de medicamentos.
-2. O sistema valida os dados.
-3. O Veterinário confirma.
-4. O sistema associa a prescrição à consulta e ao paciente.
-
-### A4 — Atualizar registo clínico
-
-1. O Veterinário seleciona notas clínicas, um diagnóstico, um tratamento ou uma prescrição anteriormente registados.
-2. O Veterinário altera os dados pretendidos.
-3. O sistema valida a alteração.
-4. O Veterinário confirma.
-5. O sistema guarda os novos valores.
-
-### A5 — Consultar histórico clínico
-
-1. O Veterinário seleciona um paciente.
-2. O sistema apresenta os registos clínicos anteriormente armazenados.
+1. O Veterinário seleciona um paciente e, se pretender, um intervalo de datas.
+2. O sistema apresenta os registos clínicos do paciente, do mais recente para o mais antigo, com a data, o Veterinário, o diagnóstico e o número de tratamentos e de prescrições.
 
 ## Exceções
 
 ### E1 — Dados inválidos
 
-1. O sistema rejeita o registo ou alteração.
-2. O Veterinário deve corrigir os dados.
+1. O sistema rejeita a operação por dados inválidos: nenhum elemento clínico preenchido, prescrição incompleta ou, no histórico (A3), intervalo de datas inválido.
+2. O Veterinário corrige os dados e repete a operação.
 
-### E2 — Operação efetuada por perfil não autorizado
+### E2 — Consulta, registo ou paciente inexistente
 
-1. O sistema identifica que o utilizador não é Veterinário.
-2. O sistema impede a criação ou alteração do registo clínico.
+1. O Veterinário seleciona uma consulta, um registo ou um paciente que não existe.
+2. O sistema informa que não foi encontrado.
+
+### E3 — A consulta já tem registo clínico
+
+1. O Veterinário tenta criar um registo clínico para uma consulta que já tem um.
+2. O sistema recusa a criação.
+3. O Veterinário prossegue pelo A1 para atualizar o registo existente.
+
+### E4 — Consulta pendente ou cancelada
+
+1. O Veterinário tenta criar o registo de uma consulta Pendente ou Cancelada.
+2. O sistema recusa a criação.
+
+### E5 — Perfil sem permissão ou consulta de outro Veterinário
+
+1. O sistema identifica que o utilizador não é Veterinário ou que a consulta está atribuída a outro Veterinário.
+2. O sistema impede a criação ou a alteração do registo clínico.
 
 ## Pós-condições
 
-- Os dados clínicos confirmados ficam associados ao paciente e, quando aplicável, à consulta.
+- Existe um único registo clínico para a consulta, associado à consulta e ao paciente.
+- Na atualização, ficam registados o autor e a data da alteração (`atualizadoPor`, `atualizadoEm`).
+- A criação do registo não altera o estado da marcação.
 - Apenas o Veterinário pode criar ou alterar estes registos.
+
+**A confirmar na revisão:** a regra 3.3 da API só diz que o Veterinário acede às consultas que lhe estão atribuídas, e o histórico (EP-034) lista registos com o nome do Veterinário que os fez. Este caso de uso aplica o E5 (consulta de outro Veterinário) à criação e à atualização; se um Veterinário pode ler registos de consultas de colegas (A2 e A3) fica por decidir.
+
+## Diagrama do fluxo
+
+```plantuml {kroki=true}
+@startuml
+title UC12 — Gerir registo clínico (criação, fluxo principal)
+
+|Veterinário|
+start
+:Seleciona a consulta;
+:Introduz notas clínicas, diagnóstico,\ntratamentos e prescrições;
+:Confirma;
+
+|Sistema|
+if (Dados válidos?\n(pelo menos um elemento clínico,\nprescrições completas)) then (não)
+  :Rejeita o registo (E1);
+  |Veterinário|
+  stop
+else (sim)
+endif
+
+|Sistema|
+if (A consulta existe?) then (não)
+  :Informa que não foi encontrada (E2);
+  |Veterinário|
+  stop
+else (sim)
+endif
+
+|Sistema|
+if (O utilizador é Veterinário e a consulta\nestá atribuída a esse Veterinário?) then (não)
+  :Recusa a operação (E5);
+  |Veterinário|
+  stop
+else (sim)
+endif
+
+|Sistema|
+if (A consulta está Confirmada\nou Realizada?) then (não)
+  :Recusa o registo (E4);
+  |Veterinário|
+  stop
+else (sim)
+endif
+
+|Sistema|
+if (A consulta já tem registo clínico?) then (sim)
+  :Recusa a criação (E3);
+  |Veterinário|
+  :Atualiza o registo existente (A1);
+  stop
+else (não)
+  |Sistema|
+  :Guarda um único registo clínico\nassociado à consulta e ao paciente;
+endif
+
+|Veterinário|
+:Consulta o registo criado;
+stop
+@enduml
+```
+
+A ordem das verificações no diagrama é ilustrativa; a API v02 define os códigos de resposta, não a ordem em que são avaliados.
+
+## Correspondência com a API v02
+
+| Passo | Endpoint | Resultado |
+|---|---|---|
+| Fluxo principal — criar o registo clínico | EP-031 `POST /registos-clinicos` | 201 com o registo clínico; 400 dados inválidos (E1); 403 sem permissão ou consulta de outro Veterinário (E5); 404 consulta inexistente (E2); 409 a consulta já tem registo (E3); 422 consulta Pendente ou Cancelada (E4) |
+| A1 — atualizar o registo clínico | EP-032 `PUT /registos-clinicos/{id}` | 200 com o registo atualizado, incluindo `atualizadoEm` e `atualizadoPor`; 400 (E1); 403 (E5); 404 (E2). As listas de tratamentos e de prescrições enviadas substituem as anteriores |
+| A2 — consultar um registo clínico | EP-033 `GET /registos-clinicos/{id}` | 200 com o registo clínico; 403 (E5); 404 (E2) |
+| A3 — consultar o histórico do paciente | EP-034 `GET /animais/{id}/historico-clinico` | 200 com os registos do paciente, do mais recente para o mais antigo; 400 intervalo de datas inválido (E1); 403 (E5); 404 (E2) |
 
 ---
 
 # 13. UC13 — Consultar informação clínica autorizada
 
-**Objetivo:**  
+**Objetivo:**
 Permitir ao Auxiliar Veterinário consultar a informação clínica necessária às respetivas funções sem poder alterá-la.
 
-**Ator principal:**  
+**Ator principal:**
 Auxiliar Veterinário.
 
-**Requisitos relacionados:**  
+**Canal:**
+Aplicação web.
+
+**Requisitos relacionados:**
 RF036, RNF001.
+
+**Endpoints da API v02:**
+EP-033 (consultar registo clínico) e EP-034 (consultar histórico clínico do paciente).
+
+**Informação disponibilizada ao Auxiliar:**
+Na API v02, o Auxiliar Veterinário lê o registo clínico completo (notas, diagnóstico, tratamentos e prescrições) e o histórico do paciente, apenas em modo de leitura. A API não esconde campos clínicos ao Auxiliar.
 
 ## Precondições
 
 - O Auxiliar Veterinário encontra-se autenticado.
-- Existe informação clínica disponibilizada às suas funções.
 
 ## Fluxo principal
 
-1. O Auxiliar Veterinário seleciona o paciente ou consulta relevante.
-2. O sistema verifica as permissões aplicáveis.
-3. O sistema apresenta apenas a informação clínica autorizada.
+1. O Auxiliar Veterinário seleciona o paciente ou o registo clínico que pretende consultar.
+2. O sistema verifica que o perfil pode consultar informação clínica, em modo de leitura.
+3. O sistema apresenta o registo clínico ou o histórico clínico do paciente.
 4. O Auxiliar consulta a informação.
 
 ## Fluxos alternativos
@@ -1010,10 +1106,10 @@ Não aplicável.
 
 ## Exceções
 
-### E1 — Informação sem autorização de consulta
+### E1 — Registo ou paciente inexistente
 
-1. O Auxiliar tenta aceder a informação que não está incluída nas suas permissões.
-2. O sistema recusa o acesso.
+1. O Auxiliar seleciona um registo ou um paciente que não existe.
+2. O sistema informa que não foi encontrado.
 
 ### E2 — Tentativa de alteração
 
@@ -1023,6 +1119,48 @@ Não aplicável.
 ## Pós-condições
 
 - Nenhum registo clínico é alterado.
+
+**A confirmar na revisão:** a v01 previa uma exceção «informação sem autorização de consulta», que não tem correspondência na API v02. Nesta versão foi retirada, porque o Auxiliar lê o registo clínico completo. Se o grupo quiser que o Auxiliar veja apenas parte da informação clínica, a API terá de definir quais os campos escondidos (por exemplo, um DTO de resposta próprio para este perfil) e o E1 original volta a fazer sentido.
+
+## Diagrama do fluxo
+
+```plantuml {kroki=true}
+@startuml
+title UC13 — Consultar informação clínica autorizada (fluxo)
+
+|Auxiliar Veterinário|
+start
+:Seleciona o paciente ou o registo clínico;
+
+|Sistema|
+if (O registo ou o paciente existe?) then (não)
+  :Informa que não foi encontrado (E1);
+  |Auxiliar Veterinário|
+  stop
+else (sim)
+  |Sistema|
+  :Apresenta o registo clínico ou o histórico\ndo paciente, em modo de leitura;
+endif
+
+|Auxiliar Veterinário|
+:Consulta a informação;
+if (Tenta criar ou alterar\ninformação clínica?) then (sim)
+  |Sistema|
+  :Impede a operação (E2);
+  |Auxiliar Veterinário|
+else (não)
+endif
+stop
+@enduml
+```
+
+## Correspondência com a API v02
+
+| Passo | Endpoint | Resultado |
+|---|---|---|
+| 1 a 4 — consultar um registo clínico | EP-033 `GET /registos-clinicos/{id}` | 200 com o registo clínico completo, só de leitura; 404 se não existir (E1) |
+| 1 a 4 — consultar o histórico do paciente | EP-034 `GET /animais/{id}/historico-clinico` | 200 com os registos do paciente; 404 se o paciente não existir (E1) |
+| E2 — tentativa de criar ou alterar | EP-031 `POST /registos-clinicos` e EP-032 `PUT /registos-clinicos/{id}` | 403: estes endpoints são só do perfil Veterinário |
 
 ---
 
