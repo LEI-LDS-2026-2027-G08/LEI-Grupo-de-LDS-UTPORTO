@@ -17,7 +17,7 @@ Reunir num único ficheiro Markdown o código-fonte PlantUML dos ecrãs em âmbi
 | Versão | Milestone | Descrição |
 |---|---|---|
 | v01 | m2 | Protótipo em PDF, com os ficheiros `.puml` soltos em `fonte-prototipo-baixa-fidelidade/`. |
-| v02 | m3 | Código PlantUML dos ecrãs em âmbito incorporado neste ficheiro Markdown. Os ecrãs W14, W15, W17, W18 e M05 (F005 e F007) ficam fora do âmbito, de acordo com a Declaração de Âmbito v05: aparecem no índice e na secção 4 apenas como «fora do âmbito», sem código, e foram retirados do mapa de navegação. Os ficheiros `.puml` e o PDF da m2 mantêm-se inalterados. |
+| v02 | m3 | Código PlantUML dos ecrãs em âmbito incorporado neste ficheiro Markdown. Os ecrãs W14, W15, W17, W18 e M05 (F005 e F007) ficam fora do âmbito, de acordo com a Declaração de Âmbito v05: aparecem no índice e na secção 4 apenas como «fora do âmbito», sem código, e foram retirados do mapa de navegação. Os ficheiros `.puml` e o PDF da m2 mantêm-se inalterados. Neste ficheiro corrigiu-se a sintaxe dos ecrãs W07 e W12 (quebras de linha dentro do texto, que o PlantUML atual recusa) e das notas do mapa de navegação (a sequência `\n` aparecia como texto): o conteúdo dos ecrãs não mudou e os 20 diagramas processam-se sem erros. |
 
 ## 3. Índice dos ecrãs
 
@@ -118,11 +118,16 @@ marcações e chegadas.
 end note
 
 note bottom of VET
-W07 permite pesquisa por proprietário.\nSem acesso à gestão W04.\nAgenda própria, informação clínica\ne vacinação.
+W07 permite pesquisa por proprietário.
+Sem acesso à gestão W04.
+Agenda própria, informação clínica
+e vacinação.
 end note
 
 note bottom of AUX
-W12 inclui seleção das consultas disponíveis.\nPreparação/apoio e leitura autorizada.\nSem escrita clínica.
+W12 inclui seleção das consultas disponíveis.
+Preparação/apoio e leitura autorizada.
+Sem escrita clínica.
 end note
 
 note bottom of CLI
@@ -313,21 +318,7 @@ skinparam rectangle {
 
 title W07 — Lista e Pesquisa de Pacientes
 
-rectangle "CLÍNICA VETERINÁRIA   |   PACIENTES
-
-[ + Registar paciente ]     Pesquisar paciente: [____________________]
-
-PESQUISA POR PROPRIETÁRIO
-Proprietário: [________________________]   [ PESQUISAR ]
-Resultados: Carlos Sousa | Rita Ferreira | ...
-Selecionado: [ Carlos Sousa v ]
-
-Nome        Espécie       Raça          Proprietário
-------------------------------------------------------
-Kiko        Cão           Labrador      Carlos Sousa
-Lua         Gato          Europeu       Rita Ferreira
-
-[ VER FICHA ]" as SCREEN
+rectangle "CLÍNICA VETERINÁRIA   |   PACIENTES\n\n[ + Registar paciente ]     Pesquisar paciente: [____________________]\n\nPESQUISA POR PROPRIETÁRIO\nProprietário: [________________________]   [ PESQUISAR ]\nResultados: Carlos Sousa | Rita Ferreira | ...\nSelecionado: [ Carlos Sousa v ]\n\nNome        Espécie       Raça          Proprietário\n------------------------------------------------------\nKiko        Cão           Labrador      Carlos Sousa\nLua         Gato          Europeu       Rita Ferreira\n\n[ VER FICHA ]" as SCREEN
 
 note bottom of SCREEN
 Atores: Rececionista, Veterinário
@@ -464,32 +455,7 @@ skinparam rectangle {
 
 title W12 — Preparação e Apoio à Consulta
 
-rectangle "CLÍNICA VETERINÁRIA   |   APOIO À CONSULTA
-
-CONSULTAS DISPONÍVEIS
-Data: [ 09/10/2026 ]   Estado: [ Todos v ]   Pesquisar: [____________]
-
-09:00 | Kiko | Dr. Silva | Consulta geral | Confirmada
-10:00 | Lua  | Dra. Costa | Vacinação      | Confirmada
-
-[ SELECIONAR CONSULTA ]
-
-------------------------------------------------------------
-
-CONSULTA SELECIONADA
-Paciente: Kiko      Consulta: 09/10/2026 09:00
-Veterinário: Dr. Silva
-
-INFORMAÇÃO DE PREPARAÇÃO
-- Motivo da consulta
-- Dados administrativos relevantes
-- Informação clínica autorizada para preparação
-
-APOIO NÃO CLÍNICO
-Notas de apoio: [____________________________________]
-                [____________________________________]
-
-[ GUARDAR INFORMAÇÃO DE APOIO ]" as SCREEN
+rectangle "CLÍNICA VETERINÁRIA   |   APOIO À CONSULTA\n\nCONSULTAS DISPONÍVEIS\nData: [ 09/10/2026 ]   Estado: [ Todos v ]   Pesquisar: [____________]\n\n09:00 | Kiko | Dr. Silva | Consulta geral | Confirmada\n10:00 | Lua  | Dra. Costa | Vacinação      | Confirmada\n\n[ SELECIONAR CONSULTA ]\n\n------------------------------------------------------------\n\nCONSULTA SELECIONADA\nPaciente: Kiko      Consulta: 09/10/2026 09:00\nVeterinário: Dr. Silva\n\nINFORMAÇÃO DE PREPARAÇÃO\n- Motivo da consulta\n- Dados administrativos relevantes\n- Informação clínica autorizada para preparação\n\nAPOIO NÃO CLÍNICO\nNotas de apoio: [____________________________________]\n                [____________________________________]\n\n[ GUARDAR INFORMAÇÃO DE APOIO ]" as SCREEN
 
 note bottom of SCREEN
 Ator: Auxiliar Veterinário
