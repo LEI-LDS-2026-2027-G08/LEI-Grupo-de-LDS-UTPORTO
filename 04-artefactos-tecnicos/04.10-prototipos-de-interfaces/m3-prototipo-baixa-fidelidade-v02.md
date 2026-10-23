@@ -496,11 +496,11 @@ end note
 
 ### 4.15. W14 — Contas, Custos e Valores em Dívida
 
-**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W14 pertencia a F005 — UC14 (RF037 e RF038), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W14-contas-dividas.puml` entregue na m2.
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W14 pertencia a F005 — UC14 (RF037 e RF038), caso de uso que passou para o não-âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W14-contas-dividas.puml` entregue na m2.
 
 ### 4.16. W15 — Detalhe da Conta e Pagamentos
 
-**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W15 pertencia a F005 — UC14 (RF039 a RF041), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W15-conta-pagamentos.puml` entregue na m2.
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W15 pertencia a F005 — UC14 (RF039 a RF041), caso de uso que passou para o não-âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W15-conta-pagamentos.puml` entregue na m2.
 
 ### 4.17. W16 — Vacinação e Desparasitação
 
@@ -531,11 +531,11 @@ end note
 
 ### 4.18. W17 — Painel de Internamentos
 
-**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W17 pertencia a F007 — UC18 (RF048 a RF050), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W17-internamentos.puml` entregue na m2.
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W17 pertencia a F007 — UC18 (RF048 a RF050), caso de uso que passou para o não-âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W17-internamentos.puml` entregue na m2.
 
 ### 4.19. W18 — Detalhe do Internamento
 
-**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W18 pertencia a F007 — UC18 (RF048 a RF052), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W18-detalhe-internamento.puml` entregue na m2.
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W18 pertencia a F007 — UC18 (RF048 a RF052), caso de uso que passou para o não-âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W18-detalhe-internamento.puml` entregue na m2.
 
 ### 4.20. M01 — Login Mobile
 
@@ -650,7 +650,7 @@ end note
 
 ### 4.24. M05 — Despesas e Pagamentos
 
-**Fora do âmbito (Declaração de Âmbito v05).** O ecrã M05 pertencia a F005 — UC15 (RF042), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `M05-despesas.puml` entregue na m2.
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã M05 pertencia a F005 — UC15 (RF042), caso de uso que passou para o não-âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `M05-despesas.puml` entregue na m2.
 
 ### 4.25. M06 — Boletim de Vacinação e Desparasitação
 
