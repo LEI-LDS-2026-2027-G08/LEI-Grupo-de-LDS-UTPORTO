@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos casos de uso UC01 a UC18. Mantém-se inalterada como histórico (`m2-especificacoes-casos-uso-v01.md`). |
-| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 saem do âmbito e do diagrama geral. Os casos de uso **UC01, UC08, UC12 e UC13** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. As precondições do UC01 e do UC08 são corrigidas e no UC09 fica explícito o papel do Administrador. Os restantes casos de uso mantêm o texto da v01. |
+| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 passam para o não-âmbito e saem do diagrama geral. Os casos de uso **UC01, UC08, UC12 e UC13** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. As precondições do UC01 e do UC08 são corrigidas e no UC09 fica explícito o papel do Administrador. Os restantes casos de uso mantêm o texto da v01. |
 
 ### Alterações da v02 em relação à v01
 
@@ -1168,7 +1168,7 @@ stop
 
 **Estado:** fora do âmbito.
 
-Este caso de uso pertencia à funcionalidade F005 (Gestão de contas e pagamentos), que foi retirada do âmbito pela Declaração de Âmbito v05. Os requisitos associados (RF037 a RF041) permanecem na Especificação de Requisitos da m2, mas não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
+Este caso de uso pertencia à funcionalidade F005 (Gestão de contas e pagamentos), cuja transição para o não-âmbito consta da Declaração de Âmbito v05 (autorizada a 20/10/2026 e homologada por e-mail a 21/10/2026). Os requisitos associados (RF037 a RF041) estão descontinuados na Especificação de Requisitos v02 (a v01, da m2, ainda os trata como ativos) e não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
 
 ---
 
@@ -1176,7 +1176,7 @@ Este caso de uso pertencia à funcionalidade F005 (Gestão de contas e pagamento
 
 **Estado:** fora do âmbito.
 
-Este caso de uso pertencia à funcionalidade F005 (Gestão de contas e pagamentos), que foi retirada do âmbito pela Declaração de Âmbito v05. Os requisitos associados (RF042) permanecem na Especificação de Requisitos da m2, mas não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
+Este caso de uso pertencia à funcionalidade F005 (Gestão de contas e pagamentos), cuja transição para o não-âmbito consta da Declaração de Âmbito v05 (autorizada a 20/10/2026 e homologada por e-mail a 21/10/2026). Os requisitos associados (RF042) estão descontinuados na Especificação de Requisitos v02 (a v01, da m2, ainda os trata como ativos) e não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
 
 ---
 
@@ -1293,7 +1293,7 @@ RF047, RNF001, RNF002, RNF003.
 
 **Estado:** fora do âmbito.
 
-Este caso de uso pertencia à funcionalidade F007 (Gestão de internamento), que foi retirada do âmbito pela Declaração de Âmbito v05. Os requisitos associados (RF048 a RF052) permanecem na Especificação de Requisitos da m2, mas não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
+Este caso de uso pertencia à funcionalidade F007 (Gestão de internamento), cuja transição para o não-âmbito consta da Declaração de Âmbito v05 (autorizada a 20/10/2026 e homologada por e-mail a 21/10/2026). Os requisitos associados (RF048 a RF052) estão descontinuados na Especificação de Requisitos v02 (a v01, da m2, ainda os trata como ativos) e não são implementados. A especificação original consta, como histórico, de `m2-especificacoes-casos-uso-v01.md`.
 
 ---
 
