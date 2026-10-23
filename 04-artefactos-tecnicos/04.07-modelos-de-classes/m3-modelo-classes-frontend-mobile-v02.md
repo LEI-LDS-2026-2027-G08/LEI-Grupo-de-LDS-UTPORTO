@@ -596,7 +596,7 @@ Todos os `ViewModel` expõem o estado por `StateFlow` e lançam as chamadas de r
 | `AnimaisViewModel` | Obter os animais do Cliente (EP-019) e indicar `Vazio` quando a lista é vazia (UC08, A1). |
 | `AnimalDetalheViewModel` | Obter os dados básicos de um animal (EP-020); tratar `403` como acesso recusado (UC08, E1). |
 | `ConsultasViewModel` | Obter marcações futuras e histórico (EP-030 com `tipo=futuras` e `tipo=historico`), opcionalmente filtradas por `animalId`. |
-| `BoletimViewModel` | Obter o boletim de um animal (EP-044): histórico e próximas administrações. |
+| `BoletimViewModel` | Obter o boletim de um animal (EP-044): histórico e próximas administrações; indicar `Vazio` quando ambas as listas são vazias (UC17, A1). |
 
 ## 7.2. Estado de carregamento
 
@@ -819,7 +819,6 @@ class ProximaAdministracaoDto <<dto>> {
 class MeuBoletimDto <<dto>> {
   + historico : List<HistoricoAdministracaoDto>
   + proximas : List<ProximaAdministracaoDto>
-  + vazio : Boolean
 }
 
 MeuBoletimDto *-- "0..*" HistoricoAdministracaoDto : historico
@@ -829,7 +828,7 @@ ProximaAdministracaoDto ..> TipoAdministracao
 @enduml
 ```
 
-A data da próxima administração é calculada pelo servidor (RF045); a aplicação apenas a apresenta. `vazio` é uma propriedade calculada na própria classe, verdadeira quando ambas as listas estão vazias (UC17, A1); não faz parte do JSON.
+A data da próxima administração é calculada pelo servidor (RF045); a aplicação apenas a apresenta. O DTO tem só os campos da resposta da API. Quando ambas as listas vêm vazias, o `BoletimViewModel` põe o `estado` em `Vazio` (UC17, A1; secção 7.2); essa decisão é da aplicação e não é um campo do DTO nem do JSON.
 
 ## 9.6. DTOs usados pela aplicação mobile
 
