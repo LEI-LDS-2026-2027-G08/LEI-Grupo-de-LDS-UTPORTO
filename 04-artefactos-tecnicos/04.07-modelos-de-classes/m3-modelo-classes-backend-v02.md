@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Modelo de domínio das sete funcionalidades, padrão estrutural da F003 e serviços previstos. Mantém-se inalterado como histórico (`m2-modelo-classes-backend-v01.md`). |
-| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito). Passa a incluir **todos os DTOs** dos 37 endpoints em âmbito, agrupados por funcionalidade, com a ligação entre entidades, DTOs e endpoints. Atualiza o padrão estrutural da F003 para os nomes de DTO da API. |
+| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito). Passa a incluir **todos os DTOs** dos 37 endpoints em âmbito, agrupados por funcionalidade, com a ligação entre entidades, DTOs e endpoints. Atualiza o padrão estrutural da F003 para os nomes de DTO da API. Aponta para a Documentação da API v02 e passa `DataProximaAdministracao` a `DateOnly?`, como a coluna `DATE` do modelo de dados e a API. |
 
 ## 1. Objetivo
 
@@ -23,7 +23,7 @@ Este documento apresenta o modelo de classes previsto para o Backend do sistema 
 A versão v02 acrescenta duas coisas em relação à v01:
 
 1. **O âmbito atualizado.** A Declaração de Âmbito v05 retirou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento). Estas funcionalidades, as respetivas entidades, enumerações e serviços deixam de fazer parte do modelo. As tabelas correspondentes ainda existem no esquema da base de dados (scripts `m3-v01`) e podem vir a ser mapeadas na camada de persistência (Issue I059 do Sprint 04), mas essa persistência não é exposta: não há entidades de domínio, serviços, endpoints nem DTOs destas funcionalidades neste modelo.
-2. **Os DTOs.** Um DTO (*Data Transfer Object*) é uma classe simples, apenas com atributos, que transporta dados entre o backend e os frontends (web e mobile). Os DTOs correspondem ao pedido e à resposta de cada endpoint da `m2-documentacao-api-v01.md`. As entidades de domínio, que representam as tabelas da base de dados, **nunca** são expostas diretamente pela API. Esta separação evita, por exemplo, que o campo `PasswordHash` saia da API e permite alterar a base de dados sem alterar o contrato com os frontends.
+2. **Os DTOs.** Um DTO (*Data Transfer Object*) é uma classe simples, apenas com atributos, que transporta dados entre o backend e os frontends (web e mobile). Os DTOs correspondem ao pedido e à resposta de cada endpoint da `m3-documentacao-api-v02.md`. As entidades de domínio, que representam as tabelas da base de dados, **nunca** são expostas diretamente pela API. Esta separação evita, por exemplo, que o campo `PasswordHash` saia da API e permite alterar a base de dados sem alterar o contrato com os frontends.
 
 ### 1.1. Âmbito deste modelo
 
@@ -227,7 +227,7 @@ package "F006 - Profilaxia" {
     + Lote : string
     + DataAdministracao : DateOnly
     + IntervaloDias : short?
-    + DataProximaAdministracao : DateTime?
+    + DataProximaAdministracao : DateOnly?
     + DataRegisto : DateTime
   }
 }
@@ -1008,7 +1008,7 @@ O diagrama da secção 4 exemplifica o padrão com F003. Os restantes módulos s
 
 As funcionalidades F005 (contas e pagamentos) e F007 (internamento) deixam de ter controllers, serviços, entidades e DTOs neste modelo, por estarem fora do âmbito (Declaração de Âmbito v05).
 
-As assinaturas concretas dos endpoints são as definidas em `m2-documentacao-api-v01.md`, com os endpoints EP-035 a EP-041 e EP-045 a EP-051 excluídos. Os DTOs da secção 3 representam, um a um, os pedidos e as respostas desses endpoints, para que o modelo e a API tenham a mesma terminologia.
+As assinaturas concretas dos endpoints são as definidas em `m3-documentacao-api-v02.md`, com os endpoints EP-035 a EP-041 e EP-045 a EP-051 excluídos. Os DTOs da secção 3 representam, um a um, os pedidos e as respostas desses endpoints, para que o modelo e a API tenham a mesma terminologia.
 
 ## 7. Pontos em aberto e decisões a tomar
 
@@ -1018,7 +1018,7 @@ As assinaturas concretas dos endpoints são as definidas em `m2-documentacao-api
 | 2 | **O Veterinário é um objeto em alguns DTOs (`VeterinarioRefDto`) e um texto noutros** (`MinhaConsultaDto`, `RegistoClinicoDto`, `AdministracaoDto`), como no contrato da API v01. | Uniformizar para `VeterinarioRefDto` na API v02, ou documentar a diferença. |
 | 3 | **`DiaSemana`** é usada em EP-009 e EP-010 mas não estava na tabela de enumerações da API v01. | **Resolvido:** a API v02 já inclui `DiaSemana` na tabela de enumerações. |
 | 4 | **Baseline v02 do backlog (RF053 a RF056).** O backlog em preparação refere requisitos que ainda não existem na Especificação de Requisitos da M2: Cliente sem conta de acesso (RF053, RF054), horários regulares de atendimento por Veterinário (RF055) e atualização de um registo de vacinação ou desparasitação (RF056). | Quando os Requisitos v02 e a API v02 estiverem aprovados, acrescentar a este modelo as entidades e DTOs correspondentes (por exemplo, `Utilizador` opcional em `Cliente`, um horário por Veterinário e `UpdateAdministracaoDto`). Este modelo cobre apenas os 37 endpoints atuais. |
-| 5 | **Tabelas de F005 e F007 ainda existentes** nos scripts SQL `m3-v01` e no Modelo de Dados v01 (m2), enquanto a Declaração de Âmbito v05 as retira do âmbito. | O grupo decide se a persistência mantém essas tabelas (sem as expor) ou se são retiradas numa nova versão dos scripts e do modelo de dados. |
+| 5 | **Tabelas de F005 e F007 ainda existentes** nos scripts SQL `m3-v01` e no Modelo de Dados v01 (m2), embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito. | O grupo decide se a persistência mantém essas tabelas (sem as expor) ou se são retiradas numa nova versão dos scripts e do modelo de dados. Se se mantiverem, a Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1, 3 e 4 (todas as tabelas, rowversion e comparação com o esquema dos scripts) se aplicam só às 16 tabelas em âmbito. |
 
 ## 8. Regras de consistência do modelo
 
