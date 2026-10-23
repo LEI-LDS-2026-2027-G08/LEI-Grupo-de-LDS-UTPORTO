@@ -59,7 +59,7 @@ Este documento descreve a API REST **prevista** para o backend do sistema de Ges
 - **Frontend web** (React): utilizado pelos perfis Administrador, Rececionista, Veterinário e Auxiliar Veterinário.
 - **Frontend mobile** (aplicação Android nativa, em Kotlin com Jetpack Compose): utilizado exclusivamente pelo perfil Cliente (Proprietário do animal).
 
-A documentação cobre as funcionalidades **F001, F002, F003, F004 e F006** da Proposta de Sistema v05, que são as que estão em âmbito segundo a Declaração de Âmbito v05, num total de **37 endpoints**. As funcionalidades **F005 (Gestão de contas e pagamentos)** e **F007 (Gestão de internamento)** foram retiradas do âmbito e não têm endpoints (secção 11). Os requisitos funcionais associados (RF037 a RF042 e RF048 a RF052) permanecem na Especificação de Requisitos da m2, mas não são implementados.
+A documentação cobre as funcionalidades **F001, F002, F003, F004 e F006** da Proposta de Sistema v05, que são as que estão em âmbito segundo a Declaração de Âmbito v05, num total de **37 endpoints**. As funcionalidades **F005 (Gestão de contas e pagamentos)** e **F007 (Gestão de internamento)** passaram para o não-âmbito (transição autorizada a 20/10/2026 e homologada por e-mail a 21/10/2026) e não têm endpoints (secção 11). Os requisitos funcionais associados (RF037 a RF042 e RF048 a RF052) estão descontinuados na Especificação de Requisitos v02 (a v01, da m2, ainda os trata como ativos) e não são implementados.
 
 Este documento continua a descrever a API **prevista**. Qualquer ajuste decidido durante a implementação dá origem a uma nova versão do documento.
 
