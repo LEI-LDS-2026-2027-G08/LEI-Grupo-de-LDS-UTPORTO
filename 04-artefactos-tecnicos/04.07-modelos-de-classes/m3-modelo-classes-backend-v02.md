@@ -824,7 +824,7 @@ Regras destes DTOs:
 
 - Existe no máximo um registo clínico por consulta. `CreateRegistoClinicoDto` exige `ConsultaId`; `UpdateRegistoClinicoDto` não o inclui, porque o registo mantém-se associado à consulta e ao animal.
 - Na alteração, as listas `Tratamentos` e `Prescricoes` substituem as anteriores; um elemento existente mantém-se indicando o respetivo `Id` (por isso os DTOs de entrada têm um `Id` opcional).
-- `CreateAdministracaoDto.IntervaloDias`, quando indicado, serve para o servidor calcular `DataProximaPrevista = DataAdministracao + IntervaloDias`. Caso contrário, `DataProximaPrevista` fica vazia (RF044).
+- `CreateAdministracaoDto.IntervaloDias`, quando indicado, serve para o servidor calcular `DataProximaPrevista = DataAdministracao + IntervaloDias`. Caso contrário, `DataProximaPrevista` fica vazia (RF045).
 - O `Veterinario` aparece como texto em `RegistoClinicoDto`, `RegistoClinicoResumoDto` e `AdministracaoDto`, como no contrato da API v01. Ver secção 7.
 
 ### 3.8. Correspondência entre entidades de domínio e DTOs
