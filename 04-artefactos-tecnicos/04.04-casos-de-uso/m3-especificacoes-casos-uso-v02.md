@@ -4,7 +4,7 @@
 **Grupo:** G08
 **Milestone:** m3
 **Versão:** v02
-**Issue:** I015 — Especificação dos casos de uso
+**Issue e papéis:** por atribuir. Esta versão ainda não tem Issue própria; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I015 (v01, m2) está concluída e não é reaberta.
 **Estado:** Rascunho para revisão e auditoria
 
 ---
@@ -14,14 +14,16 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos casos de uso UC01 a UC18. Mantém-se inalterada como histórico (`m2-especificacoes-casos-uso-v01.md`). |
-| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 saem do âmbito e do diagrama geral. Os casos de uso **UC01 e UC08** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. A precondição do UC08 é corrigida. Os restantes casos de uso mantêm o texto da v01. |
+| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05: UC14, UC15 e UC18 saem do âmbito e do diagrama geral. Os casos de uso **UC01 e UC08** são reescritos com os fluxos completos, o diagrama do fluxo, a correspondência com a API v02 e as exceções e códigos de resposta previstos. As precondições do UC01 e do UC08 são corrigidas e no UC09 fica explícito o papel do Administrador. Os restantes casos de uso mantêm o texto da v01. |
 
 ### Alterações da v02 em relação à v01
 
 | Caso de uso | Alteração |
 |---|---|
 | UC01 | Acrescentados o diagrama do fluxo, a correspondência com a API (EP-001 e EP-003), a alternativa A2 (perfil sem funcionalidades no canal utilizado), a alternativa A3 (autenticação que deixa de ser válida) e a exceção E2 (dados em falta). Os fluxos A1, E1 e o fluxo principal mantêm o sentido da v01. |
+| UC01 (precondição) | Retirada a precondição «A conta possui acesso permitido», que contradizia a alternativa A1 (conta bloqueada): o acesso é verificado no passo 4 do fluxo principal, não antes dele. |
 | UC08 | A precondição «Existem animais associados à respetiva conta» foi retirada, porque contradizia a alternativa A1 (Cliente sem animais). Acrescentados o diagrama do fluxo, a correspondência com a API (EP-019 e EP-020), a lista dos dados básicos apresentados e a exceção E2 (animal inexistente). |
+| UC09 | Acrescentado o parágrafo «Papel do Administrador»: o Administrador só define o horário de funcionamento (RF019, EP-009 e EP-010) e não consulta nem altera marcações. O resto do texto mantém-se. |
 | UC14, UC15, UC18 | Passam a **fora do âmbito** (F005 e F007, Declaração de Âmbito v05). Saem do diagrama geral. A numeração mantém-se reservada. |
 | Restantes | Sem alterações de conteúdo. |
 
@@ -142,7 +144,6 @@ EP-001 (iniciar sessão) e EP-003 (consultar utilizador autenticado).
 ## Precondições
 
 - O utilizador possui uma conta registada.
-- A conta possui acesso permitido.
 - O sistema encontra-se acessível através da rede.
 
 ## Fluxo principal
@@ -716,6 +717,8 @@ Rececionista.
 
 **Atores secundários:**  
 Veterinário e Administrador.
+
+**Papel do Administrador:** o Administrador intervém neste caso de uso apenas na definição do horário de funcionamento (RF019; API v02: EP-009 e EP-010). Não consulta nem altera marcações: a matriz de permissões da API v02 não lhe dá acesso a EP-023 a EP-029, e o Veterinário só consulta as consultas que lhe estão atribuídas (RF024).
 
 **Requisitos relacionados:**  
 RF019, RF020, RF021, RF022, RF023, RF024, RF025, RNF001, RNF004, RNF005.
