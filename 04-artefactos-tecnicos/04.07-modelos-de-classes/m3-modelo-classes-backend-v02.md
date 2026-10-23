@@ -4,10 +4,7 @@
 **Grupo:** G08
 **Milestone:** m3
 **Versão:** v02
-**Issue:** I020 — Modelo de Classes (Backend)
-**Executor:** André Filipe Moreira Mesquita
-**Revisor:** Ivan Cristiano Silva Mendes
-**Auditor:** Gonçalo Dinis Magalhães Teixeira
+**Issue e papéis:** por atribuir. Esta versão ainda não tem Issue própria; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I020 (v01, m2) está concluída e não é reaberta.
 **Estado:** Rascunho para revisão e auditoria
 
 ---
@@ -25,7 +22,7 @@ Este documento apresenta o modelo de classes previsto para o Backend do sistema 
 
 A versão v02 acrescenta duas coisas em relação à v01:
 
-1. **O âmbito atualizado.** A Declaração de Âmbito v05 retirou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento). Estas funcionalidades, as respetivas entidades, enumerações e serviços deixam de fazer parte do modelo.
+1. **O âmbito atualizado.** A Declaração de Âmbito v05 retirou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento). Estas funcionalidades, as respetivas entidades, enumerações e serviços deixam de fazer parte do modelo. As tabelas correspondentes ainda existem no esquema da base de dados (scripts `m3-v01`) e podem vir a ser mapeadas na camada de persistência (Issue I059 do Sprint 04), mas essa persistência não é exposta: não há entidades de domínio, serviços, endpoints nem DTOs destas funcionalidades neste modelo.
 2. **Os DTOs.** Um DTO (*Data Transfer Object*) é uma classe simples, apenas com atributos, que transporta dados entre o backend e os frontends (web e mobile). Os DTOs correspondem ao pedido e à resposta de cada endpoint da `m2-documentacao-api-v01.md`. As entidades de domínio, que representam as tabelas da base de dados, **nunca** são expostas diretamente pela API. Esta separação evita, por exemplo, que o campo `PasswordHash` saia da API e permite alterar a base de dados sem alterar o contrato com os frontends.
 
 ### 1.1. Âmbito deste modelo
@@ -1019,8 +1016,9 @@ As assinaturas concretas dos endpoints são as definidas em `m2-documentacao-api
 |---|---|---|
 | 1 | **Nomes `Marcacao`/`Paciente` (entidades) e `Consulta`/`Animal` (API e DTOs).** As entidades seguem o modelo de dados aprovado; a API usa os termos `consultas` e `animais`. | Manter as entidades como estão e usar a correspondência da secção 3.8. Decidir na próxima revisão se se renomeiam as entidades para `Consulta` e `Animal`. |
 | 2 | **O Veterinário é um objeto em alguns DTOs (`VeterinarioRefDto`) e um texto noutros** (`MinhaConsultaDto`, `RegistoClinicoDto`, `AdministracaoDto`), como no contrato da API v01. | Uniformizar para `VeterinarioRefDto` na API v02, ou documentar a diferença. |
-| 3 | **`DiaSemana`** é usada em EP-009 e EP-010 mas não está na tabela de enumerações da API v01. | Acrescentar à tabela de enumerações da API v02. |
+| 3 | **`DiaSemana`** é usada em EP-009 e EP-010 mas não estava na tabela de enumerações da API v01. | **Resolvido:** a API v02 já inclui `DiaSemana` na tabela de enumerações. |
 | 4 | **Baseline v02 do backlog (RF053 a RF056).** O backlog em preparação refere requisitos que ainda não existem na Especificação de Requisitos da M2: Cliente sem conta de acesso (RF053, RF054), horários regulares de atendimento por Veterinário (RF055) e atualização de um registo de vacinação ou desparasitação (RF056). | Quando os Requisitos v02 e a API v02 estiverem aprovados, acrescentar a este modelo as entidades e DTOs correspondentes (por exemplo, `Utilizador` opcional em `Cliente`, um horário por Veterinário e `UpdateAdministracaoDto`). Este modelo cobre apenas os 37 endpoints atuais. |
+| 5 | **Tabelas de F005 e F007 ainda existentes** nos scripts SQL `m3-v01` e no Modelo de Dados v01 (m2), enquanto a Declaração de Âmbito v05 as retira do âmbito. | O grupo decide se a persistência mantém essas tabelas (sem as expor) ou se são retiradas numa nova versão dos scripts e do modelo de dados. |
 
 ## 8. Regras de consistência do modelo
 
