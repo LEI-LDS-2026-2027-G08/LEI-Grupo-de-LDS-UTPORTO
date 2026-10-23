@@ -43,7 +43,7 @@ O modelo representa as classes e estruturas relevantes da aplicação Android em
 
 O Frontend Mobile corresponde ao componente arquitetural **ARC-MOB** e destina-se **exclusivamente** ao perfil **Cliente (Proprietário do animal)**. Todas as funcionalidades disponibilizadas são de consulta: a aplicação não cria, altera nem elimina dados de negócio.
 
-A Declaração de Âmbito v05 retirou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento). Não fazem parte deste modelo.
+A Declaração de Âmbito v05 passou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) para o não-âmbito. Não fazem parte deste modelo.
 
 ---
 
