@@ -10,14 +10,14 @@
 
 ## 1. Objetivo
 
-Reunir num único ficheiro Markdown o código-fonte PlantUML de todos os ecrãs do protótipo de baixa fidelidade, para que o protótipo seja textual, editável e versionável (Regulamento de Funcionamento da UC v19, secção sobre diagramas). O conteúdo de cada ecrã é o mesmo dos ficheiros `.puml` conservados em `fonte-prototipo-baixa-fidelidade/` na entrega m2.
+Reunir num único ficheiro Markdown o código-fonte PlantUML dos ecrãs em âmbito do protótipo de baixa fidelidade, para que o protótipo seja textual, editável e versionável (Regulamento de Funcionamento da UC v19, secção sobre diagramas). O conteúdo de cada ecrã é o mesmo dos ficheiros `.puml` conservados em `fonte-prototipo-baixa-fidelidade/` na entrega m2.
 
 ## 2. Histórico de versões
 
 | Versão | Milestone | Descrição |
 |---|---|---|
 | v01 | m2 | Protótipo em PDF, com os ficheiros `.puml` soltos em `fonte-prototipo-baixa-fidelidade/`. |
-| v02 | m3 | Código PlantUML de todos os ecrãs incorporado neste ficheiro Markdown. |
+| v02 | m3 | Código PlantUML dos ecrãs em âmbito incorporado neste ficheiro Markdown. Os ecrãs W14, W15, W17, W18 e M05 (F005 e F007) ficam fora do âmbito, de acordo com a Declaração de Âmbito v05: aparecem no índice e na secção 4 apenas como «fora do âmbito», sem código, e foram retirados do mapa de navegação. Os ficheiros `.puml` e o PDF da m2 mantêm-se inalterados. |
 
 ## 3. Índice dos ecrãs
 
@@ -37,23 +37,23 @@ Reunir num único ficheiro Markdown o código-fonte PlantUML de todos os ecrãs 
 | `W11-detalhe-marcacao.puml` | W11 — Detalhe da Marcação | Rececionista, Veterinário | UC09 | RF023, RF024, RF025 |
 | `W12-preparacao-consulta.puml` | W12 — Preparação e Apoio à Consulta | - | UC10 | RF026, RF027 |
 | `W13-registo-clinico.puml` | W13 — Registo e Histórico Clínico | - | UC12 / UC13 | RF030, RF031, RF032, RF033, RF034, RF035, RF036 |
-| `W14-contas-dividas.puml` | W14 — Contas, Custos e Valores em Dívida | - | UC14 | RF037, RF038 |
-| `W15-conta-pagamentos.puml` | W15 — Detalhe da Conta e Pagamentos | - | UC14 | RF039, RF040, RF041 |
+| `W14-contas-dividas.puml` | W14 — Contas, Custos e Valores em Dívida — **fora do âmbito** | - | UC14 (fora do âmbito) | RF037, RF038 (fora do âmbito) |
+| `W15-conta-pagamentos.puml` | W15 — Detalhe da Conta e Pagamentos — **fora do âmbito** | - | UC14 (fora do âmbito) | RF039, RF040, RF041 (fora do âmbito) |
 | `W16-vacinacao.puml` | W16 — Vacinação e Desparasitação | - | UC16 | RF043, RF044, RF045, RF046 |
-| `W17-internamentos.puml` | W17 — Painel de Internamentos | Veterinário, Auxiliar Veterinário | UC18 | RF048, RF049, RF050 |
-| `W18-detalhe-internamento.puml` | W18 — Detalhe do Internamento | - | UC18 | RF048, RF049, RF050, RF051, RF052 |
+| `W17-internamentos.puml` | W17 — Painel de Internamentos — **fora do âmbito** | - | UC18 (fora do âmbito) | RF048, RF049, RF050 (fora do âmbito) |
+| `W18-detalhe-internamento.puml` | W18 — Detalhe do Internamento — **fora do âmbito** | - | UC18 (fora do âmbito) | RF048, RF049, RF050, RF051, RF052 (fora do âmbito) |
 | `M01-login-mobile.puml` | M01 — Login Mobile | - | UC01 | RF001, RF002, RF004, RF005 |
 | `M02-meus-animais.puml` | M02 — Os Meus Animais | - | UC08 | RF018 |
 | `M03-detalhe-animal.puml` | M03 — Detalhe do Animal | - | UC08 | RF018 |
 | `M04-consultas.puml` | M04 — Consultas | - | UC11 | RF028, RF029 |
-| `M05-despesas.puml` | M05 — Despesas e Pagamentos | - | UC15 | RF042 |
+| `M05-despesas.puml` | M05 — Despesas e Pagamentos — **fora do âmbito** | - | UC15 (fora do âmbito) | RF042 (fora do âmbito) |
 | `M06-boletim.puml` | M06 — Boletim de Vacinação e Desparasitação | - | UC17 | RF047 |
 
 ## 4. Ecrãs
 
 ### 4.1. Mapa de Navegação - Gestão de Clínica Veterinária
 
-Fonte: `00-mapa-navegacao.puml`
+Fonte: `00-mapa-navegacao.puml`. Nesta versão foram retirados os ecrãs W14, W15, W17, W18 e M05 (F005 e F007, fora do âmbito).
 
 ```plantuml {kroki=true}
 @startuml
@@ -76,11 +76,11 @@ rectangle "APLICAÇÃO WEB" {
 
   rectangle "Administrador\n----\nW02 Funcionários\nW03 Criar/Editar Funcionário\nW04 Clientes\nW05 Detalhe Cliente\nW06 Clínica/Config./Horários" as ADMIN
 
-  rectangle "Rececionista\n----\nW04 Clientes\nW05 Detalhe Cliente\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda\nW10 Criar/Editar Marcação\nW11 Detalhe Marcação\nW14 Contas/Dívidas\nW15 Conta/Pagamentos" as REC
+  rectangle "Rececionista\n----\nW04 Clientes\nW05 Detalhe Cliente\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda\nW10 Criar/Editar Marcação\nW11 Detalhe Marcação" as REC
 
-  rectangle "Veterinário\n----\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda própria\nW11 Detalhe Marcação\nW13 Registo Clínico\nW16 Vacinação/Desparasitação\nW17 Internamentos\nW18 Detalhe Internamento" as VET
+  rectangle "Veterinário\n----\nW07 Pacientes\nW08 Ficha Paciente\nW09 Agenda própria\nW11 Detalhe Marcação\nW13 Registo Clínico\nW16 Vacinação/Desparasitação" as VET
 
-  rectangle "Auxiliar Veterinário\n----\nW08 Ficha Paciente (leitura)\nW12 Consultas disponíveis\n+ Preparação/Apoio\nW13 Informação clínica (leitura)\nW17 Internamentos\nW18 Detalhe (leitura)" as AUX
+  rectangle "Auxiliar Veterinário\n----\nW08 Ficha Paciente (leitura)\nW12 Consultas disponíveis\n+ Preparação/Apoio\nW13 Informação clínica (leitura)" as AUX
 
   W01 --> ADMIN
   W01 --> REC
@@ -98,13 +98,11 @@ rectangle "APLICAÇÃO MOBILE" {
   rectangle "M02\nOs Meus Animais" as M02
   rectangle "M03\nDetalhe do Animal" as M03
   rectangle "M04\nConsultas" as M04
-  rectangle "M05\nDespesas e Pagamentos" as M05
   rectangle "M06\nBoletim" as M06
 
   M01 --> CLI
   CLI --> M02
   CLI --> M04
-  CLI --> M05
   M02 --> M03
   M03 --> M06
 }
@@ -116,21 +114,21 @@ end note
 
 note bottom of REC
 Gestão administrativa, agenda,
-marcações, chegadas e pagamentos.
+marcações e chegadas.
 end note
 
 note bottom of VET
-W07 permite pesquisa por proprietário.\nSem acesso à gestão W04.\nAgenda própria, informação clínica,\nvacinação e internamentos.
+W07 permite pesquisa por proprietário.\nSem acesso à gestão W04.\nAgenda própria, informação clínica\ne vacinação.
 end note
 
 note bottom of AUX
-W12 inclui seleção das consultas disponíveis.\nPreparação/apoio e leitura autorizada.\nSem escrita clínica nem alta.
+W12 inclui seleção das consultas disponíveis.\nPreparação/apoio e leitura autorizada.\nSem escrita clínica.
 end note
 
 note bottom of CLI
 Acesso de consulta e ação global de terminar sessão.
-Sem criar/alterar/cancelar marcações,
-editar animais ou registar pagamentos.
+Sem criar, alterar ou cancelar marcações
+nem editar animais.
 end note
 @enduml
 ```
@@ -357,7 +355,7 @@ skinparam rectangle {
 
 title W08 — Ficha do Paciente
 
-rectangle "CLÍNICA VETERINÁRIA   |   PACIENTES > FICHA / REGISTO\n\nDADOS ADMINISTRATIVOS\nNome              [ Kiko ______________________ ]\nProprietário      [ Carlos Sousa v ]\nEspécie           [ Cão v ]     Raça [ Labrador v ]\nSexo              [ Macho v ]\nData nascimento   [12/03/2021]\nPeso              [ 28,0 kg ]\n\nRececionista / Veterinário: [ GUARDAR DADOS ADMINISTRATIVOS ]\nAo criar a partir de W07, os mesmos campos aparecem vazios.\n\nVeterinário: [Registo clínico]   [Vacinação]   [Internamentos]\n\nAuxiliar Veterinário: modo de leitura restrita; sem edição" as SCREEN
+rectangle "CLÍNICA VETERINÁRIA   |   PACIENTES > FICHA / REGISTO\n\nDADOS ADMINISTRATIVOS\nNome              [ Kiko ______________________ ]\nProprietário      [ Carlos Sousa v ]\nEspécie           [ Cão v ]     Raça [ Labrador v ]\nSexo              [ Macho v ]\nData nascimento   [12/03/2021]\nPeso              [ 28,0 kg ]\n\nRececionista / Veterinário: [ GUARDAR DADOS ADMINISTRATIVOS ]\nAo criar a partir de W07, os mesmos campos aparecem vazios.\n\nVeterinário: [Registo clínico]   [Vacinação]\n\nAuxiliar Veterinário: modo de leitura restrita; sem edição" as SCREEN
 
 note bottom of SCREEN
 Atores: Rececionista, Veterinário
@@ -532,77 +530,11 @@ end note
 
 ### 4.15. W14 — Contas, Custos e Valores em Dívida
 
-Fonte: `W14-contas-dividas.puml`
-
-```plantuml {kroki=true}
-@startuml
-skinparam shadowing false
-skinparam roundcorner 8
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BackgroundColor white
-  BorderColor black
-  FontColor black
-}
-
-title W14 — Contas, Custos e Valores em Dívida
-
-rectangle "CLÍNICA VETERINÁRIA   |   CONTAS
-
-[ + REGISTAR CUSTO ]     Pesquisar cliente: [________________________]
-Estado: [ Todos v ]
-
-Cliente             Total        Em dívida       Estado
-----------------------------------------------------------
-Carlos Sousa        85,00 €      35,00 €         Pendente
-Rita Ferreira       40,00 €       0,00 €         Pago
-
-[ VER CONTA ]
-
-----------------------------------------------------------
-
-NOVO CUSTO
-Cliente: [________________]   Paciente: [________________]
-Consulta/Serviço: [________________________]
-Descrição: [___________________________________________]
-Valor: [________ €]
-
-[ CANCELAR ]                         [ GUARDAR CUSTO ]" as SCREEN
-
-note bottom of SCREEN
-Ator: Rececionista
-UC14
-RF037, RF038
-end note
-@enduml
-```
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W14 pertencia a F005 — UC14 (RF037 e RF038), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W14-contas-dividas.puml` entregue na m2.
 
 ### 4.16. W15 — Detalhe da Conta e Pagamentos
 
-Fonte: `W15-conta-pagamentos.puml`
-
-```plantuml {kroki=true}
-@startuml
-skinparam shadowing false
-skinparam roundcorner 8
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BackgroundColor white
-  BorderColor black
-  FontColor black
-}
-
-title W15 — Detalhe da Conta e Pagamentos
-
-rectangle "CLÍNICA VETERINÁRIA   |   CONTAS > DETALHE\n\nCliente: Carlos Sousa\n\nCUSTOS\nConsulta geral            35,00 €\nVacina                    25,00 €\nMedicação                 25,00 €\nTOTAL                      85,00 €\nPAGO                       50,00 €\nEM DÍVIDA                  35,00 €\n\nMétodo: [ Multibanco v ]    Valor: [ 35,00 ]\n[ REGISTAR PAGAMENTO ]\n\n[ ATUALIZAR ESTADO ]     [ FECHAR CONTA ]" as SCREEN
-
-note bottom of SCREEN
-Ator: Rececionista
-UC14
-RF039, RF040, RF041
-end note
-@enduml
-```
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W15 pertencia a F005 — UC14 (RF039 a RF041), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W15-conta-pagamentos.puml` entregue na m2.
 
 ### 4.17. W16 — Vacinação e Desparasitação
 
@@ -633,58 +565,11 @@ end note
 
 ### 4.18. W17 — Painel de Internamentos
 
-Fonte: `W17-internamentos.puml`
-
-```plantuml {kroki=true}
-@startuml
-skinparam shadowing false
-skinparam roundcorner 8
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BackgroundColor white
-  BorderColor black
-  FontColor black
-}
-
-title W17 — Painel de Internamentos
-
-rectangle "CLÍNICA VETERINÁRIA   |   INTERNAMENTOS\n\nVeterinário: [ + Novo internamento ]     Filtro estado: [ Ativos v ]\n\nPaciente      Alojamento      Entrada       Estado\n--------------------------------------------------------\nKiko          Box 03          08/10/2026    Recobro\nLua           Box 05          09/10/2026    Em observação\n\nVeterinário / Auxiliar: [ VER DETALHE ]\n\nAuxiliar Veterinário: painel em modo de consulta; sem alterações clínicas ou alta" as SCREEN
-
-note bottom of SCREEN
-Atores: Veterinário, Auxiliar Veterinário
-UC18
-RF048, RF049, RF050
-end note
-@enduml
-```
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W17 pertencia a F007 — UC18 (RF048 a RF050), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W17-internamentos.puml` entregue na m2.
 
 ### 4.19. W18 — Detalhe do Internamento
 
-Fonte: `W18-detalhe-internamento.puml`
-
-```plantuml {kroki=true}
-@startuml
-skinparam shadowing false
-skinparam roundcorner 8
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BackgroundColor white
-  BorderColor black
-  FontColor black
-}
-
-title W18 — Detalhe do Internamento
-
-rectangle "CLÍNICA VETERINÁRIA   |   INTERNAMENTO > DETALHE\n\nPaciente: Kiko\nEntrada: 08/10/2026\nAlojamento: Box 03\nEstado atual: Recobro\n\nEVOLUÇÃO / ESTADO CLÍNICO\n[____________________________________________]\n[____________________________________________]\n\nVeterinário:\n[ ATUALIZAR ESTADO ]   [ ALTERAR ALOJAMENTO ]   [ REGISTAR ALTA ]\n\nAuxiliar:\nModo de consulta — sem alteração do estado clínico ou alta" as SCREEN
-
-note bottom of SCREEN
-Veterinário: gestão clínica do internamento
-Auxiliar: consulta
-UC18
-RF048, RF049, RF050, RF051, RF052
-end note
-@enduml
-```
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã W18 pertencia a F007 — UC18 (RF048 a RF052), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `W18-detalhe-internamento.puml` entregue na m2.
 
 ### 4.20. M01 — Login Mobile
 
@@ -799,31 +684,7 @@ end note
 
 ### 4.24. M05 — Despesas e Pagamentos
 
-Fonte: `M05-despesas.puml`
-
-```plantuml {kroki=true}
-@startuml
-skinparam shadowing false
-skinparam roundcorner 8
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BackgroundColor white
-  BorderColor black
-  FontColor black
-}
-
-title M05 — Despesas e Pagamentos
-
-rectangle "┌──────────────────────────┐\n│ DESPESAS/PAG.     [Sair]   │\n├──────────────────────────┤\n│ Consulta Kiko      35,00 € │\n│ Estado: Pago              │\n├──────────────────────────┤\n│ Vacina Kiko        25,00 € │\n│ Estado: Por pagar         │\n├──────────────────────────┤\n│ Total em dívida: 25,00 €  │\n│                           │\n├──────────────────────────┤\n│ Animais | Consultas | €   │\n└──────────────────────────┘" as SCREEN
-
-note bottom of SCREEN
-Ator: Cliente
-UC15
-RF042
-Consulta de despesas e estados — sem registar pagamentos
-end note
-@enduml
-```
+**Fora do âmbito (Declaração de Âmbito v05).** O ecrã M05 pertencia a F005 — UC15 (RF042), retirado do âmbito. O código PlantUML não é incorporado nesta versão. Mantém-se, como histórico, no ficheiro `M05-despesas.puml` entregue na m2.
 
 ### 4.25. M06 — Boletim de Vacinação e Desparasitação
 
