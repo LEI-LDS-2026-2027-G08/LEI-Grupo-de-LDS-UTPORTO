@@ -8,11 +8,7 @@
 | Ficheiro | `m3-plano-testes-backend-v02.md` |
 | Versão | v02 (rascunho para revisão e auditoria) |
 | Milestone de Entrega | m3 |
-| Issue | I027 — Elaborar o Plano de Testes do Backend |
-| Sprint | S04 |
-| Executor | Ivan Cristiano Silva Mendes |
-| Revisor | André Filipe Moreira Mesquita |
-| Auditor | Gonçalo Magalhães Ribeiro |
+| Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria nem sprint; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I027 (v01, Sprint 03) está concluída e não é reaberta. |
 | Pasta de destino | `/projeto/03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.01-plano-de-testes` |
 | Fontes | `m3-declaracao-ambito-v05.pdf`; `m2-especificacao-requisitos-v01.md` (I012); `m3-especificacoes-casos-uso-v02.md` (I015); `m3-documentacao-api-v02.md` (I018); `m3-modelo-classes-backend-v02.md` (I020); `m2-documentacao-arquitetura-v01.md` (I019); `m1-plano-qualidade-processo-v01.pdf` (I006); `m3-regulamento-grupo-v02.md` (secção 11); Regulamento de Funcionamento da UC v19 (secções 17 e 19); código do backend em `src/backend` (PR #150, I058); `m3-plano-testes-backend-v01.md` (versão anterior) |
 
@@ -21,7 +17,7 @@
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | v01 | 2026-10-16 | Ivan Cristiano Silva Mendes | Versão inicial do Plano de Testes do Backend para a m3: âmbito, níveis de teste, ferramentas, ambiente e dados, critérios de entrada e saída, limiares de cobertura, gestão de defeitos, responsabilidades e rastreabilidade. Mantém-se inalterada como histórico (`m3-plano-testes-backend-v01.md`). |
-| v02 | 2026-10-22 | Ivan Cristiano Silva Mendes | Reflete a Declaração de Âmbito v05: sem F005 e F007, o plano passa a abranger **37 endpoints** (F001, F002, F003, F004 e F006). Atualiza as tecnologias e quality gates para o Regulamento de Grupo v02 (.NET 10, EF Core 10, Android em Kotlin, ReportGenerator 5.5, QG-08) e as referências à API v02 e aos Casos de Uso v02. |
+| v02 | 2026-10-22 | Por atribuir | Reflete a Declaração de Âmbito v05: sem F005 e F007, o plano passa a abranger **37 endpoints** (F001, F002, F003, F004 e F006). Atualiza as tecnologias e quality gates para o Regulamento de Grupo v02 (.NET 10, EF Core 10, Android em Kotlin, ReportGenerator 5.5, QG-08) e as referências à API v02 e aos Casos de Uso v02. |
 
 ### Alterações da v02 em relação à v01
 
@@ -389,7 +385,7 @@ Seguindo o Plano de Qualidade (secção 5.3), é **defeito** qualquer incumprime
 
 | Issue | Tarefa | Sprint |
 |---|---|---|
-| I027 | Elaborar o Plano de Testes do Backend (este documento) | S03 |
+| I027 | Elaborar o Plano de Testes do Backend (a v01 foi entregue nesta Issue; esta v02 ainda não tem Issue própria) | S03 |
 | I028 | Especificar os Testes Unitários do Backend | S04 |
 | I030 | Especificar os Testes de Integração do Backend | S04 |
 | I091 | Criar a infraestrutura dos testes de integração | S04 |
@@ -492,7 +488,7 @@ A Collection Postman e o relatório de cobertura têm tarefas próprias no Backl
 
 ## 17. Decisões tomadas e pontos a ratificar
 
-Esta lista regista as decisões deste plano (evidência exigida na I027). Todas são propostas do Executor, sujeitas a revisão, e as que alteram compromissos do grupo devem ficar em ata.
+Esta lista regista as decisões deste plano (evidência exigida na I027). Todas são propostas do autor, sujeitas a revisão, e as que alteram compromissos do grupo devem ficar em ata.
 
 | ID | Decisão | Justificação | Estado |
 |---|---|---|---|
