@@ -28,6 +28,8 @@
 
 O diagrama não inclui nenhuma funcionalidade de F005 ou F007; a Declaração de Âmbito v05 não o afeta.
 
+**Pasta:** esta versão fica em `04.09-modelos-de-interacao`, a pasta prevista para diagramas de sequência na secção 19 do Regulamento da UC v19 e na linha AD-001 da CCA. A v01 está arquivada em `04.05-arquitetura`; não se move, porque é um artefacto entregue na m2. Fica para o grupo decidir se a regista como não conformidade.
+
 ---
 
 ## 1. Objetivo
