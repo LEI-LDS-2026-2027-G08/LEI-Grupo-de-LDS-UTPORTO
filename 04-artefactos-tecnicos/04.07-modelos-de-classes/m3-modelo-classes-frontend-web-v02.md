@@ -62,14 +62,14 @@ A versão v02 reflete a Declaração de Âmbito v05: as funcionalidades F005 (Ge
 | `m1-proposta-sistema-v03.pdf` e `m3-proposta-sistema-v05.pdf` | Âmbito funcional homologado e atores. |
 | `m3-declaracao-ambito-v05.pdf` | Limites dos canais Web/Mobile; F005 e F007 fora do âmbito. |
 | `m3-regulamento-grupo-v02.pdf` | Tecnologias, convenções e ferramentas adotadas pelo grupo (secções 11.2 a 11.4). |
-| `m2-especificacao-requisitos-v01.md` | Requisitos RF001–RF036 e RF043–RF047 em âmbito e RNF001–RNF006. |
+| `m3-especificacao-requisitos-v02.md` | Requisitos RF001–RF036 e RF043–RF047 em âmbito e RNF001–RNF006. |
 | `m3-especificacoes-casos-uso-v02.md` | UC01–UC13, UC16 e UC17, atores, fluxos, alternativas e permissões. |
 | `m3-prototipo-baixa-fidelidade-v02.md` | Ecrãs W01–W13 e W16 e organização prevista da interface Web. |
-| `m2-documentacao-arquitetura-v01.md` | ARC-WEB, ARC-API, autenticação, autorização e separação de responsabilidades. Ainda refere as tecnologias da v01 (.NET 8 e Flutter): para as tecnologias prevalece o Regulamento Interno do Grupo v02. |
+| `m3-documentacao-arquitetura-v02.md` | ARC-WEB, ARC-API, autenticação, autorização e separação de responsabilidades. Tecnologias conforme o Regulamento Interno do Grupo v02. |
 | `m3-documentacao-api-v02.md` | Endpoints, contratos JSON, DTOs, perfis autorizados, erros e enumerações. |
 | `m2-modelo-de-dados-clinica-veterinaria-v01.md` | Entidades e conceitos persistentes relevantes para os DTOs. |
 | `m3-modelo-classes-backend-v02.md` | Nomenclatura e estruturas previstas no backend, incluindo os DTOs. |
-| `m2-diagrama-sequencia-autenticar-utilizador-v01.md` | Fluxo UC01 e armazenamento do token no cliente. |
+| `m3-diagrama-sequencia-autenticar-utilizador-v02.md` | Fluxo UC01 e armazenamento do token no cliente. |
 
 Quando exista conflito, prevalecem os documentos homologados e normativos e, no que respeita ao contrato entre frontend e backend, a Documentação da API v02.
 
