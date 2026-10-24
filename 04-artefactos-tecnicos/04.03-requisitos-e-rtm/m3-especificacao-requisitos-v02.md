@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos requisitos RF001–RF052 e RNF001–RNF006. Mantém-se inalterada como histórico (`m2-especificacao-requisitos-v01.md`). |
-| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: o texto da v01 é conservado e os identificadores permanecem reservados. |
+| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: cada um fica reduzido a identificador, título e estado, o texto original mantém-se na v01 (`m2-especificacao-requisitos-v01.md`) e os identificadores permanecem reservados. |
 
 ### Alterações da v02 em relação à v01
 
@@ -22,7 +22,7 @@
 |---|---|
 | Secção 2 | Fontes passam a `m3-proposta-sistema-v05.pdf` e `m3-declaracao-ambito-v05.pdf`; a tabela de funcionalidades indica F005 e F007 como fora do âmbito. |
 | Secção 3 | Retiradas as referências a pagamentos, despesas e internamentos nas descrições do Rececionista, do Veterinário, do Auxiliar Veterinário e do Cliente. |
-| Secções 5.5 e 5.7 | RF037–RF042 e RF048–RF052 passam a «Descontinuado». O texto e o título de cada requisito mantêm-se como na v01, para a rastreabilidade. |
+| Secções 5.5 e 5.7 | RF037–RF042 e RF048–RF052 passam a «Descontinuado» e ficam reduzidos a identificador, título e estado. O texto original mantém-se na v01 (`m2-especificacao-requisitos-v01.md`); os identificadores ficam reservados para a rastreabilidade. |
 | Secção 7 | Acrescentadas as exclusões da gestão de contas e pagamentos e da gestão de internamento. |
 | Secção 8 | Acrescentada a nota sobre os requisitos descontinuados e a RTM v02. |
 | Secção 9 | Nova: pontos em aberto para o grupo. |
@@ -94,6 +94,8 @@ Os requisitos funcionais são identificados pelo prefixo `RF`, seguido de um nú
 Os requisitos não funcionais são identificados pelo prefixo `RNF`, seguido de um número sequencial de três algarismos.
 
 Cada identificador é único e deve ser preservado nos restantes artefactos de rastreabilidade do projeto. Um identificador descontinuado não deve ser reutilizado para outro requisito.
+
+Um requisito descontinuado apresenta apenas o identificador, o título e o estado «Descontinuado», com a indicação da versão que guarda o texto original.
 
 Cada requisito funcional apresenta:
 
@@ -527,79 +529,31 @@ O Auxiliar Veterinário consegue consultar apenas a informação clínica dispon
 
 ## 5.5. F005 — Gestão de contas e pagamentos
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037 a RF042 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037 a RF042 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 19).
 
 ### RF037 — Registar custos
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Rececionista
-
-**Descrição:**  
-O sistema web deve permitir ao Rececionista registar os custos associados às consultas e tratamentos prestados pela clínica, associando os respetivos valores ao Cliente.
-
-**Critério de aceitação:**  
-Após a confirmação do registo, o custo fica associado ao Cliente, ao paciente e à consulta ou tratamento que o originou, quando essa referência exista.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF038 — Consultar valores em dívida
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Rececionista
-
-**Descrição:**  
-O sistema web deve permitir ao Rececionista consultar os valores em dívida associados a um Cliente.
-
-**Critério de aceitação:**  
-Ao consultar a situação administrativa de um Cliente, o sistema apresenta os valores registados como pendentes.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF039 — Registar pagamento ao balcão
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Rececionista
-
-**Descrição:**  
-O sistema web deve permitir ao Rececionista registar manualmente um pagamento efetuado ao balcão.
-
-**Critério de aceitação:**  
-Após o registo de um pagamento válido, o valor fica associado à conta administrativa selecionada e é refletido no montante pago e no valor em dívida.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF040 — Atualizar estado de pagamento
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Rececionista
-
-**Descrição:**  
-O sistema deve permitir ao Rececionista corrigir administrativamente o estado de pagamento de um valor registado, utilizando os estados `Pendente` ou `Pago`.
-
-**Critério de aceitação:**  
-A correção só é aceite quando o estado escolhido é coerente com o montante em dívida: `Pago` quando o valor em dívida é zero e `Pendente` quando existe valor em dívida; a justificação da correção fica registada.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF041 — Fechar conta administrativa
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Rececionista
-
-**Descrição:**  
-O sistema web deve permitir ao Rececionista fechar uma conta administrativa paga e sem valor em dívida, associada aos serviços prestados a um Cliente.
-
-**Critério de aceitação:**  
-Quando a conta tem estado `Pago` e valor em dívida igual a zero, após a confirmação do fecho fica identificada como encerrada e deixa de ser apresentada como conta administrativa em aberto; caso contrário, o fecho é rejeitado.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF042 — Consultar despesas e estados de pagamento no mobile
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F005 — Gestão de contas e pagamentos  
-**Ator:** Cliente
-
-**Descrição:**  
-A aplicação móvel deve permitir ao Cliente consultar as despesas associadas aos serviços prestados aos seus animais e os respetivos estados de pagamento.
-
-**Critério de aceitação:**  
-O Cliente autenticado visualiza apenas as despesas associadas aos seus próprios animais e os respetivos estados, sem dispor de operações para alterar valores, registar pagamentos ou efetuar pagamentos pela aplicação.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ---
 
@@ -664,67 +618,27 @@ O Cliente autenticado consegue visualizar apenas o boletim dos animais associado
 
 ## 5.7. F007 — Gestão de internamento (Hospitalização)
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF048 a RF052 estão **descontinuados**: o texto abaixo é o da v01, conservado apenas para a rastreabilidade, e não é compromisso do grupo. Os identificadores permanecem reservados.
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF048 a RF052 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 19).
 
 ### RF048 — Registar internamento
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F007 — Gestão de internamento (Hospitalização)  
-**Ator:** Veterinário
-
-**Descrição:**  
-O sistema web deve permitir ao Veterinário registar o internamento de um paciente.
-
-**Critério de aceitação:**  
-Quando são fornecidos os dados obrigatórios válidos, o sistema cria um internamento associado ao paciente.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF049 — Associar alojamento ao internamento
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F007 — Gestão de internamento (Hospitalização)  
-**Ator:** Veterinário
-
-**Descrição:**  
-O sistema web deve permitir ao Veterinário associar ao internamento um alojamento disponível atribuído ao paciente.
-
-**Critério de aceitação:**  
-Após a confirmação da associação, o internamento apresenta o alojamento selecionado; um alojamento já ocupado por outro internamento ativo não pode ser associado.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF050 — Consultar painel de internamentos
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F007 — Gestão de internamento (Hospitalização)  
-**Atores:** Veterinário, Auxiliar Veterinário
-
-**Descrição:**  
-O sistema web deve disponibilizar um painel com os pacientes atualmente internados e os respetivos alojamentos ao Veterinário e ao Auxiliar Veterinário.
-
-**Critério de aceitação:**  
-O painel apresenta os internamentos sem alta médica registada e permite identificar os respetivos pacientes e alojamentos quando associados.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF051 — Atualizar estado clínico do internamento
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F007 — Gestão de internamento (Hospitalização)  
-**Ator:** Veterinário
-
-**Descrição:**  
-O sistema web deve permitir exclusivamente ao Veterinário atualizar o estado clínico de um paciente internado entre `EmObservacao` e `Recobro`. A passagem para `AltaMedica` é efetuada pelo registo de alta previsto no RF052.
-
-**Critério de aceitação:**  
-Após a seleção de `EmObservacao` ou `Recobro` e a confirmação da atualização, o novo estado clínico fica registado no internamento correspondente; a operação é rejeitada após a alta e não está disponível ao Auxiliar Veterinário.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ### RF052 — Registar alta médica
 
-**Estado:** Descontinuado (fora do âmbito, Declaração de Âmbito v05)  
-**Funcionalidade de origem:** F007 — Gestão de internamento (Hospitalização)  
-**Ator:** Veterinário
-
-**Descrição:**  
-O sistema web deve permitir exclusivamente ao Veterinário registar a alta médica de um paciente internado.
-
-**Critério de aceitação:**  
-Após o registo da alta médica, o internamento deixa de ser apresentado como ativo e a operação de alta não está disponível ao Auxiliar Veterinário.
+**Estado:** Descontinuado (transição para o não-âmbito, DA v05). Texto original em `m2-especificacao-requisitos-v01.md`.
 
 ---
 
