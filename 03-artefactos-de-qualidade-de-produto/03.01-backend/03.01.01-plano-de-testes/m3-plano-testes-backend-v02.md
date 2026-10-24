@@ -456,7 +456,7 @@ A Collection Postman e o relatório de cobertura têm tarefas próprias no Backl
 | EP-033 | `GET /registos-clinicos/{id}` | Vet., Aux. Vet. | RF035, RF036 | UC12 (A2), UC13 | 2xx, 401, 403, 404 | Não | Sim | Sim |
 | EP-034 | `GET /animais/{id}/historico-clinico` | Vet., Aux. Vet. | RF035, RF036 | UC12 (A3), UC13 | 2xx, 400, 401, 403, 404 | Não | Sim | Sim |
 | EP-042 | `GET /animais/{id}/vacinacoes` | Vet. | RF046, RF045 | UC16 (A2) | 2xx, 400, 401, 403, 404 | Não | Sim | Sim |
-| EP-043 | `POST /animais/{id}/vacinacoes` | Vet. | RF043, RF044, RF045 | UC16, UC16 (A1) | 2xx, 400, 401, 403, 404 | Sim | Sim | Sim |
+| EP-043 | `POST /animais/{id}/vacinacoes` | Vet. | RF043, RF044, RF045 | UC16 (fluxo principal e A1) | 2xx, 400, 401, 403, 404 | Sim | Sim | Sim |
 | EP-044 | `GET /me/animais/{id}/vacinacoes` | Cliente | RF047 | UC17 | 2xx, 401, 403, 404 | Sim | Sim | Sim |
 
 ### 15.2. Cobertura dos requisitos
