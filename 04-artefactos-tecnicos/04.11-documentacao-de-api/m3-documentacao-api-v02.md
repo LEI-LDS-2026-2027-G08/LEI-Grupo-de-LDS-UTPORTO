@@ -11,14 +11,14 @@
 | Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I018 (v01, m2) está concluída e não é reaberta. |
 | Estado | Rascunho para revisão e auditoria |
 | Pasta de destino | `/projeto/04-artefactos-tecnicos/04.11-documentacao-de-api` |
-| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-proposta-sistema-v05.pdf`; `m3-especificacao-requisitos-v02.md`; `m3-especificacoes-casos-uso-v02.md`; `m3-documentacao-arquitetura-v02.md`; `m3-modelo-classes-backend-v02.md`; `m3-regulamento-grupo-v02.md`; `m2-documentacao-api-v01.md` (versão anterior) |
+| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-proposta-sistema-v05.pdf`; `m3-especificacao-requisitos-v02.md`; `m3-especificacoes-casos-uso-v02.md`; `m3-documentacao-arquitetura-v02.md`; `m3-modelo-classes-backend-v02.md`; `m3-modelo-de-dados-clinica-veterinaria-v02.md`; `m3-regulamento-grupo-v02.md`; `m2-documentacao-api-v01.md` (versão anterior) |
 
 ## Histórico de versões
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
 | v01 | 2026-10-09 | André Filipe Moreira Mesquita | Versão inicial da documentação prevista da API para a m2, alinhada com a Especificação de Requisitos (RF001–RF052, RNF001–RNF006) e com os Casos de Uso (UC01–UC18). Mantém-se inalterada como histórico (`m2-documentacao-api-v01.md`). |
-| v02 | 2026-10-22 | Por atribuir | Reflete a Declaração de Âmbito v05: saem as funcionalidades F005 (contas e pagamentos, EP-035 a EP-041) e F007 (internamento, EP-045 a EP-051), ficando **37 endpoints**. Acrescenta a cada endpoint os DTOs de pedido e de resposta definidos em `m3-modelo-classes-backend-v02.md`, acrescenta a enumeração `DiaSemana`, retira as enumerações de pagamento e internamento, atualiza as tecnologias de referência (Regulamento de Grupo v02) e refaz a rastreabilidade. |
+| v02 | 2026-10-22 | Por atribuir | Reflete a Declaração de Âmbito v05: saem as funcionalidades F005 (contas e pagamentos, EP-035 a EP-041) e F007 (internamento, EP-045 a EP-051), ficando **37 endpoints**. Acrescenta a cada endpoint os DTOs de pedido e de resposta definidos em `m3-modelo-classes-backend-v02.md`, acrescenta a enumeração `DiaSemana`, retira as enumerações de pagamento e internamento, atualiza as tecnologias de referência (Regulamento de Grupo v02), refaz a rastreabilidade e documenta o conflito de alteração concorrente (409) nas marcações. |
 
 ### Alterações da v02 em relação à v01
 
@@ -30,6 +30,7 @@
 | Convenções | Retirada a convenção de valores monetários, que só existia para a F005. |
 | Permissões | Retirados da matriz os recursos «Contas e pagamentos», «Alojamentos» e «Internamentos» e as regras que lhes diziam respeito. |
 | Tecnologias | ASP.NET Core 10 com Entity Framework Core 10, React e aplicação Android nativa (Kotlin e Jetpack Compose) em vez de Flutter, conforme o Regulamento de Grupo v02. |
+| Concorrência | EP-026, EP-027 e EP-028 passam a poder responder **409** quando a marcação foi alterada entretanto por outro utilizador. Mecanismo proposto na secção 5.1 (`ETag` e `If-Match`), assente na coluna `Marcacao.RowVersion` do Modelo de Dados v02. Decisão do Líder do grupo a 24/10/2026. |
 | Rastreabilidade | Secção 12 refeita para os 37 endpoints. Os requisitos RF037 a RF042 e RF048 a RF052 ficam sem endpoint por estarem fora do âmbito. |
 
 ---
@@ -209,11 +210,20 @@ Nos erros de validação (400) é acrescentado o campo `errors`, indicando os ca
 | 401 Unauthorized | Token ausente, inválido, expirado ou revogado; credenciais incorretas |
 | 403 Forbidden | Perfil sem permissão, conta bloqueada ou recurso que não pertence ao utilizador |
 | 404 Not Found | Recurso inexistente |
-| 409 Conflict | Conflito com dados existentes (ex.: e-mail já registado) |
+| 409 Conflict | Conflito com dados existentes (ex.: e-mail já registado) ou alteração concorrente da mesma marcação (secção 5.1) |
 | 422 Unprocessable Entity | Regra de negócio violada (ex.: transição de estado inválida) |
 | 500 Internal Server Error | Erro inesperado no servidor |
 
 Nas tabelas de endpoints seguintes, **401** aplica-se a todos os endpoints protegidos e **403** a todos os endpoints com restrição de perfil, mesmo quando não repetidos.
+
+### 5.1. Alterações concorrentes de marcações
+
+Quando dois utilizadores (por exemplo, dois Rececionistas) abrem a mesma marcação e ambos a gravam, a segunda gravação não pode apagar em silêncio a primeira. Por isso a marcação tem uma versão, guardada na coluna `Marcacao.RowVersion` (Modelo de Dados v02), que o SQL Server muda em cada alteração.
+
+- A API expõe a versão como validador `ETag` (o valor da `RowVersion` em Base64, entre aspas). Os endpoints EP-024, EP-025, EP-026, EP-027 e EP-028 devolvem o cabeçalho `ETag` com a versão atual da marcação.
+- EP-026, EP-027 e EP-028 aceitam o cabeçalho `If-Match` com o último `ETag` que o cliente conhece. Se for enviado e já não corresponder à versão atual, a resposta é **409** (Problem Details) e nada é alterado. O cliente deve voltar a ler a marcação (EP-024) e repetir a operação se ainda fizer sentido.
+- O cabeçalho `If-Match` é opcional, para não alterar o contrato da v01. Sem ele, o servidor continua a rejeitar com **409** duas gravações simultâneas da mesma marcação (`DbUpdateConcurrencyException` do Entity Framework Core), mas não deteta uma alteração feita antes do pedido. O frontend web deve enviar sempre `If-Match`.
+- Os DTOs não mudam: a versão viaja só nos cabeçalhos. A alternativa de um campo `versao` nos DTOs está no ponto em aberto 5 da secção 13.
 
 ---
 
@@ -819,6 +829,7 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 | Perfis | Rececionista |
 | Requisitos | RF022 |
 | Descrição | Altera data, hora, veterinário ou motivo de uma marcação `Pendente` ou `Confirmada`, validando a disponibilidade aplicável. |
+| Cabeçalhos | `If-Match` (opcional, mas recomendado): último `ETag` conhecido (secção 5.1) |
 | DTO de pedido | `UpdateConsultaDto` (corpo do pedido) |
 | DTO de resposta | `ConsultaDto` |
 
@@ -827,8 +838,8 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 { "veterinarioId": 6, "dataHora": "2026-10-15T10:00:00Z", "motivo": "Consulta de rotina" }
 ```
 
-**Resposta 200:** marcação atualizada (formato de EP-024).
-**Erros:** 400; 401; 403; 404; 422 — marcação já `Realizada` ou `Cancelada`, ou novo horário indisponível.
+**Resposta 200:** marcação atualizada (formato de EP-024), com o novo `ETag`.
+**Erros:** 400; 401; 403; 404; 409 — a marcação foi alterada entretanto por outro utilizador; 422 — marcação já `Realizada` ou `Cancelada`, ou novo horário indisponível.
 
 ### EP-027 — Atualizar estado da marcação
 
@@ -839,6 +850,7 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 | Perfis | Rececionista |
 | Requisitos | RF023 |
 | Descrição | Altera o estado da marcação para `Confirmada`, `Realizada` ou `Cancelada`, segundo as transições permitidas. |
+| Cabeçalhos | `If-Match` (opcional, mas recomendado): último `ETag` conhecido (secção 5.1) |
 | DTO de pedido | `UpdateEstadoConsultaDto` (corpo do pedido) |
 | DTO de resposta | — (204, sem corpo) |
 
@@ -852,8 +864,8 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 { "estado": "Cancelada", "observacao": "Pedido do tutor por telefone." }
 ```
 
-**Resposta 204:** sem corpo.
-**Erros:** 400 — estado inexistente ou `Pendente`; 401; 403; 404; 422 — transição inválida.
+**Resposta 204:** sem corpo, com o novo `ETag`.
+**Erros:** 400 — estado inexistente ou `Pendente`; 401; 403; 404; 409 — a marcação foi alterada entretanto por outro utilizador; 422 — transição inválida.
 
 ### EP-028 — Registar chegada
 
@@ -864,6 +876,7 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 | Perfis | Rececionista |
 | Requisitos | RF025 |
 | Descrição | Regista a chegada do Cliente e do animal à consulta, com a hora atual do servidor. |
+| Cabeçalhos | `If-Match` (opcional, mas recomendado): último `ETag` conhecido (secção 5.1) |
 | DTO de pedido | — (sem corpo nem parâmetros específicos) |
 | DTO de resposta | `ChegadaDto` |
 
@@ -873,7 +886,7 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 { "id": 41, "chegadaEm": "2026-10-14T09:22:00Z" }
 ```
 
-**Erros:** 401; 403; 404; 422 — marcação não está `Confirmada` ou a chegada já foi registada.
+**Erros:** 401; 403; 404; 409 — a marcação foi alterada entretanto por outro utilizador; 422 — marcação não está `Confirmada` ou a chegada já foi registada.
 
 ### EP-029 — Registar informação não clínica de apoio
 
@@ -1245,6 +1258,7 @@ Todos os requisitos funcionais **em âmbito** estão cobertos por, pelo menos, u
 2. O Auxiliar Veterinário consulta a ficha administrativa do paciente (EP-016) ao abrigo do RF026 e só pode registar informação de apoio em EP-029 quando a respetiva autorização está ativa.
 3. Os identificadores EP-035 a EP-041 e EP-045 a EP-051 ficam reservados e não são reutilizados, para que as referências à v01 continuem inequívocas.
 4. Em alguns exemplos o Veterinário aparece como texto (`"veterinario": "Dra. Marta Reis"` em EP-030, EP-031 a EP-034, EP-042 e EP-043) e noutros como objeto (`VeterinarioRefDto`, em EP-021, EP-023 e EP-024). Esta v02 mantém o contrato da v01; a eventual uniformização está no ponto em aberto 1 da secção 13.
+5. A concorrência nas marcações assenta em `Marcacao.RowVersion` e é exposta por `ETag` e `If-Match` (secção 5.1). O mesmo mecanismo não foi estendido a outros recursos, que nesta versão não têm token de versão.
 
 ## 13. Pontos em aberto
 
@@ -1254,3 +1268,4 @@ Todos os requisitos funcionais **em âmbito** estão cobertos por, pelo menos, u
 | 2 | **Requisitos RF053 a RF056 do Backlog de Projeto v03.** O backlog em preparação refere requisitos que ainda não constam de nenhuma Especificação de Requisitos aprovada: Cliente sem conta de acesso (RF053, RF054), horários regulares de atendimento por Veterinário (RF055) e atualização de um registo de vacinação ou desparasitação (RF056). | Esta v02 **não** cria endpoints para esses requisitos, para não documentar comportamento por aprovar. Quando a Especificação de Requisitos v02 estiver aprovada, prevê-se acrescentar, por exemplo, ajustes a EP-013 e EP-014 (conta de acesso opcional), um recurso de horários por Veterinário e uma operação de atualização em EP-043. Será uma v03 desta documentação. |
 | 3 | **Dependência do Modelo de Classes v02.** Os nomes dos DTOs referidos neste documento são os do `m3-modelo-classes-backend-v02.md`. | Aprovar os dois documentos em conjunto, ou aprovar primeiro o Modelo de Classes. |
 | 4 | **Informação clínica lida por outros perfis e por outros Veterinários.** O Auxiliar Veterinário lê o registo clínico completo (EP-033 e EP-034) e o histórico (EP-034) lista registos com o nome do Veterinário que os fez. A regra 3.3 só diz que o Veterinário acede às consultas que lhe estão atribuídas. | Decidir na revisão (1) se o Auxiliar continua a ler tudo, como nesta v02 (o UC13 já está escrito assim), ou se passa a haver um DTO reduzido para este perfil; e (2) se um Veterinário pode ler registos de consultas de colegas ou só os das suas. Se a resposta mudar, atualizam-se os casos de uso UC12 e UC13 e o Modelo de Classes. |
+| 5 | **Como o cliente envia a versão da marcação.** Esta v02 propõe `ETag` e `If-Match` (secção 5.1), que não mudam os DTOs. A alternativa é um campo `versao` em `ConsultaDto`, `UpdateConsultaDto` e `UpdateEstadoConsultaDto`, mas EP-028 não tem corpo. | Decidir na revisão. Se se escolher o campo `versao`, atualizam-se esta documentação, o Modelo de Classes do Backend e os modelos de classes do frontend web. Em qualquer caso, o frontend web tem de guardar a versão lida em EP-024 e devolvê-la nas gravações. |
