@@ -25,6 +25,7 @@
 | Modelos | `HorarioFuncionamento.diaSemana` passa de texto a `DiaSemana`. Novo `AtualizarEstadoUtilizadorRequest` (EP-008: `estado` e `motivo` opcional) e `UtilizadoresService.bloquear` passa a aceitar o motivo. `UtilizadoresService.criar` (EP-006) passa a devolver `FuncionarioResumo`, porque a resposta 201 da API traz os campos da lista e não os do detalhe. |
 | DTOs da API | Nova secção 21 com a correspondência entre cada modelo TypeScript e o DTO da API v02, por endpoint. |
 | Perfis | Retiradas as referências a contas, pagamentos e internamentos nas regras por perfil (secção 13). |
+| Concorrência | Nova secção 9.2: o `AgendaService` guarda o `ETag` lido nas respostas de marcações e envia-o em `If-Match` nas gravações EP-026, EP-027 e EP-028; 412 e 409 têm tratamento próprio (secção 14). Segue a proposta da Documentação da API v02, secção 5.1, e a coluna `Marcacao.RowVersion` do Modelo de Dados v02, a confirmar pelo Revisor. |
 
 ---
 
@@ -605,6 +606,7 @@ class PacientesService <<service>> {
 }
 
 class AgendaService <<service>> {
+  - versoes : Map<number, string>
   + listarVeterinarios() : Promise<VeterinarioResumo[]>
   + obterDisponibilidade(id : number, inicio : string, fim? : string) : Promise<Disponibilidade>
   + listarConsultas(filtros : AgendaFiltros) : Promise<PagedResult<MarcacaoResumo>>
@@ -653,6 +655,17 @@ ProfilaxiaService --> ApiClient
 | `ProfilaxiaService` | EP-042 e EP-043 |
 
 Os endpoints EP-019, EP-020, EP-030 e EP-044 são exclusivos da aplicação móvel do Cliente e não são consumidos pelo Frontend Web. Os serviços consomem, no total, 33 dos 37 endpoints em âmbito.
+
+## 9.2. Alterações concorrentes de marcações (`ETag` e `If-Match`)
+
+A Documentação da API v02 (secção 5.1) propõe que a versão de uma marcação, guardada em `Marcacao.RowVersion`, viaje no cabeçalho `ETag` e volte no cabeçalho `If-Match`. Este modelo prevê o seguinte para o Frontend Web:
+
+- `ApiClient` deixa as respostas acessíveis com os seus cabeçalhos e aceita cabeçalhos de pedido, para o `AgendaService` ler o `ETag` e enviar o `If-Match`.
+- `AgendaService` guarda em memória, por identificador de marcação, o último `ETag` recebido em EP-024, EP-025, EP-026, EP-027 e EP-028 (atributo `versoes`).
+- `atualizar` (EP-026), `alterarEstado` (EP-027) e `registarChegada` (EP-028) enviam sempre o `If-Match` com a versão guardada. Se a marcação nunca foi lida nesta sessão, a página carrega-a primeiro (EP-024).
+- Resposta 412 (a marcação mudou desde a última leitura) ou 409 (duas gravações simultâneas): a página não repete o pedido sozinha, volta a ler a marcação (EP-024), mostra que foi alterada por outra pessoa e deixa o utilizador decidir se repete a operação.
+- O servidor tem de expor o `ETag` e aceitar o `If-Match` na política de CORS (Documentação da API v02, secção 5.1). Sem isso, o browser não deixa o JavaScript ler nem enviar estes cabeçalhos.
+- Os modelos TypeScript das marcações não ganham campo de versão: a versão fica fora dos DTOs. Se o grupo preferir um campo `versao` (ponto em aberto 5 da API), este modelo e a secção 21.3 mudam em conjunto com a API.
 
 ---
 
@@ -1319,7 +1332,8 @@ O `ApiClient` deve permitir às páginas distinguir pelo menos:
 - `401` — autenticação ausente, inválida, expirada ou revogada;
 - `403` — perfil sem permissão;
 - `404` — recurso inexistente;
-- `409` — conflito;
+- `409` — conflito (dados repetidos ou duas gravações simultâneas da mesma marcação);
+- `412` — a marcação mudou desde a última leitura (`If-Match` desatualizado; secção 9.2);
 - `422` — regra de negócio violada;
 - `500` — erro inesperado.
 
@@ -1443,7 +1457,8 @@ Para manter coerência com este artefacto durante a implementação:
 9. a pesquisa de proprietários do Veterinário deve ocorrer no contexto de W07, sem conceder acesso funcional à gestão W04;
 10. W12 deve disponibilizar ao Auxiliar um ponto de entrada autónomo para listar e selecionar consultas disponíveis antes de carregar o detalhe;
 11. W08 deve funcionar em modo de criação quando não recebe `pacienteId` e em modo de consulta/edição quando recebe um identificador, respeitando o perfil atual;
-12. W03 deve permitir ao Administrador definir `podeRegistarApoio` para Auxiliares e apenas bloquear contas, conforme o contrato da API.
+12. W03 deve permitir ao Administrador definir `podeRegistarApoio` para Auxiliares e apenas bloquear contas, conforme o contrato da API;
+13. as gravações de marcações (EP-026, EP-027 e EP-028) devem enviar `If-Match` com a versão lida e tratar 412 e 409 como descrito na secção 9.2.
 
 ---
 
@@ -1570,6 +1585,8 @@ Os modelos TypeScript do frontend web têm nomes orientados à interface (por ex
 | `AgendaService.registarNotaPreparacao` | EP-029 | parâmetro `texto` → `CreateNotaPreparacaoDto` | `NotaPreparacao` → `NotaPreparacaoDto` (201) |
 
 `MarcacaoForm` serve a criação (inclui `animalId`) e a alteração; em EP-026 o `animalId` não é enviado (o DTO `UpdateConsultaDto` só tem `veterinarioId`, `dataHora` e `motivo`).
+
+O `ETag` das respostas de EP-024 a EP-028 e o `If-Match` dos pedidos de EP-026, EP-027 e EP-028 viajam nos cabeçalhos e não aparecem nos DTOs (secção 9.2).
 
 ## 21.4. F004 e F006 — Registo clínico e boletim de vacinas
 
