@@ -1208,8 +1208,8 @@ Todos os requisitos funcionais **em âmbito** estão cobertos por, pelo menos, u
 | RF005 | EP-001, EP-003 | RF031 | EP-031 |
 | RF006 | EP-006 | RF032 | EP-031, EP-032 |
 | RF007 | EP-004, EP-005, EP-007 | RF033 | EP-031, EP-032 |
-| RF008 | EP-006, EP-007 | RF034 | EP-032 |
-| RF009 | EP-008 | RF035 | EP-033, EP-034 |
+| RF008 | EP-004, EP-006, EP-007 | RF034 | EP-032 |
+| RF009 | EP-004, EP-008 | RF035 | EP-033, EP-034 |
 | RF010 | EP-013 | RF036 | EP-033, EP-034 |
 | RF011 | EP-011, EP-012, EP-014 | RF037 (fora do âmbito) | — |
 | RF012 | EP-009 | RF038 (fora do âmbito) | — |
@@ -1217,11 +1217,11 @@ Todos os requisitos funcionais **em âmbito** estão cobertos por, pelo menos, u
 | RF014 | EP-017 | RF040 (fora do âmbito) | — |
 | RF015 | EP-016 | RF041 (fora do âmbito) | — |
 | RF016 | EP-018 | RF042 (fora do âmbito) | — |
-| RF017 | EP-011, EP-015 | RF043 | EP-043 |
+| RF017 | EP-011, EP-012, EP-015 | RF043 | EP-043 |
 | RF018 | EP-019, EP-020 | RF044 | EP-043 |
 | RF019 | EP-009, EP-010, EP-022 | RF045 | EP-042, EP-043 |
 | RF020 | EP-021, EP-022 | RF046 | EP-042 |
-| RF021 | EP-025 | RF047 | EP-044 |
+| RF021 | EP-021, EP-025 | RF047 | EP-044 |
 | RF022 | EP-026 | RF048 (fora do âmbito) | — |
 | RF023 | EP-027 | RF049 (fora do âmbito) | — |
 | RF024 | EP-023, EP-024 | RF050 (fora do âmbito) | — |
