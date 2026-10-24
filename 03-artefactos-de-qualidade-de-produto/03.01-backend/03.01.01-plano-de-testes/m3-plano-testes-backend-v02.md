@@ -10,7 +10,7 @@
 | Milestone de Entrega | m3 |
 | Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria nem sprint; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I027 (v01, Sprint 03) está concluída e não é reaberta. |
 | Pasta de destino | `/projeto/03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.01-plano-de-testes` |
-| Fontes | `m3-declaracao-ambito-v05.pdf`; `m2-especificacao-requisitos-v01.md` (I012); `m3-especificacoes-casos-uso-v02.md` (I015); `m3-documentacao-api-v02.md` (I018); `m3-modelo-classes-backend-v02.md` (I020); `m2-documentacao-arquitetura-v01.md` (I019); `m1-plano-qualidade-processo-v01.pdf` (I006); `m3-regulamento-grupo-v02.md` (secção 11); Regulamento de Funcionamento da UC v19 (secções 17 e 19); código do backend em `src/backend` (PR #150, I058); `m3-plano-testes-backend-v01.md` (versão anterior) |
+| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-especificacao-requisitos-v02.md` (I012); `m3-especificacoes-casos-uso-v02.md` (I015); `m3-documentacao-api-v02.md` (I018); `m3-modelo-classes-backend-v02.md` (I020); `m3-documentacao-arquitetura-v02.md` (I019); `m1-plano-qualidade-processo-v01.pdf` (I006); `m3-regulamento-grupo-v02.md` (secção 11); Regulamento de Funcionamento da UC v19 (secções 17 e 19); código do backend em `src/backend` (PR #150, I058); `m3-plano-testes-backend-v01.md` (versão anterior) |
 
 ## Histórico de versões
 
@@ -66,13 +66,13 @@ Cumpre o conteúdo exigido pela secção 19 do Regulamento de Funcionamento da U
 
 | Documento | Utilização neste plano |
 |---|---|
-| Especificação de Requisitos (`m2-especificacao-requisitos-v01.md`) | RF001–RF036 e RF043–RF047 (em âmbito) e RNF001–RNF006 |
+| Especificação de Requisitos (`m3-especificacao-requisitos-v02.md`) | RF001–RF036 e RF043–RF047 (em âmbito) e RNF001–RNF006 |
 | Especificação dos Casos de Uso (`m3-especificacoes-casos-uso-v02.md`) | UC01–UC13, UC16 e UC17, fluxos alternativos a cobrir (UC14, UC15 e UC18 estão fora do âmbito) |
 | Documentação da API (`m3-documentacao-api-v02.md`) | 37 endpoints (EP-001 a EP-034 e EP-042 a EP-044), perfis, códigos HTTP, formato de erros, DTOs |
 | Modelo de Classes do Backend (`m3-modelo-classes-backend-v02.md`) | DTOs de pedido e de resposta de cada endpoint, nomes dos tipos a validar nos testes |
 | Declaração de Âmbito v05 (`m3-declaracao-ambito-v05.pdf`) | Funcionalidades em âmbito (F001, F002, F003, F004 e F006) |
 | Regulamento de Grupo v02 (`m3-regulamento-grupo-v02.md`, secção 11) | Tecnologias, ferramentas de teste, análise estática, cobertura mínima e quality gates QG-01 a QG-08 |
-| Documentação da Arquitetura (`m2-documentacao-arquitetura-v01.md`) | Camadas do backend (API, Aplicação, Domínio, Infraestrutura) e tecnologias |
+| Documentação da Arquitetura (`m3-documentacao-arquitetura-v02.md`) | Camadas do backend (API, Aplicação, Domínio, Infraestrutura) e tecnologias |
 | Plano de Qualidade do Processo (`m1-plano-qualidade-processo-v01.pdf`) | Quality gates QG-01 a QG-04, métrica MQ-02, regras de qualidade a verificar por funcionalidade (secção 6.2) e papéis |
 | Regulamento de Funcionamento da UC v19 (secções 17 e 19) | Artefactos obrigatórios de m3 e conteúdo do plano |
 | Backend (`src/backend`) | Estrutura da solução e dos projetos de teste (`UnitTests`, `IntegrationTests`) |
