@@ -718,7 +718,7 @@ enum DiaSemana {
 @enduml
 ```
 
-As enumerações `Perfil`, `EstadoUtilizador`, `Sexo`, `EstadoConsulta`, `TipoAdministracao` e `DiaSemana` seguem diretamente os valores definidos na Documentação da API v02. Os valores `Segunda` e `Sabado` constam dos exemplos da API; os restantes dias seguem o mesmo padrão e devem ser confirmados na API.
+As enumerações `Perfil`, `EstadoUtilizador`, `Sexo`, `EstadoConsulta`, `TipoAdministracao` e `DiaSemana` seguem diretamente os valores definidos na Documentação da API v02. Os valores de `DiaSemana` (`Segunda` a `Domingo`) constam da tabela de enumerações da API v02.
 
 `PerfilInterno` e `EstadoMarcacaoAtualizavel` são restrições de tipagem introduzidas apenas no Frontend Web para impedir, ainda na interface, valores que a própria API declara inválidos: o perfil `Cliente` não pode ser atribuído por EP-006/EP-007 e `Pendente` não é um destino válido em EP-027.
 
