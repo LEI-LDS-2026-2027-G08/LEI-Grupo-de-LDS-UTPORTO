@@ -17,7 +17,7 @@ Reunir num único ficheiro Markdown o código-fonte PlantUML dos ecrãs em âmbi
 | Versão | Milestone | Descrição |
 |---|---|---|
 | v01 | m2 | Protótipo em PDF, com os ficheiros `.puml` soltos em `fonte-prototipo-baixa-fidelidade/`. |
-| v02 | m3 | Código PlantUML dos ecrãs em âmbito incorporado neste ficheiro Markdown. Os ecrãs W14, W15, W17, W18 e M05 (F005 e F007) ficam fora do âmbito, de acordo com a Declaração de Âmbito v05: aparecem no índice e na secção 4 apenas como «fora do âmbito», sem código, e foram retirados do mapa de navegação. Os ficheiros `.puml` e o PDF da m2 mantêm-se inalterados. Neste ficheiro corrigiu-se a sintaxe dos ecrãs W07 e W12 (quebras de linha dentro do texto, que o PlantUML atual recusa) e das notas do mapa de navegação (a sequência `\n` aparecia como texto): o conteúdo dos ecrãs não mudou e os 20 diagramas processam-se sem erros. |
+| v02 | m3 | Código PlantUML dos ecrãs em âmbito incorporado neste ficheiro Markdown. Os ecrãs W14, W15, W17, W18 e M05 (F005 e F007) ficam fora do âmbito, de acordo com a Declaração de Âmbito v05: aparecem no índice e na secção 4 apenas como «fora do âmbito», sem código, e foram retirados do mapa de navegação. Os ficheiros `.puml` e o PDF da m2 mantêm-se inalterados. Neste ficheiro corrigiu-se a sintaxe dos ecrãs W07 e W12 (quebras de linha dentro do texto, que o PlantUML atual recusa) e das notas do mapa de navegação (a sequência `\n` aparecia como texto): o conteúdo dos ecrãs não mudou e os 20 diagramas processam-se sem erros. No índice e nas notas de W02, W04, M02, M03, M04 e M06 acrescentaram-se UC02 e RF003 (terminar sessão), porque estes ecrãs mostram o controlo «Terminar sessão» ou «Sair». |
 
 ## 3. Índice dos ecrãs
 
@@ -25,9 +25,9 @@ Reunir num único ficheiro Markdown o código-fonte PlantUML dos ecrãs em âmbi
 |---|---|---|---|---|
 | `00-mapa-navegacao.puml` | Mapa de Navegação - Gestão de Clínica Veterinária | - | - | - |
 | `W01-login-web.puml` | W01 — Login Web | Administrador, Rececionista, Veterinário, Auxiliar Veterinário | UC01 | RF001, RF002, RF004, RF005 |
-| `W02-funcionarios.puml` | W02 — Lista de Funcionários | - | UC03 | RF007, RF008, RF009 |
+| `W02-funcionarios.puml` | W02 — Lista de Funcionários | - | UC02 / UC03 | RF003, RF007, RF008, RF009 |
 | `W03-editar-funcionario.puml` | W03 — Criar / Editar Funcionário | - | UC03 | RF006, RF007, RF008, RF009 |
-| `W04-clientes.puml` | W04 — Lista e Pesquisa de Clientes | Administrador, Rececionista | UC04 | RF010, RF011 |
+| `W04-clientes.puml` | W04 — Lista e Pesquisa de Clientes | Administrador, Rececionista | UC02 / UC04 | RF003, RF010, RF011 |
 | `W05-detalhe-cliente.puml` | W05 — Detalhe / Criar / Editar Cliente | Administrador, Rececionista | UC04 | RF010, RF011 |
 | `W06-clinica-config-horarios.puml` | W06 — Clínica, Configurações e Horários | - | UC05 / UC09 | RF012, RF013, RF019 |
 | `W07-pacientes.puml` | W07 — Lista e Pesquisa de Pacientes | Rececionista, Veterinário | UC06 / UC07 | RF014, RF017 |
@@ -43,11 +43,11 @@ Reunir num único ficheiro Markdown o código-fonte PlantUML dos ecrãs em âmbi
 | `W17-internamentos.puml` | W17 — Painel de Internamentos — **fora do âmbito** | - | UC18 (fora do âmbito) | RF048, RF049, RF050 (fora do âmbito) |
 | `W18-detalhe-internamento.puml` | W18 — Detalhe do Internamento — **fora do âmbito** | - | UC18 (fora do âmbito) | RF048, RF049, RF050, RF051, RF052 (fora do âmbito) |
 | `M01-login-mobile.puml` | M01 — Login Mobile | - | UC01 | RF001, RF002, RF004, RF005 |
-| `M02-meus-animais.puml` | M02 — Os Meus Animais | - | UC08 | RF018 |
-| `M03-detalhe-animal.puml` | M03 — Detalhe do Animal | - | UC08 | RF018 |
-| `M04-consultas.puml` | M04 — Consultas | - | UC11 | RF028, RF029 |
+| `M02-meus-animais.puml` | M02 — Os Meus Animais | - | UC02 / UC08 | RF003, RF018 |
+| `M03-detalhe-animal.puml` | M03 — Detalhe do Animal | - | UC02 / UC08 | RF003, RF018 |
+| `M04-consultas.puml` | M04 — Consultas | - | UC02 / UC11 | RF003, RF028, RF029 |
 | `M05-despesas.puml` | M05 — Despesas e Pagamentos — **fora do âmbito** | - | UC15 (fora do âmbito) | RF042 (fora do âmbito) |
-| `M06-boletim.puml` | M06 — Boletim de Vacinação e Desparasitação | - | UC17 | RF047 |
+| `M06-boletim.puml` | M06 — Boletim de Vacinação e Desparasitação | - | UC02 / UC17 | RF003, RF047 |
 
 ## 4. Ecrãs
 
@@ -186,8 +186,8 @@ rectangle "CLÍNICA VETERINÁRIA   |   FUNCIONÁRIOS   |   [Terminar sessão]\n\
 
 note bottom of SCREEN
 Ator: Administrador
-UC03
-RF007, RF008, RF009
+UC02 / UC03
+RF003, RF007, RF008, RF009
 end note
 @enduml
 ```
@@ -240,8 +240,8 @@ rectangle "CLÍNICA VETERINÁRIA   |   CLIENTES   |   [Terminar sessão]\n\n[ + 
 
 note bottom of SCREEN
 Atores: Administrador, Rececionista
-UC04
-RF010, RF011
+UC02 / UC04
+RF003, RF010, RF011
 A pesquisa por proprietário do Veterinário é efetuada em W07
 end note
 @enduml
@@ -585,8 +585,8 @@ rectangle "┌──────────────────────
 
 note bottom of SCREEN
 Ator: Cliente
-UC08
-RF018
+UC02 / UC08
+RF003, RF018
 Consulta apenas — sem edição
 end note
 @enduml
@@ -613,8 +613,8 @@ rectangle "┌──────────────────────
 
 note bottom of SCREEN
 Ator: Cliente
-UC08
-RF018
+UC02 / UC08
+RF003, RF018
 Consulta apenas — sem edição
 end note
 @enduml
@@ -641,8 +641,8 @@ rectangle "┌──────────────────────
 
 note bottom of SCREEN
 Ator: Cliente
-UC11
-RF028, RF029
+UC02 / UC11
+RF003, RF028, RF029
 Sem criar, alterar ou cancelar marcações
 end note
 @enduml
@@ -673,8 +673,8 @@ rectangle "┌──────────────────────
 
 note bottom of SCREEN
 Ator: Cliente
-UC17
-RF047
+UC02 / UC17
+RF003, RF047
 Consulta apenas
 end note
 @enduml
