@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Modelo de domínio das sete funcionalidades, padrão estrutural da F003 e serviços previstos. Mantém-se inalterado como histórico (`m2-modelo-classes-backend-v01.md`). |
-| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito). Passa a incluir **todos os DTOs** dos 37 endpoints em âmbito, agrupados por funcionalidade, com a ligação entre entidades, DTOs e endpoints. Atualiza o padrão estrutural da F003 para os nomes de DTO da API. Aponta para a Documentação da API v02 e passa `DataProximaAdministracao` a `DateOnly?`, como a coluna `DATE` do modelo de dados e a API. |
+| v02 | 22/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito). Passa a incluir **todos os DTOs** dos 37 endpoints em âmbito, agrupados por funcionalidade, com a ligação entre entidades, DTOs e endpoints. Atualiza o padrão estrutural da F003 para os nomes de DTO da API. Aponta para a Documentação da API v02 e passa `DataProximaAdministracao` a `DateOnly?`, como a coluna `DATE` do modelo de dados e a API. Acrescenta `Marcacao.RowVersion` (token de concorrência otimista, decisão do Líder do grupo a 24/10/2026) e o tratamento do conflito (409) em `ConsultasService`. |
 
 ## 1. Objetivo
 
@@ -22,7 +22,7 @@ Este documento apresenta o modelo de classes previsto para o Backend do sistema 
 
 A versão v02 acrescenta duas coisas em relação à v01:
 
-1. **O âmbito atualizado.** A Declaração de Âmbito v05 passou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) para o não-âmbito. Estas funcionalidades, as respetivas entidades, enumerações e serviços deixam de fazer parte do modelo. O Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`, rascunho) já só tem as 16 tabelas em âmbito, mas as seis tabelas correspondentes ainda existem no esquema criado pelos scripts `m3-v01` e podem vir a ser mapeadas na camada de persistência (Issue I059 do Sprint 04), mas essa persistência não é exposta: não há entidades de domínio, serviços, endpoints nem DTOs destas funcionalidades neste modelo.
+1. **O âmbito atualizado.** A Declaração de Âmbito v05 passou as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) para o não-âmbito. Estas funcionalidades, as respetivas entidades, enumerações e serviços deixam de fazer parte do modelo. O Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`, rascunho) já só tem as 16 tabelas em âmbito. Os scripts `m3-v01` (Issue I060, concluída) ainda criam as seis tabelas retiradas; por decisão do Líder do grupo (24/10/2026), uma nova versão dos scripts (`m3-v02`, rascunho) retira-as, pelo que a camada de persistência (Issue I059 do Sprint 04) só mapeia as 16 tabelas em âmbito. Não há entidades de domínio, serviços, endpoints nem DTOs destas funcionalidades neste modelo.
 2. **Os DTOs.** Um DTO (*Data Transfer Object*) é uma classe simples, apenas com atributos, que transporta dados entre o backend e os frontends (web e mobile). Os DTOs correspondem ao pedido e à resposta de cada endpoint da `m3-documentacao-api-v02.md`. As entidades de domínio, que representam as tabelas da base de dados, **nunca** são expostas diretamente pela API. Esta separação evita, por exemplo, que o campo `PasswordHash` saia da API e permite alterar a base de dados sem alterar o contrato com os frontends.
 
 ### 1.1. Âmbito deste modelo
@@ -176,6 +176,7 @@ package "F003 - Agenda" {
     + CriadaPorId : int
     + DataCriacao : DateTime
     + DataUltimaAlteracao : DateTime?
+    + RowVersion : byte[]
   }
 
   class InformacaoApoio {
@@ -685,7 +686,7 @@ MinhaConsultaDto *-- AnimalRefDto : Animal
 @enduml
 ```
 
-`MinhasConsultasQuery.Tipo` aceita `futuras` (valor por omissão) ou `historico`. `CreateNotaPreparacaoDto.Texto` tem o máximo de 1000 caracteres. `NotaPreparacaoDto.ConsultaId` só vem preenchido na resposta de criação (EP-029). Tudo o que o Cliente vê em `MinhaConsultaDto` é informação administrativa, sem dados clínicos.
+`MinhasConsultasQuery.Tipo` aceita `futuras` (valor por omissão) ou `historico`. `CreateNotaPreparacaoDto.Texto` tem o máximo de 1000 caracteres. `NotaPreparacaoDto.ConsultaId` só vem preenchido na resposta de criação (EP-029). Tudo o que o Cliente vê em `MinhaConsultaDto` é informação administrativa, sem dados clínicos. A versão da marcação (`Marcacao.RowVersion`) não consta dos DTOs: viaja no cabeçalho `ETag` das respostas e volta no cabeçalho `If-Match` de EP-026, EP-027 e EP-028 (Documentação da API v02, secção 5.1).
 
 ### 3.7. F004 e F006 — Registo clínico e boletim de vacinas (EP-031 a EP-034 e EP-042 a EP-044)
 
@@ -835,7 +836,7 @@ Regras destes DTOs:
 | `Utilizador` + `Cliente` | `ClienteDto`, `ClienteListItemDto`, `CreateClienteDto`, `UpdateClienteDto` | O `Email` vem de `Utilizador.Email`. `EstadoConta` vem de `Utilizador.Estado`. |
 | `Clinica` + `HorarioFuncionamento` + `ConfiguracaoSistema` | `ClinicaDto`, `UpdateClinicaDto`, `PeriodoHorarioDto` | `DuracaoConsultaMinutos` vem de `ConfiguracaoSistema`. `DiaSemana` (byte na entidade) é convertido em nome. |
 | `Paciente` + `Especie` + `Raca` | `AnimalDto`, `AnimalListItemDto`, `CreateAnimalDto`, `UpdateAnimalDto`, `MeuAnimalDto`, `MeuAnimalListItemDto` | `Especie` e `Raca` são os nomes. `IdadeAnos` é calculada a partir de `DataNascimento`. |
-| `Marcacao` | `ConsultaDto`, `ConsultaListItemDto`, `CreateConsultaDto`, `UpdateConsultaDto`, `UpdateEstadoConsultaDto`, `ChegadaDto`, `MinhaConsultaDto` | `Paciente` ↔ `AnimalId`; `DataHoraInicio` ↔ `DataHora`; `DataHoraChegada` ↔ `ChegadaEm`. |
+| `Marcacao` | `ConsultaDto`, `ConsultaListItemDto`, `CreateConsultaDto`, `UpdateConsultaDto`, `UpdateEstadoConsultaDto`, `ChegadaDto`, `MinhaConsultaDto` | `Paciente` ↔ `AnimalId`; `DataHoraInicio` ↔ `DataHora`; `DataHoraChegada` ↔ `ChegadaEm`; `RowVersion` ↔ cabeçalho `ETag` (Base64), sem campo no DTO. |
 | `InformacaoApoio` | `NotaPreparacaoDto`, `CreateNotaPreparacaoDto` | `Descricao` ↔ `Texto`; `Autor` vem do nome do Auxiliar. |
 | `RegistoClinico` + `Tratamento` + `Prescricao` | `RegistoClinicoDto`, `RegistoClinicoResumoDto`, `HistoricoClinicoDto`, `CreateRegistoClinicoDto`, `UpdateRegistoClinicoDto`, `TratamentoDto`, `PrescricaoDto` | `MarcacaoId` ↔ `ConsultaId`; `Marcacao.PacienteId` ↔ `AnimalId`. |
 | `RegistoProfilaxia` | `AdministracaoDto`, `CreateAdministracaoDto`, `BoletimDto`, `MeuBoletimDto`, `ProximaAdministracaoDto` | `DataProximaAdministracao` ↔ `DataProximaPrevista`. `Veterinario` vem do nome do Funcionário. |
@@ -894,7 +895,7 @@ Para demonstrar a organização em camadas definida na Arquitetura, apresenta-se
 |---|---|---|
 | `ConsultasController` | Controller | Recebe os pedidos HTTP já sujeitos à autenticação/autorização do backend, delega a lógica ao serviço e devolve as respostas JSON. |
 | `IConsultasService` | Interface | Define o contrato das operações de negócio do módulo de Consultas. |
-| `ConsultasService` | Service | Implementa a lógica de negócio, incluindo regras de transição de estado e verificação de disponibilidade do veterinário. Converte a entidade `Marcacao` nos DTOs de resposta. |
+| `ConsultasService` | Service | Implementa a lógica de negócio, incluindo regras de transição de estado e verificação de disponibilidade do veterinário. Converte a entidade `Marcacao` nos DTOs de resposta. Nas alterações de EP-026, EP-027 e EP-028 usa `RowVersion` como token de concorrência: copia o `If-Match` para o valor original e converte a `DbUpdateConcurrencyException` em 409. |
 | `ClinicaDbContext` | DbContext | Gere a ligação à base de dados SQL Server, mapeia as entidades de domínio utilizando a abordagem Code-First (DbSets) e assegura as migrações. |
 | `CreateConsultaDto` | DTO de entrada | Estrutura de dados de entrada para o registo de uma consulta (EP-025). |
 | `UpdateEstadoConsultaDto` | DTO de entrada | Estrutura de dados de entrada para a alteração do estado (EP-027). |
@@ -1018,11 +1019,13 @@ As assinaturas concretas dos endpoints são as definidas em `m3-documentacao-api
 | 2 | **O Veterinário é um objeto em alguns DTOs (`VeterinarioRefDto`) e um texto noutros** (`MinhaConsultaDto`, `RegistoClinicoDto`, `AdministracaoDto`), como no contrato da API v01. | Uniformizar para `VeterinarioRefDto` na API v02, ou documentar a diferença. |
 | 3 | **`DiaSemana`** é usada em EP-009 e EP-010 mas não estava na tabela de enumerações da API v01. | **Resolvido:** a API v02 já inclui `DiaSemana` na tabela de enumerações. |
 | 4 | **Baseline v02 do backlog (RF053 a RF056).** O backlog em preparação refere requisitos que ainda não existem na Especificação de Requisitos da M2: Cliente sem conta de acesso (RF053, RF054), horários regulares de atendimento por Veterinário (RF055) e atualização de um registo de vacinação ou desparasitação (RF056). | Quando os Requisitos v02 e a API v02 estiverem aprovados, acrescentar a este modelo as entidades e DTOs correspondentes (por exemplo, `Utilizador` opcional em `Cliente`, um horário por Veterinário e `UpdateAdministracaoDto`). Este modelo cobre apenas os 37 endpoints atuais. |
-| 5 | **Tabelas de F005 e F007 ainda existentes** nos scripts SQL `m3-v01`, embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito e o Modelo de Dados v02 (rascunho) já só tenha 16 tabelas. | O grupo decide (secção 9.1 do Modelo de Dados v02) se a persistência mantém essas tabelas nos scripts (sem as expor) ou se são retiradas numa nova versão dos scripts. Se se mantiverem, a Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1, 3 e 4 (todas as tabelas, rowversion e comparação com o esquema dos scripts) se aplicam só às 16 tabelas em âmbito. O controlo de concorrência (`rowversion`) está em aberto na secção 9.2 do Modelo de Dados v02. |
+| 5 | **Tabelas de F005 e F007 nos scripts `m3-v01`.** O Modelo de Dados v02 (rascunho) tem 16 tabelas e os scripts `m3-v01` criam 22. | **Decidido pelo Líder do grupo a 24/10/2026 (Modelo de Dados v02, ponto 9.1, opção B):** uma nova versão dos scripts (`m3-v02`, rascunho) retira as seis tabelas. A Issue I059 (GitHub #16) mede os critérios de aceitação 1 e 4 (todas as tabelas e comparação com o esquema dos scripts) contra as 16 tabelas da `m3-v02`; o registo na Issue fica por fazer. |
+| 6 | **Controlo de concorrência (`rowversion`).** O critério 3 da I059 pede `rowversion` para a consulta. | **Decidido pelo Líder do grupo a 24/10/2026 (Modelo de Dados v02, ponto 9.2, opção B2):** `Marcacao.RowVersion` (`byte[]`), configurada com `IsRowVersion()` (ou `[Timestamp]`). A versão viaja em `ETag` e `If-Match` (Documentação da API v02, secção 5.1). Ainda por decidir: se a versão passa antes para um campo `versao` dos DTOs (ponto em aberto 5 da API v02). |
 
 ## 8. Regras de consistência do modelo
 
 - `Funcionario.PodeRegistarApoio` só tem efeito para o perfil `AuxiliarVeterinario` e é verificado antes de criar `InformacaoApoio` (RF027).
+- `Marcacao.RowVersion` é o token de concorrência da marcação: nunca é escrita pelo backend, só lida e comparada. Se `If-Match` não corresponder à versão atual, ou se a gravação falhar com `DbUpdateConcurrencyException`, o serviço devolve 409 e não altera a marcação (EP-026, EP-027, EP-028).
 - `HorarioFuncionamento` admite vários períodos no mesmo dia; o serviço rejeita períodos sobrepostos antes da persistência (RF019).
 - a criação e atualização de pacientes utiliza apenas os dados administrativos definidos no contrato da API; o e-mail do Cliente pertence a `Utilizador.Email`.
 - as entidades de domínio não são devolvidas pela API; qualquer resposta passa por um DTO, que nunca inclui `PasswordHash`.
