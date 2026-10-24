@@ -27,7 +27,7 @@
 | Matriz endpoint × perfil | 51 × 6 = 306 → 37 × 6 = **222 verificações**. |
 | Tecnologias | ASP.NET Core 10 e EF Core 10, SQL Server 2025, frontend mobile Android (Kotlin) em vez de Flutter. ReportGenerator 5.5. Roslyn Analyzers do SDK 10. |
 | Quality gates | Acrescentado o QG-08 (formatação com `dotnet format`). A divergência de versões (D-02) fica decidida pelo Regulamento de Grupo v02. |
-| Concorrência | Nova condição CT-F003-09 e código 409 acrescentado a EP-026, EP-027 e EP-028 na tabela 15.1, conforme a Documentação da API v02 (secção 5.1) e a decisão do Líder do grupo de 24/10/2026. |
+| Concorrência | Nova condição CT-F003-09 e códigos 409 e 412 acrescentados a EP-026, EP-027 e EP-028 na tabela 15.1, conforme a Documentação da API v02 (secção 5.1) e a decisão do Líder do grupo de 24/10/2026. |
 | Rastreabilidade | Corrigidas as origens de CT-F006-01 (cálculo da próxima administração é RF045, não RF044) e CT-F006-02 (registar vacinação e desparasitação são RF043 e RF044, não RF043 e RF045), de acordo com a Especificação de Requisitos. |
 | Rastreabilidade | Tabela 15.1 com 37 endpoints; RF037–RF042 e RF048–RF052 identificados como fora do âmbito. |
 
@@ -125,7 +125,7 @@ Complementarmente, a **cobertura** (OF-M3-014) é medida sobre T1 e T2 em conjun
 Para cada endpoint, o teste de integração verifica, no mínimo:
 
 1. **Caminho feliz** com o perfil autorizado e o código de resposta documentado (200, 201 ou 204) e o corpo esperado.
-2. **Cada código de erro documentado** na API (400, 404, 409, 422), com dados que provocam exatamente esse erro.
+2. **Cada código de erro documentado** na API (400, 404, 409, 412, 422), com dados que provocam exatamente esse erro.
 3. **Pedido sem token ou com token inválido/expirado/revogado** — 401.
 4. **Cada perfil não autorizado** — 403 (matriz de permissões, secção 10.6).
 5. **Persistência**: nas operações de escrita, o dado fica disponível no endpoint de consulta correspondente (RNF005); nos erros, não há alteração persistida (secção 11 da Arquitetura).
@@ -305,7 +305,7 @@ As condições seguintes concretizam as regras críticas do Plano de Qualidade (
 | CT-F003-06 | O Veterinário apenas consulta a agenda e as consultas que lhe estão atribuídas; consulta de outro Veterinário → 403; não cria, altera nem cancela | I | RF024, RNF001 |
 | CT-F003-07 | O Auxiliar Veterinário regista notas de preparação (não clínicas) apenas com autorização ativa; texto vazio ou > 1000 caracteres → 400; marcação `Cancelada` → 422 | U, I | RF027 |
 | CT-F003-08 | O Cliente consulta apenas as suas marcações em `/me/consultas` (futuras e histórico administrativo), sem dados clínicos e sem marcar, alterar ou cancelar | I | RF028, RF029, RNF002 |
-| CT-F003-09 | Alteração concorrente da mesma marcação (EP-026, EP-027, EP-028): com `If-Match` desatualizado → 409 e a marcação fica como estava; com o `ETag` atual → sucesso e `ETag` novo; duas gravações simultâneas sem `If-Match` → uma delas devolve 409. Executar com SQL Server real (D-10) | I | RF022, RF023, RF025 |
+| CT-F003-09 | Alteração concorrente da mesma marcação (EP-026, EP-027, EP-028): com `If-Match` desatualizado → 412 e a marcação fica como estava; com o `ETag` atual → sucesso e `ETag` novo; duas gravações simultâneas sem `If-Match` → uma delas devolve 409. Verificar também que a política de CORS expõe o `ETag` e aceita o `If-Match`. Executar com SQL Server real (D-10) | I | RF022, RF023, RF025 |
 
 ### 10.4. F004 — Registo clínico e tratamentos
 
@@ -448,9 +448,9 @@ A Collection Postman e o relatório de cobertura têm tarefas próprias no Backl
 | EP-023 | `GET /consultas` | Rec., Vet., Aux. Vet. | RF024, RF026 | UC09 (A3, A4), UC10 | 2xx, 400, 401, 403 | Sim | Sim | Sim |
 | EP-024 | `GET /consultas/{id}` | Rec., Vet., Aux. Vet. | RF024, RF026 | UC09, UC10 | 2xx, 401, 403, 404 | Sim | Sim | Sim |
 | EP-025 | `POST /consultas` | Rec. | RF021 | UC09 | 2xx, 400, 401, 403, 404, 422 | Sim | Sim | Sim |
-| EP-026 | `PUT /consultas/{id}` | Rec. | RF022 | UC09 (A1) | 2xx, 400, 401, 403, 404, 409, 422 | Sim | Sim | Sim |
-| EP-027 | `PATCH /consultas/{id}/estado` | Rec. | RF023 | UC09 (A2) | 2xx, 400, 401, 403, 404, 409, 422 | Sim | Sim | Sim |
-| EP-028 | `PATCH /consultas/{id}/chegada` | Rec. | RF025 | UC09 (A5) | 2xx, 401, 403, 404, 409, 422 | Sim | Sim | Sim |
+| EP-026 | `PUT /consultas/{id}` | Rec. | RF022 | UC09 (A1) | 2xx, 400, 401, 403, 404, 409, 412, 422 | Sim | Sim | Sim |
+| EP-027 | `PATCH /consultas/{id}/estado` | Rec. | RF023 | UC09 (A2) | 2xx, 400, 401, 403, 404, 409, 412, 422 | Sim | Sim | Sim |
+| EP-028 | `PATCH /consultas/{id}/chegada` | Rec. | RF025 | UC09 (A5) | 2xx, 401, 403, 404, 409, 412, 422 | Sim | Sim | Sim |
 | EP-029 | `POST /consultas/{id}/notas-preparacao` | Aux. Vet. | RF027 | UC10 (A1) | 2xx, 400, 401, 403, 404, 422 | Sim | Sim | Sim |
 | EP-030 | `GET /me/consultas` | Cliente | RF028, RF029 | UC11 | 2xx, 400, 401, 403 | Não | Sim | Sim |
 | EP-031 | `POST /registos-clinicos` | Vet. | RF030, RF031, RF032, RF033 | UC12 (fluxo principal, E1 a E5) | 2xx, 400, 401, 403, 404, 409, 422 | Sim | Sim | Sim |
