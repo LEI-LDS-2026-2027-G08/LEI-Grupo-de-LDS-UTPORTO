@@ -67,7 +67,7 @@ A versão v02 reflete a Declaração de Âmbito v05: as funcionalidades F005 (Ge
 | `m3-prototipo-baixa-fidelidade-v02.md` | Ecrãs W01–W13 e W16 e organização prevista da interface Web. |
 | `m3-documentacao-arquitetura-v02.md` | ARC-WEB, ARC-API, autenticação, autorização e separação de responsabilidades. Tecnologias conforme o Regulamento Interno do Grupo v02. |
 | `m3-documentacao-api-v02.md` | Endpoints, contratos JSON, DTOs, perfis autorizados, erros e enumerações. |
-| `m2-modelo-de-dados-clinica-veterinaria-v01.md` | Entidades e conceitos persistentes relevantes para os DTOs. |
+| `m3-modelo-de-dados-clinica-veterinaria-v02.md` (rascunho) | Entidades e conceitos persistentes relevantes para os DTOs (16 tabelas, sem F005 e F007). |
 | `m3-modelo-classes-backend-v02.md` | Nomenclatura e estruturas previstas no backend, incluindo os DTOs. |
 | `m3-diagrama-sequencia-autenticar-utilizador-v02.md` | Fluxo UC01 e armazenamento do token no cliente. |
 
