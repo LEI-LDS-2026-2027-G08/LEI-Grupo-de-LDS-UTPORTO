@@ -52,7 +52,7 @@ O número de linhas deve ser adaptado ao número de alunos que constitui oficial
 | Versão | Data | Descrição das alterações | Reunião e ata de aprovação |
 | --- | --- | --- | --- |
 | v01 | 25/09/2026 | Aprovação inicial do Regulamento Interno do Grupo. | m1-20260925-controlo-final-milestone-ata-v01.pdf |
-| v02 | 24/10/2026 | Substituição do SharePoint pelo GitHub, novo endereço do repositório, atualização das tecnologias (.NET 10, Node.js 24 LTS, React e TypeScript no frontend web e Kotlin no frontend mobile), adoção das regras do typescript-eslint no frontend web e do ktlint e do Android Lint no frontend mobile (secções 11.3 e 11.4), novo planeamento das reuniões (secção 8.1), nova etiqueta frontend-mobile (secção 9.2) e novo quality gate de formatação (secção 11.6). | m3-s03-20261024-ata-alteracao-regulamento-v01.pdf |
+| v02 | 24/10/2026 | Substituição do SharePoint pelo GitHub, novo endereço do repositório, atualização das tecnologias (.NET 10, Node.js 24 LTS, React e TypeScript no frontend web e Kotlin no frontend mobile), adoção das regras do typescript-eslint no frontend web e do ktlint e do Android Lint no frontend mobile (secções 11.3 e 11.4), novo planeamento das reuniões (secção 8.1), nova etiqueta frontend-mobile (secção 9.2) e novo quality gate de formatação (secção 11.6). | m3-20261023-reuniao-extraordinaria-ata-v01.pdf |
 
 Cada alteração futura deve acrescentar uma linha. As versões anteriores são conservadas no arquivo do projeto.
 
