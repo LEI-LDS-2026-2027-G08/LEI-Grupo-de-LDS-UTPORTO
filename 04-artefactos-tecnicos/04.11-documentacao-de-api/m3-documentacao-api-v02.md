@@ -11,7 +11,7 @@
 | Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I018 (v01, m2) está concluída e não é reaberta. |
 | Estado | Rascunho para revisão e auditoria |
 | Pasta de destino | `/projeto/04-artefactos-tecnicos/04.11-documentacao-de-api` |
-| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-proposta-sistema-v05.pdf`; `m2-especificacao-requisitos-v01.md`; `m2-especificacoes-casos-uso-v01.md`; `m2-documentacao-arquitetura-v01.md`; `m3-modelo-classes-backend-v02.md`; `m3-regulamento-grupo-v02.md`; `m2-documentacao-api-v01.md` (versão anterior) |
+| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-proposta-sistema-v05.pdf`; `m3-especificacao-requisitos-v02.md`; `m3-especificacoes-casos-uso-v02.md`; `m3-documentacao-arquitetura-v02.md`; `m3-modelo-classes-backend-v02.md`; `m3-regulamento-grupo-v02.md`; `m2-documentacao-api-v01.md` (versão anterior) |
 
 ## Histórico de versões
 
@@ -1151,7 +1151,7 @@ Os endpoints EP-001 a EP-003 são partilhados pelos dois clientes: 33 endpoints 
 
 ### 12.3. Ligação a requisitos funcionais e casos de uso
 
-A matriz seguinte relaciona cada endpoint com os requisitos funcionais definidos em `m2-especificacao-requisitos-v01.md` e com os casos de uso descritos em `m2-especificacoes-casos-uso-v01.md`.
+A matriz seguinte relaciona cada endpoint com os requisitos funcionais definidos em `m3-especificacao-requisitos-v02.md` e com os casos de uso descritos em `m3-especificacoes-casos-uso-v02.md`.
 
 | Endpoint | Método e rota | Requisito(s) | Caso(s) de uso |
 |---|---|---|---|
