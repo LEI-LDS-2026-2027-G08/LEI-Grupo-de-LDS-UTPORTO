@@ -494,7 +494,7 @@ Esta lista regista as decisões deste plano (evidência exigida na I027). Todas 
 | ID | Decisão | Justificação | Estado |
 |---|---|---|---|
 | D-01 | Testes de integração com `WebApplicationFactory`, Testcontainers (SQL Server) e Respawn | Base de dados real e isolada por execução, alinhada com o Plano de Qualidade e com o SQL Server da Arquitetura; evita dependência de uma base partilhada | Proposta |
-| D-02 | Alinhar o código com as versões do Regulamento de Grupo v02 (secção 11.2): .NET 10 (I059), xUnit 2.6 e Moq 4.20 (I091) | O código atual usa .NET 8 e xUnit 2.5.3; o Regulamento de Grupo v02, assinado em 21/10/2026, fixa as versões novas | **Decidida** (Regulamento de Grupo v02) |
+| D-02 | Alinhar o código com as versões do Regulamento de Grupo v02 (secção 11.2): .NET 10 (I059), xUnit 2.6 e Moq 4.20 (I091) | O código atual usa .NET 8 e xUnit 2.5.3; o Regulamento de Grupo v02, assinado em 24/10/2026, fixa as versões novas | **Decidida** (Regulamento de Grupo v02) |
 | D-03 | Limiar obrigatório LT-01 (linhas ≥ 70% em Domínio e Serviços); LT-02 e LT-03 como metas informativas e de revisão | Respeita o Plano de Qualidade sem criar novos quality gates; foca o esforço onde o risco é maior | Proposta |
 | D-04 | Matriz endpoint × perfil gerada de forma parametrizada a partir de uma tabela única | Garante 222 verificações com manutenção mínima e rastreabilidade direta à matriz de permissões da API | Proposta |
 | D-05 | Newman recomendado na pipeline como evidência complementar, mas fora dos quality gates | O Plano de Qualidade v02 define QG-01 a QG-08 e nenhum é do Newman; acrescentar um gate novo exigiria alterar o Plano | Proposta |
