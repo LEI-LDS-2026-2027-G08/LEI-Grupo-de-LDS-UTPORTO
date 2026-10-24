@@ -28,6 +28,7 @@
 | Exclusões (secção 15) | Pagamentos e internamentos tratados como elementos específicos da arquitetura | Passam a constar também como funcionalidades fora do âmbito | Declaração de Âmbito v05 |
 | Decisões (secção 16) | DA-ARQ-01 a DA-ARQ-09 | DA-ARQ-04 e DA-ARQ-05 atualizadas; acrescentadas DA-ARQ-10 e DA-ARQ-11 | Pontos anteriores |
 | Referências (secção 2) | Documentos da m1 e m2 | Documentos em vigor na m3 | Controlo de versões |
+| Backend / API (secção 7.3) | Sem referência ao CORS | Nota sobre a política de CORS (`ETag` exposto, `If-Match` aceite) para o controlo de concorrência das marcações | Documentação da API v02, secção 5.1 |
 | Base de dados (secção 7.13) | Tabelas para F001 a F007 | Nota: o Modelo de Dados v02 (rascunho) já tem só as 16 tabelas em âmbito, e `Marcacao` ganha a coluna `RowVersion`. O Líder do grupo decidiu (24/10/2026) retirar as tabelas de F005 e F007 numa nova versão dos scripts, `m3-v02` (rascunho). Ponto em aberto na secção 20 | Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`, rascunho) e scripts `m3-v02` (rascunho, ainda não executados) |
 | Histórico e estado | — | Acrescentados | Controlo de versões |
 
@@ -196,6 +197,8 @@ O Frontend Mobile não permite administração de contas, alteração das fichas
 - devolver resultados e erros às aplicações cliente.
 
 O Backend / API constitui o ponto central de aplicação das regras funcionais e de segurança.
+
+**Nota (v02, proposta a confirmar pelo Revisor):** o Frontend Web corre no browser e, se estiver noutra origem que a API, a política de CORS do backend tem de autorizar essa origem, expor o cabeçalho `ETag` (`Access-Control-Expose-Headers`) e aceitar o cabeçalho `If-Match` (`Access-Control-Allow-Headers`). Sem isto, o browser não deixa o frontend ler a versão da marcação nem enviá-la de volta (secção 5.1 da Documentação da API v02).
 
 ---
 
@@ -753,4 +756,4 @@ A documentação técnica e os diagramas versionáveis são preservados no repos
 
 | N.º | Ponto | Decisão necessária |
 |---|---|---|
-| 1 | Os scripts SQL `m3-v01` ainda criam as tabelas de F005 e F007 (6 das 22 tabelas), embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito e o Modelo de Dados v02 (rascunho) já só tenha 16 tabelas. | **Decidido pelo Líder do grupo a 24/10/2026** (secção 9.1 do Modelo de Dados v02): retirar as seis tabelas numa nova versão dos scripts, `m3-v02` (rascunho, não executada; o Executor e o Revisor têm de a correr num SQL Server). A Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1 e 4 se medem contra as 16 tabelas da `m3-v02`. O critério 3 (`rowversion`) fica cumprido pela coluna `Marcacao.RowVersion`, também decidida a 24/10/2026 (secção 9.2 do mesmo modelo), que a API trata com `ETag` e `If-Match` e responde 409 em conflito. |
+| 1 | Os scripts SQL `m3-v01` ainda criam as tabelas de F005 e F007 (6 das 22 tabelas), embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito e o Modelo de Dados v02 (rascunho) já só tenha 16 tabelas. | **Decidido pelo Líder do grupo a 24/10/2026** (secção 9.1 do Modelo de Dados v02): retirar as seis tabelas numa nova versão dos scripts, `m3-v02` (rascunho, não executada; o Executor e o Revisor têm de a correr num SQL Server). A Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1 e 4 se medem contra as 16 tabelas da `m3-v02`. O critério 3 (`rowversion`) fica cumprido pela coluna `Marcacao.RowVersion`, também decidida a 24/10/2026 (secção 9.2 do mesmo modelo), que a API (proposta a confirmar pelo Revisor) trata com `ETag` e `If-Match` e responde 412 quando o `If-Match` está desatualizado e 409 em gravações simultâneas. |
