@@ -18,7 +18,7 @@
 
 ## 1. Objetivo
 
-Este documento apresenta o modelo de classes previsto para o Backend do sistema (ARC-API). De acordo com a arquitetura estabelecida (`m2-documentacao-arquitetura-v01.md`), o modelo reflete a organização em camadas do ASP.NET Core e as entidades persistidas através de Entity Framework Core. A tecnologia de referência do backend é a registada no Regulamento Interno do Grupo G08 v02 (secção 11.2: C# 14, ASP.NET Core 10 e Entity Framework Core 10).
+Este documento apresenta o modelo de classes previsto para o Backend do sistema (ARC-API). De acordo com a arquitetura estabelecida (`m3-documentacao-arquitetura-v02.md`), o modelo reflete a organização em camadas do ASP.NET Core e as entidades persistidas através de Entity Framework Core. A tecnologia de referência do backend é a registada no Regulamento Interno do Grupo G08 v02 (secção 11.2: C# 14, ASP.NET Core 10 e Entity Framework Core 10).
 
 A versão v02 acrescenta duas coisas em relação à v01:
 
