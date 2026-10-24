@@ -18,7 +18,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | 25/09/2026 | Plano de Qualidade inicial (m1). Mantém-se inalterado como histórico (`m1-plano-qualidade-processo-v01.md` e `.pdf`). |
-| v02 | 23/10/2026 | Alinha o plano com o Regulamento Interno do Grupo v02 (21/10/2026): tecnologias (.NET 10, React 19.3 e TypeScript 6.0, Android nativo em Kotlin com Jetpack Compose), GitHub em vez de SharePoint, quality gates QG-01 a QG-08. Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito) e a CCA (v07 homologada e v08 com as novas versões documentais). Os objetivos, responsabilidades, procedimentos de processo e métricas não mudam. |
+| v02 | 23/10/2026 | Alinha o plano com o Regulamento Interno do Grupo v02 (24/10/2026): tecnologias (.NET 10, React 19.3 e TypeScript 6.0, Android nativo em Kotlin com Jetpack Compose), GitHub em vez de SharePoint, quality gates QG-01 a QG-08. Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito) e a CCA (v07 homologada e v08 com as novas versões documentais). Os objetivos, responsabilidades, procedimentos de processo e métricas não mudam. |
 
 ---
 ## 1. Objetivo e Âmbito
@@ -36,7 +36,7 @@ Este plano articula-se diretamente com os documentos oficiais da UC e com os art
 
 * Regulamento de Funcionamento da Unidade Curricular de LDS (v19) e documento Avaliação Interna dos Grupos;
 
-* Regulamento Interno do Grupo G08 (`m3-regulamento-grupo-v02.pdf`, assinado a 21/10/2026; a v01 mantém-se como histórico);
+* Regulamento Interno do Grupo G08 (`m3-regulamento-grupo-v02.pdf`, assinado a 24/10/2026; a v01 mantém-se como histórico);
 
 * Proposta de Sistema homologada (`m1-proposta-sistema-v03.pdf` — código CCA `OF-M1-001`) e a sua reposição integral em `m3-proposta-sistema-v05.pdf` (código CCA `AD-002`, homologada a 21/10/2026);
 
