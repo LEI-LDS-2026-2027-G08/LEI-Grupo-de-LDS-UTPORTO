@@ -872,7 +872,7 @@ Este modelo tem 16 tabelas. Os scripts da Issue I060 (`04.13-scripts-de-base-de-
 
 Falta:
 
-1. O Executor e o Revisor executarem a `m3-v02` num SQL Server vazio (`executar-scripts` com `-Verificar` e `-Testar`) e anexarem o registo. Os scripts foram verificados por leitura e por programa, **não executados**.
+1. ~~Executar a `m3-v02` num SQL Server vazio.~~ **Feito a 24/10/2026** (SQL Server 2025 RTM 17.0.1000.7, `executar-scripts` com `-Verificar` e `-Testar`): `verificar-esquema.sql` com 237 verificações e 0 divergências, 41 testes de restrições OK e uma repetição sem alterações e sem divergências. Os registos `esquema-execucao-20261024-232702.log` e `esquema-execucao-20261024-232732.log` estão na pasta da `m3-v02`. Falta a revisão e anexar os registos à Issue I059.
 2. Registar na Issue I059 que os critérios de aceitação 1 (todas as tabelas) e 4 (modelo EF sem diferenças face ao esquema) se medem contra as 16 tabelas da `m3-v02`.
 3. Rever os dados da Issue I061 que preencham `Alojamento` (ponto 9.3).
 
@@ -918,7 +918,7 @@ Alinhados em rascunho a 24/10/2026: Documentação da Arquitetura v02 (secção 
 Por alinhar quando o grupo aprovar:
 
 - Registo das decisões 9.1 e 9.2 na Issue I059 (texto preparado em separado; as Issues não foram alteradas).
-- Execução da `m3-v02` num SQL Server e anexação do registo.
+- Anexação dos registos de execução da `m3-v02` (feita a 24/10/2026) à Issue I059.
 - Frontend web: guardar o `ETag` lido em EP-024 e enviá-lo em `If-Match` (depende do ponto em aberto 5 da API).
 - CCA: linha para os scripts `m3-v02`, se a entrega do marco passar a ser esta versão.
 
