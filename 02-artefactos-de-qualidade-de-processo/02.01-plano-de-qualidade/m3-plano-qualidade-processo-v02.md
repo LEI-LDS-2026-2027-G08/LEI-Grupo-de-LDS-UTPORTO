@@ -56,7 +56,7 @@ O Grupo G08 estabelece os seguintes objetivos mensuráveis de qualidade para o p
 
 1. **Independência Estrita de Papéis:** Garantir que 100% das tarefas normais são executadas, revistas e auditadas por três alunos distintos (Executor, Revisor e Auditor), impedindo técnica e processualmente qualquer autoaprovação de código ou documentação.
 
-2. **Cumprimento Integral da CCA e do Âmbito (`F001` a `F004` e `F006`; `F005` e `F007` estão fora do âmbito desde a Declaração de Âmbito `v05`):** Assegurar a entrega atempada e validada dos **67 artefactos com compromisso assumido na CCA `v08`** (`3` em `m1`, `12` em `m2`, `30` em `m3` e `22` em `m4`), mantendo rastreabilidade total na *Requirements Traceability Matrix* (RTM — `OF-M2-003`, `OF-M3-001` e `OF-M4-001`).
+2. **Cumprimento Integral da CCA e do Âmbito (`F001` a `F004` e `F006`; `F005` e `F007` estão fora do âmbito desde a Declaração de Âmbito `v05`):** Assegurar a entrega atempada e validada dos **68 artefactos com compromisso assumido na CCA `v08`** (`3` em `m1`, `12` em `m2`, `31` em `m3` e `22` em `m4`), mantendo rastreabilidade total na *Requirements Traceability Matrix* (RTM — `OF-M2-003`, `OF-M3-001` e `OF-M4-001`).
 
 3. **Qualidade e Padronização dos Requisitos:** Garantir que 100% dos requisitos especificados em `OF-M2-001` (e na versão 2, `AD-012`) são avaliados face aos 11 critérios definidos em `m1-criterios-qualidade-requisitos-v01.md` e obtêm o resultado final `Aprovado` na Checklist de Aprovação dos Requisitos (`OF-M2-002`).
 
