@@ -15,7 +15,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Versão inicial da Documentação da Arquitetura (Issue I019). Mantém-se inalterada como histórico (`m2-documentacao-arquitetura-v01.md`). |
-| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito) e as tecnologias do Regulamento Interno do Grupo v02 (21/10/2026). Os componentes, as responsabilidades, as decisões e os diagramas que não dependem destas duas alterações mantêm-se. |
+| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito) e as tecnologias do Regulamento Interno do Grupo v02 (24/10/2026). Os componentes, as responsabilidades, as decisões e os diagramas que não dependem destas duas alterações mantêm-se. |
 
 ### Alterações da v02 em relação à v01
 
@@ -135,7 +135,7 @@ A organização interna do backend é lógica e modular. Os módulos corresponde
 | Diagramas técnicos | PlantUML | Fonte textual incluída nos documentos Markdown |
 | Controlo de versões | Git / GitHub | Repositório único do projeto |
 
-As tecnologias identificadas nesta secção correspondem aos compromissos técnicos definidos pelo Grupo G08 no Regulamento Interno do Grupo v02 (secção 11.2, de 21/10/2026).
+As tecnologias identificadas nesta secção correspondem aos compromissos técnicos definidos pelo Grupo G08 no Regulamento Interno do Grupo v02 (secção 11.2, de 24/10/2026).
 
 ---
 
@@ -619,7 +619,7 @@ O backend usa .NET 10, o frontend web usa React 19.3 com TypeScript 6.0 e o fron
 
 O código existente do backend (.NET 8, tarefa I058) é migrado para .NET 10 na tarefa I059 (Sprint 04), de acordo com a decisão D-02 do Plano de Testes do Backend v02.
 
-**Justificação:** secção 11.2 do Regulamento Interno do Grupo v02 (21/10/2026), que substituiu as tecnologias da v01 (.NET 8, React 18.2 e Flutter).
+**Justificação:** secção 11.2 do Regulamento Interno do Grupo v02 (24/10/2026), que substituiu as tecnologias da v01 (.NET 8, React 18.2 e Flutter).
 
 ---
 
