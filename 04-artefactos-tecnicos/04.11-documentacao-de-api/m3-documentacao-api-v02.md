@@ -1190,7 +1190,7 @@ A matriz seguinte relaciona cada endpoint com os requisitos funcionais definidos
 | EP-033 | `GET /registos-clinicos/{id}` | RF035, RF036 | UC12 (A2), UC13 |
 | EP-034 | `GET /animais/{id}/historico-clinico` | RF035, RF036 | UC12 (A3), UC13 |
 | EP-042 | `GET /animais/{id}/vacinacoes` | RF046, RF045 | UC16 (A2) |
-| EP-043 | `POST /animais/{id}/vacinacoes` | RF043, RF044, RF045 | UC16, UC16 (A1) |
+| EP-043 | `POST /animais/{id}/vacinacoes` | RF043, RF044, RF045 | UC16 (fluxo principal e A1) |
 | EP-044 | `GET /me/animais/{id}/vacinacoes` | RF047 | UC17 |
 
 Os endpoints EP-035 a EP-041 e EP-045 a EP-051 foram retirados e os seus números não voltam a ser usados.
