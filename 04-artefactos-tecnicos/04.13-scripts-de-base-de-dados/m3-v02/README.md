@@ -7,7 +7,7 @@
 | Milestone / Sprint | M3 / Sprint 04 (rascunho) |
 | Executor / Revisor / Auditor | Por atribuir |
 | Versão | m3-v02 (`/projeto/04-artefactos-tecnicos/04.13-scripts-de-base-de-dados/m3-v02`) |
-| Estado | **Rascunho. Não executado num SQL Server** (ver secção 3) |
+| Estado | **Rascunho. Executado a 24/10/2026 num SQL Server 2025, sem erros nem divergências** (ver secção 3); falta a revisão |
 | SGBD alvo | Microsoft SQL Server 2025 (Regulamento Interno G08) |
 | Base de dados | `ClinicaVeterinaria`, identificador físico de `clinica-veterinaria` (Modelo de Dados, secção 6.1) |
 | Fonte | Modelo de Dados v02 — rascunho (`04.06-modelos-de-dados/m3-modelo-de-dados-clinica-veterinaria-v02.md`) |
@@ -50,14 +50,18 @@ Ficam **fora do âmbito**, por pertencerem a outras Issues ou ao backend:
 
 ## 3. Estado da verificação
 
-Esta versão foi derivada da m3-v01 e verificada **por leitura e por programa**, não num SQL Server:
+**Executada a 24/10/2026 num SQL Server 2025 (RTM, 17.0.1000.7), sem erros nem divergências.** Os dois registos estão em `esquema-execucao-20261024-232702.log` e `esquema-execucao-20261024-232732.log`:
 
-- as contagens deste README (16 tabelas, 99 colunas, 68 restrições, 19 índices, 41 testes) foram recalculadas a partir dos próprios ficheiros;
+1. **23:27:02, base de dados inexistente:** `00` a `06` criam a base com a collation `Latin1_General_100_CI_AS`, as 16 tabelas e os 19 índices; `verificar-esquema.sql` dá **237 verificações e 0 divergências** (16 tabelas, 99 colunas, 68 restrições, 20 regras de FK, 13 regras de CHECK, 19 índices, 1 filtro de índice e a collation); `testar-restricoes.sql` dá **41 testes executados, 41 OK e 0 falhados**.
+2. **23:27:32, repetição sem apagar nada:** todas as mensagens são «já existe — sem alterações» e `verificar-esquema.sql` volta a dar 237 verificações e 0 divergências.
+
+Antes da execução, esta versão foi derivada da m3-v01 e verificada também por leitura e por programa:
+
+- as contagens deste README (16 tabelas, 99 colunas, 68 restrições, 19 índices, 41 testes) foram recalculadas a partir dos próprios ficheiros e coincidem com as do registo de execução;
 - os nomes das colunas e das restrições definidas em `01` a `05` foram comparados por programa com as listas de `verificar-esquema.sql`, sem divergências nas 16 tabelas;
-- os lotes T-SQL passaram por um analisador sintático externo (sqlglot, dialeto T-SQL) sem erros, exceto no operador `+=` perto do fim de `testar-restricoes.sql`, que o analisador não reconhece e que é igual na m3-v01; as linhas seguintes a esse ponto não foram analisadas;
 - os ficheiros `00` a `05` diferem dos da m3-v01 apenas no cabeçalho e, em `03-agenda.sql`, na coluna `RowVersion` e, em `00-criar-base-de-dados.sql`, na cláusula `COLLATE` (DI-08).
 
-Falta a execução real. O Executor ou o Revisor devem correr `executar-scripts` com `-Verificar` e `-Testar` (secção 5.3) numa instância vazia e anexar o registo. Até lá, a conformidade com a base de dados é uma expectativa, não um facto.
+Falta a revisão (Revisor) e o registo das decisões na Issue I059. A execução prova o esquema e as restrições; não prova que o modelo do Entity Framework Core coincide com ele, que é o critério 4 da I059.
 
 ## 4. Conteúdo da pasta
 
@@ -157,6 +161,8 @@ O resultado lista cada teste com a mensagem obtida. O script termina com erro se
 2. Sem apagar nada, executar novamente `executar-scripts.ps1 -Verificar`. O segundo registo prova a reexecução: todas as mensagens «já existe — sem alterações» e a verificação novamente sem divergências.
 3. O quadro de correspondência da secção 8 deste README.
 
+Os registos `.log` anexam-se ao Merge Request e à Issue. O Regulamento da UC (secção 18.4) admite PDF, MD, XLS e XLSX nos documentos e não quer na entrega conteúdos gerados que se possam obter de novo, pelo que os `.log` não fazem parte da pasta entregue; o resumo em Markdown da secção 3 é o que fica no README.
+
 ## 7. Convenções aplicadas
 
 As convenções são as da secção 6.1 do Modelo de Dados. Quando as secções 6.3 a 6.5 indicam um nome explícito, é esse o nome usado.
@@ -238,4 +244,4 @@ Não foi criada nenhuma Issue nova nem alterada nenhuma Issue existente.
 | Versão | Data | Autor | Alteração |
 |---|---|---|---|
 | m3-v01 | 2026-10-16 | Gonçalo Magalhães Ribeiro | Versão inicial: criação do esquema completo do Modelo de Dados v01, execução automática, verificação do esquema e testes de restrições. |
-| m3-v02 | 2026-10-24 | Por atribuir | Rascunho: retira as 6 tabelas de F005 e F007 (DI-11), acrescenta `Marcacao.RowVersion` (DI-12), junta `08-indices.sql` como `06-indices.sql`, renumera os testes e ajusta verificação e executores. Não executado num SQL Server. |
+| m3-v02 | 2026-10-24 | Por atribuir | Rascunho: retira as 6 tabelas de F005 e F007 (DI-11), acrescenta `Marcacao.RowVersion` (DI-12), junta `08-indices.sql` como `06-indices.sql`, renumera os testes e ajusta verificação e executores. Executado a 24/10/2026 num SQL Server 2025: 237 verificações sem divergências e 41 testes OK (secção 3). |
