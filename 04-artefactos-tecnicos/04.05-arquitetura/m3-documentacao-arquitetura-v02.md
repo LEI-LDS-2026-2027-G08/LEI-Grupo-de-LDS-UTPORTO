@@ -28,7 +28,7 @@
 | Exclusões (secção 15) | Pagamentos e internamentos tratados como elementos específicos da arquitetura | Passam a constar também como funcionalidades fora do âmbito | Declaração de Âmbito v05 |
 | Decisões (secção 16) | DA-ARQ-01 a DA-ARQ-09 | DA-ARQ-04 e DA-ARQ-05 atualizadas; acrescentadas DA-ARQ-10 e DA-ARQ-11 | Pontos anteriores |
 | Referências (secção 2) | Documentos da m1 e m2 | Documentos em vigor na m3 | Controlo de versões |
-| Base de dados (secção 7.13) | Tabelas para F001 a F007 | Nota sobre as tabelas de F005 e F007 que ainda existem no esquema e novo ponto em aberto (secção 20) | Scripts `m3-v01` e Modelo de Dados v01 ainda não revistos |
+| Base de dados (secção 7.13) | Tabelas para F001 a F007 | Nota: o Modelo de Dados v02 (rascunho) já tem só as 16 tabelas em âmbito; as tabelas de F005 e F007 ainda existem no esquema criado pelos scripts `m3-v01`. Novo ponto em aberto (secção 20) | Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`, rascunho) e scripts `m3-v01` ainda não revistos |
 | Histórico e estado | — | Acrescentados | Controlo de versões |
 
 As secções 7.4 a 7.8, 7.10, 10, 11, 12 e 19 mantêm o conteúdo da v01, salvo as referências a módulos e a tecnologias já indicadas.
@@ -366,9 +366,9 @@ A camada de persistência é utilizada pelo backend e não é acedida diretament
 - armazenar relações necessárias entre Clientes, pacientes e informação funcional associada;
 - fornecer persistência ao backend através da camada ARC-DATA.
 
-A definição das entidades, atributos, relações e cardinalidades pertence ao artefacto I016 — Modelo de Dados.
+A definição das entidades, atributos, relações e cardinalidades pertence ao artefacto I016 — Modelo de Dados (v01 na m2; v02 em rascunho, `m3-modelo-de-dados-clinica-veterinaria-v02.md`).
 
-**Nota (v02):** o Modelo de Dados v01 e os scripts SQL `m3-v01` ainda incluem as tabelas de F005 e F007 (6 das 22 tabelas). Nenhum módulo, serviço, endpoint ou DTO as utiliza. O grupo decide se as mantém, com uma nota de âmbito, ou se as retira numa nova versão do modelo de dados e dos scripts (secção 20).
+**Nota (v02):** o Modelo de Dados v02 (rascunho) já só tem as 16 tabelas em âmbito, mas os scripts SQL `m3-v01` ainda criam as tabelas de F005 e F007 (6 das 22 tabelas). Nenhum módulo, serviço, endpoint ou DTO as utiliza. O grupo decide se as mantém nos scripts, com uma nota de âmbito, ou se as retira numa nova versão dos scripts (secção 20 e secção 9.1 do Modelo de Dados v02).
 
 ---
 
@@ -753,4 +753,4 @@ A documentação técnica e os diagramas versionáveis são preservados no repos
 
 | N.º | Ponto | Decisão necessária |
 |---|---|---|
-| 1 | O Modelo de Dados v01 e os scripts SQL `m3-v01` ainda incluem as tabelas de F005 e F007 (6 das 22 tabelas), embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito. | O grupo decide se a base de dados mantém essas tabelas (sem as expor) ou se são retiradas numa nova versão do modelo de dados e dos scripts. Se se mantiverem, a Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1, 3 e 4 se aplicam só às 16 tabelas em âmbito. |
+| 1 | Os scripts SQL `m3-v01` ainda criam as tabelas de F005 e F007 (6 das 22 tabelas), embora a Declaração de Âmbito v05 as tenha passado para o não-âmbito e o Modelo de Dados v02 (rascunho) já só tenha 16 tabelas. | O grupo decide (secção 9.1 do Modelo de Dados v02) se a base de dados mantém essas tabelas nos scripts (sem as expor) ou se são retiradas numa nova versão dos scripts. Se se mantiverem, a Issue I059 (GitHub #16) tem de registar que os critérios de aceitação 1, 3 e 4 se aplicam só às 16 tabelas em âmbito. O controlo de concorrência (`rowversion`) está em aberto na secção 9.2 do mesmo modelo. |
