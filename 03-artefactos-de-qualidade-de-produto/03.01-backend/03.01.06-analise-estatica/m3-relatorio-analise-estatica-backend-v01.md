@@ -168,7 +168,7 @@ Na primeira execução da análise estática foram encontrados:
 
 ```text
 Build succeeded.
-26 Warning(s)
+3 Warning(s)
 0 Error(s)
 ```
 
@@ -178,13 +178,14 @@ A evidência encontra-se em:
 m3-analise-estatica-backend-baseline-v01.txt
 ```
 
-Entre os problemas detetados encontravam-se regras de estilo e qualidade, incluindo:
+A baseline identificou três ocorrências da regra `CA1848`, todas na camada API:
 
-- `IDE0160` / `IDE0161` — estilo de declaração de namespaces;
-- `IDE0290` — sugestão de utilização de primary constructors;
-- `CA1848` — utilização não otimizada das APIs de logging;
-- regras de ordenação de imports;
-- inconsistências de formatação e finais de linha.
+- `ExceptionHandlingMiddleware.cs` — 1 ocorrência na utilização de `LogError`;
+- `RequestLoggingMiddleware.cs` — 2 ocorrências na utilização de `LogInformation`.
+
+A regra `CA1848` recomenda a utilização de delegates `LoggerMessage` para evitar custos desnecessários associados às chamadas tradicionais das extensões de logging.
+
+As restantes alterações de estilo e formatação foram identificadas posteriormente durante a configuração e validação do `dotnet format`, não fazendo parte dos três warnings da baseline Roslyn.
 
 ---
 

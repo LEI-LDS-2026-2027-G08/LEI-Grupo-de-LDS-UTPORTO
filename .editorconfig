@@ -43,3 +43,4 @@ csharp_style_var_elsewhere = false:suggestion
 
 [**/Migrations/*.cs]
 generated_code = true
+dotnet_analyzer_diagnostic.severity = none
