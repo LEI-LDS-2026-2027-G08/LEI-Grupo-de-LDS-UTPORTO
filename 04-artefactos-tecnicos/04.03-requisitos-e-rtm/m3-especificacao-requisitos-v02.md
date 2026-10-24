@@ -14,7 +14,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | m2 | Especificação dos requisitos RF001–RF052 e RNF001–RNF006. Mantém-se inalterada como histórico (`m2-especificacao-requisitos-v01.md`). |
-| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: cada um fica reduzido a identificador, título e estado, o texto original mantém-se na v01 (`m2-especificacao-requisitos-v01.md`) e os identificadores permanecem reservados. |
+| v02 | 23/10/2026 | Reflete a Declaração de Âmbito v05 e a Proposta de Sistema v05: as funcionalidades F005 (Gestão de contas e pagamentos) e F007 (Gestão de internamento) passam a fora do âmbito, por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037–RF042 e RF048–RF052 ficam **descontinuados**: por causa da Declaração de Âmbito v05, cada um fica reduzido ao estado «Descontinuado», com remissão para o texto original na v01 (`m2-especificacao-requisitos-v01.md`), e os identificadores permanecem reservados. |
 
 ### Alterações da v02 em relação à v01
 
@@ -529,7 +529,7 @@ O Auxiliar Veterinário consegue consultar apenas a informação clínica dispon
 
 ## 5.5. F005 — Gestão de contas e pagamentos
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037 a RF042 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 19).
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F005 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF037 a RF042 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 17).
 
 ### RF037 — Registar custos
 
@@ -618,7 +618,7 @@ O Cliente autenticado consegue visualizar apenas o boletim dos animais associado
 
 ## 5.7. F007 — Gestão de internamento (Hospitalização)
 
-> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF048 a RF052 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 19).
+> **Fora do âmbito (Declaração de Âmbito v05).** A funcionalidade F007 passou a fora do âmbito por transição para o não-âmbito, autorizada pelo docente na reunião de 20/10/2026 e confirmada pelo e-mail de homologação de 21/10/2026 (Regulamento da UC, secção 7.5). Os requisitos RF048 a RF052 estão **descontinuados**: nesta versão ficam reduzidos ao identificador, ao título e ao estado, e o texto original mantém-se na v01. Os identificadores permanecem reservados e seguem na RTM, onde os requisitos descontinuados ficam no histórico (Regulamento da UC, secção 17).
 
 ### RF048 — Registar internamento
 
