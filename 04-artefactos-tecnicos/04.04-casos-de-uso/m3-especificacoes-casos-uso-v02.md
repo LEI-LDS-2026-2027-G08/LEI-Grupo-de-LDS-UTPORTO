@@ -274,7 +274,7 @@ A alternativa A3 (autenticação que deixa de ser válida) acontece depois de o 
 | 6 e 7 — iniciar a sessão e disponibilizar as funcionalidades | EP-001 | O token tem validade de 8 horas; as funcionalidades são as do perfil (RF005) |
 | A3 — autenticação deixa de ser válida | Qualquer endpoint protegido | 401 (token expirado, revogado ou inválido) |
 
-O diagrama de sequência do UC01 está em `04.05-arquitetura/m2-diagrama-sequencia-autenticar-utilizador-v01.md`.
+O diagrama de sequência do UC01 está em `04.09-modelos-de-interacao/m3-diagrama-sequencia-autenticar-utilizador-v02.md`.
 
 ---
 
