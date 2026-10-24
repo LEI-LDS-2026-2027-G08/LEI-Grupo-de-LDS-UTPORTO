@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Roslyn Analyzers -->
+    <AnalysisMode>Recommended</AnalysisMode>
+
+    <!-- Executa também as regras de estilo durante o build -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Quality Gate: qualquer warning faz o build falhar -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
