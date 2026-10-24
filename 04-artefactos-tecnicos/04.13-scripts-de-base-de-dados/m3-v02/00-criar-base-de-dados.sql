@@ -4,7 +4,10 @@
    Ficheiro       : 00-criar-base-de-dados.sql
    Versão         : m3-v02
    Finalidade     : Criar a base de dados ClinicaVeterinaria (identificador físico
-                    da base de dados clinica-veterinaria — Modelo de Dados, secção 6.1).
+                    da base de dados clinica-veterinaria — Modelo de Dados, secção 6.1)
+                    com a collation Latin1_General_100_CI_AS (insensível a maiúsculas
+                    e sensível a acentos), igual em todas as instâncias (DI-08,
+                    proposta a confirmar pelo Revisor).
    Ordem          : 1 de 7 — primeiro script a executar.
    Pré-requisitos : Instância Microsoft SQL Server 2025 (alvo do projeto) acessível;
                     login com permissão CREATE DATABASE (ou base já criada pelo DBA).
@@ -31,7 +34,7 @@ GO
 
 IF DB_ID(N'ClinicaVeterinaria') IS NULL
 BEGIN
-    CREATE DATABASE ClinicaVeterinaria;
+    CREATE DATABASE ClinicaVeterinaria COLLATE Latin1_General_100_CI_AS;
     PRINT N'[00] Base de dados ClinicaVeterinaria criada.';
 END
 ELSE

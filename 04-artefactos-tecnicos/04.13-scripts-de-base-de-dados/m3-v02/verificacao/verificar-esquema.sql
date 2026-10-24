@@ -7,8 +7,9 @@
                     dados ClinicaVeterinaria contém exatamente o esquema previsto:
                     16 tabelas, 99 colunas (nome, ordem, tipo, nulidade e coluna
                     calculada persistida), 68 restrições (PK, FK, UNIQUE, CHECK e
-                    DEFAULT), 19 índices, todas as FKs com NO ACTION e nenhuma
-                    restrição desativada ou não fidedigna.
+                    DEFAULT), 19 índices, todas as FKs com NO ACTION, nenhuma
+                    restrição desativada ou não fidedigna e a collation da base de
+                    dados (Latin1_General_100_CI_AS, DI-08).
    Origem         : A lista de colunas foi extraída do dicionário de dados do Modelo
                     de Dados v02 (rascunho, secção 7), e não dos scripts de criação, para
                     que a verificação compare a base de dados com o modelo (ainda em rascunho).
@@ -415,6 +416,16 @@ SELECT N'6. Filtro do índice',
             THEN N'OK' ELSE N'DIVERGE' END
 FROM (VALUES (N'UQ_Cliente_NIF', N'NIF IS NOT NULL')) AS e (Nome, Filtro)
 LEFT JOIN sys.indexes AS i ON i.name = e.Nome COLLATE DATABASE_DEFAULT;
+
+/* 7. Collation da base de dados (Modelo de Dados, secção 6.1; README, DI-08) ---- */
+INSERT INTO @R (Verificacao, Objeto, Esperado, Encontrado, Resultado)
+SELECT N'7. Collation da base de dados',
+       DB_NAME(),
+       N'Latin1_General_100_CI_AS',
+       CONVERT(NVARCHAR(128), DATABASEPROPERTYEX(DB_NAME(), N'Collation')),
+       CASE WHEN CONVERT(NVARCHAR(128), DATABASEPROPERTYEX(DB_NAME(), N'Collation'))
+                 = N'Latin1_General_100_CI_AS' COLLATE DATABASE_DEFAULT
+            THEN N'OK' ELSE N'DIVERGE' END;
 
 /* Resultado -------------------------------------------------------------------- */
 DECLARE @Total INT = (SELECT COUNT(*) FROM @R);

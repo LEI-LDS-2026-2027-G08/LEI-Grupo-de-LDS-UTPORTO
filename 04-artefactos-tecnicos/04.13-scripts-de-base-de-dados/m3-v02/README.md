@@ -14,14 +14,15 @@
 
 ## 1. O que muda em relação à m3-v01
 
-A m3-v02 nasce de duas decisões do Líder do grupo, tomadas a 24/10/2026, depois da homologação do Plano de Segurança v05 e da Documentação da Arquitetura v05 (21/10/2026), que passaram F005 e F007 para o não-âmbito:
+A m3-v02 nasce de duas decisões do Líder do grupo, tomadas a 24/10/2026 (mais uma proposta ainda por confirmar, a collation, na última linha da tabela), depois da homologação do Plano de Segurança v05 e da Documentação da Arquitetura v05 (21/10/2026), que passaram F005 e F007 para o não-âmbito:
 
 | Decisão | O que muda nos scripts |
 |---|---|
 | Retirar as tabelas de F005 e F007 numa versão nova (Modelo de Dados v02, ponto 9.1, opção B; DI-11) | Saem `ContaCliente`, `Pagamento`, `HistoricoEstadoPagamento`, `Alojamento`, `Internamento` e `HistoricoEstadoInternamento`. Os scripts `06-contas-e-pagamentos.sql` e `07-internamento.sql` deixam de existir e `08-indices.sql` passa a `06-indices.sql`. São 16 tabelas em vez de 22. |
 | Acrescentar a coluna `RowVersion` a `Marcacao` (Modelo de Dados v02, ponto 9.2, opção B2; DI-12) | `Marcacao` passa a ter 12 colunas, a última `RowVersion ROWVERSION NOT NULL`. Nenhuma outra tabela a tem. |
+| Fixar a collation da base de dados (proposta a confirmar pelo Revisor; Modelo de Dados v02, ponto 9.4; DI-08) | `00-criar-base-de-dados.sql` cria a base com `COLLATE Latin1_General_100_CI_AS` e `verificar-esquema.sql` confirma-a. Não muda tabelas, colunas, restrições nem índices. |
 
-Os scripts `00` a `05` são os da m3-v01 com o cabeçalho atualizado, e `03-agenda.sql` acrescenta a coluna. Os ficheiros de verificação e os executores foram ajustados às 16 tabelas. A pasta `m3-v01` fica como estava.
+Os scripts `00` a `05` são os da m3-v01 com o cabeçalho atualizado; `03-agenda.sql` acrescenta a coluna e `00-criar-base-de-dados.sql` acrescenta a collation. Os ficheiros de verificação e os executores foram ajustados às 16 tabelas. A pasta `m3-v01` fica como estava.
 
 ## 2. Âmbito
 
@@ -54,7 +55,7 @@ Esta versão foi derivada da m3-v01 e verificada **por leitura e por programa**,
 - as contagens deste README (16 tabelas, 99 colunas, 68 restrições, 19 índices, 41 testes) foram recalculadas a partir dos próprios ficheiros;
 - os nomes das colunas e das restrições definidas em `01` a `05` foram comparados por programa com as listas de `verificar-esquema.sql`, sem divergências nas 16 tabelas;
 - os lotes T-SQL passaram por um analisador sintático externo (sqlglot, dialeto T-SQL) sem erros, exceto no operador `+=` perto do fim de `testar-restricoes.sql`, que o analisador não reconhece e que é igual na m3-v01; as linhas seguintes a esse ponto não foram analisadas;
-- os ficheiros `00` a `05` diferem dos da m3-v01 apenas no cabeçalho e, em `03-agenda.sql`, na coluna `RowVersion`.
+- os ficheiros `00` a `05` diferem dos da m3-v01 apenas no cabeçalho e, em `03-agenda.sql`, na coluna `RowVersion` e, em `00-criar-base-de-dados.sql`, na cláusula `COLLATE` (DI-08).
 
 Falta a execução real. O Executor ou o Revisor devem correr `executar-scripts` com `-Verificar` e `-Testar` (secção 5.3) numa instância vazia e anexar o registo. Até lá, a conformidade com a base de dados é uma expectativa, não um facto.
 
@@ -62,7 +63,7 @@ Falta a execução real. O Executor ou o Revisor devem correr `executar-scripts`
 
 | Ordem | Ficheiro | Finalidade |
 |:---:|---|---|
-| 1 | `00-criar-base-de-dados.sql` | Cria a base de dados `ClinicaVeterinaria`. |
+| 1 | `00-criar-base-de-dados.sql` | Cria a base de dados `ClinicaVeterinaria` com a collation `Latin1_General_100_CI_AS`. |
 | 2 | `01-acesso-e-configuracao.sql` | `Utilizador`, `TokenRevogado`, `Funcionario`, `Clinica`, `ConfiguracaoSistema` (F001). |
 | 3 | `02-clientes-e-pacientes.sql` | `Cliente`, `Especie`, `Raca`, `Paciente` e índice único filtrado `UQ_Cliente_NIF` (F001/F002). |
 | 4 | `03-agenda.sql` | `HorarioFuncionamento`, `Marcacao` (com `RowVersion`), `InformacaoApoio` (F003). |
@@ -82,7 +83,7 @@ A ordem dos ficheiros respeita as dependências entre tabelas: cada tabela só �
 
 - Instância Microsoft SQL Server 2025 local ou exclusiva do aluno (Regulamento da UC, secção 20.2). Os scripts usam apenas funcionalidades disponíveis desde o SQL Server 2017.
 - `sqlcmd` (SQL Server Command Line Utilities 18 ou `go-sqlcmd`) para a execução automática, ou SQL Server Management Studio para a execução manual.
-- Login com permissão `CREATE DATABASE`, ou base de dados `ClinicaVeterinaria` já criada e vazia com permissão de criação de objetos.
+- Login com permissão `CREATE DATABASE`, ou base de dados `ClinicaVeterinaria` já criada e vazia, com a collation `Latin1_General_100_CI_AS` e permissão de criação de objetos (a verificação assinala outra collation).
 
 ### 5.2. Execução automática (recomendada)
 
@@ -127,7 +128,8 @@ Este script só lê o catálogo do SQL Server. Compara:
 - as 99 colunas (ordem, tipo, nulidade e coluna calculada persistida), a partir de uma lista extraída do dicionário de dados do Modelo de Dados e não dos scripts de criação. O SQL Server devolve o nome `timestamp` para o tipo `rowversion`, pelo que `Marcacao.RowVersion` é esperada como `TIMESTAMP NOT NULL`;
 - as 68 restrições por nome e tipo (PK, FK, UNIQUE, CHECK, DEFAULT);
 - os 19 índices (tabela, unicidade, filtro e colunas por ordem);
-- que todas as FKs têm `NO ACTION` e que nenhuma FK ou CHECK está desativada ou não fidedigna.
+- que todas as FKs têm `NO ACTION` e que nenhuma FK ou CHECK está desativada ou não fidedigna;
+- que a collation da base de dados é `Latin1_General_100_CI_AS` (DI-08).
 
 Assinala também tabelas, colunas, restrições ou índices não previstos. Termina com erro se existir alguma divergência e com «o esquema corresponde integralmente ao previsto» em caso contrário.
 
@@ -139,7 +141,7 @@ O script corre numa base de dados acabada de criar e recusa-se a correr se encon
 |---|---|---|
 | Inserções válidas | V01, P07, P08 | Um registo válido em cada uma das 16 tabelas; NIF opcional repetido como `NULL`; raça opcional. |
 | Valores por omissão e coluna calculada | P01–P06 | `Ativo`, `Desconhecido`, `Pendente`, datas UTC; `DataProximaAdministracao = DataAdministracao + IntervaloDias` e `NULL` sem intervalo. |
-| `RowVersion` (DI-12) | P09, P10 | O valor de `Marcacao.RowVersion` muda quando a marcação é alterada; um `UPDATE` com o valor antigo não altera nenhuma linha, que é o mecanismo em que assenta o 409 nas marcações. |
+| `RowVersion` (DI-12) | P09, P10 | O valor de `Marcacao.RowVersion` muda quando a marcação é alterada; um `UPDATE` com o valor antigo não altera nenhuma linha, que é o mecanismo em que assentam o 412 (`If-Match` desatualizado) e o 409 (gravações simultâneas) nas marcações. |
 | `UNIQUE` | N01, N06, N09, N10, N12, N13, N23 | E-mail de utilizador, `jti`, conta do Cliente, NIF, espécie, raça por espécie, um registo clínico por consulta. |
 | `CHECK` (13 de 13) | N02, N03, N08, N15–N20, N24–N27 | Todas as restrições da secção 6.3, incluindo os valores positivos de peso, duração e intervalo em dias. |
 | Chaves estrangeiras | N05, N07, N11, N14, N21, N22 | Referências inexistentes, Veterinário que não é funcionário, raça de outra espécie. |
@@ -211,14 +213,14 @@ Registadas nos termos da Definition of Done (divergências face ao Modelo de Dad
 | DI-02 | Nome de `CK_Internamento_Estado` repetido em `Internamento` e `HistoricoEstadoInternamento`. | Sem efeito na m3-v02: as duas tabelas foram retiradas (DI-11). | — | Nenhuma. |
 | DI-03 | Não há convenção de nomes para os valores por omissão. | `DF_<Tabela>_<Coluna>` nos 13 valores por omissão. | Sem nome explícito, o SQL Server gera nomes aleatórios (`DF__Utiliza__Estad__3B75D760`), diferentes em cada ambiente, o que dificulta a verificação e a comparação com as migrações. | Incorporado no Modelo de Dados v02 (secção 6.1). |
 | DI-04 | A nota da secção 6.5 diz que as FKs sem índice próprio são indexadas automaticamente pelo EF Core. | Os scripts criam esses 8 índices explicitamente, com o nome que o EF Core usa (`IX_<Tabela>_<Coluna>`). `Paciente` recebe um único índice `(EspecieId, RacaId)` que cobre as duas FKs. | O esquema criado pelos scripts fica completo sem depender do EF Core. | Confirmar na I062 que as migrações geram os mesmos índices. A confirmar pelo Revisor (Modelo de Dados v02, ponto 9.4). |
-| DI-05 | A secção 6.5 não tem índices para a pesquisa de clientes e animais por nome. | Acrescentados `IX_Cliente_Nome` e `IX_Paciente_Nome`. | A pesquisa por NIF e por e-mail já é suportada por `UQ_Cliente_NIF` e `UQ_Utilizador_Email`, a de animais por proprietário por `IX_Paciente_ClienteId` e a de consultas por `IX_Marcacao_Veterinario_Data`. Faltava a pesquisa por nome (EP-011 e EP-015). | Revisor decide: manter no Modelo de Dados v02 ou remover (ponto 9.4). |
+| DI-05 | A secção 6.5 não tem índices para a pesquisa de clientes e animais por nome. | Acrescentados `IX_Cliente_Nome` e `IX_Paciente_Nome`. | A pesquisa por NIF e por e-mail já é suportada por `UQ_Cliente_NIF` e `UQ_Utilizador_Email`, a de animais por proprietário por `IX_Paciente_ClienteId` e a de consultas por `IX_Marcacao_Veterinario_Data`. Faltava a pesquisa por nome (EP-011 e EP-015). | Proposta: manter (Modelo de Dados v02, ponto 9.4), a confirmar pelo Revisor. Ajudam a ordenação e a paginação por nome e a pesquisa pelo início do nome; uma pesquisa por parte do nome (`LIKE '%costa%'`, como no exemplo de EP-011) não consegue usar o índice para localizar linhas. |
 | DI-06 | O critério de aceitação 3 da I060 pede `UNIQUE` para o «e-mail de cliente». | Garantido por `UQ_Utilizador_Email`. | O e-mail do Cliente é `Utilizador.Email` (nota da secção 7.6 e D02); não existe coluna `Cliente.Email`. | Nenhuma alteração ao esquema. A mesma formulação existe na I059. |
 | DI-07 | A secção 6.1 do Modelo v01 indicava a criação do esquema por migrações do EF Core. | Os scripts T-SQL são a referência; as migrações coerentes com eles são a I062. | Divisão aprovada no Backlog Refinement de 12/10/2026 (I026 dividida em I060, I061 e I062). | Incorporado no Modelo de Dados v02 (secção 6.1). |
-| DI-08 | Não é definida a collation da base de dados. | Usa a collation por omissão da instância. | As instalações por omissão do SQL Server usam uma collation insensível a maiúsculas (`*_CI_AS`), pelo que `UQ_Utilizador_Email` não distingue `A@x.pt` de `a@x.pt`. | Decidir se a collation passa a ser fixada; o backend deve normalizar os e-mails em minúsculas (ponto 9.4). |
+| DI-08 | Não é definida a collation da base de dados. | `00-criar-base-de-dados.sql` cria a base com `COLLATE Latin1_General_100_CI_AS`, e `verificar-esquema.sql` confirma-a. | Sem collation fixada, a base usa a da instância, que muda conforme a instalação (Windows, contentor, LocalDB), e a ordenação e a comparação de texto mudariam de máquina para máquina. Com `_CI_AS`, `UQ_Utilizador_Email` não distingue `A@x.pt` de `a@x.pt` em nenhum ambiente. | Proposta a confirmar pelo Revisor (Modelo de Dados v02, ponto 9.4). A I062 tem de usar a mesma collation no modelo EF (`UseCollation`). O backend continua a normalizar os e-mails em minúsculas. |
 | DI-09 | O UC12 refere a associação do registo clínico à consulta «quando aplicável». | `RegistoClinico.MarcacaoId` é `NOT NULL`. | Segue o Modelo de Dados (D07) e a Documentação da API (EP-031 exige `consultaId`). A incoerência está na especificação do UC12. | Corrigir o UC12. |
 | DI-10 | O modelo não define valor por omissão para `Clinica.DataUltimaAlteracao` nem para `ConfiguracaoSistema.DataUltimaAlteracao`. | Sem alteração ao modelo. | Os valores terão de ser indicados nos dados iniciais (I061). | Avaliar no Modelo de Dados v02. |
 | DI-11 | O Modelo de Dados v01 e os scripts m3-v01 têm 22 tabelas, 6 delas de F005 e F007. O PS v05 e a DA v05, homologados a 21/10/2026, passam F005 e F007 para o não-âmbito. | Esta versão retira `ContaCliente`, `Pagamento`, `HistoricoEstadoPagamento`, `Alojamento`, `Internamento` e `HistoricoEstadoInternamento`, com as suas 44 colunas, 41 restrições e 16 índices não únicos (mais 2 índices únicos filtrados de `Internamento`). A m3-v01 mantém-se intacta. Os testes são renumerados (secção 6.2). | Decisão do Líder do grupo, 24/10/2026: «Se não faz sentido manter F005 e F007 então remove-se numa v nova». Um esquema com tabelas fora do âmbito levaria a EF Core, API e testes a divergir dele (critérios 1 e 4 da I059). | A registar na I059 pelo Executor/Revisor: os critérios 1 e 4 passam a medir-se contra a m3-v02 (16 tabelas). Rever os dados da I061 que preencham `Alojamento` e o `HasData` do EF (ponto 9.3 do Modelo v02). |
-| DI-12 | O Modelo v01 e os scripts m3-v01 não têm coluna `rowversion`. O critério 3 da I059 pede `rowversion` na entidade da consulta (aqui, `Marcacao`). A Documentação da API v02 não documentava o código 409 em EP-026, EP-027 e EP-028. | `Marcacao.RowVersion ROWVERSION NOT NULL`, 12.ª e última coluna. O backend mapeia-a como token de concorrência (`byte[]`, `IsRowVersion()` / `[Timestamp]`) e devolve 409 quando duas alterações da mesma marcação colidem. Mais nenhuma tabela a tem. | Decisão do Líder do grupo, 24/10/2026 (opção B2). `DataUltimaAlteracao` seria um token fraco: tem precisão de 1 segundo e depende de o backend a atualizar sempre. A `RowVersion` é atualizada pelo SQL Server em todas as alterações. | Documentar o 409 na Documentação da API v02, no Modelo de Classes e no Plano de Testes. Registar na I059 (critério 3). |
+| DI-12 | O Modelo v01 e os scripts m3-v01 não têm coluna `rowversion`. O critério 3 da I059 pede `rowversion` na entidade da consulta (aqui, `Marcacao`). A Documentação da API v02 não documentava os códigos 412 e 409 em EP-026, EP-027 e EP-028. | `Marcacao.RowVersion ROWVERSION NOT NULL`, 12.ª e última coluna. O backend mapeia-a como token de concorrência (`byte[]`, `IsRowVersion()` / `[Timestamp]`) e devolve 412 quando o `If-Match` está desatualizado e 409 quando duas gravações da mesma marcação colidem (Documentação da API v02, secção 5.1, proposta a confirmar pelo Revisor). Mais nenhuma tabela a tem. | Decisão do Líder do grupo, 24/10/2026 (opção B2). `DataUltimaAlteracao` seria um token fraco: tem precisão de 1 segundo e depende de o backend a atualizar sempre. A `RowVersion` é atualizada pelo SQL Server em todas as alterações. | Documentar o 412 e o 409 na Documentação da API v02, no Modelo de Classes e no Plano de Testes. Registar na I059 (critério 3). |
 
 ## 10. Relação com as Issues
 

@@ -200,7 +200,7 @@ BEGIN TRY
     SET @NLin = @@ROWCOUNT;
 
     INSERT INTO @R (Teste, Descricao, Esperado, Obtido, Resultado)
-    VALUES (N'P10', N'UPDATE com RowVersion desatualizado não altera nenhuma linha (base do 409 nas marcações)',
+    VALUES (N'P10', N'UPDATE com RowVersion desatualizado não altera nenhuma linha (base do 412 e do 409 nas marcações)',
             N'0 linhas', CONCAT(@NLin, N' linha(s)'), CASE WHEN @NLin = 0 THEN N'OK' ELSE N'FALHOU' END);
 
     /* =========================================================================
