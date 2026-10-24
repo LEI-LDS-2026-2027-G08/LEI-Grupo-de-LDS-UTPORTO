@@ -54,14 +54,14 @@ A Declaração de Âmbito v05 passou as funcionalidades F005 (Gestão de contas 
 | `m1-proposta-sistema-v03.pdf` e `m3-proposta-sistema-v05.pdf` | Ator Cliente e funcionalidades. |
 | `m3-declaracao-ambito-v05.pdf` | Âmbito mobile por funcionalidade; F005 e F007 fora do âmbito. |
 | `m3-regulamento-grupo-v02.pdf` | Tecnologias, convenções, ferramentas e quality gates do frontend mobile (secções 11.2 a 11.6). |
-| `m2-especificacao-requisitos-v01.md` | RF001–RF005, RF018, RF028, RF029, RF047 e RNF001–RNF006. |
+| `m3-especificacao-requisitos-v02.md` | RF001–RF005, RF018, RF028, RF029, RF047 e RNF001–RNF006. |
 | `m3-especificacoes-casos-uso-v02.md` | UC01, UC02, UC08, UC11 e UC17. |
 | `m3-prototipo-baixa-fidelidade-v02.md` | Ecrãs M01–M04 e M06 e navegação da aplicação mobile; M05 fora do âmbito. |
-| `m2-documentacao-arquitetura-v01.md` | ARC-MOB, ARC-API, DA-ARQ-01, DA-ARQ-03 e DA-ARQ-06. Ainda refere as tecnologias da v01 (Flutter): para as tecnologias prevalece o Regulamento Interno do Grupo v02. |
+| `m3-documentacao-arquitetura-v02.md` | ARC-MOB, ARC-API, DA-ARQ-01, DA-ARQ-03 e DA-ARQ-06. Tecnologias conforme o Regulamento Interno do Grupo v02. |
 | `m3-documentacao-api-v02.md` | Endpoints EP-001 a EP-003, EP-019, EP-020, EP-030 e EP-044, DTOs, formatos JSON e erros. |
 | `m3-modelo-classes-backend-v02.md` | Nomes e campos dos DTOs (secção 3). |
 | `m3-modelo-classes-frontend-web-v02.md` | Convenções partilhadas de cliente HTTP, sessão e tratamento de erros. |
-| `m2-diagrama-sequencia-autenticar-utilizador-v01.md` | Fluxo de autenticação (UC01) e armazenamento do token no cliente. |
+| `m3-diagrama-sequencia-autenticar-utilizador-v02.md` | Fluxo de autenticação (UC01) e armazenamento do token no cliente. |
 
 Quando exista conflito, prevalecem os documentos homologados e normativos e, no que respeita ao contrato entre a aplicação e o backend, a Documentação da API v02.
 
