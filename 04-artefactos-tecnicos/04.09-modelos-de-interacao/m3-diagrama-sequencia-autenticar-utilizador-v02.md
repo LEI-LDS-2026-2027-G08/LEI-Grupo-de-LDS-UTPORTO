@@ -21,7 +21,7 @@
 
 | Ponto | v01 | v02 | Motivo |
 |---|---|---|---|
-| Tecnologia da API | ASP.NET Core 8 | ASP.NET Core 10 | Regulamento Interno do Grupo v02 (stack acordada em 21/10/2026). |
+| Tecnologia da API | ASP.NET Core 8 | ASP.NET Core 10 | Regulamento Interno do Grupo v02 (stack aprovada a 24/10/2026). |
 | Resposta do login | `AuthResult(token, expiraEm, utilizador)` | `LoginResponseDto(token, expiraEm, utilizador)` | Nome do DTO na Documentação da API v02 (EP-001) e no Modelo de Classes do Backend v02. |
 | Armazenamento no Mobile | «secure storage» (Flutter) | Armazenamento cifrado com chave no Android Keystore | Modelo de Classes do Frontend Mobile v02 (Kotlin com Jetpack Compose). |
 | Credenciais em falta | Sem ramo; o diagrama só tinha 401, 403 e 200 | Ramo `alt` com a resposta `400 Bad Request` antes de chamar o `AuthService` | Documentação da API v02 (EP-001, erro 400) e UC01 v02 (exceção E2). |
