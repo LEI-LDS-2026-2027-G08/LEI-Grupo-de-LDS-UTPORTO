@@ -617,6 +617,8 @@ Os módulos ARC-F005 e ARC-F007 deixam de existir na arquitetura em vigor. Os id
 
 O backend usa .NET 10, o frontend web usa React 19.3 com TypeScript 6.0 e o frontend mobile é Android nativo em Kotlin com Jetpack Compose.
 
+O código existente do backend (.NET 8, tarefa I058) é migrado para .NET 10 na tarefa I059 (Sprint 04), de acordo com a decisão D-02 do Plano de Testes do Backend v02.
+
 **Justificação:** secção 11.2 do Regulamento Interno do Grupo v02 (21/10/2026), que substituiu as tecnologias da v01 (.NET 8, React 18.2 e Flutter).
 
 ---
