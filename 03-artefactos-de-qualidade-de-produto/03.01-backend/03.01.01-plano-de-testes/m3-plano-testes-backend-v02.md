@@ -10,7 +10,7 @@
 | Milestone de Entrega | m3 |
 | Issue e papéis | Por atribuir. Esta versão ainda não tem Issue própria nem sprint; será planeada no Backlog Refinement e no Sprint Planning, onde se atribuem Executor, Revisor e Auditor. A Issue I027 (v01, Sprint 03) está concluída e não é reaberta. |
 | Pasta de destino | `/projeto/03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.01-plano-de-testes` |
-| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-especificacao-requisitos-v02.md` (I012); `m3-especificacoes-casos-uso-v02.md` (I015); `m3-documentacao-api-v02.md` (I018); `m3-modelo-classes-backend-v02.md` (I020); `m3-documentacao-arquitetura-v02.md` (I019); `m1-plano-qualidade-processo-v01.pdf` (I006); `m3-regulamento-grupo-v02.md` (secção 11); Regulamento de Funcionamento da UC v19 (secções 17 e 19); código do backend em `src/backend` (PR #150, I058); `m3-plano-testes-backend-v01.md` (versão anterior) |
+| Fontes | `m3-declaracao-ambito-v05.pdf`; `m3-especificacao-requisitos-v02.md` (I012); `m3-especificacoes-casos-uso-v02.md` (I015); `m3-documentacao-api-v02.md` (I018); `m3-modelo-classes-backend-v02.md` (I020); `m3-documentacao-arquitetura-v02.md` (I019); `m1-plano-qualidade-processo-v01.pdf` (I006) e `m3-plano-qualidade-processo-v02.md` (rascunho); `m3-regulamento-grupo-v02.md` (secção 11); Regulamento de Funcionamento da UC v19 (secções 17 e 19); código do backend em `src/backend` (PR #150, I058); `m3-plano-testes-backend-v01.md` (versão anterior) |
 
 ## Histórico de versões
 
@@ -73,7 +73,7 @@ Cumpre o conteúdo exigido pela secção 19 do Regulamento de Funcionamento da U
 | Declaração de Âmbito v05 (`m3-declaracao-ambito-v05.pdf`) | Funcionalidades em âmbito (F001, F002, F003, F004 e F006) |
 | Regulamento de Grupo v02 (`m3-regulamento-grupo-v02.md`, secção 11) | Tecnologias, ferramentas de teste, análise estática, cobertura mínima e quality gates QG-01 a QG-08 |
 | Documentação da Arquitetura (`m3-documentacao-arquitetura-v02.md`) | Camadas do backend (API, Aplicação, Domínio, Infraestrutura) e tecnologias |
-| Plano de Qualidade do Processo (`m1-plano-qualidade-processo-v01.pdf`) | Quality gates QG-01 a QG-04, métrica MQ-02, regras de qualidade a verificar por funcionalidade (secção 6.2) e papéis |
+| Plano de Qualidade do Processo (`m1-plano-qualidade-processo-v01.pdf` e `m3-plano-qualidade-processo-v02.md`, rascunho) | Quality gates QG-01 a QG-04 e QG-08, métrica MQ-02, regras de qualidade a verificar por funcionalidade (secção 6.2) e papéis |
 | Regulamento de Funcionamento da UC v19 (secções 17 e 19) | Artefactos obrigatórios de m3 e conteúdo do plano |
 | Backend (`src/backend`) | Estrutura da solução e dos projetos de teste (`UnitTests`, `IntegrationTests`) |
 
@@ -481,7 +481,7 @@ A Collection Postman e o relatório de cobertura têm tarefas próprias no Backl
 |---|---|
 | Objetivo 4 — Segurança funcional (RBAC) validada por testes automáticos para os 5 perfis | Matriz endpoint × perfil (CT-TRV-01) e condições da secção 10 |
 | Objetivo 5 e MQ-02 — Cobertura de linhas ≥ 70% no backend | LT-01 (obrigatório) |
-| QG-01 a QG-04 (Plano de Qualidade) e QG-08 (Regulamento de Grupo v02) | Secções 7.2 e 8.2 |
+| QG-01 a QG-04 e QG-08 (Plano de Qualidade v02, rascunho, e Regulamento de Grupo v02) | Secções 7.2 e 8.2 |
 | Secção 6.2 — Regras críticas por funcionalidade (F001–F004 e F006; F005 e F007 saíram do âmbito) | Secção 10 |
 | Secção 6.3 — Artefactos de m3 (OF-M3-009 a OF-M3-016) | Secção 4 (coluna de evidências) |
 | Secção 5.3 — Defeito vs. proposta de melhoria | Secção 12 |
@@ -497,7 +497,7 @@ Esta lista regista as decisões deste plano (evidência exigida na I027). Todas 
 | D-02 | Alinhar o código com as versões do Regulamento de Grupo v02 (secção 11.2): .NET 10 (I059), xUnit 2.6 e Moq 4.20 (I091) | O código atual usa .NET 8 e xUnit 2.5.3; o Regulamento de Grupo v02, assinado em 21/10/2026, fixa as versões novas | **Decidida** (Regulamento de Grupo v02) |
 | D-03 | Limiar obrigatório LT-01 (linhas ≥ 70% em Domínio e Serviços); LT-02 e LT-03 como metas informativas e de revisão | Respeita o Plano de Qualidade sem criar novos quality gates; foca o esforço onde o risco é maior | Proposta |
 | D-04 | Matriz endpoint × perfil gerada de forma parametrizada a partir de uma tabela única | Garante 222 verificações com manutenção mínima e rastreabilidade direta à matriz de permissões da API | Proposta |
-| D-05 | Newman recomendado na pipeline como evidência complementar, mas fora dos quality gates | O Plano de Qualidade define QG-01 a QG-04; acrescentar um gate novo exigiria alterar o Plano | Proposta |
+| D-05 | Newman recomendado na pipeline como evidência complementar, mas fora dos quality gates | O Plano de Qualidade v02 define QG-01 a QG-08 e nenhum é do Newman; acrescentar um gate novo exigiria alterar o Plano | Proposta |
 | D-06 | Defeitos como Issues com etiqueta `defeito`; registo consolidado em xlsx só se existirem defeitos | Reutiliza as ferramentas de gestão já em uso e cumpre a secção 19 | Proposta |
 | D-07 | Abstração do relógio (`TimeProvider`) nos serviços com regras temporais | Permite testes determinísticos de validade de token, datas e próxima administração | Proposta |
 | D-08 | Novas dependências de teste: Moq, Mvc.Testing, Testcontainers.MsSql, Respawn, ReportGenerator 5.5 (ferramenta) | Necessárias para os níveis T1 a T3 e para o relatório de cobertura | A concretizar em I091 |
