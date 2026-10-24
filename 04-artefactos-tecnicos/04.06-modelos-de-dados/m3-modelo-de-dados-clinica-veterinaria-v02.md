@@ -28,7 +28,8 @@ A v01 (`m2-modelo-de-dados-clinica-veterinaria-v01.md`) mantém-se inalterada co
 | Índices (secção 6.5) | 13 índices de desempenho; nota a dizer que o EF Core indexa as restantes chaves estrangeiras | 8 índices de desempenho em âmbito, mais `IX_Cliente_Nome` e `IX_Paciente_Nome` (a confirmar) e 8 índices de chaves estrangeiras criados explicitamente pelos scripts | README da I060 (DI-04, DI-05) |
 | Enumerações e valores por omissão (secção 6.7) | Incluíam `EstadoPagamento`, `MetodoPagamento`, `EstadoInternamento`, `Alojamento.Ativo` e `ContaCliente.EstadoPagamento` | Retirados. `DiaSemana` passa a constar (`byte` com 1 a 7 na entidade, nome na API). Lista completa dos 13 valores por omissão | Documentação da API v02; Modelo de Classes do Backend v02 |
 | Rastreabilidade (secção 8) | Tabelas ligadas a UC14, UC15 e UC18 e aos RF037 a RF042 e RF048 a RF052 | Só requisitos e casos de uso em âmbito (UC01 a UC13, UC16 e UC17); ARC-F005 e ARC-F007 reservados; novos intervalos de endpoints por módulo | Especificação de Requisitos v02; Casos de Uso v02; Arquitetura v02; Documentação da API v02 |
-| Pontos em aberto (secção 9) | — | Novo: tabelas de F005 e F007 ainda existentes nos scripts `m3-v01`, controlo de concorrência (`rowversion`), dados de referência e confirmações do README da I060 | Coerência com a Issue I059 e com os scripts da I060 |
+| `Marcacao` (secções 5.1, 6.2, 6.7 e 7.11) | 11 colunas, sem controlo de concorrência | **12 colunas**: acrescenta `RowVersion` (`ROWVERSION NOT NULL`), token de concorrência otimista | Decisão do Líder do grupo a 24/10/2026 (ponto 9.2, opção B2); critério 3 da Issue I059 |
+| Pontos em aberto (secção 9) | — | Novo. Decididos pelo Líder do grupo a 24/10/2026: retirar as seis tabelas dos scripts numa versão nova, `m3-v02` (9.1, opção B), e acrescentar `Marcacao.RowVersion` (9.2, opção B2). Por confirmar: dados de referência (9.3) e DI-04, DI-05 e DI-08 do README da I060 (9.4) | Coerência com a Issue I059 e com os scripts da I060 |
 | Histórico de versões (secção 10) | Versão e autor | Versão, data, autor e descrição | Controlo de versões |
 
 ---
@@ -64,6 +65,7 @@ Todos os diagramas são produzidos em PlantUML, conforme o Regulamento Interno d
 | `m3-modelo-classes-backend-v02.md` (rascunho) | Entidades de domínio e enumerações do backend, para garantir a coerência com as tabelas. |
 | `m3-regulamento-grupo-v02.pdf` | Tecnologias adotadas (SQL Server 2025, EF Core 10.0 code-first, PlantUML), aprovado e assinado a 24/10/2026. |
 | `04.13-scripts-de-base-de-dados/m3-v01/README.md` | Scripts T-SQL da Issue I060 e decisões DI-01 a DI-10 sobre a conformidade com o Modelo de Dados v01. |
+| `04.13-scripts-de-base-de-dados/m3-v02/README.md` (rascunho) | Scripts T-SQL sem as tabelas de F005 e F007 e com `Marcacao.RowVersion`; decisões DI-11 e DI-12. |
 | `m2-modelo-de-dados-clinica-veterinaria-v01.md` | Versão anterior, inalterada. Contém o texto das tabelas retiradas. |
 | Regulamento de Funcionamento da UC | Componentes obrigatórios, regras de diagramas e nomenclatura. |
 
@@ -78,7 +80,7 @@ Todos os diagramas são produzidos em PlantUML, conforme o Regulamento Interno d
 | D03 | A autenticação usa JWT com validade de 8 horas e não utiliza refresh token. O `jti` de um token terminado por logout é persistido em `TokenRevogado` até à expiração. | Alinha com RF003–RF004 e com a Documentação da API. O bloqueio de conta é verificado pelo backend através de `Utilizador.Estado`. |
 | D04 | A idade do paciente não é armazenada; é derivada de `DataNascimento`. | Evita um valor temporal redundante e desatualizado. |
 | D05 | `Especie` e `Raca` são tabelas de referência e uma raça tem de pertencer à espécie do paciente. | Evita valores livres inconsistentes e permite pesquisas fiáveis. |
-| D06 | A consulta corresponde à entidade `Marcacao`, que acompanha o ciclo pendente, confirmada, realizada ou cancelada. | RF021–RF025 e RF030–RF033 referem-se ao mesmo episódio. A Documentação da API v02 usa os termos «consulta» (`/consultas`) e «animal» (`/animais`) para o que este modelo designa `Marcacao` e `Paciente`; os nomes das tabelas mantêm-se. |
+| D06 | A consulta corresponde à entidade `Marcacao`, que acompanha o ciclo pendente, confirmada, realizada ou cancelada. | RF021–RF025 e RF030–RF033 referem-se ao mesmo episódio. A Documentação da API v02 usa os termos «consulta» (`/consultas`) e «animal» (`/animais`) para o que este modelo designa `Marcacao` e `Paciente`; os nomes das tabelas mantêm-se. A `Marcacao` tem uma coluna `RowVersion` para controlo de concorrência (ponto 9.2). |
 | D07 | Cada consulta tem no máximo um `RegistoClinico`, que contém as notas clínicas e o diagnóstico; os tratamentos e as prescrições são linhas dependentes do registo. Nenhuma destas tabelas guarda `PacienteId`: o paciente obtém-se através de `Marcacao`. | Corresponde a EP-031/EP-032 da API (um registo por consulta, erro 409 em duplicado) e a RF030–RF034. A unicidade de `MarcacaoId` é garantida pelo SGBD. Guardar `PacienteId` criaria uma dependência transitiva e permitiria registos contraditórios (3FN). |
 | D08 | Vacinações e desparasitações usam uma única tabela `RegistoProfilaxia`, distinguida por `Tipo`. | RF043 e RF044 possuem a mesma estrutura; RF045 determina a próxima administração. |
 | D09 | *(Reservada.)* Decisão sobre `ContaCliente` (F005, fora do âmbito). | Texto na v01. |
@@ -108,7 +110,7 @@ Não são modelados dados de integração com SIAC ou bases nacionais, fornecedo
 | `Internamento` | F007 | RF048–RF052 | UC18 | 7.21 |
 | `HistoricoEstadoInternamento` | F007 | RF051, RF052 | UC18 | 7.22 |
 
-Os números D09 a D12, UC14, UC15 e UC18 e os módulos ARC-F005 e ARC-F007 ficam reservados. Os scripts SQL da Issue I060 (`m3-v01`) ainda criam estas seis tabelas; ver o ponto em aberto 9.1.
+Os números D09 a D12, UC14, UC15 e UC18 e os módulos ARC-F005 e ARC-F007 ficam reservados. Os scripts SQL da Issue I060 (`m3-v01`) ainda criam estas seis tabelas; a nova versão dos scripts (`m3-v02`, rascunho) retira-as (ponto 9.1).
 
 ---
 
@@ -236,7 +238,7 @@ Notação: **sublinhado** = chave primária (PK); `#` = chave estrangeira (FK); 
 
 **Agenda**
 - HorarioFuncionamento(<u>Id</u>, DiaSemana, HoraAbertura, HoraFecho, Ativo)
-- Marcacao(<u>Id</u>, #PacienteId, #VeterinarioId, DataHoraInicio, DuracaoMinutos, Motivo?, Estado, DataHoraChegada?, #CriadaPorId, DataCriacao, DataUltimaAlteracao?)
+- Marcacao(<u>Id</u>, #PacienteId, #VeterinarioId, DataHoraInicio, DuracaoMinutos, Motivo?, Estado, DataHoraChegada?, #CriadaPorId, DataCriacao, DataUltimaAlteracao?, RowVersion)
 - InformacaoApoio(<u>Id</u>, #MarcacaoId, #AuxiliarId, Descricao, DataRegisto)
 
 **Registo clínico**
@@ -298,7 +300,7 @@ Redundâncias controladas e justificadas:
 | Componente arquitetural | ARC-DB (base de dados) e ARC-DATA (persistência EF Core), conforme `m3-documentacao-arquitetura-v02.md` |
 | Base de dados | `ClinicaVeterinaria` (identificador físico da base de dados `clinica-veterinaria`, sem hífen para evitar delimitadores em T-SQL) |
 | Esquema | `dbo` |
-| Criação do esquema | Scripts T-SQL da Issue I060 (`04.13-scripts-de-base-de-dados/m3-v01`). As migrações do Entity Framework Core 10.0 (code-first) coerentes com os scripts são entregues na Issue I062 (DI-07) |
+| Criação do esquema | Scripts T-SQL em `04.13-scripts-de-base-de-dados`: `m3-v01` (Issue I060, concluída, 22 tabelas) e `m3-v02` (rascunho, 16 tabelas e `RowVersion`), que é a que corresponde a este modelo. As migrações do Entity Framework Core 10.0 (code-first) coerentes com os scripts são entregues na Issue I062 (DI-07) |
 | Nomes de tabelas e colunas | PascalCase, singular, sem acentos |
 | Chaves primárias | `INT IDENTITY(1,1)`, exceto `Funcionario` (PK = FK para `Utilizador`), `TokenRevogado` (PK = `Jti`), `ConfiguracaoSistema` (chave natural) e `Clinica` (linha única) |
 | Nomes de restrições | `PK_<Tabela>`, `FK_<Tabela>_<Referência>_<Coluna>`, `UQ_<Tabela>_<Coluna>`, `CK_<Tabela>_<Regra>`, `DF_<Tabela>_<Coluna>`, `IX_<Tabela>_<Colunas>` |
@@ -419,6 +421,7 @@ entity "Marcacao" as Marcacao {
   * CriadaPorId : INT <<FK>>
   * DataCriacao : DATETIME2(0)
   DataUltimaAlteracao : DATETIME2(0)
+  * RowVersion : ROWVERSION
 }
 entity "InformacaoApoio" as Apoio {
   * Id : INT <<PK, IDENTITY>>
@@ -586,6 +589,7 @@ builder.Property(r => r.DataProximaAdministracao)
 | Índices filtrados | `HasIndex(...).IsUnique().HasFilter(...)`. |
 | FK composta Paciente → Raca | `HasAlternateKey` em `Raca` e `HasForeignKey` composta em `Paciente`. |
 | Eliminação | `DeleteBehavior.Restrict` em todas as relações. |
+| Concorrência otimista | `Marcacao.RowVersion` é `byte[]`, configurada com `IsRowVersion()` (ou `[Timestamp]`). O backend nunca a escreve. Um conflito de gravação (`DbUpdateConcurrencyException`) é devolvido como 409 em EP-026, EP-027 e EP-028 (ponto 9.2). |
 | Valores por omissão | Os 13 valores por omissão têm o nome `DF_<Tabela>_<Coluna>`: `Utilizador.Estado = 'Ativo'`, `Marcacao.Estado = 'Pendente'`, `Paciente.Sexo = 'Desconhecido'`, `Funcionario.PodeRegistarApoio = 0` e `HorarioFuncionamento.Ativo = 1`; as datas de registo (`Utilizador.DataCriacao`, `TokenRevogado.DataRevogacao`, `Cliente.DataRegisto`, `Paciente.DataRegisto`, `Marcacao.DataCriacao`, `InformacaoApoio.DataRegisto`, `RegistoClinico.CriadoEm` e `RegistoProfilaxia.DataRegisto`) usam `SYSUTCDATETIME()`. `Clinica.DataUltimaAlteracao` e `ConfiguracaoSistema.DataUltimaAlteracao` não têm valor por omissão (DI-10). |
 | Dados de referência | `HasData` para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, com valores fictícios (ver 9.3). |
 
@@ -734,6 +738,7 @@ Um dia pode ter vários períodos (por exemplo, manhã e tarde).
 | CriadaPorId | INT | N | FK → Funcionario | Rececionista que criou a marcação. |
 | DataCriacao | DATETIME2(0) | N | DF SYSUTCDATETIME() | Data de criação. |
 | DataUltimaAlteracao | DATETIME2(0) | S | — | Última alteração (RF022). |
+| RowVersion | ROWVERSION | N | — | Versão da linha, mudada pelo SQL Server em cada alteração. Token de concorrência otimista (ponto 9.2); o backend nunca a escreve. |
 
 ### 7.12. InformacaoApoio
 
@@ -857,33 +862,36 @@ Todas as tabelas pertencem a ARC-DB e são acedidas exclusivamente através de A
 
 ## 9. Pontos em aberto
 
-Os pontos seguintes precisam de decisão do grupo e, em alguns casos, do Revisor. Este rascunho **não altera nenhum script SQL** nem nenhuma Issue.
+Os pontos 9.1 e 9.2 foram decididos pelo Líder do grupo a 24/10/2026. Os pontos 9.3 e 9.4 precisam de confirmação do Revisor. Este rascunho **não altera os scripts `m3-v01`** nem nenhuma Issue; a Issue I059 continua por atualizar (secção 9.1).
 
-### 9.1. Tabelas de F005 e F007 nos scripts `m3-v01`
+### 9.1. Tabelas de F005 e F007 nos scripts — decidido (opção B)
 
-Este modelo tem 16 tabelas. Os scripts da Issue I060 (`04.13-scripts-de-base-de-dados/m3-v01`, concluída) continuam a criar as 22 tabelas da v01. As seis tabelas retiradas existem em `06-contas-e-pagamentos.sql` e `07-internamento.sql`, nos blocos de índices correspondentes de `08-indices.sql`, em `verificar-esquema.sql`, em `testar-restricoes.sql`, no quadro de correspondência do `README.md` e nos scripts `executar-scripts`.
+Este modelo tem 16 tabelas. Os scripts da Issue I060 (`04.13-scripts-de-base-de-dados/m3-v01`, concluída) criam as 22 da v01.
 
-| Opção | O que acontece | Consequências |
-|---|---|---|
-| A. Manter as 6 tabelas nos scripts | Ficam no esquema, sem entidade do Entity Framework Core e sem endpoints. Este modelo (16 tabelas) e o esquema dos scripts (22 tabelas) ficam diferentes de forma assumida. | Não há trabalho novo nos scripts. A Issue I059 tem de registar que os critérios de aceitação 1 (todas as tabelas do modelo) e 4 (modelo EF sem diferenças face ao esquema) se aplicam só às 16 tabelas em âmbito. |
-| B. Retirar as 6 tabelas dos scripts | Nova versão dos scripts (`m3-v02`) que altera os ficheiros 06, 07, os blocos de 08-indices, `verificar-esquema.sql`, `testar-restricoes.sql`, o README e `executar-scripts`. | O modelo e o esquema coincidem. Exige tarefa, revisão e auditoria novas e teste num SQL Server. |
+**Decisão do Líder do grupo, 24/10/2026:** retirar as seis tabelas numa versão nova dos scripts, sem mexer na `m3-v01`. A pasta `04.13-scripts-de-base-de-dados/m3-v02` tem o rascunho dessa versão: 16 tabelas, 99 colunas, 68 restrições e 19 índices, sem `06-contas-e-pagamentos.sql` nem `07-internamento.sql`, com `08-indices.sql` convertido em `06-indices.sql` e com os testes renumerados (README, DI-11).
 
-Decide o grupo, ouvindo o Revisor da Issue I059.
+Falta:
 
-### 9.2. Controlo de concorrência (`rowversion`)
+1. O Executor e o Revisor executarem a `m3-v02` num SQL Server vazio (`executar-scripts` com `-Verificar` e `-Testar`) e anexarem o registo. Os scripts foram verificados por leitura e por programa, **não executados**.
+2. Registar na Issue I059 que os critérios de aceitação 1 (todas as tabelas) e 4 (modelo EF sem diferenças face ao esquema) se medem contra as 16 tabelas da `m3-v02`.
+3. Rever os dados da Issue I061 que preencham `Alojamento` (ponto 9.3).
 
-O critério de aceitação 3 da Issue I059 pede `rowversion` para a «Consulta», que é a tabela `Marcacao` (decisão D06). Nem o Modelo de Dados v01 nem os scripts `m3-v01` têm uma coluna de versão. `Marcacao.DataUltimaAlteracao` é `DATETIME2(0)`, ou seja, tem a precisão de 1 segundo. Na Documentação da API v02, EP-026, EP-027 e EP-028 documentam hoje as respostas 400, 401, 403, 404 e 422, sem 409. O internamento e o alojamento, também citados na I059, estão fora do âmbito.
+### 9.2. Controlo de concorrência (`rowversion`) — decidido (opção B2)
 
-| Opção | O que acontece | Consequências |
-|---|---|---|
-| B1. Sem alterar o esquema | `Marcacao.DataUltimaAlteracao` passa a ser o token de concorrência do EF Core, preenchido pelo backend em cada alteração. | É mais rápido e não mexe nos scripts. Duas alterações no mesmo segundo não se distinguem. O critério 3 fica cumprido por esta alternativa, sem coluna `rowversion`, se o Revisor a aceitar. |
-| B2. Coluna `RowVersion` em `Marcacao` | Acrescenta-se `RowVersion` (tipo `rowversion`) a `Marcacao` por um script novo, numa nova versão dos scripts, com `verificar-esquema.sql` atualizado. | Cumpre o critério à letra. Dá mais trabalho: script novo, revisão e auditoria, teste num SQL Server e atualização deste modelo (secções 5.1, 6.2, 6.7 e 7.11). |
+O critério de aceitação 3 da Issue I059 pede `rowversion` para a «Consulta», que é a tabela `Marcacao` (decisão D06). Nem o Modelo de Dados v01 nem os scripts `m3-v01` tinham uma coluna de versão, e `Marcacao.DataUltimaAlteracao` é `DATETIME2(0)`, com a precisão de 1 segundo e dependente de o backend a atualizar sempre.
 
-Em qualquer das opções, a Documentação da API v02 passa a documentar a resposta de conflito (409) nos endpoints que alteram uma marcação. Este rascunho **não inclui** a coluna `RowVersion` nem altera `Marcacao`: só se altera se o grupo escolher B2. Decide o grupo, ouvindo o Revisor da Issue I059.
+**Decisão do Líder do grupo, 24/10/2026:** acrescentar a coluna `RowVersion` (`ROWVERSION NOT NULL`) a `Marcacao`, como 12.ª e última coluna. O SQL Server muda-a em cada alteração da linha, pelo que duas alterações da mesma marcação nunca ficam com a mesma versão. Nenhuma outra tabela a tem. O critério 3 fica cumprido à letra.
+
+O que mudou por causa desta decisão:
+
+- Scripts `m3-v02`: `Marcacao.RowVersion`, `verificar-esquema.sql` (espera `TIMESTAMP NOT NULL`, o nome que o SQL Server dá ao tipo) e dois testes novos (README, DI-12).
+- Este modelo: secções 5.1, 6.2, 6.7 e 7.11.
+- Modelo de Classes do Backend v02: `Marcacao.RowVersion` (`byte[]`) e conflito tratado em `ConsultasService`.
+- Documentação da API v02: resposta 409 em EP-026, EP-027 e EP-028. O mecanismo proposto é `ETag` e `If-Match` (secção 5.1 da API); a alternativa de um campo `versao` nos DTOs fica como ponto em aberto 5 da API.
 
 ### 9.3. Dados de referência
 
-A secção 6.7 prevê `HasData` do Entity Framework Core para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, enquanto a Issue I061 (dados de demonstração) fala em scripts SQL. Convém escolher um único mecanismo, para não duplicar linhas nem criar conflitos de chave. `Clinica.DataUltimaAlteracao` e `ConfiguracaoSistema.DataUltimaAlteracao` são `NOT NULL` e não têm valor por omissão, pelo que o seed tem de as preencher (DI-10).
+A secção 6.7 prevê `HasData` do Entity Framework Core para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, enquanto a Issue I061 (dados de demonstração) fala em scripts SQL. Convém escolher um único mecanismo, para não duplicar linhas nem criar conflitos de chave. `Clinica.DataUltimaAlteracao` e `ConfiguracaoSistema.DataUltimaAlteracao` são `NOT NULL` e não têm valor por omissão, pelo que o seed tem de as preencher (DI-10). Os dados de `Alojamento`, que o README da `m3-v01` previa na I061, deixam de ter tabela.
 
 ### 9.4. Confirmações do README da I060
 
@@ -895,12 +903,16 @@ A secção 6.7 prevê `HasData` do Entity Framework Core para `Clinica`, `Especi
 
 DI-01, DI-03 e DI-07 já estão refletidos neste documento. DI-02 e a parte de `Internamento` de DI-10 deixam de se aplicar com a retirada das tabelas. DI-06 não exige alteração ao esquema. DI-09 foi corrigida nos Casos de Uso v02.
 
-### 9.5. Documentos a alinhar quando este modelo for aprovado
+### 9.5. Documentos alinhados e documentos por alinhar
 
-- Documentação da Arquitetura v02: secção 7.13 e ponto em aberto da secção 20 sobre as tabelas de F005 e F007.
-- Modelo de Classes do Backend v02: fontes e ponto em aberto 5.
-- Modelo de Classes do Frontend Web v02: fonte do modelo de dados.
-- CCA: linha para este documento.
+Alinhados em rascunho a 24/10/2026: Documentação da Arquitetura v02 (secção 7.13 e ponto em aberto da secção 20), Modelo de Classes do Backend v02 (`Marcacao.RowVersion`, pontos em aberto 5 e 6), Documentação da API v02 (409 e secção 5.1) e Modelo de Classes do Frontend Web v02 (fonte do modelo de dados).
+
+Por alinhar quando o grupo aprovar:
+
+- Registo das decisões 9.1 e 9.2 na Issue I059 (texto preparado em separado; as Issues não foram alteradas).
+- Execução da `m3-v02` num SQL Server e anexação do registo.
+- Frontend web: guardar o `ETag` lido em EP-024 e enviá-lo em `If-Match` (depende do ponto em aberto 5 da API).
+- CCA: linha para os scripts `m3-v02`, se a entrega do marco passar a ser esta versão.
 
 ---
 
@@ -909,4 +921,4 @@ DI-01, DI-03 e DI-07 já estão refletidos neste documento. DI-02 e a parte de `
 | Versão | Data | Autor | Descrição das alterações |
 |---|---|---|---|
 | v01 | m2 | Gonçalo Magalhães Ribeiro | Versão inicial do Modelo de Dados (Issue I016). Mantém-se inalterada como histórico (`m2-modelo-de-dados-clinica-veterinaria-v01.md`). |
-| v02 | 24/10/2026 | Por atribuir | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito: 16 tabelas) e as tecnologias do Regulamento do Grupo v02 (24/10/2026). Incorpora as decisões DI-01, DI-03 e DI-07 do README da I060 e deixa em aberto as tabelas ainda existentes nos scripts, o controlo de concorrência e as confirmações DI-04, DI-05 e DI-08. |
+| v02 | 24/10/2026 | Por atribuir | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito: 16 tabelas) e as tecnologias do Regulamento do Grupo v02 (24/10/2026). Incorpora as decisões DI-01, DI-03 e DI-07 do README da I060. Acrescenta `Marcacao.RowVersion` (12 colunas) e regista as decisões do Líder do grupo de 24/10/2026: scripts `m3-v02` sem as tabelas de F005 e F007 (9.1) e controlo de concorrência por `rowversion` (9.2). Deixa em aberto os dados de referência e as confirmações DI-04, DI-05 e DI-08. |
