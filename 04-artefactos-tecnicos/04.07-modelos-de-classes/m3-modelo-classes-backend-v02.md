@@ -276,7 +276,7 @@ Tipos: `int` para identificadores; `string`; `decimal` para o peso; `DateTime` (
 
 ### 3.2. Enumerações da API
 
-As enumerações da API são as mesmas do domínio (`Perfil`, `EstadoUtilizador`, `EstadoConsulta`, `TipoAdministracao`, `Sexo`), acrescidas de `DiaSemana`, usada nos horários da clínica. Saem as enumerações `EstadoPagamento`, `MetodoPagamento` e `EstadoInternamento`, por pertencerem às funcionalidades F005 e F007. Os valores `Segunda` e `Sabado` constam dos exemplos da API v01; os restantes dias seguem o mesmo padrão e devem ser confirmados na API v02.
+As enumerações da API são as mesmas do domínio (`Perfil`, `EstadoUtilizador`, `EstadoConsulta`, `TipoAdministracao`, `Sexo`), acrescidas de `DiaSemana`, usada nos horários da clínica. Saem as enumerações `EstadoPagamento`, `MetodoPagamento` e `EstadoInternamento`, por pertencerem às funcionalidades F005 e F007. Os valores (`Segunda` a `Domingo`) constam da tabela de enumerações da API v02.
 
 ```plantuml {kroki=true}
 @startuml
