@@ -213,3 +213,202 @@ Registadas nos termos da Definition of Done (divergências face ao Modelo de Dad
 | Versão | Data | Autor | Alteração |
 |---|---|---|---|
 | m3-v01 | 2026-10-16 | Gonçalo Magalhães Ribeiro | Versão inicial: criação do esquema completo do Modelo de Dados v01, execução automática, verificação do esquema e testes de restrições. |
+
+
+## 11. Reposição da base de dados com EF Core — I062
+
+A I062 acrescenta o procedimento de reposição da base de dados através das migrations do Entity Framework Core.
+
+O objetivo é permitir que cada elemento do grupo recrie, de forma isolada e repetível, a sua própria base de dados local para desenvolvimento, testes automáticos e avaliação.
+
+### 11.1. Pré-requisitos
+
+- .NET SDK 10;
+- Entity Framework Core 10;
+- ferramenta `dotnet-ef`;
+- instância Microsoft SQL Server acessível;
+- permissões para criar e eliminar a base de dados indicada na cadeia de ligação;
+- execução a partir da pasta `src/backend`.
+
+A cadeia de ligação deve apontar para uma base de dados individual do utilizador e nunca para uma instância partilhada.
+
+### 11.2. Script de reposição
+
+O procedimento é executado através do script:
+
+`src/backend/scripts/reposicao-base-dados.ps1`
+
+O script recebe obrigatoriamente a cadeia de ligação através do parâmetro:
+
+`-ConnectionString`
+
+Exemplo:
+
+```powershell
+.\scripts\reposicao-base-dados.ps1 `
+  -ConnectionString "Server=.;Database=ClinicaVeterinaria_I062_Test;Trusted_Connection=True;TrustServerCertificate=True"
+```
+
+O script executa automaticamente os seguintes passos:
+
+1. compila a solução;
+2. elimina a base de dados existente;
+3. cria novamente a base de dados;
+4. aplica todas as migrations do Entity Framework Core;
+5. aplica os dados de referência definidos nas migrations;
+6. verifica se existem alterações do modelo ainda sem migration.
+
+A reposição não depende de uma instância partilhada nem contém credenciais fixas no repositório.
+
+### 11.3. Migrations utilizadas
+
+À data da implementação da I062 são aplicadas as seguintes migrations:
+
+- `20261025165126_Inicial`;
+- `20261025184243_I062DadosReferencia`.
+
+A migration `I062DadosReferencia` adiciona os dados mínimos de referência necessários ao funcionamento da aplicação.
+
+São criados:
+
+- 1 registo de `Clinica`;
+- 1 registo de `ConfiguracaoSistema`;
+- 2 registos de `Especie`;
+- 5 registos de `Raca`.
+
+### 11.4. Verificação após a reposição
+
+Após a execução do script, os dados de referência podem ser confirmados através do comando:
+
+```powershell
+sqlcmd -S . -E -C -d ClinicaVeterinaria_I062_Test -Q "SELECT COUNT(*) AS Especies FROM Especie; SELECT COUNT(*) AS Racas FROM Raca; SELECT COUNT(*) AS Clinicas FROM Clinica; SELECT COUNT(*) AS Configuracoes FROM ConfiguracaoSistema;"
+```
+
+O resultado esperado é:
+
+| Entidade            | Registos |
+| ------------------- | -------: |
+| Especie             |        2 |
+| Raca                |        5 |
+| Clinica             |        1 |
+| ConfiguracaoSistema |        1 |
+
+A execução deverá também terminar com:
+
+`No changes have been made to the model since the last migration.`
+
+Isto confirma que o modelo atual está integralmente representado pelas migrations existentes.
+
+### 11.5. Repetibilidade
+
+O procedimento pode ser executado repetidamente sobre a mesma base de dados.
+
+Em cada execução:
+
+- a base de dados anterior é eliminada;
+- uma nova base é criada;
+- as migrations são aplicadas;
+- os dados de referência são novamente criados;
+- a existência de alterações pendentes no modelo é novamente verificada.
+
+O procedimento não depende de alterações manuais entre execuções.
+
+### 11.6. Comparação com os scripts da I060
+
+A comparação detalhada entre o esquema produzido pelas migrations do Entity Framework Core e os scripts da I060 encontra-se em:
+
+`src/backend/scripts/i062-comparacao-ef-i060.md`
+
+Para as funcionalidades atualmente em âmbito foram confirmados:
+
+- 16 tabelas;
+- 20 chaves estrangeiras;
+- 25 índices e elementos de unicidade;
+- 13 restrições `CHECK`;
+- 13 valores por omissão;
+- tipos, tamanhos e nulidade das colunas.
+
+As diferenças identificadas e justificadas são:
+
+1. ausência das tabelas relativas às funcionalidades F005 e F007, retiradas do âmbito atual do projeto;
+2. existência adicional de `Marcacao.RowVersion` para controlo de concorrência otimista;
+3. representação de algumas restrições `UNIQUE` como índices únicos pelo Entity Framework Core;
+4. diferenças meramente sintáticas na representação interna de restrições `CHECK` e valores `DEFAULT` pelo SQL Server.
+
+Não foram identificadas divergências de esquema não justificadas nas funcionalidades atualmente implementadas.
+
+### 11.7. Evidência do Executor
+
+A evidência da execução efetuada pelo Executor encontra-se em:
+
+`src/backend/scripts/logs/i062-reposicao-executor-20261025.txt`
+
+O registo comprova:
+
+- compilação da solução sem erros;
+- eliminação da base de dados existente;
+- criação de uma nova base de dados;
+- aplicação das migrations;
+- criação dos dados de referência;
+- inexistência de alterações pendentes no modelo.
+
+A reposição foi efetuada sobre uma base de dados de teste isolada:
+
+`ClinicaVeterinaria_I062_Test`
+
+Após a reposição foram confirmadas as seguintes contagens:
+
+- `Especie`: 2;
+- `Raca`: 5;
+- `Clinica`: 1;
+- `ConfiguracaoSistema`: 1.
+
+### 11.8. Teste pelo Revisor
+
+O Revisor deve validar o procedimento numa máquina diferente da utilizada pelo Executor.
+
+Para isso deve:
+
+1. obter a versão da branch entregue pelo Executor;
+2. garantir que possui os pré-requisitos indicados nesta secção;
+3. utilizar uma cadeia de ligação própria;
+4. utilizar uma base de dados individual e não partilhada;
+5. executar `reposicao-base-dados.ps1`;
+6. confirmar as contagens da secção 11.4;
+7. executar novamente o procedimento;
+8. confirmar que a reposição é repetível;
+9. guardar o respetivo registo de execução como evidência de revisão.
+
+A execução do Revisor não deve utilizar a base de dados do Executor nem qualquer instância partilhada.
+
+### 11.9. Ambientes
+
+O procedimento suporta a utilização de cadeias de ligação diferentes consoante o ambiente.
+
+A configuração utilizada pelo backend é:
+
+`ConnectionStrings:ClinicaDb`
+
+Em variáveis de ambiente pode ser definida através de:
+
+`ConnectionStrings__ClinicaDb`
+
+A cadeia de ligação não deve ser fixa no código nem conter credenciais reais no repositório.
+
+Para desenvolvimento local, testes e avaliação devem ser utilizadas bases de dados isoladas, com nomes próprios de cada contexto ou utilizador.
+
+### 11.10. Resultado
+
+A I062 garante um procedimento reproduzível de criação e reposição da base de dados com Entity Framework Core.
+
+O procedimento permite:
+
+- eliminar e recriar uma base de dados;
+- aplicar todas as migrations existentes;
+- criar os dados mínimos de referência;
+- confirmar a inexistência de alterações do modelo sem migration;
+- utilizar cadeias de ligação específicas por ambiente;
+- validar o procedimento em máquinas diferentes;
+- comparar o esquema produzido com os scripts SQL da I060.
+
+As diferenças conhecidas relativamente à I060 encontram-se documentadas e justificadas.
