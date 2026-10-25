@@ -1,4 +1,4 @@
-﻿name: Testes de integracao
+name: Testes de integracao
 
 on:
   pull_request:
@@ -54,7 +54,7 @@ jobs:
             -e "MSSQL_SA_PASSWORD=$env:SQL_SA_PASSWORD" `
             -p 1433:1433 `
             -d `
-            mcr.microsoft.com/mssql/server:2025-latest
+            mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
 
       - name: Aguardar SQL Server
         shell: pwsh
