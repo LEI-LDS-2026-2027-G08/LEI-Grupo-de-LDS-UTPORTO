@@ -1,0 +1,102 @@
+﻿name: Testes de integracao
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "src/backend/**"
+      - ".github/workflows/integration-tests.yml"
+
+  push:
+    branches:
+      - develop
+    paths:
+      - "src/backend/**"
+      - ".github/workflows/integration-tests.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration-tests:
+    name: Repor BD e executar testes de integracao
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obter repositorio
+        uses: actions/checkout@v7
+
+      - name: Configurar .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Instalar dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.0.13
+
+      - name: Gerar credencial temporaria
+        shell: pwsh
+        run: |
+          $password = "Aa1!I062_" + [Guid]::NewGuid().ToString("N")
+          Write-Output "::add-mask::$password"
+          "SQL_SA_PASSWORD=$password" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Iniciar SQL Server 2025 isolado
+        shell: pwsh
+        run: |
+          docker run `
+            --name i062-sql `
+            --hostname i062-sql `
+            -e "ACCEPT_EULA=Y" `
+            -e "MSSQL_SA_PASSWORD=$env:SQL_SA_PASSWORD" `
+            -p 1433:1433 `
+            -d `
+            mcr.microsoft.com/mssql/server:2025-latest
+
+      - name: Aguardar SQL Server
+        shell: pwsh
+        run: |
+          for ($i = 0; $i -lt 60; $i++) {
+            $logs = docker logs i062-sql 2>&1 | Out-String
+
+            if ($logs -match "SQL Server is now ready for client connections") {
+              Write-Host "SQL Server pronto."
+              exit 0
+            }
+
+            Start-Sleep -Seconds 2
+          }
+
+          docker logs i062-sql
+          throw "SQL Server nao ficou disponivel dentro do tempo esperado."
+
+      - name: Repor base de dados
+        working-directory: src/backend
+        shell: pwsh
+        run: |
+          $connectionString = "Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;Password=$env:SQL_SA_PASSWORD;TrustServerCertificate=True;Encrypt=True"
+
+          ./scripts/reposicao-base-dados.ps1 `
+            -ConnectionString $connectionString
+
+          "ConnectionStrings__ClinicaDb=$connectionString" |
+            Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Executar testes de integracao
+        working-directory: src/backend
+        run: >
+          dotnet test
+          ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+          --configuration Debug
+          --no-restore
+
+      - name: Registar logs do SQL Server em caso de falha
+        if: failure()
+        run: docker logs i062-sql
+
+      - name: Remover contentor
+        if: always()
+        run: docker rm -f i062-sql

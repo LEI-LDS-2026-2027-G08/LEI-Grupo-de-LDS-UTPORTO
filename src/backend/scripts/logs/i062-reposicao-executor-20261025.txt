@@ -1,0 +1,435 @@
+﻿
+============================================
+ Reposicao da Base de Dados - I062
+============================================
+
+[1/4] A verificar compilacao...
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ClinicaVeterinaria.Domain -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Domain\bin\Debug\net10.0\ClinicaVeterinaria.Domain.dll
+  ClinicaVeterinaria.Application -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\bin\Debug\net10.0\ClinicaVeterinaria.Application.dll
+  ClinicaVeterinaria.Infrastructure -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\bin\Debug\net10.0\ClinicaVeterinaria.Infrastructure.dll
+  ClinicaVeterinaria.UnitTests -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\bin\Debug\net10.0\ClinicaVeterinaria.UnitTests.dll
+  ClinicaVeterinaria.Api -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\bin\Debug\net10.0\ClinicaVeterinaria.Api.dll
+  ClinicaVeterinaria.IntegrationTests -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\bin\Debug\net10.0\ClinicaVeterinaria.IntegrationTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.21
+
+[2/4] A eliminar a base de dados existente...
+Build started...
+Build succeeded.
+Dropping database 'ClinicaVeterinaria_I062_Test' on server '.'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      IF SERVERPROPERTY('EngineEdition') <> 5
+      BEGIN
+          ALTER DATABASE [ClinicaVeterinaria_I062_Test] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (28ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      DROP DATABASE [ClinicaVeterinaria_I062_Test];
+Successfully dropped database 'ClinicaVeterinaria_I062_Test'.
+
+[3/4] A criar a base de dados e aplicar migrations...
+Build started...
+Build succeeded.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (220ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      CREATE DATABASE [ClinicaVeterinaria_I062_Test]
+      COLLATE Latin1_General_100_CI_AS;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (63ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+      IF SERVERPROPERTY('EngineEdition') <> 5
+      BEGIN
+          ALTER DATABASE [ClinicaVeterinaria_I062_Test] SET READ_COMMITTED_SNAPSHOT ON;
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+      BEGIN
+          CREATE TABLE [__EFMigrationsHistory] (
+              [MigrationId] nvarchar(150) NOT NULL,
+              [ProductVersion] nvarchar(32) NOT NULL,
+              CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+          );
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261025165126_Inicial'.
+Applying migration '20261025165126_Inicial'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Clinica] (
+          [Id] tinyint NOT NULL,
+          [Nome] nvarchar(150) NOT NULL,
+          [NIF] char(9) NOT NULL,
+          [Morada] nvarchar(250) NOT NULL,
+          [Telefone] nvarchar(20) NOT NULL,
+          [Email] nvarchar(256) NOT NULL,
+          [DataUltimaAlteracao] datetime2(0) NOT NULL,
+          CONSTRAINT [PK_Clinica] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Clinica_LinhaUnica] CHECK ([Id] = 1)
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [ConfiguracaoSistema] (
+          [Chave] nvarchar(100) NOT NULL,
+          [Valor] nvarchar(500) NOT NULL,
+          [Descricao] nvarchar(250) NULL,
+          [DataUltimaAlteracao] datetime2(0) NOT NULL,
+          CONSTRAINT [PK_ConfiguracaoSistema] PRIMARY KEY ([Chave])
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Especie] (
+          [Id] int NOT NULL IDENTITY,
+          [Nome] nvarchar(50) NOT NULL,
+          CONSTRAINT [PK_Especie] PRIMARY KEY ([Id])
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [HorarioFuncionamento] (
+          [Id] int NOT NULL IDENTITY,
+          [DiaSemana] tinyint NOT NULL,
+          [HoraAbertura] time(0) NOT NULL,
+          [HoraFecho] time(0) NOT NULL,
+          [Ativo] bit NOT NULL CONSTRAINT [DF_HorarioFuncionamento_Ativo] DEFAULT CAST(1 AS bit),
+          CONSTRAINT [PK_HorarioFuncionamento] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Horario_DiaSemana] CHECK ([DiaSemana] BETWEEN 1 AND 7),
+          CONSTRAINT [CK_Horario_Intervalo] CHECK ([HoraFecho] > [HoraAbertura])
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Utilizador] (
+          [Id] int NOT NULL IDENTITY,
+          [Email] nvarchar(256) NOT NULL,
+          [PasswordHash] nvarchar(256) NOT NULL,
+          [Perfil] nvarchar(25) NOT NULL,
+          [Estado] nvarchar(10) NOT NULL CONSTRAINT [DF_Utilizador_Estado] DEFAULT N'Ativo',
+          [DataCriacao] datetime2(0) NOT NULL CONSTRAINT [DF_Utilizador_DataCriacao] DEFAULT (SYSUTCDATETIME()),
+          [DataUltimoAcesso] datetime2(0) NULL,
+          CONSTRAINT [PK_Utilizador] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Utilizador_Estado] CHECK ([Estado] IN ('Ativo','Bloqueado')),
+          CONSTRAINT [CK_Utilizador_Perfil] CHECK ([Perfil] IN ('Administrador','Rececionista','Veterinario','AuxiliarVeterinario','Cliente'))
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Raca] (
+          [Id] int NOT NULL IDENTITY,
+          [EspecieId] int NOT NULL,
+          [Nome] nvarchar(80) NOT NULL,
+          CONSTRAINT [PK_Raca] PRIMARY KEY ([Id]),
+          CONSTRAINT [UQ_Raca_Especie_Id] UNIQUE ([EspecieId], [Id]),
+          CONSTRAINT [FK_Raca_Especie_EspecieId] FOREIGN KEY ([EspecieId]) REFERENCES [Especie] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Cliente] (
+          [Id] int NOT NULL IDENTITY,
+          [UtilizadorId] int NOT NULL,
+          [Nome] nvarchar(150) NOT NULL,
+          [NIF] char(9) NULL,
+          [Telefone] nvarchar(20) NOT NULL,
+          [Morada] nvarchar(250) NULL,
+          [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_Cliente_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+          CONSTRAINT [PK_Cliente] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_Cliente_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Funcionario] (
+          [UtilizadorId] int NOT NULL,
+          [Nome] nvarchar(150) NOT NULL,
+          [Telefone] nvarchar(20) NULL,
+          [PodeRegistarApoio] bit NOT NULL CONSTRAINT [DF_Funcionario_PodeRegistarApoio] DEFAULT CAST(0 AS bit),
+          CONSTRAINT [PK_Funcionario] PRIMARY KEY ([UtilizadorId]),
+          CONSTRAINT [FK_Funcionario_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [TokenRevogado] (
+          [Jti] nvarchar(64) NOT NULL,
+          [UtilizadorId] int NOT NULL,
+          [DataExpiracao] datetime2(0) NOT NULL,
+          [DataRevogacao] datetime2(0) NOT NULL CONSTRAINT [DF_TokenRevogado_DataRevogacao] DEFAULT (SYSUTCDATETIME()),
+          CONSTRAINT [PK_TokenRevogado] PRIMARY KEY ([Jti]),
+          CONSTRAINT [FK_TokenRevogado_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Paciente] (
+          [Id] int NOT NULL IDENTITY,
+          [ClienteId] int NOT NULL,
+          [Nome] nvarchar(80) NOT NULL,
+          [EspecieId] int NOT NULL,
+          [RacaId] int NULL,
+          [Sexo] nvarchar(12) NOT NULL CONSTRAINT [DF_Paciente_Sexo] DEFAULT N'Desconhecido',
+          [DataNascimento] date NULL,
+          [Peso] decimal(6,2) NULL,
+          [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_Paciente_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+          [DataUltimaAlteracao] datetime2(0) NULL,
+          CONSTRAINT [PK_Paciente] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Paciente_Peso] CHECK ([Peso] IS NULL OR [Peso] > 0),
+          CONSTRAINT [CK_Paciente_Sexo] CHECK ([Sexo] IN ('Macho','Femea','Desconhecido')),
+          CONSTRAINT [FK_Paciente_Cliente_ClienteId] FOREIGN KEY ([ClienteId]) REFERENCES [Cliente] ([Id]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_Paciente_Especie_EspecieId] FOREIGN KEY ([EspecieId]) REFERENCES [Especie] ([Id]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_Paciente_Raca] FOREIGN KEY ([EspecieId], [RacaId]) REFERENCES [Raca] ([EspecieId], [Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Marcacao] (
+          [Id] int NOT NULL IDENTITY,
+          [PacienteId] int NOT NULL,
+          [VeterinarioId] int NOT NULL,
+          [DataHoraInicio] datetime2(0) NOT NULL,
+          [DuracaoMinutos] smallint NOT NULL,
+          [Motivo] nvarchar(250) NULL,
+          [Estado] nvarchar(12) NOT NULL CONSTRAINT [DF_Marcacao_Estado] DEFAULT N'Pendente',
+          [DataHoraChegada] datetime2(0) NULL,
+          [CriadaPorId] int NOT NULL,
+          [DataCriacao] datetime2(0) NOT NULL CONSTRAINT [DF_Marcacao_DataCriacao] DEFAULT (SYSUTCDATETIME()),
+          [DataUltimaAlteracao] datetime2(0) NULL,
+          [RowVersion] rowversion NOT NULL,
+          CONSTRAINT [PK_Marcacao] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Marcacao_Duracao] CHECK ([DuracaoMinutos] > 0),
+          CONSTRAINT [CK_Marcacao_Estado] CHECK ([Estado] IN ('Pendente','Confirmada','Realizada','Cancelada')),
+          CONSTRAINT [FK_Marcacao_Funcionario_CriadaPorId] FOREIGN KEY ([CriadaPorId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_Marcacao_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_Marcacao_Paciente_PacienteId] FOREIGN KEY ([PacienteId]) REFERENCES [Paciente] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [InformacaoApoio] (
+          [Id] int NOT NULL IDENTITY,
+          [MarcacaoId] int NOT NULL,
+          [AuxiliarId] int NOT NULL,
+          [Descricao] nvarchar(1000) NOT NULL,
+          [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_InformacaoApoio_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+          CONSTRAINT [PK_InformacaoApoio] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_InformacaoApoio_Funcionario_AuxiliarId] FOREIGN KEY ([AuxiliarId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_InformacaoApoio_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [RegistoClinico] (
+          [Id] int NOT NULL IDENTITY,
+          [MarcacaoId] int NOT NULL,
+          [VeterinarioId] int NOT NULL,
+          [NotasClinicas] nvarchar(4000) NULL,
+          [Diagnostico] nvarchar(1000) NULL,
+          [CriadoEm] datetime2(0) NOT NULL CONSTRAINT [DF_RegistoClinico_CriadoEm] DEFAULT (SYSUTCDATETIME()),
+          [AtualizadoEm] datetime2(0) NULL,
+          [AtualizadoPorId] int NULL,
+          CONSTRAINT [PK_RegistoClinico] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_RegistoClinico_Atualizacao] CHECK (([AtualizadoEm] IS NULL AND [AtualizadoPorId] IS NULL) OR ([AtualizadoEm] IS NOT NULL AND [AtualizadoPorId] IS NOT NULL)),
+          CONSTRAINT [FK_RegistoClinico_Funcionario_AtualizadoPorId] FOREIGN KEY ([AtualizadoPorId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_RegistoClinico_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_RegistoClinico_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [RegistoProfilaxia] (
+          [Id] int NOT NULL IDENTITY,
+          [PacienteId] int NOT NULL,
+          [VeterinarioId] int NOT NULL,
+          [MarcacaoId] int NULL,
+          [Tipo] nvarchar(15) NOT NULL,
+          [Produto] nvarchar(150) NOT NULL,
+          [Lote] nvarchar(50) NOT NULL,
+          [DataAdministracao] date NOT NULL,
+          [IntervaloDias] smallint NULL,
+          [DataProximaAdministracao] AS CASE WHEN [IntervaloDias] IS NULL THEN NULL ELSE DATEADD(DAY, [IntervaloDias], [DataAdministracao]) END PERSISTED,
+          [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_RegistoProfilaxia_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+          CONSTRAINT [PK_RegistoProfilaxia] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Profilaxia_Intervalo] CHECK ([IntervaloDias] IS NULL OR [IntervaloDias] > 0),
+          CONSTRAINT [CK_Profilaxia_Tipo] CHECK ([Tipo] IN ('Vacina','Desparasitacao')),
+          CONSTRAINT [FK_RegistoProfilaxia_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_RegistoProfilaxia_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION,
+          CONSTRAINT [FK_RegistoProfilaxia_Paciente_PacienteId] FOREIGN KEY ([PacienteId]) REFERENCES [Paciente] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Prescricao] (
+          [Id] int NOT NULL IDENTITY,
+          [RegistoClinicoId] int NOT NULL,
+          [Medicamento] nvarchar(150) NOT NULL,
+          [Dosagem] nvarchar(100) NOT NULL,
+          [Frequencia] nvarchar(100) NOT NULL,
+          [DuracaoDias] smallint NULL,
+          CONSTRAINT [PK_Prescricao] PRIMARY KEY ([Id]),
+          CONSTRAINT [CK_Prescricao_Duracao] CHECK ([DuracaoDias] IS NULL OR [DuracaoDias] > 0),
+          CONSTRAINT [FK_Prescricao_RegistoClinico_RegistoClinicoId] FOREIGN KEY ([RegistoClinicoId]) REFERENCES [RegistoClinico] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE [Tratamento] (
+          [Id] int NOT NULL IDENTITY,
+          [RegistoClinicoId] int NOT NULL,
+          [Descricao] nvarchar(1000) NOT NULL,
+          [DataAplicacao] date NOT NULL,
+          CONSTRAINT [PK_Tratamento] PRIMARY KEY ([Id]),
+          CONSTRAINT [FK_Tratamento_RegistoClinico_RegistoClinicoId] FOREIGN KEY ([RegistoClinicoId]) REFERENCES [RegistoClinico] ([Id]) ON DELETE NO ACTION
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Cliente_Nome] ON [Cliente] ([Nome]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_Cliente_NIF] ON [Cliente] ([NIF]) WHERE [NIF] IS NOT NULL;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_Cliente_UtilizadorId] ON [Cliente] ([UtilizadorId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_Especie_Nome] ON [Especie] ([Nome]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_InformacaoApoio_AuxiliarId] ON [InformacaoApoio] ([AuxiliarId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_InformacaoApoio_MarcacaoId] ON [InformacaoApoio] ([MarcacaoId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Marcacao_CriadaPorId] ON [Marcacao] ([CriadaPorId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Marcacao_Data] ON [Marcacao] ([DataHoraInicio]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Marcacao_Paciente_Data] ON [Marcacao] ([PacienteId], [DataHoraInicio]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Marcacao_Veterinario_Data] ON [Marcacao] ([VeterinarioId], [DataHoraInicio]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Paciente_ClienteId] ON [Paciente] ([ClienteId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Paciente_EspecieId_RacaId] ON [Paciente] ([EspecieId], [RacaId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Paciente_Nome] ON [Paciente] ([Nome]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Prescricao_Registo] ON [Prescricao] ([RegistoClinicoId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_Raca_Especie_Nome] ON [Raca] ([EspecieId], [Nome]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_RegistoClinico_AtualizadoPorId] ON [RegistoClinico] ([AtualizadoPorId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_RegistoClinico_VeterinarioId] ON [RegistoClinico] ([VeterinarioId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_RegistoClinico_Marcacao] ON [RegistoClinico] ([MarcacaoId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Profilaxia_Paciente_Data] ON [RegistoProfilaxia] ([PacienteId], [DataAdministracao]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_RegistoProfilaxia_MarcacaoId] ON [RegistoProfilaxia] ([MarcacaoId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_RegistoProfilaxia_VeterinarioId] ON [RegistoProfilaxia] ([VeterinarioId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_TokenRevogado_Utilizador] ON [TokenRevogado] ([UtilizadorId], [DataExpiracao]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE INDEX [IX_Tratamento_Registo] ON [Tratamento] ([RegistoClinicoId]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE UNIQUE INDEX [UQ_Utilizador_Email] ON [Utilizador] ([Email]);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20261025165126_Inicial', N'10.0.13');
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261025184243_I062DadosReferencia'.
+Applying migration '20261025184243_I062DadosReferencia'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (31ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'DataUltimaAlteracao', N'Email', N'Morada', N'NIF', N'Nome', N'Telefone') AND [object_id] = OBJECT_ID(N'[Clinica]'))
+          SET IDENTITY_INSERT [Clinica] ON;
+      INSERT INTO [Clinica] ([Id], [DataUltimaAlteracao], [Email], [Morada], [NIF], [Nome], [Telefone])
+      VALUES (CAST(1 AS tinyint), '2026-10-25T00:00:00', N'geral@clinica-g08.test', N'Rua do Exemplo, 100, 4470-000 Maia', '501234560', N'Clínica Veterinária G08', N'229000000');
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'DataUltimaAlteracao', N'Email', N'Morada', N'NIF', N'Nome', N'Telefone') AND [object_id] = OBJECT_ID(N'[Clinica]'))
+          SET IDENTITY_INSERT [Clinica] OFF;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Chave', N'DataUltimaAlteracao', N'Descricao', N'Valor') AND [object_id] = OBJECT_ID(N'[ConfiguracaoSistema]'))
+          SET IDENTITY_INSERT [ConfiguracaoSistema] ON;
+      INSERT INTO [ConfiguracaoSistema] ([Chave], [DataUltimaAlteracao], [Descricao], [Valor])
+      VALUES (N'DuracaoPadraoConsultaMinutos', '2026-10-25T00:00:00', N'Duração por omissão de uma consulta, em minutos (EP-009 e EP-010).', N'30');
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Chave', N'DataUltimaAlteracao', N'Descricao', N'Valor') AND [object_id] = OBJECT_ID(N'[ConfiguracaoSistema]'))
+          SET IDENTITY_INSERT [ConfiguracaoSistema] OFF;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Nome') AND [object_id] = OBJECT_ID(N'[Especie]'))
+          SET IDENTITY_INSERT [Especie] ON;
+      INSERT INTO [Especie] ([Id], [Nome])
+      VALUES (1, N'Cão'),
+      (2, N'Gato');
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Nome') AND [object_id] = OBJECT_ID(N'[Especie]'))
+          SET IDENTITY_INSERT [Especie] OFF;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'EspecieId', N'Nome') AND [object_id] = OBJECT_ID(N'[Raca]'))
+          SET IDENTITY_INSERT [Raca] ON;
+      INSERT INTO [Raca] ([Id], [EspecieId], [Nome])
+      VALUES (1, 1, N'Labrador Retriever'),
+      (2, 1, N'Pastor Alemão'),
+      (3, 1, N'Sem raça definida'),
+      (4, 2, N'Europeu Comum'),
+      (5, 2, N'Siamês');
+      IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'EspecieId', N'Nome') AND [object_id] = OBJECT_ID(N'[Raca]'))
+          SET IDENTITY_INSERT [Raca] OFF;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+      VALUES (N'20261025184243_I062DadosReferencia', N'10.0.13');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+      SELECT @result
+Done.
+
+[4/4] A verificar migrations pendentes...
+Build started...
+Build succeeded.
+No changes have been made to the model since the last migration.
+
+============================================
+ Reposicao concluida com sucesso.
+============================================
