@@ -218,13 +218,15 @@ Cada teste deve partir de um estado conhecido.
 
 Antes da execução:
 
-1. a base de testes é criada ou inicializada;
+1. a base de testes é criada através das migrações da I062;
 2. o esquema é aplicado;
-3. os dados de referência são carregados;
+3. os dados de referência são carregados pelo `HasData` definido nas migrações;
 4. o estado necessário ao caso é preparado;
-5. após o teste, o estado é reposto quando necessário.
+5. após o teste, o estado é reposto quando necessário através de Respawn.
 
-A infraestrutura da I091 e o mecanismo de reposição da I062 deverão garantir a reprodutibilidade.
+A infraestrutura de testes da I091 deve utilizar Respawn para garantir a reprodutibilidade entre testes, ignorando as quatro tabelas de referência para preservar os dados carregados pelo `HasData`.
+
+A I061 é executada após a criação da base e aplicação das migrações.
 
 ---
 
@@ -375,9 +377,7 @@ RF013, RF019
 
 ---
 
-# 10. F002 — Gestão de pacientes
-
-## 10.1. EP-011 — Pesquisar clientes
+## 9.11. EP-011 — Pesquisar clientes
 
 `GET /clientes`
 RF011, RF017
@@ -392,7 +392,7 @@ RF011, RF017
 
 ---
 
-## 10.2. EP-012 — Consultar Cliente
+## 9.12. EP-012 — Consultar Cliente
 
 `GET /clientes/{id}`
 RF011, RF017
@@ -404,7 +404,7 @@ RF011, RF017
 
 ---
 
-## 10.3. EP-013 — Criar Cliente
+## 9.13. EP-013 — Criar Cliente
 
 `POST /clientes`
 RF010
@@ -420,7 +420,7 @@ RF010
 
 ---
 
-## 10.4. EP-014 — Atualizar Cliente
+## 9.14. EP-014 — Atualizar Cliente
 
 `PUT /clientes/{id}`
 RF011
@@ -437,7 +437,9 @@ RF011
 
 ---
 
-## 10.5. EP-015 — Pesquisar pacientes
+# 10. F002 — Gestão de pacientes
+
+## 10.1. EP-015 — Pesquisar pacientes
 
 `GET /animais`
 RF017
@@ -453,7 +455,7 @@ RF017
 
 ---
 
-## 10.6. EP-016 — Consultar ficha do paciente
+## 10.2. EP-016 — Consultar ficha do paciente
 
 `GET /animais/{id}`
 RF015, RF026
@@ -466,7 +468,7 @@ RF015, RF026
 
 ---
 
-## 10.7. EP-017 — Registar paciente
+## 10.3. EP-017 — Registar paciente
 
 `POST /animais`
 RF014
@@ -482,7 +484,7 @@ RF014
 
 ---
 
-## 10.8. EP-018 — Atualizar paciente
+## 10.4. EP-018 — Atualizar paciente
 
 `PUT /animais/{id}`
 RF016
@@ -496,7 +498,7 @@ RF016
 
 ---
 
-## 10.9. EP-019 — Listar os meus animais
+## 10.5. EP-019 — Listar os meus animais
 
 `GET /me/animais`
 RF018
@@ -509,7 +511,7 @@ RF018
 
 ---
 
-## 10.10. EP-020 — Consultar o meu animal
+## 10.6. EP-020 — Consultar o meu animal
 
 `GET /me/animais/{id}`
 RF018
@@ -609,7 +611,7 @@ RF022
 | IT-EP026-01 | Pendente/Confirmada e novo horário livre | Atualizar | `200`; novo `ETag`; dados persistidos |
 | IT-EP026-02 | Dados inválidos                          | Atualizar | `400`                                 |
 | IT-EP026-03 | Consulta inexistente                     | Atualizar | `404`                                 |
-| IT-EP026-04 | `If-Match` desatualizado                 | Atualizar | `409`; nenhuma alteração              |
+| IT-EP026-04 | `If-Match` desatualizado                 | Atualizar | `412`; nenhuma alteração              |
 | IT-EP026-05 | Consulta `Realizada`                     | Atualizar | `422`                                 |
 | IT-EP026-06 | Consulta `Cancelada`                     | Atualizar | `422`                                 |
 | IT-EP026-07 | Novo horário indisponível                | Atualizar | `422`                                 |
@@ -639,7 +641,7 @@ Transições válidas:
 | IT-EP027-06 | Consulta inexistente                        | Alterar                 | `404`              |
 | IT-EP027-07 | Transição inválida                          | Alterar                 | `422`              |
 | IT-EP027-08 | Estado final Realizada/Cancelada            | Tentar nova transição   | `422`              |
-| IT-EP027-09 | `If-Match` antigo                           | Alterar                 | `409`              |
+| IT-EP027-09 | `If-Match` antigo                           | Alterar                 | `412`              |
 | IT-EP027-10 | `If-Match` atual                            | Alterar                 | `204`; novo `ETag` |
 
 ---
@@ -653,7 +655,7 @@ RF025
 | ----------- | ------------------------------- | -------- | ----------------------------- |
 | IT-EP028-01 | Consulta Confirmada sem chegada | Registar | `200`; `chegadaEm` preenchido |
 | IT-EP028-02 | Consulta inexistente            | Registar | `404`                         |
-| IT-EP028-03 | `If-Match` desatualizado        | Registar | `409`                         |
+| IT-EP028-03 | `If-Match` desatualizado        | Registar | `412`                         |
 | IT-EP028-04 | Consulta não Confirmada         | Registar | `422`                         |
 | IT-EP028-05 | Chegada já registada            | Repetir  | `422`; hora original mantida  |
 
@@ -966,7 +968,7 @@ Os cenários de concorrência são executados contra **SQL Server real**, uma ve
 
 **Resultado esperado:**
 
-- segundo pedido devolve `409 Conflict`;
+- segundo pedido devolve `412 Precondition Failed`;
 - a alteração do primeiro pedido permanece;
 - o segundo pedido não sobrepõe dados.
 
@@ -974,13 +976,13 @@ Os cenários de concorrência são executados contra **SQL Server real**, uma ve
 
 Repetir o cenário anterior utilizando EP-027.
 
-**Resultado esperado:** segundo pedido devolve `409`.
+**Resultado esperado:** segundo pedido devolve `412`.
 
 ## IT-CONC-04 — Concorrência no registo de chegada
 
 Repetir o cenário utilizando EP-028.
 
-**Resultado esperado:** segundo pedido com versão antiga devolve `409`.
+**Resultado esperado:** segundo pedido com versão antiga devolve `412`.
 
 ## IT-CONC-05 — Duas gravações simultâneas sem If-Match
 
@@ -996,45 +998,45 @@ Executar duas alterações concorrentes sobre a mesma `RowVersion`, sem `If-Matc
 
 # 16. Rastreabilidade
 
-| Endpoint | Casos principais                   | Requisitos                 |
-| -------- | ---------------------------------- | -------------------------- |
-| EP-001   | IT-EP001-01 a 06                   | RF001, RF002, RF004, RF005 |
-| EP-002   | IT-EP002-01 a 03                   | RF003                      |
-| EP-003   | IT-EP003-01 a 04                   | RF004, RF005               |
-| EP-004   | IT-EP004-01 a 03                   | RF007, RF008, RF009        |
-| EP-005   | IT-EP005-01 a 02                   | RF007                      |
-| EP-006   | IT-EP006-01 a 05                   | RF006, RF008               |
-| EP-007   | IT-EP007-01 a 06                   | RF007, RF008               |
-| EP-008   | IT-EP008-01 a 07                   | RF009                      |
-| EP-009   | IT-EP009-01 a 02                   | RF012, RF019               |
-| EP-010   | IT-EP010-01 a 05                   | RF013, RF019               |
-| EP-011   | IT-EP011-01 a 05                   | RF011, RF017               |
-| EP-012   | IT-EP012-01 a 02                   | RF011, RF017               |
-| EP-013   | IT-EP013-01 a 06                   | RF010                      |
-| EP-014   | IT-EP014-01 a 07                   | RF011                      |
-| EP-015   | IT-EP015-01 a 06                   | RF017                      |
-| EP-016   | IT-EP016-01 a 03                   | RF015, RF026               |
-| EP-017   | IT-EP017-01 a 06                   | RF014                      |
-| EP-018   | IT-EP018-01 a 04                   | RF016                      |
-| EP-019   | IT-EP019-01 a 03                   | RF018                      |
-| EP-020   | IT-EP020-01 a 03                   | RF018                      |
-| EP-021   | IT-EP021-01                        | RF020, RF021               |
-| EP-022   | IT-EP022-01 a 06                   | RF020, RF019               |
-| EP-023   | IT-EP023-01 a 05                   | RF024, RF026               |
-| EP-024   | IT-EP024-01 a 05                   | RF024, RF026               |
-| EP-025   | IT-EP025-01 a 08                   | RF021                      |
-| EP-026   | IT-EP026-01 a 08, IT-CONC-01/02/05 | RF022                      |
-| EP-027   | IT-EP027-01 a 10, IT-CONC-03       | RF023                      |
-| EP-028   | IT-EP028-01 a 05, IT-CONC-04       | RF025                      |
-| EP-029   | IT-EP029-01 a 06                   | RF027                      |
-| EP-030   | IT-EP030-01 a 06                   | RF028, RF029               |
-| EP-031   | IT-EP031-01 a 09                   | RF030, RF031, RF032, RF033 |
-| EP-032   | IT-EP032-01 a 05                   | RF034, RF032, RF033        |
-| EP-033   | IT-EP033-01 a 03                   | RF035, RF036               |
-| EP-034   | IT-EP034-01 a 05                   | RF035, RF036               |
-| EP-042   | IT-EP042-01 a 05                   | RF046, RF045               |
-| EP-043   | IT-EP043-01 a 07                   | RF043, RF044, RF045        |
-| EP-044   | IT-EP044-01 a 04                   | RF047                      |
+| Funcionalidade | Endpoint | Casos principais                   | Requisitos                 |
+| -------------- | -------- | ---------------------------------- | -------------------------- |
+| F001           | EP-001   | IT-EP001-01 a 06                   | RF001, RF002, RF004, RF005 |
+| F001           | EP-002   | IT-EP002-01 a 03                   | RF003                      |
+| F001           | EP-003   | IT-EP003-01 a 04                   | RF004, RF005               |
+| F001           | EP-004   | IT-EP004-01 a 03                   | RF007, RF008, RF009        |
+| F001           | EP-005   | IT-EP005-01 a 02                   | RF007                      |
+| F001           | EP-006   | IT-EP006-01 a 05                   | RF006, RF008               |
+| F001           | EP-007   | IT-EP007-01 a 06                   | RF007, RF008               |
+| F001           | EP-008   | IT-EP008-01 a 07                   | RF009                      |
+| F001           | EP-009   | IT-EP009-01 a 02                   | RF012, RF019               |
+| F001           | EP-010   | IT-EP010-01 a 05                   | RF013, RF019               |
+| F001           | EP-011   | IT-EP011-01 a 05                   | RF011, RF017               |
+| F001           | EP-012   | IT-EP012-01 a 02                   | RF011, RF017               |
+| F001           | EP-013   | IT-EP013-01 a 06                   | RF010                      |
+| F001           | EP-014   | IT-EP014-01 a 07                   | RF011                      |
+| F002           | EP-015   | IT-EP015-01 a 06                   | RF017                      |
+| F002           | EP-016   | IT-EP016-01 a 03                   | RF015, RF026               |
+| F002           | EP-017   | IT-EP017-01 a 06                   | RF014                      |
+| F002           | EP-018   | IT-EP018-01 a 04                   | RF016                      |
+| F002           | EP-019   | IT-EP019-01 a 03                   | RF018                      |
+| F002           | EP-020   | IT-EP020-01 a 03                   | RF018                      |
+| F003           | EP-021   | IT-EP021-01                        | RF020, RF021               |
+| F003           | EP-022   | IT-EP022-01 a 06                   | RF020, RF019               |
+| F003           | EP-023   | IT-EP023-01 a 05                   | RF024, RF026               |
+| F003           | EP-024   | IT-EP024-01 a 05                   | RF024, RF026               |
+| F003           | EP-025   | IT-EP025-01 a 08                   | RF021                      |
+| F003           | EP-026   | IT-EP026-01 a 08, IT-CONC-01/02/05 | RF022                      |
+| F003           | EP-027   | IT-EP027-01 a 10, IT-CONC-03       | RF023                      |
+| F003           | EP-028   | IT-EP028-01 a 05, IT-CONC-04       | RF025                      |
+| F003           | EP-029   | IT-EP029-01 a 06                   | RF027                      |
+| F003           | EP-030   | IT-EP030-01 a 06                   | RF028, RF029               |
+| F004           | EP-031   | IT-EP031-01 a 09                   | RF030, RF031, RF032, RF033 |
+| F004           | EP-032   | IT-EP032-01 a 05                   | RF034, RF032, RF033        |
+| F004           | EP-033   | IT-EP033-01 a 03                   | RF035, RF036               |
+| F004           | EP-034   | IT-EP034-01 a 05                   | RF035, RF036               |
+| F006           | EP-042   | IT-EP042-01 a 05                   | RF046, RF045               |
+| F006           | EP-043   | IT-EP043-01 a 07                   | RF043, RF044, RF045        |
+| F006           | EP-044   | IT-EP044-01 a 04                   | RF047                      |
 
 Os testes `IT-TRV-*` complementam todos os endpoints protegidos relativamente a:
 
