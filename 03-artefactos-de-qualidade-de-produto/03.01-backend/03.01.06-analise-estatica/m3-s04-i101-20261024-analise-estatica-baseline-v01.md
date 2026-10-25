@@ -1,4 +1,4 @@
-﻿  Determining projects to restore...
+  Determining projects to restore...
   Restored C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO-i101-baseline\src\backend\ClinicaVeterinaria.Domain\ClinicaVeterinaria.Domain.csproj (in 73 ms).
   Restored C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO-i101-baseline\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj (in 439 ms).
   Restored C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO-i101-baseline\src\backend\ClinicaVeterinaria.Application\ClinicaVeterinaria.Application.csproj (in 438 ms).
@@ -24,4 +24,3 @@ C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO-i101-baseline\src\backend\ClinicaVet
     0 Error(s)
 
 Time Elapsed 00:00:09.24
-
