@@ -1,0 +1,20 @@
+@startuml
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+  FontColor black
+}
+
+title W01 — Login Web
+
+rectangle "CLÍNICA VETERINÁRIA\n\nINICIAR SESSÃO\n\nEmail\n[____________________________]\n\nPalavra-passe\n[____________________________]\n\n[ ENTRAR ]\n\nMensagem de erro, quando aplicável" as SCREEN
+
+note bottom of SCREEN
+Atores: Administrador, Rececionista, Veterinário, Auxiliar Veterinário
+UC01
+RF001, RF002, RF004, RF005
+end note
+@enduml
