@@ -23,13 +23,13 @@ A v01 (`m2-modelo-de-dados-clinica-veterinaria-v01.md`) mantém-se inalterada co
 | Decisões (secção 3) | D01 a D19 | D09 a D12 ficam reservadas (texto na v01); D13 e D18 sem referências às tabelas retiradas; D06 e D16 com notas sobre os termos da API e sobre `DiaSemana`; novo ponto 3.2 com as tabelas retiradas | Pontos anteriores e Documentação da API v02 |
 | Diagramas (secções 4.1 e 6.2) | Pacotes e entidades de F005 e F007 | Retirados, com as respetivas relações | Declaração de Âmbito v05 |
 | Quadros das secções 4.2, 4.3, 5.1, 5.2, 5.3, 6.3, 6.4, 6.5, 6.8 | Linhas de F005 e F007 | Linhas retiradas: 6 entidades, 9 relacionamentos, 16 chaves estrangeiras, 3 redundâncias, 9 `CHECK`, 3 unicidades, 5 índices e 6 regras de integridade | Declaração de Âmbito v05 |
-| Convenções (secção 6.1) | EF Core 8.0; esquema criado por migrações; nomes de restrições sem valores por omissão | EF Core 10.0; esquema criado pelos scripts T-SQL da I060, com migrações coerentes na I062; valores por omissão nomeados `DF_<Tabela>_<Coluna>` | Regulamento do Grupo v02 (secção 11.2, aprovado e assinado a 24/10/2026); README da I060 (DI-03, DI-07) |
+| Convenções (secção 6.1) | EF Core 8.0; esquema criado por migrações; nomes de restrições sem valores por omissão | EF Core 10.0; esquema criado pelas migrações do EF Core da I062, com os dados de referência em `HasData`; scripts T-SQL da I060 (`m3-v02`) como referência e prova do esquema; valores por omissão nomeados `DF_<Tabela>_<Coluna>` | Regulamento do Grupo v02 (secção 11.2, aprovado e assinado a 24/10/2026); README da I060 (DI-03, DI-07) |
 | Chave primária de `TokenRevogado` (secção 6.4) | `PK_TokenRevogado_Jti` | `PK_TokenRevogado`, igual à convenção `PK_<Tabela>` | README da I060 (DI-01) |
-| Índices (secção 6.5) | 13 índices de desempenho; nota a dizer que o EF Core indexa as restantes chaves estrangeiras | 8 índices de desempenho em âmbito, mais `IX_Cliente_Nome` e `IX_Paciente_Nome` (a confirmar) e 8 índices de chaves estrangeiras criados explicitamente pelos scripts | README da I060 (DI-04, DI-05) |
+| Índices (secção 6.5) | 13 índices de desempenho; nota a dizer que o EF Core indexa as restantes chaves estrangeiras | 8 índices de desempenho em âmbito, mais `IX_Cliente_Nome` e `IX_Paciente_Nome` (aceites pelo Líder a 25/10/2026) e 8 índices de chaves estrangeiras criados explicitamente pelos scripts | README da I060 (DI-04, DI-05) |
 | Enumerações e valores por omissão (secção 6.7) | Incluíam `EstadoPagamento`, `MetodoPagamento`, `EstadoInternamento`, `Alojamento.Ativo` e `ContaCliente.EstadoPagamento` | Retirados. `DiaSemana` passa a constar (`byte` com 1 a 7 na entidade, nome na API). Lista completa dos 13 valores por omissão | Documentação da API v02; Modelo de Classes do Backend v02 |
 | Rastreabilidade (secção 8) | Tabelas ligadas a UC14, UC15 e UC18 e aos RF037 a RF042 e RF048 a RF052 | Só requisitos e casos de uso em âmbito (UC01 a UC13, UC16 e UC17); ARC-F005 e ARC-F007 reservados; novos intervalos de endpoints por módulo | Especificação de Requisitos v02; Casos de Uso v02; Arquitetura v02; Documentação da API v02 |
 | `Marcacao` (secções 5.1, 6.2, 6.7 e 7.11) | 11 colunas, sem controlo de concorrência | **12 colunas**: acrescenta `RowVersion` (`ROWVERSION NOT NULL`), token de concorrência otimista | Decisão do Líder do grupo a 24/10/2026 (ponto 9.2, opção B2); critério 3 da Issue I059 |
-| Pontos em aberto (secção 9) | — | Novo. Decididos pelo Líder do grupo a 24/10/2026: retirar as seis tabelas dos scripts numa versão nova, `m3-v02` (9.1, opção B), e acrescentar `Marcacao.RowVersion` (9.2, opção B2). Com proposta adotada em rascunho e por confirmar pelo Revisor: dados de referência e de demonstração (9.3) e DI-04, DI-05 e DI-08 do README da I060, incluindo a collation `Latin1_General_100_CI_AS` (9.4) | Coerência com a Issue I059 e com os scripts da I060 |
+| Pontos em aberto (secção 9) | — | Novo. Decididos pelo Líder do grupo a 24/10/2026: retirar as seis tabelas dos scripts numa versão nova, `m3-v02` (9.1, opção B), e acrescentar `Marcacao.RowVersion` (9.2, opção B2). Decidido pelo Líder a 25/10/2026: a base é criada pelas migrações da I062, com dados de referência em `HasData`, e a I061 corre depois só com dados de demonstração (9.3, opção a). Aceites pelo Líder a 25/10/2026, a confirmar pelo Revisor: DI-05 (manter os índices por nome) e DI-08 (collation `Latin1_General_100_CI_AS`) do README da I060 (9.4) | Coerência com a Issue I059 e com os scripts da I060 |
 | Histórico de versões (secção 10) | Versão e autor | Versão, data, autor e descrição | Controlo de versões |
 
 ---
@@ -300,14 +300,14 @@ Redundâncias controladas e justificadas:
 | Componente arquitetural | ARC-DB (base de dados) e ARC-DATA (persistência EF Core), conforme `m3-documentacao-arquitetura-v02.md` |
 | Base de dados | `ClinicaVeterinaria` (identificador físico da base de dados `clinica-veterinaria`, sem hífen para evitar delimitadores em T-SQL) |
 | Esquema | `dbo` |
-| Criação do esquema | Scripts T-SQL em `04.13-scripts-de-base-de-dados`: `m3-v01` (Issue I060, concluída, 22 tabelas) e `m3-v02` (rascunho, 16 tabelas e `RowVersion`), que é a que corresponde a este modelo. As migrações do Entity Framework Core 10.0 (code-first) coerentes com os scripts são entregues na Issue I062 (DI-07) |
+| Criação do esquema | A base de dados é criada pelas migrações do Entity Framework Core 10.0 (code-first), entregues na Issue I062, que também carregam os dados de referência com `HasData` (9.3); a seguir correm os scripts de demonstração da I061. Os scripts T-SQL em `04.13-scripts-de-base-de-dados` são a referência do esquema e a prova de que este modelo se cria sem erros: `m3-v01` (Issue I060, concluída, 22 tabelas) e `m3-v02` (rascunho, executada a 24/10/2026, 16 tabelas e `RowVersion`), que é a que corresponde a este modelo. As migrações têm de gerar o mesmo esquema (DI-07) |
 | Nomes de tabelas e colunas | PascalCase, singular, sem acentos |
 | Chaves primárias | `INT IDENTITY(1,1)`, exceto `Funcionario` (PK = FK para `Utilizador`), `TokenRevogado` (PK = `Jti`), `ConfiguracaoSistema` (chave natural) e `Clinica` (linha única) |
 | Nomes de restrições | `PK_<Tabela>`, `FK_<Tabela>_<Referência>_<Coluna>`, `UQ_<Tabela>_<Coluna>`, `CK_<Tabela>_<Regra>`, `DF_<Tabela>_<Coluna>`, `IX_<Tabela>_<Colunas>` |
 | Datas e horas | `DATETIME2(0)` em UTC; `DATE` para datas sem hora; `TIME(0)` para horários |
 | Valores monetários | `DECIMAL(10,2)` em euros |
 | Texto | `NVARCHAR(n)` (Unicode) |
-| Collation | `Latin1_General_100_CI_AS` (insensível a maiúsculas, sensível a acentos), fixada em `00-criar-base-de-dados.sql` da `m3-v02`. Proposta a confirmar pelo Revisor (ver 9.4) |
+| Collation | `Latin1_General_100_CI_AS` (insensível a maiúsculas, sensível a acentos), fixada em `00-criar-base-de-dados.sql` da `m3-v02`. Aceite pelo Líder a 25/10/2026; o Revisor confirma o nome (ver 9.4) |
 | Comportamento de eliminação | `NO ACTION` em todas as chaves estrangeiras |
 | Dados de teste | Exclusivamente fictícios, criados por scripts de seed (Regulamento Interno G08, secção 14.3) |
 
@@ -538,10 +538,10 @@ Marcacao |o--o{ Profilaxia
 | IX_Tratamento_Registo | Tratamento | RegistoClinicoId | Leitura do registo clínico. |
 | IX_Prescricao_Registo | Prescricao | RegistoClinicoId | Leitura do registo clínico. |
 | IX_Profilaxia_Paciente_Data | RegistoProfilaxia | PacienteId, DataAdministracao | Boletim web/mobile. |
-| IX_Cliente_Nome | Cliente | Nome | Pesquisa de Clientes por nome (EP-011). **A confirmar pelo Revisor (DI-05).** |
-| IX_Paciente_Nome | Paciente | Nome | Pesquisa de pacientes por nome (EP-015). **A confirmar pelo Revisor (DI-05).** |
+| IX_Cliente_Nome | Cliente | Nome | Pesquisa de Clientes por nome (EP-011). **Aceite pelo Líder a 25/10/2026; o Revisor confirma (DI-05).** |
+| IX_Paciente_Nome | Paciente | Nome | Pesquisa de pacientes por nome (EP-015). **Aceite pelo Líder a 25/10/2026; o Revisor confirma (DI-05).** |
 
-As restantes chaves estrangeiras, que nenhum dos índices acima cobre, são indexadas explicitamente pelos scripts da Issue I060, com o nome que o Entity Framework Core usa por omissão (`IX_<Tabela>_<Coluna>`), para que o esquema criado pelos scripts fique completo sem depender das migrações (DI-04):
+As restantes chaves estrangeiras, que nenhum dos índices acima cobre, são indexadas explicitamente pelos scripts da Issue I060, com o nome que o Entity Framework Core usa por omissão (`IX_<Tabela>_<Coluna>`), para que o esquema de referência dos scripts fique completo sem depender das migrações (DI-04):
 
 | Índice | Tabela | Colunas |
 |---|---|---|
@@ -591,7 +591,7 @@ builder.Property(r => r.DataProximaAdministracao)
 | Eliminação | `DeleteBehavior.Restrict` em todas as relações. |
 | Concorrência otimista | `Marcacao.RowVersion` é `byte[]`, configurada com `IsRowVersion()` (ou `[Timestamp]`). O backend nunca a escreve. Um conflito de gravação (`DbUpdateConcurrencyException`) é devolvido como 409 em EP-026, EP-027 e EP-028; se o cliente enviar `If-Match` e este já não corresponder à versão atual, a resposta é 412 (ponto 9.2 e Documentação da API v02, secção 5.1). |
 | Valores por omissão | Os 13 valores por omissão têm o nome `DF_<Tabela>_<Coluna>`: `Utilizador.Estado = 'Ativo'`, `Marcacao.Estado = 'Pendente'`, `Paciente.Sexo = 'Desconhecido'`, `Funcionario.PodeRegistarApoio = 0` e `HorarioFuncionamento.Ativo = 1`; as datas de registo (`Utilizador.DataCriacao`, `TokenRevogado.DataRevogacao`, `Cliente.DataRegisto`, `Paciente.DataRegisto`, `Marcacao.DataCriacao`, `InformacaoApoio.DataRegisto`, `RegistoClinico.CriadoEm` e `RegistoProfilaxia.DataRegisto`) usam `SYSUTCDATETIME()`. `Clinica.DataUltimaAlteracao` e `ConfiguracaoSistema.DataUltimaAlteracao` não têm valor por omissão (DI-10). |
-| Dados de referência | `HasData` para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, com chaves explícitas, datas fixas em UTC e valores fictícios (proposta; ver 9.3). |
+| Dados de referência | `HasData` para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, com chaves explícitas, datas fixas em UTC e valores fictícios (decidido; ver 9.3). |
 
 ### 6.8. Regras de integridade garantidas pelo backend
 
@@ -862,7 +862,7 @@ Todas as tabelas pertencem a ARC-DB e são acedidas exclusivamente através de A
 
 ## 9. Pontos em aberto
 
-Os pontos 9.1 e 9.2 foram decididos pelo Líder do grupo a 24/10/2026. Nos pontos 9.3 e 9.4 este rascunho adota uma proposta, que o Revisor ainda tem de confirmar. Este rascunho **não altera os scripts `m3-v01`** nem nenhuma Issue; a Issue I059 continua por atualizar (secção 9.1).
+Os pontos 9.1 e 9.2 foram decididos pelo Líder do grupo a 24/10/2026 e o ponto 9.3 a 25/10/2026 (opção a). No ponto 9.4, o Líder aceitou a 25/10/2026 as propostas sobre DI-05 e DI-08, que o Revisor ainda confirma. Este rascunho **não altera os scripts `m3-v01`** nem nenhuma Issue; a Issue I059 continua por atualizar (secção 9.1).
 
 ### 9.1. Tabelas de F005 e F007 nos scripts — decidido (opção B)
 
@@ -889,34 +889,38 @@ O que mudou por causa desta decisão:
 - Modelo de Classes do Backend v02: `Marcacao.RowVersion` (`byte[]`) e conflito tratado em `ConsultasService`.
 - Documentação da API v02: resposta 412 em EP-026, EP-027 e EP-028 quando o `If-Match` está desatualizado e 409 quando duas gravações da mesma marcação chegam em simultâneo. O mecanismo proposto é `ETag` e `If-Match` (secção 5.1 da API, com a nota sobre CORS); a alternativa de um campo `versao` nos DTOs fica como ponto em aberto 5 da API.
 
-### 9.3. Dados de referência e dados de demonstração — proposta em rascunho
+### 9.3. Dados de referência e dados de demonstração — decidido (opção a)
 
 A secção 6.7 prevê `HasData` do Entity Framework Core para `Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`, enquanto a Issue I061 (dados iniciais e de demonstração) fala em scripts SQL, incluindo dados de `Alojamento` e contas com pagamentos. Usar os dois mecanismos para as mesmas linhas duplicaria dados ou causaria conflitos de chave.
 
-**Proposta adotada neste rascunho (a confirmar pelo Revisor):** separar pelo tipo de dado.
+**Decisão do Líder do grupo, 25/10/2026 (opção a):** separar pelo tipo de dado e criar a base pelas migrações.
 
+- **Criação da base.** As migrações do Entity Framework Core da Issue I062 criam a base de dados (desenvolvimento e testes de integração) e carregam os dados de referência com `HasData`. A seguir correm os scripts de dados de demonstração da Issue I061.
 - **Dados de referência** (a aplicação não funciona sem eles): `Clinica` (linha única, `Id = 1`), `Especie`, `Raca` e `ConfiguracaoSistema`. Ficam em `HasData`, com chaves explícitas, valores fictícios e datas **fixas** em UTC (nunca `DateTime.Now`, que faria cada migração gerar uma alteração nova). `Clinica.DataUltimaAlteracao` e `ConfiguracaoSistema.DataUltimaAlteracao` são `NOT NULL` e não têm valor por omissão, pelo que o seed tem de as preencher (DI-10).
-- **Dados de demonstração** (clientes, pacientes, marcações, registos clínicos e contas de teste): só scripts SQL da I061. Não inserem linhas de referência nem repetem chaves.
+- **Dados de demonstração** (clientes, pacientes, marcações, registos clínicos e contas de teste): só scripts SQL da I061, que correm **depois** das migrações. Não inserem linhas de referência nem repetem chaves (por exemplo, `Paciente` usa as `Especie` já criadas).
+- **Scripts `m3-v02`:** ficam como **referência e prova** do esquema. Foram executados a 24/10/2026 sem divergências, e as migrações da I062 têm de gerar o mesmo esquema (DI-04 e DI-07). Não são o caminho para criar a base da aplicação nem a dos testes: uma base criada só por eles não tem as linhas de referência.
+- **Testes de integração:** o Respawn, ao repor a base entre testes, ignora as quatro tabelas de referência (`Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`), para que o `HasData` das migrações se mantenha.
 - **Sem tabela na `m3-v02`:** `Alojamento`, contas e pagamentos. Os critérios da I061 que falam deles (contas com pagamento parcial, internamento com e sem alojamento, alojamentos suficientes) não se aplicam; a Issue não foi alterada.
 
-**Condição a confirmar.** `HasData` só chega à base de dados quando as migrações da I062 são aplicadas. Uma base criada apenas pelos scripts `m3-v02` (que são a referência do esquema, DI-07) fica sem as linhas de referência, e os scripts de demonstração da I061 precisam delas (por exemplo, `Paciente` precisa de `Especie`). O Revisor tem de dizer qual é o caminho oficial para criar uma base de desenvolvimento: (a) migrações da I062, com os scripts da I061 a correr depois delas; ou (b) dados de referência também em script SQL idempotente na I061 e sem `HasData`. Se escolher (b), a secção 6.7 deixa de falar em `HasData`.
+Alternativa descartada: (b) dados de referência também em script SQL idempotente na I061, sem `HasData`. Com a opção (a), a secção 6.7 mantém o `HasData`.
 
 ### 9.4. Confirmações do README da I060
 
 | Ponto | Situação neste rascunho | Quem confirma |
 |---|---|---|
 | DI-04 — índices das chaves estrangeiras | Incluídos na secção 6.5, como criados pelos scripts com o nome do EF Core. | Issue I062: confirmar que as migrações geram os mesmos índices. |
-| DI-05 — `IX_Cliente_Nome` e `IX_Paciente_Nome` | **Proposta: manter** (secção 6.5). Ajudam a ordenação e a paginação por nome e a pesquisa pelo início do nome. Uma pesquisa por parte do nome (`LIKE '%costa%'`, como no exemplo de EP-011) não consegue usar o índice para localizar linhas. O custo é de dois índices pequenos. | Revisor: confirmar. |
-| DI-08 — collation | **Proposta: fixar `Latin1_General_100_CI_AS`** em `00-criar-base-de-dados.sql` da `m3-v02`, que `verificar-esquema.sql` passa a confirmar. Sem isto, a base usa a collation da instância, que muda conforme a instalação. Com `_CI_AS`, `UQ_Utilizador_Email` não distingue `A@x.pt` de `a@x.pt` em nenhum ambiente; o backend continua a normalizar os e-mails em minúsculas. Uma collation sem acentos (`_CI_AI`) faria «Joao» encontrar «João», mas também mudaria a unicidade de e-mails e de nomes de espécie e raça, pelo que não foi adotada. | Revisor: confirmar o nome da collation. Issue I062: usar a mesma no modelo EF (`UseCollation`). |
+| DI-05 — `IX_Cliente_Nome` e `IX_Paciente_Nome` | **Aceite pelo Líder a 25/10/2026: manter** (secção 6.5). Ajudam a ordenação e a paginação por nome e a pesquisa pelo início do nome. Uma pesquisa por parte do nome (`LIKE '%costa%'`, como no exemplo de EP-011) não consegue usar o índice para localizar linhas. O custo é de dois índices pequenos. | Revisor: confirmar. |
+| DI-08 — collation | **Aceite pelo Líder a 25/10/2026: fixar `Latin1_General_100_CI_AS`** em `00-criar-base-de-dados.sql` da `m3-v02`, que `verificar-esquema.sql` passa a confirmar. Sem isto, a base usa a collation da instância, que muda conforme a instalação. Com `_CI_AS`, `UQ_Utilizador_Email` não distingue `A@x.pt` de `a@x.pt` em nenhum ambiente; o backend continua a normalizar os e-mails em minúsculas. Uma collation sem acentos (`_CI_AI`) faria «Joao» encontrar «João», mas também mudaria a unicidade de e-mails e de nomes de espécie e raça, pelo que não foi adotada. | Revisor: confirmar o nome da collation. Issue I062: usar a mesma no modelo EF (`UseCollation`). |
 
 DI-01, DI-03 e DI-07 já estão refletidos neste documento. DI-02 e a parte de `Internamento` de DI-10 deixam de se aplicar com a retirada das tabelas. DI-06 não exige alteração ao esquema. DI-09 foi corrigida nos Casos de Uso v02.
 
 ### 9.5. Documentos alinhados e documentos por alinhar
 
-Alinhados em rascunho a 24/10/2026: Documentação da Arquitetura v02 (secção 7.13 e ponto em aberto da secção 20), Modelo de Classes do Backend v02 (`Marcacao.RowVersion`, pontos em aberto 5 e 6), Documentação da API v02 (412, 409, CORS e secção 5.1), Plano de Testes do Backend v02 (CT-F003-09) e Modelo de Classes do Frontend Web v02 (fonte do modelo de dados).
+Alinhados em rascunho a 24/10/2026: Documentação da Arquitetura v02 (secção 7.13 e ponto em aberto da secção 20), Modelo de Classes do Backend v02 (`Marcacao.RowVersion`, pontos em aberto 5 e 6), Documentação da API v02 (412, 409, CORS e secção 5.1), Plano de Testes do Backend v02 (CT-F003-09; Respawn e dados de referência, 9.3) e Modelo de Classes do Frontend Web v02 (fonte do modelo de dados).
 
 Por alinhar quando o grupo aprovar:
 
+- Issue I062: gerar com as migrações o esquema da `m3-v02`, incluir o `HasData` das quatro tabelas de referência (9.3) e usar a mesma collation (`UseCollation`, 9.4). Issue I061: correr depois das migrações, só com dados de demonstração. Issue I091: Respawn a ignorar as quatro tabelas de referência.
 - Registo das decisões 9.1 e 9.2 na Issue I059 (texto preparado em separado; as Issues não foram alteradas).
 - Anexação dos registos de execução da `m3-v02` (feita a 24/10/2026) à Issue I059.
 - Frontend web: guardar o `ETag` lido em EP-024 e enviá-lo em `If-Match` (depende do ponto em aberto 5 da API).
@@ -929,4 +933,4 @@ Por alinhar quando o grupo aprovar:
 | Versão | Data | Autor | Descrição das alterações |
 |---|---|---|---|
 | v01 | m2 | Gonçalo Magalhães Ribeiro | Versão inicial do Modelo de Dados (Issue I016). Mantém-se inalterada como histórico (`m2-modelo-de-dados-clinica-veterinaria-v01.md`). |
-| v02 | 24/10/2026 | Por atribuir | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito: 16 tabelas) e as tecnologias do Regulamento do Grupo v02 (24/10/2026). Incorpora as decisões DI-01, DI-03 e DI-07 do README da I060. Acrescenta `Marcacao.RowVersion` (12 colunas) e regista as decisões do Líder do grupo de 24/10/2026: scripts `m3-v02` sem as tabelas de F005 e F007 (9.1) e controlo de concorrência por `rowversion` (9.2). Propõe, a confirmar pelo Revisor, separar dados de referência (`HasData`) e de demonstração (scripts da I061) (9.3), manter `IX_Cliente_Nome` e `IX_Paciente_Nome` (DI-05) e fixar a collation `Latin1_General_100_CI_AS` (DI-08, 9.4). |
+| v02 | 24/10/2026 | Por atribuir | Reflete a Declaração de Âmbito v05 (F005 e F007 passam para o não-âmbito: 16 tabelas) e as tecnologias do Regulamento do Grupo v02 (24/10/2026). Incorpora as decisões DI-01, DI-03 e DI-07 do README da I060. Acrescenta `Marcacao.RowVersion` (12 colunas) e regista as decisões do Líder do grupo de 24/10/2026: scripts `m3-v02` sem as tabelas de F005 e F007 (9.1) e controlo de concorrência por `rowversion` (9.2). Regista a decisão do Líder de 25/10/2026 sobre os dados de referência (`HasData`, migrações da I062) e de demonstração (scripts da I061, depois das migrações), com os scripts `m3-v02` como referência e prova (9.3, opção a), e as propostas aceites por ele de manter `IX_Cliente_Nome` e `IX_Paciente_Nome` (DI-05) e fixar a collation `Latin1_General_100_CI_AS` (DI-08, 9.4), que o Revisor confirma. |
