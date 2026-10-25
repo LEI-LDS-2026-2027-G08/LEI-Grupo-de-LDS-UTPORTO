@@ -1,12 +1,12 @@
 # Clínica Veterinária - Backend
 
-Backend da aplicação de Gestão de Clínica Veterinária desenvolvido em .NET 8 com ASP.NET Core Web API.
+Backend da aplicação de Gestão de Clínica Veterinária desenvolvido em .NET 10 com ASP.NET Core Web API.
 
 ## Pré-requisitos
 
-- .NET SDK 8
-- A solução inclui um ficheiro `global.json` que garante a utilização do SDK .NET 8 compatível.
-- Visual Studio ou outro IDE compatível com .NET 8
+- .NET SDK 10
+- A solução inclui um ficheiro `global.json` que garante a utilização do SDK .NET 10 compatível.
+- Visual Studio ou outro IDE compatível com .NET 10
 
 Para verificar a versão instalada:
 
@@ -45,7 +45,7 @@ O ficheiro `appsettings.Example.json` apresenta a estrutura de configuração ne
 ### Configurações utilizadas
 
 ```text
-ConnectionStrings:DefaultConnection
+ConnectionStrings:ClinicaDb
 Jwt:Key
 Jwt:Issuer
 Jwt:Audience
@@ -62,7 +62,7 @@ As configurações podem ser substituídas através de variáveis de ambiente.
 Exemplos:
 
 ```text
-ConnectionStrings__DefaultConnection
+ConnectionStrings__ClinicaDb
 Jwt__Key
 Jwt__Issuer
 Jwt__Audience
