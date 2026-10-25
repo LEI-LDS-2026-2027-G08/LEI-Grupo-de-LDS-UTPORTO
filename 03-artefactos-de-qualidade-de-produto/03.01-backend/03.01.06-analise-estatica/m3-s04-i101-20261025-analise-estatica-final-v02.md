@@ -1,4 +1,4 @@
-﻿# I101 — Evidência final da análise estática
+# I101 — Evidência final da análise estática
 
 **Data:** 2026-10-25
 **Backend:** .NET 10
@@ -18,7 +18,7 @@ Build succeeded.
 
 Todos os projetos do backend foram compilados com sucesso em .NET 10.
 
-## QG-08 — Formatação
+## Verificação complementar — Formatação
 
 Comando executado:
 
@@ -41,6 +41,6 @@ Foram corrigidos:
 ## Resultado final
 
 - QG-04: APROVADO
-- QG-08: APROVADO
+- Verificação de formatação: APROVADA
 - Backend .NET 10: APROVADO
 - Quality gate local: APROVADO

@@ -30,7 +30,7 @@ A análise estática do backend tem como objetivo detetar automaticamente proble
 
 A configuração é versionada no repositório e destina-se à execução local e posterior integração na pipeline CI/CD do projeto.
 
-A configuração segue o Regulamento Interno do Grupo G08 v02 e o Plano de Qualidade v02, que definem para o backend a utilização dos analisadores Roslyn e um quality gate que exige zero problemas classificados como `Warning` ou `Error`.
+A configuração segue o Regulamento Interno do Grupo G08 e o Plano de Qualidade do Processo em vigor, que definem para o backend a utilização dos analisadores Roslyn e um quality gate que exige zero problemas classificados como `Warning` ou `Error`.
 
 ---
 
@@ -163,7 +163,7 @@ Critério de aprovação:
 
 Qualquer problema de severidade `Warning` ou `Error` provoca falha do build e bloqueia a integração.
 
-### 6.2. QG-08 — Formatação
+### 6.2. Verificação complementar — Formatação
 
 Comando local utilizado:
 
@@ -269,7 +269,7 @@ m3-s04-i101-20261025-analise-estatica-final-v02.md
 
 Este resultado corresponde ao backend atual já integrado em .NET 10.
 
-Os comandos foram novamente executados após a integração da I059 e ambos os quality gates foram aprovados em .NET 10.
+Os comandos foram novamente executados após a integração da I059, tendo sido aprovados o QG-04 e a verificação complementar de formatação em .NET 10.
 
 ---
 
@@ -317,7 +317,7 @@ Uma falha em qualquer um destes comandos deve provocar o insucesso da pipeline e
 | Baseline inicial        | `m3-s04-i101-20261024-analise-estatica-baseline-v01.md`                  |
 | Execução após correções | `m3-s04-i101-20261025-analise-estatica-final-v02.md`                     |
 | Comando QG-04           | `dotnet build ClinicaVeterinaria.sln --no-restore -warnaserror` |
-| Comando QG-08           | `dotnet format ClinicaVeterinaria.sln --verify-no-changes`      |
+| Verificação formatação | `dotnet format ClinicaVeterinaria.sln --verify-no-changes` |
 
 ---
 
@@ -332,6 +332,6 @@ Uma falha em qualquer um destes comandos deve provocar o insucesso da pipeline e
 - primeira execução registada;
 - baseline inicial registada;
 - QG-04 executado com sucesso no backend atual;
-- QG-08 executado com sucesso no backend atual;
+- verificação complementar de formatação executada com sucesso no backend atual;
 - validação final em .NET 10 concluída com sucesso;
 - integração automática na pipeline dependente da I102.
