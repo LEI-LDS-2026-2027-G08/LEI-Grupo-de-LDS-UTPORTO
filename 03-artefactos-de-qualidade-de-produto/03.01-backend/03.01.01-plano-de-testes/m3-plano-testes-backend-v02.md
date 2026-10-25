@@ -27,6 +27,7 @@
 | Matriz endpoint × perfil | 51 × 6 = 306 → 37 × 6 = **222 verificações**. |
 | Tecnologias | ASP.NET Core 10 e EF Core 10, SQL Server 2025, frontend mobile Android (Kotlin) em vez de Flutter. ReportGenerator 5.5. Roslyn Analyzers do SDK 10. |
 | Quality gates | Acrescentado o QG-08 (formatação com `dotnet format`). A divergência de versões (D-02) fica decidida pelo Regulamento de Grupo v02. |
+| Dados de referência | Secção 6.2: o Respawn ignora as quatro tabelas de referência, criadas pelo `HasData` das migrações da I062, conforme o Modelo de Dados v02 (ponto 9.3, opção a, decidida pelo Líder a 25/10/2026). |
 | Concorrência | Nova condição CT-F003-09 e códigos 409 e 412 acrescentados a EP-026, EP-027 e EP-028 na tabela 15.1, conforme a Documentação da API v02 (secção 5.1) e a decisão do Líder do grupo de 24/10/2026. |
 | Rastreabilidade | Corrigidas as origens de CT-F006-01 (cálculo da próxima administração é RF045, não RF044) e CT-F006-02 (registar vacinação e desparasitação são RF043 e RF044, não RF043 e RF045), de acordo com a Especificação de Requisitos. |
 | Rastreabilidade | Tabela 15.1 com 37 endpoints; RF037–RF042 e RF048–RF052 identificados como fora do âmbito. |
@@ -163,7 +164,7 @@ Nenhum teste automático liga à base de dados de desenvolvimento partilhada ou 
 ### 6.2. Base de dados isolada por execução
 
 - Cada execução dos testes de integração cria **um contentor SQL Server novo** (imagem de SQL Server 2025, alinhada com a Arquitetura) e aplica as *migrations* do EF Core à base de dados `clinica-veterinaria`.
-- Entre testes, o **Respawn** repõe a base de dados ao estado inicial, preservando apenas os dados de referência, se existirem.
+- Entre testes, o **Respawn** repõe a base de dados ao estado inicial e ignora as quatro tabelas de dados de referência (`Clinica`, `Especie`, `Raca` e `ConfiguracaoSistema`), que as migrações da I062 carregam com `HasData` (Modelo de Dados v02, ponto 9.3, decidido pelo Líder a 25/10/2026).
 - Os testes não dependem da ordem de execução e podem ser executados individualmente.
 
 ### 6.3. Dados de teste
