@@ -1,10 +1,10 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using ClinicaVeterinaria.Application.Exceptions;
 
 namespace ClinicaVeterinaria.Api.Middleware;
 
-public sealed class ExceptionHandlingMiddleware
+public sealed partial class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
@@ -25,15 +25,25 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogError(
+            LogUnhandledException(
+                _logger,
                 exception,
-                "Erro não tratado durante o pedido {Method} {Path}",
                 context.Request.Method,
                 context.Request.Path);
 
             await HandleExceptionAsync(context, exception);
         }
     }
+
+    [LoggerMessage(
+        EventId = 2001,
+        Level = LogLevel.Error,
+        Message = "Erro não tratado durante o pedido {Method} {Path}")]
+    private static partial void LogUnhandledException(
+        ILogger logger,
+        Exception exception,
+        string method,
+        PathString path);
 
     private static async Task HandleExceptionAsync(
         HttpContext context,
