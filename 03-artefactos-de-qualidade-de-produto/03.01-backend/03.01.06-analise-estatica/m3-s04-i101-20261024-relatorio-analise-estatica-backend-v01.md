@@ -5,7 +5,7 @@
 | Grupo     | G08                                                                                      |
 | Projeto   | Gestão de Clínica Veterinária                                                            |
 | Artefacto | Relatório de Análise Estática do Backend                                                 |
-| Ficheiro  | `m3-relatorio-analise-estatica-backend-v01.md`                                           |
+| Ficheiro  | `m3-s04-i101-20261024-relatorio-analise-estatica-backend-v01.md`                                           |
 | Versão    | v01 — rascunho do Executor                                                               |
 | Milestone | m3                                                                                       |
 | Issue     | I101 — Configurar a análise estática e o quality gate do backend                         |
@@ -175,7 +175,7 @@ Build succeeded.
 A evidência encontra-se em:
 
 ```text
-m3-analise-estatica-backend-baseline-v01.txt
+m3-s04-i101-20261024-analise-estatica-baseline-v01.md
 ```
 
 A baseline identificou três ocorrências da regra `CA1848`, todas na camada API:
@@ -248,7 +248,7 @@ sem serem identificadas alterações de formatação necessárias.
 A evidência da execução encontra-se em:
 
 ```text
-m3-analise-estatica-backend-final-v01.txt
+m3-s04-i101-20261024-analise-estatica-final-v01.md
 ```
 
 Este resultado corresponde ao estado atual do backend antes da integração da migração .NET 10 da I059.
@@ -298,8 +298,8 @@ Uma falha em qualquer um destes comandos deve provocar o insucesso da pipeline e
 | ----------------------- | --------------------------------------------------------------- |
 | Configuração das regras | `/.editorconfig`                                                |
 | Configuração MSBuild    | `/Directory.Build.props`                                        |
-| Baseline inicial        | `m3-analise-estatica-backend-baseline-v01.txt`                  |
-| Execução após correções | `m3-analise-estatica-backend-final-v01.txt`                     |
+| Baseline inicial        | `m3-s04-i101-20261024-analise-estatica-baseline-v01.md`                  |
+| Execução após correções | `m3-s04-i101-20261024-analise-estatica-final-v01.md`                     |
 | Comando QG-04           | `dotnet build ClinicaVeterinaria.sln --no-restore -warnaserror` |
 | Comando QG-08           | `dotnet format ClinicaVeterinaria.sln --verify-no-changes`      |
 
