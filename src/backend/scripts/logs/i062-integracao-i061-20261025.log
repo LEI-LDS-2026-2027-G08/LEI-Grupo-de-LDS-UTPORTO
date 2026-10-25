@@ -1,14 +1,14 @@
-﻿Execução dos scripts de dados iniciais e de demonstração (I061) — ClinicaVeterinaria
-Data e hora      : 2026-10-25 19:26:46 +00:00
+﻿Execução dos scripts de dados iniciais e de demonstração (I061)
+Data e hora      : 2026-10-25 20:33:20 +00:00
 Computador       : LAPTOP-I1J1GO6R
-Servidor         : .
-Autenticação     : Windows
+Servidor         : localhost,14333
+Base de dados    : ClinicaVeterinaria_I062_Container
+Autenticação     : SQL Server (login sa)
 Scripts          : 02-dados-demonstracao.sql, 02-dados-demonstracao.sql, verificar-dados-demonstracao.sql
 Nota             : 02-dados-demonstracao.sql corre duas vezes; a segunda tem de registar 0 linha(s) inserida(s) em todas as tabelas.
-SQL Server       : Microsoft SQL Server 2025 (RTM-GDR) (KB5128492) - 17.0.1145.4 (X64) 
+SQL Server       : Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64) 
 
-=== 02-dados-demonstracao.sql — início 19:26:46
-Changed database context to 'ClinicaVeterinaria_I062_Test'.
+=== 02-dados-demonstracao.sql — início 20:33:20
  Utilizador: 10 linha(s) inserida(s).
  Funcionario: 7 linha(s) inserida(s).
  HorarioFuncionamento: 11 linha(s) inserida(s).
@@ -21,10 +21,9 @@ Changed database context to 'ClinicaVeterinaria_I062_Test'.
  Prescricao: 1 linha(s) inserida(s).
  RegistoProfilaxia: 4 linha(s) inserida(s).
  Dados de demonstração concluídos.
-=== 02-dados-demonstracao.sql — fim 19:26:46 — código de saída 0
+=== 02-dados-demonstracao.sql — fim 20:33:20 — código de saída 0
 
-=== 02-dados-demonstracao.sql — início 19:26:46
-Changed database context to 'ClinicaVeterinaria_I062_Test'.
+=== 02-dados-demonstracao.sql — início 20:33:20
  Utilizador: 0 linha(s) inserida(s).
  Funcionario: 0 linha(s) inserida(s).
  HorarioFuncionamento: 0 linha(s) inserida(s).
@@ -37,10 +36,9 @@ Changed database context to 'ClinicaVeterinaria_I062_Test'.
  Prescricao: 0 linha(s) inserida(s).
  RegistoProfilaxia: 0 linha(s) inserida(s).
  Dados de demonstração concluídos.
-=== 02-dados-demonstracao.sql — fim 19:26:47 — código de saída 0
+=== 02-dados-demonstracao.sql — fim 20:33:21 — código de saída 0
 
-=== verificar-dados-demonstracao.sql — início 19:26:47
-Changed database context to 'ClinicaVeterinaria_I062_Test'.
+=== verificar-dados-demonstracao.sql — início 20:33:21
 Código Verificação                                                                                                                                                                                              Esperado                                                                                             Obtido                                                                                               Resultado 
 ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ----------
 D01    Conta ativa no perfil Administrador                                                                                                                                                                      >= 1                                                                                                 1                                                                                                    OK        
@@ -86,6 +84,6 @@ Prescricao                     1
 RegistoProfilaxia              4
 Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas.
 Resultado: os dados de demonstração cobrem os critérios 2 e 3 da I061 e são coerentes.
-=== verificar-dados-demonstracao.sql — fim 19:26:47 — código de saída 0
+=== verificar-dados-demonstracao.sql — fim 20:33:21 — código de saída 0
 
-Concluído sem erros. Registo: C:\Users\HP\AppData\Local\Temp\I061-I062-Test\dados-execucao-20261025-192646.log
+Concluído sem erros. Registo: C:\Users\HP\AppData\Local\Temp\I062-I061-Final\dados-execucao-20261025-203320.log
