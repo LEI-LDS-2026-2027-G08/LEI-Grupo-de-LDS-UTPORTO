@@ -27,6 +27,8 @@ public class ClinicaDbContext : DbContext
         // 9.4 (DI-08)
         modelBuilder.UseCollation("Latin1_General_100_CI_AS");
 
+        var dataReferencia = new DateTime(2026, 10, 25, 0, 0, 0);
+
         // 7.1 Utilizador
         modelBuilder.Entity<Utilizador>(e =>
         {
@@ -89,6 +91,17 @@ public class ClinicaDbContext : DbContext
             e.Property(x => x.Telefone).HasMaxLength(20).IsRequired();
             e.Property(x => x.Email).HasMaxLength(256).IsRequired();
             e.Property(x => x.DataUltimaAlteracao).HasColumnType("datetime2(0)"); // sem DF (DI-10)
+
+            e.HasData(new Clinica
+            {
+                Id = 1,
+                Nome = "Clínica Veterinária G08",
+                NIF = "501234560",
+                Morada = "Rua do Exemplo, 100, 4470-000 Maia",
+                Telefone = "229000000",
+                Email = "geral@clinica-g08.test",
+                DataUltimaAlteracao = dataReferencia
+            });
         });
 
         // 7.5 ConfiguracaoSistema (chave natural)
@@ -100,6 +113,14 @@ public class ClinicaDbContext : DbContext
             e.Property(x => x.Valor).HasMaxLength(500).IsRequired();
             e.Property(x => x.Descricao).HasMaxLength(250);
             e.Property(x => x.DataUltimaAlteracao).HasColumnType("datetime2(0)"); // sem DF (DI-10)
+
+            e.HasData(new ConfiguracaoSistema
+            {
+                Chave = "DuracaoPadraoConsultaMinutos",
+                Valor = "30",
+                Descricao = "Duração por omissão de uma consulta, em minutos (EP-009 e EP-010).",
+                DataUltimaAlteracao = dataReferencia
+            });
         });
 
         // 7.6 Cliente
@@ -128,6 +149,11 @@ public class ClinicaDbContext : DbContext
             e.HasKey(x => x.Id).HasName("PK_Especie");
             e.Property(x => x.Nome).HasMaxLength(50).IsRequired();
             e.HasIndex(x => x.Nome).IsUnique().HasDatabaseName("UQ_Especie_Nome");
+
+            e.HasData(
+                new Especie { Id = 1, Nome = "Cão" },
+                new Especie { Id = 2, Nome = "Gato" }
+            );
         });
 
         // 7.8 Raca
@@ -141,6 +167,14 @@ public class ClinicaDbContext : DbContext
             e.HasIndex(x => new { x.EspecieId, x.Nome }).IsUnique().HasDatabaseName("UQ_Raca_Especie_Nome");
             e.HasOne<Especie>().WithMany().HasForeignKey(x => x.EspecieId)
                 .HasConstraintName("FK_Raca_Especie_EspecieId");
+
+            e.HasData(
+                new Raca { Id = 1, EspecieId = 1, Nome = "Labrador Retriever" },
+                new Raca { Id = 2, EspecieId = 1, Nome = "Pastor Alemão" },
+                new Raca { Id = 3, EspecieId = 1, Nome = "Sem raça definida" },
+                new Raca { Id = 4, EspecieId = 2, Nome = "Europeu Comum" },
+                new Raca { Id = 5, EspecieId = 2, Nome = "Siamês" }
+            );
         });
 
         // 7.9 Paciente

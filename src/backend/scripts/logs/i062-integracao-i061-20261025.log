@@ -1,0 +1,89 @@
+Execução dos scripts de dados iniciais e de demonstração (I061)
+Data e hora      : 2026-10-25 20:33:20 +00:00
+Computador       : LAPTOP-I1J1GO6R
+Servidor         : localhost,14333
+Base de dados    : ClinicaVeterinaria_I062_Container
+Autenticação     : SQL Server (login sa)
+Scripts          : 02-dados-demonstracao.sql, 02-dados-demonstracao.sql, verificar-dados-demonstracao.sql
+Nota             : 02-dados-demonstracao.sql corre duas vezes; a segunda tem de registar 0 linha(s) inserida(s) em todas as tabelas.
+SQL Server       : Microsoft SQL Server 2025 (RTM-CU10) (KB5125471) - 17.0.5035.5 (X64)
+
+=== 02-dados-demonstracao.sql — início 20:33:20
+ Utilizador: 10 linha(s) inserida(s).
+ Funcionario: 7 linha(s) inserida(s).
+ HorarioFuncionamento: 11 linha(s) inserida(s).
+ Cliente: 3 linha(s) inserida(s).
+ Paciente: 4 linha(s) inserida(s).
+ Marcacao: 5 linha(s) inserida(s).
+ InformacaoApoio: 1 linha(s) inserida(s).
+ RegistoClinico: 1 linha(s) inserida(s).
+ Tratamento: 1 linha(s) inserida(s).
+ Prescricao: 1 linha(s) inserida(s).
+ RegistoProfilaxia: 4 linha(s) inserida(s).
+ Dados de demonstração concluídos.
+=== 02-dados-demonstracao.sql — fim 20:33:20 — código de saída 0
+
+=== 02-dados-demonstracao.sql — início 20:33:20
+ Utilizador: 0 linha(s) inserida(s).
+ Funcionario: 0 linha(s) inserida(s).
+ HorarioFuncionamento: 0 linha(s) inserida(s).
+ Cliente: 0 linha(s) inserida(s).
+ Paciente: 0 linha(s) inserida(s).
+ Marcacao: 0 linha(s) inserida(s).
+ InformacaoApoio: 0 linha(s) inserida(s).
+ RegistoClinico: 0 linha(s) inserida(s).
+ Tratamento: 0 linha(s) inserida(s).
+ Prescricao: 0 linha(s) inserida(s).
+ RegistoProfilaxia: 0 linha(s) inserida(s).
+ Dados de demonstração concluídos.
+=== 02-dados-demonstracao.sql — fim 20:33:21 — código de saída 0
+
+=== verificar-dados-demonstracao.sql — início 20:33:21
+Código Verificação                                                                                                                                                                                              Esperado                                                                                             Obtido                                                                                               Resultado
+------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ----------
+D01    Conta ativa no perfil Administrador                                                                                                                                                                      >= 1                                                                                                 1                                                                                                    OK
+D01    Conta ativa no perfil Rececionista                                                                                                                                                                       >= 1                                                                                                 1                                                                                                    OK
+D01    Conta ativa no perfil Veterinario                                                                                                                                                                        >= 1                                                                                                 2                                                                                                    OK
+D01    Conta ativa no perfil AuxiliarVeterinario                                                                                                                                                                >= 1                                                                                                 2                                                                                                    OK
+D01    Conta ativa no perfil Cliente                                                                                                                                                                            >= 1                                                                                                 3                                                                                                    OK
+D02    Conta bloqueada                                                                                                                                                                                          >= 1                                                                                                 1                                                                                                    OK
+D03    Auxiliar Veterinário ativo COM autorização de registo de apoio                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK
+D04    Auxiliar Veterinário ativo SEM autorização de registo de apoio                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK
+D05    Contas internas sem linha em Funcionario                                                                                                                                                                 0                                                                                                    0                                                                                                    OK
+D06    Contas de Cliente sem linha em Cliente                                                                                                                                                                   0                                                                                                    0                                                                                                    OK
+D07    Contas de demonstração com hash fora do formato PasswordHasher v3                                                                                                                                        0                                                                                                    0                                                                                                    OK
+D08    Clientes com mais de um animal                                                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK
+D09    Marcações no estado Pendente                                                                                                                                                                             >= 1                                                                                                 2                                                                                                    OK
+D09    Marcações no estado Confirmada                                                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK
+D09    Marcações no estado Realizada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK
+D09    Marcações no estado Cancelada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK
+D10    Registo clínico com tratamento e prescrição                                                                                                                                                              >= 1                                                                                                 1                                                                                                    OK
+D11    Paciente com boletim de vacinação e de desparasitação                                                                                                                                                    >= 1                                                                                                 1                                                                                                    OK
+D12    Marcação com registo de chegada                                                                                                                                                                          >= 1                                                                                                 1                                                                                                    OK
+D13    Informação de apoio registada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK
+D14    Dias com horário de funcionamento por omissão                                                                                                                                                            6                                                                                                    6                                                                                                    OK
+D15    Registos clínicos em consultas não realizadas                                                                                                                                                            0                                                                                                    0                                                                                                    OK
+D16    Registos clínicos de outro Veterinário que não o da consulta                                                                                                                                             0                                                                                                    0                                                                                                    OK
+D17    Profilaxias ligadas a consulta de outro paciente                                                                                                                                                         0                                                                                                    0                                                                                                    OK
+D18    Marcações sobrepostas do mesmo Veterinário (RF021)                                                                                                                                                       0                                                                                                    0                                                                                                    OK
+D19    Marcações atribuídas a quem não é Veterinário                                                                                                                                                            0                                                                                                    0                                                                                                    OK
+D20    Informação de apoio registada por quem não tem autorização                                                                                                                                               0                                                                                                    0                                                                                                    OK
+D21    Contas fora do domínio reservado .test (demonstração)                                                                                                                                                    0                                                                                                    0                                                                                                    OK
+Tabela               Linhas
+-------------------- -----------
+Utilizador                    10
+Funcionario                    7
+Cliente                        3
+Paciente                       4
+HorarioFuncionamento          11
+Marcacao                       5
+InformacaoApoio                1
+RegistoClinico                 1
+Tratamento                     1
+Prescricao                     1
+RegistoProfilaxia              4
+Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas.
+Resultado: os dados de demonstração cobrem os critérios 2 e 3 da I061 e são coerentes.
+=== verificar-dados-demonstracao.sql — fim 20:33:21 — código de saída 0
+
+Concluído sem erros. Registo: C:\Users\HP\AppData\Local\Temp\I062-I061-Final\dados-execucao-20261025-203320.log
