@@ -1,7 +1,7 @@
 ﻿<#
 .SYNOPSIS
     Executa os scripts de dados iniciais e de demonstração (I061) sobre a base
-    ClinicaVeterinaria e guarda o registo da execução (evidência do Executor).
+    indicada em -BaseDados e guarda o registo da execução (evidência do Executor).
 
 .DESCRIPTION
     Ordem: 01-dados-referencia-provisorios.sql (só com -DadosReferenciaProvisorios,
@@ -15,6 +15,11 @@
 
 .PARAMETER Servidor
     Instância SQL Server. Por omissão: localhost.
+
+.PARAMETER BaseDados
+    Base de dados onde os scripts correm (passada ao sqlcmd com -d). Os scripts
+    não fixam o nome, para funcionarem em bases isoladas (testes, contentores,
+    pipeline). Por omissão: ClinicaVeterinaria.
 
 .PARAMETER Utilizador
     Login SQL Server. Se for omitido, é usada a autenticação do Windows (-E).
@@ -32,10 +37,14 @@
 
 .EXAMPLE
     .\executar-dados.ps1 -Servidor "." -ConfiarCertificado -DadosReferenciaProvisorios
+
+.EXAMPLE
+    .\executar-dados.ps1 -Servidor "." -ConfiarCertificado -BaseDados "ClinicaVeterinaria_I062_Test"
 #>
 [CmdletBinding()]
 param(
     [string]$Servidor = 'localhost',
+    [string]$BaseDados = 'ClinicaVeterinaria',
     [string]$Utilizador,
     [switch]$ConfiarCertificado,
     [switch]$DadosReferenciaProvisorios,
@@ -47,6 +56,9 @@ $ErrorActionPreference = 'Stop'
 
 if (-not (Get-Command sqlcmd -ErrorAction SilentlyContinue)) {
     throw 'O sqlcmd não foi encontrado. Instale as SQL Server Command Line Utilities (ou o go-sqlcmd) e volte a executar.'
+}
+if ([string]::IsNullOrWhiteSpace($BaseDados)) {
+    throw 'Indique a base de dados em -BaseDados.'
 }
 if ($Utilizador -and -not $env:SQLCMDPASSWORD) {
     throw 'Com -Utilizador, defina antes a variável de ambiente SQLCMDPASSWORD (ex.: $env:SQLCMDPASSWORD = Read-Host).'
@@ -63,6 +75,7 @@ $scripts += Get-Item (Join-Path $pasta 'verificar-dados-demonstracao.sql')
 # (evita argumentos vazios no Windows PowerShell 5.1).
 $ligacao = New-Object System.Collections.Generic.List[string]
 $ligacao.Add('-S'); $ligacao.Add($Servidor)
+$ligacao.Add('-d'); $ligacao.Add($BaseDados)
 if ($Utilizador) { $ligacao.Add('-U'); $ligacao.Add($Utilizador) } else { $ligacao.Add('-E') }
 if ($ConfiarCertificado) { $ligacao.Add('-C') }
 
@@ -88,10 +101,11 @@ function Escrever([string]$Texto) {
     Add-Content -Path $registo -Value $Texto -Encoding UTF8
 }
 
-Escrever 'Execução dos scripts de dados iniciais e de demonstração (I061) — ClinicaVeterinaria'
+Escrever 'Execução dos scripts de dados iniciais e de demonstração (I061)'
 Escrever ("Data e hora      : {0}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'))
 Escrever ("Computador       : {0}" -f $env:COMPUTERNAME)
 Escrever ("Servidor         : {0}" -f $Servidor)
+Escrever ("Base de dados    : {0}" -f $BaseDados)
 Escrever ("Autenticação     : {0}" -f $(if ($Utilizador) { "SQL Server (login $Utilizador)" } else { 'Windows' }))
 Escrever ("Scripts          : {0}" -f (($scripts | ForEach-Object { $_.Name }) -join ', '))
 Escrever 'Nota             : 02-dados-demonstracao.sql corre duas vezes; a segunda tem de registar 0 linha(s) inserida(s) em todas as tabelas.'
@@ -99,7 +113,7 @@ Escrever 'Nota             : 02-dados-demonstracao.sql corre duas vezes; a segun
 $versao = @(Invocar-Sqlcmd @('-b', '-h', '-1', '-W', '-Q', 'SET NOCOUNT ON; SELECT @@VERSION;'))
 if ($LASTEXITCODE -ne 0) {
     Escrever ($versao -join [Environment]::NewLine)
-    Escrever 'ERRO: não foi possível ligar ao servidor. Nenhum script foi executado.'
+    Escrever ("ERRO: não foi possível ligar ao servidor ou à base de dados {0}. Nenhum script foi executado." -f $BaseDados)
     exit 1
 }
 Escrever ("SQL Server       : {0}" -f (($versao | Select-Object -First 1) -replace '\s+', ' '))

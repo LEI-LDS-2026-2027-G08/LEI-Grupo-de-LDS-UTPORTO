@@ -12,6 +12,7 @@
                     enquanto as migrações da I062 não existirem.
    Quando NÃO usar: numa base criada pelas migrações da I062 — o HasData já criou
                     estas linhas e o script não faz nada (verifica pelo nome).
+   Base de dados  : A da ligação (sqlcmd -d); o script não fixa o nome.
    Ordem          : 1 de 2 — depois dos scripts 00 a 06 da m3-v02.
    Reexecução     : Idempotente: cada linha só é inserida se não existir
                     (Clinica pelo Id, ConfiguracaoSistema pela Chave, Especie
@@ -32,7 +33,13 @@ SET NUMERIC_ROUNDABORT OFF;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-USE ClinicaVeterinaria;
+/* A base de dados é indicada na ligação (sqlcmd -d <base> ou executar-dados.ps1
+   -BaseDados), sem nome fixo. Proteção: nunca correr numa base de sistema. */
+IF DB_NAME() IN (N'master', N'model', N'msdb', N'tempdb')
+BEGIN
+    RAISERROR(N'[01] Base de dados não indicada (ligação em %s). Executar com sqlcmd -d <base> ou executar-dados.ps1 -BaseDados <base>.', 16, 1, DB_NAME()) WITH NOWAIT;
+    SET NOEXEC ON;
+END;
 GO
 
 DECLARE @Data DATETIME2(0) = '2026-10-25T00:00:00';   -- data fixa (DI-10): nunca a hora atual

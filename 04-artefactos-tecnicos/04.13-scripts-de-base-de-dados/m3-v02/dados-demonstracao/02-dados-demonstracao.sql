@@ -18,6 +18,7 @@
                     ConfiguracaoSistema), criados pelo HasData das migrações da
                     I062 ou, até lá, por 01-dados-referencia-provisorios.sql.
                     Modelo de Dados v02, ponto 9.3 (opção a).
+   Base de dados  : A da ligação (sqlcmd -d); o script não fixa o nome.
    Ordem          : 2 de 2.
    Reexecução     : Idempotente. Cada linha só é inserida se ainda não existir,
                     procurada pela chave natural (e-mail do utilizador, conta do
@@ -48,7 +49,13 @@ SET NUMERIC_ROUNDABORT OFF;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-USE ClinicaVeterinaria;
+/* A base de dados é indicada na ligação (sqlcmd -d <base> ou executar-dados.ps1
+   -BaseDados), sem nome fixo. Proteção: nunca correr numa base de sistema. */
+IF DB_NAME() IN (N'master', N'model', N'msdb', N'tempdb')
+BEGIN
+    RAISERROR(N'[02] Base de dados não indicada (ligação em %s). Executar com sqlcmd -d <base> ou executar-dados.ps1 -BaseDados <base>.', 16, 1, DB_NAME()) WITH NOWAIT;
+    SET NOEXEC ON;
+END;
 GO
 
 /* --- Pré-condição: dados de referência (I062 / HasData ou script 01) ------- */

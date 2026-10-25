@@ -8,6 +8,7 @@
 | Executor / Revisor / Auditor | Gonçalo Magalhães Ribeiro / André Filipe Moreira Mesquita / Gonçalo Dinis Magalhães Teixeira |
 | Pasta | `/projeto/04-artefactos-tecnicos/04.13-scripts-de-base-de-dados/m3-v02/dados-demonstracao` |
 | Esquema | Scripts `m3-v02` (16 tabelas) ou base criada pelas migrações da I059, com os dados de referência do `HasData` da I062. Os dados de demonstração usam 15 dessas tabelas (todas exceto `TokenRevogado`) |
+| Base de dados | Indicada na execução (`-BaseDados` / `--base-dados`, passada ao `sqlcmd` com `-d`); os scripts não fixam o nome. Por omissão: `ClinicaVeterinaria` |
 | Estado | Executado pelo Executor em 2026-10-25 (SQL Server 2025 local): reexecução com 0 linhas inseridas e 28 verificações, 28 OK. Registo anexado ao Pull Request. Aguarda revisão |
 
 ## 1. Decisões que esta Issue segue
@@ -19,6 +20,7 @@
 | Base criada pelos scripts `m3-v02` | Enquanto não houver migrações, `01-dados-referencia-provisorios.sql` cria essas linhas, só se ainda não existirem. Não se usa numa base criada pelas migrações | Idem |
 | Palavras-passe | Só o hash fica na base, no formato do `PasswordHasher` do ASP.NET Core Identity (v3: PBKDF2-HMAC-SHA512, 100 000 iterações, sal de 128 bits). O `PasswordHasher` lê os parâmetros do próprio hash. **A confirmar com a I063:** a API tem de verificar as palavras-passe com o `PasswordHasher` | Modelo de Dados v02, 7.1; critério 4 |
 | Credenciais em claro | Apenas em `/projeto/00-indice-e-submissao/m3-credenciais-avaliacao-v01.md`, entregue no ZIP de submissão e não publicado no repositório (Regulamento da UC, secções 18.4 e 19). Contas temporárias, revogadas depois da avaliação | Critério 4 |
+| Nome da base de dados | Sem `USE` nos scripts: a base é a da ligação, para correrem em bases isoladas (testes de integração da I062, contentores, pipeline). Os scripts recusam correr numa base de sistema (`master`, `model`, `msdb`, `tempdb`) | Integração com a I062 |
 | F005 e F007 | As partes dos critérios 3 e 5 sobre contas com pagamento parcial, internamento e alojamentos não se aplicam: as tabelas não existem no esquema `m3-v02` | Declaração de Âmbito v05; Modelo de Dados v02, 9.3 |
 
 ## 2. Conteúdo
@@ -57,7 +59,13 @@ cd .\dados-demonstracao
 powershell -ExecutionPolicy Bypass -File .\executar-dados.ps1 -Servidor "." -ConfiarCertificado -DadosReferenciaProvisorios
 ```
 
-Numa base criada pelas migrações da I062, sem `-DadosReferenciaProvisorios`.
+Numa base criada pelas migrações da I062, sem `-DadosReferenciaProvisorios`. Para outra base, indicar o nome:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\executar-dados.ps1 -Servidor "." -ConfiarCertificado -BaseDados "ClinicaVeterinaria_I062_Test"
+```
+
+Em Linux ou na pipeline: `SQLCMDPASSWORD=... ./executar-dados.sh --base-dados ClinicaVeterinaria_I062_Test --confiar-certificado`.
 
 O registo tem de mostrar: primeira execução do `02` com linhas inseridas, **segunda execução com «0 linha(s) inserida(s)» em todas as tabelas** (critério 1) e «Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas».
 

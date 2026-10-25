@@ -10,14 +10,17 @@
 #                  vezes (a segunda prova a reexecução sem duplicar dados) e
 #                  verificar-dados-demonstracao.sql; parar no primeiro erro e
 #                  guardar o registo da execução.
-# Configuração   : SQLCMD_SERVIDOR (localhost), SQLCMD_UTILIZADOR (sa) e
-#                  SQLCMDPASSWORD (obrigatória; nunca fica em ficheiros).
-# Opções         : --dados-referencia-provisorios, --confiar-certificado,
-#                  --pasta-registos DIR
+# Configuração   : SQLCMD_SERVIDOR (localhost), SQLCMD_BASE_DADOS
+#                  (ClinicaVeterinaria), SQLCMD_UTILIZADOR (sa) e SQLCMDPASSWORD
+#                  (obrigatória; nunca fica em ficheiros).
+# Opções         : --base-dados NOME, --dados-referencia-provisorios,
+#                  --confiar-certificado, --pasta-registos DIR
+#                  Os scripts não fixam o nome da base: é passada com -d.
 # =============================================================================
 set -euo pipefail
 
 SERVIDOR="${SQLCMD_SERVIDOR:-localhost}"
+BASE_DADOS="${SQLCMD_BASE_DADOS:-ClinicaVeterinaria}"
 UTILIZADOR="${SQLCMD_UTILIZADOR:-sa}"
 REFERENCIA=0
 CERTIFICADO=()
@@ -25,6 +28,7 @@ PASTA_REGISTOS="$(pwd)"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --base-dados)          BASE_DADOS="$2"; shift ;;
         --dados-referencia-provisorios) REFERENCIA=1 ;;
         --confiar-certificado) CERTIFICADO=(-C) ;;
         --pasta-registos)      PASTA_REGISTOS="$2"; shift ;;
@@ -38,6 +42,7 @@ if ! command -v sqlcmd >/dev/null 2>&1; then
         [[ -x "$candidato/sqlcmd" ]] && PATH="$candidato:$PATH"
     done
 fi
+[[ -n "$BASE_DADOS" ]] || { echo "ERRO: indique a base de dados (--base-dados ou SQLCMD_BASE_DADOS)." >&2; exit 2; }
 command -v sqlcmd >/dev/null 2>&1 || { echo "ERRO: sqlcmd não encontrado (instalar mssql-tools18 ou go-sqlcmd)." >&2; exit 1; }
 : "${SQLCMDPASSWORD:?Defina SQLCMDPASSWORD com a palavra-passe do login (não é guardada em ficheiros).}"
 export SQLCMDPASSWORD
@@ -51,16 +56,17 @@ mkdir -p "$PASTA_REGISTOS"
 REGISTO="$PASTA_REGISTOS/dados-execucao-$(date +%Y%m%d-%H%M%S).log"
 escrever() { printf '%s\n' "$*" | tee -a "$REGISTO"; }
 
-escrever "Execução dos scripts de dados iniciais e de demonstração (I061) — ClinicaVeterinaria"
+escrever "Execução dos scripts de dados iniciais e de demonstração (I061)"
 escrever "Data e hora      : $(date '+%Y-%m-%d %H:%M:%S %z')"
 escrever "Computador       : $(hostname)"
 escrever "Servidor         : $SERVIDOR"
+escrever "Base de dados    : $BASE_DADOS"
 escrever "Autenticação     : SQL Server (login $UTILIZADOR)"
 escrever "Scripts          : $(for s in "${SCRIPTS[@]}"; do printf '%s ' "$(basename "$s")"; done)"
 
-if ! VERSAO="$(sqlcmd -S "$SERVIDOR" -U "$UTILIZADOR" ${CERTIFICADO[@]+"${CERTIFICADO[@]}"} -b -h -1 -W -Q 'SET NOCOUNT ON; SELECT @@VERSION;' 2>&1)"; then
+if ! VERSAO="$(sqlcmd -S "$SERVIDOR" -d "$BASE_DADOS" -U "$UTILIZADOR" ${CERTIFICADO[@]+"${CERTIFICADO[@]}"} -b -h -1 -W -Q 'SET NOCOUNT ON; SELECT @@VERSION;' 2>&1)"; then
     escrever "$VERSAO"
-    escrever "ERRO: não foi possível ligar ao servidor. Nenhum script foi executado."
+    escrever "ERRO: não foi possível ligar ao servidor ou à base de dados $BASE_DADOS. Nenhum script foi executado."
     exit 1
 fi
 escrever "SQL Server       : $(printf '%s' "$VERSAO" | head -n 1 | tr -s '[:space:]' ' ')"
@@ -69,7 +75,7 @@ for s in "${SCRIPTS[@]}"; do
     escrever ""
     escrever "=== $(basename "$s") — início $(date +%T)"
     set +e
-    sqlcmd -S "$SERVIDOR" -U "$UTILIZADOR" ${CERTIFICADO[@]+"${CERTIFICADO[@]}"} -b -I -f 65001 -i "$s" 2>&1 | tee -a "$REGISTO"
+    sqlcmd -S "$SERVIDOR" -d "$BASE_DADOS" -U "$UTILIZADOR" ${CERTIFICADO[@]+"${CERTIFICADO[@]}"} -b -I -f 65001 -i "$s" 2>&1 | tee -a "$REGISTO"
     codigo=${PIPESTATUS[0]}
     set -e
     escrever "=== $(basename "$s") — fim $(date +%T) — código de saída $codigo"

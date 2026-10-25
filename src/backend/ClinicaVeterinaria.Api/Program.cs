@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
 using ClinicaVeterinaria.Api.Middleware;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
@@ -135,6 +136,9 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+builder.Services.AddDbContext<ClinicaDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClinicaDb")));
 
 var app = builder.Build();
 

@@ -7,6 +7,7 @@
                     os critérios de aceitação 2 e 3 da I061 e são coerentes entre
                     si (verificações 2 e 3 do Revisor). Termina com erro se
                     alguma verificação falhar.
+   Base de dados  : A da ligação (sqlcmd -d); o script não fixa o nome.
    Execução       : Depois de 02-dados-demonstracao.sql.
    ============================================================================= */
 
@@ -15,7 +16,13 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-USE ClinicaVeterinaria;
+/* A base de dados é indicada na ligação (sqlcmd -d <base> ou executar-dados.ps1
+   -BaseDados), sem nome fixo. Proteção: nunca correr numa base de sistema. */
+IF DB_NAME() IN (N'master', N'model', N'msdb', N'tempdb')
+BEGIN
+    RAISERROR(N'[VER] Base de dados não indicada (ligação em %s). Executar com sqlcmd -d <base> ou executar-dados.ps1 -BaseDados <base>.', 16, 1, DB_NAME()) WITH NOWAIT;
+    SET NOEXEC ON;
+END;
 GO
 
 DECLARE @R TABLE (Ordem INT IDENTITY(1,1), Codigo NVARCHAR(5), Verificacao NVARCHAR(200), Esperado NVARCHAR(100), Obtido NVARCHAR(100), Resultado NVARCHAR(10));
