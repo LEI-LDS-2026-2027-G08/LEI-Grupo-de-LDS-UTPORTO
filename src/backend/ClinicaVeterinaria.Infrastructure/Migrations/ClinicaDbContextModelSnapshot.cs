@@ -119,6 +119,18 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Clinica_LinhaUnica", "[Id] = 1");
                         });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (byte)1,
+                            DataUltimaAlteracao = new DateTime(2026, 10, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "geral@clinica-g08.test",
+                            Morada = "Rua do Exemplo, 100, 4470-000 Maia",
+                            NIF = "501234560",
+                            Nome = "Clínica Veterinária G08",
+                            Telefone = "229000000"
+                        });
                 });
 
             modelBuilder.Entity("ClinicaVeterinaria.Domain.Entities.ConfiguracaoSistema", b =>
@@ -143,6 +155,15 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         .HasName("PK_ConfiguracaoSistema");
 
                     b.ToTable("ConfiguracaoSistema", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Chave = "DuracaoPadraoConsultaMinutos",
+                            DataUltimaAlteracao = new DateTime(2026, 10, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Descricao = "Duração por omissão de uma consulta, em minutos (EP-009 e EP-010).",
+                            Valor = "30"
+                        });
                 });
 
             modelBuilder.Entity("ClinicaVeterinaria.Domain.Entities.Especie", b =>
@@ -166,6 +187,18 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         .HasDatabaseName("UQ_Especie_Nome");
 
                     b.ToTable("Especie", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nome = "Cão"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nome = "Gato"
+                        });
                 });
 
             modelBuilder.Entity("ClinicaVeterinaria.Domain.Entities.Funcionario", b =>
@@ -468,6 +501,38 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         .HasDatabaseName("UQ_Raca_Especie_Nome");
 
                     b.ToTable("Raca", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            EspecieId = 1,
+                            Nome = "Labrador Retriever"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            EspecieId = 1,
+                            Nome = "Pastor Alemão"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            EspecieId = 1,
+                            Nome = "Sem raça definida"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            EspecieId = 2,
+                            Nome = "Europeu Comum"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            EspecieId = 2,
+                            Nome = "Siamês"
+                        });
                 });
 
             modelBuilder.Entity("ClinicaVeterinaria.Domain.Entities.RegistoClinico", b =>
