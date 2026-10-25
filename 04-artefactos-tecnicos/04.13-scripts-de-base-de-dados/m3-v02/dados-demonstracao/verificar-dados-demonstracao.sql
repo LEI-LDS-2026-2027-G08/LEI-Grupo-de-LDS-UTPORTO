@@ -18,9 +18,10 @@ GO
 
 /* A base de dados é indicada na ligação (sqlcmd -d <base> ou executar-dados.ps1
    -BaseDados), sem nome fixo. Proteção: nunca correr numa base de sistema. */
-IF DB_NAME() IN (N'master', N'model', N'msdb', N'tempdb')
+DECLARE @BaseAtual SYSNAME = DB_NAME();
+IF @BaseAtual IN (N'master', N'model', N'msdb', N'tempdb')
 BEGIN
-    RAISERROR(N'[VER] Base de dados não indicada (ligação em %s). Executar com sqlcmd -d <base> ou executar-dados.ps1 -BaseDados <base>.', 16, 1, DB_NAME()) WITH NOWAIT;
+    RAISERROR(N'[VER] Base de dados não indicada (ligação em %s). Executar com sqlcmd -d <base> ou executar-dados.ps1 -BaseDados <base>.', 16, 1, @BaseAtual) WITH NOWAIT;
     SET NOEXEC ON;
 END;
 GO
