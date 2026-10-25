@@ -1,6 +1,100 @@
-@ClinicaVeterinaria.Api_HostAddress = http://localhost:5159
+# =============================================================================
+# Pedidos de verificação manual — I063 (EP-001 e EP-003)
+#
+# Antes de executar:
+#   1. Base de dados reposta (scripts/reposicao-base-dados.ps1) e com os dados
+#      de demonstração da I061 (04.13-scripts-de-base-de-dados/m3-v02).
+#   2. Chave JWT nos User Secrets (ver README do backend).
+#   3. Palavras-passe das contas de demonstração num ficheiro LOCAL
+#      http-client.env.json.user, nesta pasta (o *.user está no .gitignore):
+#
+#      {
+#        "dev": {
+#          "passwordAdmin": "...",
+#          "passwordBloqueada": "...",
+#          "passwordCliente": "..."
+#        }
+#      }
+#
+#   4. No Visual Studio, escolher o ambiente "dev" no canto superior do editor.
+# =============================================================================
 
-GET {{ClinicaVeterinaria.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+@host = http://localhost:5159
+@emailAdmin = admin@clinica-g08.test
+@emailBloqueada = rececao.bloqueada@clinica-g08.test
+@emailCliente = cliente.joao@clinica-g08.test
+
+### EP-001 · 200 — credenciais válidas (Administrador)
+# @name loginAdmin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "{{passwordAdmin}}" }
+
+### EP-001 · 200 — credenciais válidas (Cliente: a resposta inclui clienteId)
+# @name loginCliente
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailCliente}}", "password": "{{passwordCliente}}" }
+
+### EP-001 · 400 — e-mail em falta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "password": "qualquer" }
+
+### EP-001 · 400 — palavra-passe em falta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "" }
+
+### EP-001 · 400 — corpo em falta / JSON inválido
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}",
+
+### EP-001 · 401 — palavra-passe incorreta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "Errada#0000" }
+
+### EP-001 · 401 — e-mail inexistente (mesma resposta que o pedido anterior)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "nao.existe@clinica-g08.test", "password": "Errada#0000" }
+
+### EP-001 · 403 — conta bloqueada (palavra-passe correta)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailBloqueada}}", "password": "{{passwordBloqueada}}" }
+
+### EP-003 · 200 — utilizador autenticado (Administrador)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-003 · 200 — utilizador autenticado (Cliente, com clienteId)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-003 · 401 — token ausente
+GET {{host}}/auth/me
+
+### EP-003 · 401 — token adulterado (assinatura alterada)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.$.token}}x
+
+### EP-003 · 401 — token assinado com outra chave
+GET {{host}}/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.BAa2k5tgdKPMS594lDkv6hXJssVjeE9xAEHYr4b3xN8
+
+### EP-003 · 401 — token sem assinatura (alg "none")
+GET {{host}}/auth/me
+Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.
 
 ###
