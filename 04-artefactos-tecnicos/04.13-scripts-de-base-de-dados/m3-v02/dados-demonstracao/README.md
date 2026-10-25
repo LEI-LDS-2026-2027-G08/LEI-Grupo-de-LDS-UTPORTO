@@ -73,7 +73,7 @@ O registo tem de mostrar: primeira execução do `02` com linhas inseridas, **se
 
 | Critério da I061 | Como é cumprido | Evidência |
 |---|---|---|
-| 1. Executam sem erros depois do esquema e podem ser reexecutados sem duplicar | Inserções condicionadas pela chave natural, numa transação | Registo `dados-execucao-20261025-173230.log`, anexado ao Pull Request (segunda execução com 0 linhas) |
+| 1. Executam sem erros depois do esquema e podem ser reexecutados sem duplicar | Inserções condicionadas pela chave natural, numa transação | Registo `dados-execucao-20261025-204058.log`, anexado ao Pull Request (segunda execução com 0 linhas) |
 | 2. Conta ativa por perfil, conta bloqueada, Auxiliar com e sem apoio | Secção 3 | D01 a D06 |
 | 3. Clientes com mais de um animal, marcações em estados diferentes, registo clínico, boletim | Secção 3. **Não aplicável:** contas com pagamento parcial e internamento (F005/F007 fora do âmbito) | D08 a D14 |
 | 4. Hash igual ao da API; credenciais no ficheiro de avaliação | `PasswordHasher` v3 (a confirmar com a I063); `m3-credenciais-avaliacao-v01.md` | D07 e login com cada conta na API (verificação 1 do Revisor) |
