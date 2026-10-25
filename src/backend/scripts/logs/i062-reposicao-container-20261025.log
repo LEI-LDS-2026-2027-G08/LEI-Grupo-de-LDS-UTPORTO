@@ -1,9 +1,9 @@
-﻿**********************
+**********************
 Windows PowerShell transcript start
 Start time: 20261025194444
 Username: LAPTOP-I1J1GO6R\HP
 RunAs User: LAPTOP-I1J1GO6R\HP
-Configuration Name: 
+Configuration Name:
 Machine: LAPTOP-I1J1GO6R (Microsoft Windows NT 10.0.26200.0)
 Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\HP\AppData\Local\Programs\Microsoft VS Code\e646868227\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
 Process ID: 3080
