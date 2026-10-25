@@ -1,0 +1,46 @@
+root = true
+
+# ============================================================
+# Configuração comum
+# ============================================================
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csproj}]
+indent_style = space
+indent_size = 4
+
+# ============================================================
+# Backend C# — Roslyn Analyzers
+# ============================================================
+
+[*.cs]
+
+# Convenções básicas de código C#
+csharp_new_line_before_open_brace = all
+csharp_using_directive_placement = outside_namespace:silent
+dotnet_sort_system_directives_first = true
+
+# O backend utiliza namespaces file-scoped
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Primary constructors são uma preferência estilística,
+# não uma condição do quality gate
+dotnet_diagnostic.IDE0290.severity = suggestion
+
+# Preferências relativas a var
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# ============================================================
+# Código gerado automaticamente pelo Entity Framework Core
+# ============================================================
+
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
