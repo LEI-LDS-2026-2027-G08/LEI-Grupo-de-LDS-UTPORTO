@@ -412,3 +412,90 @@ O procedimento permite:
 - comparar o esquema produzido com os scripts SQL da I060.
 
 As diferenças conhecidas relativamente à I060 encontram-se documentadas e justificadas.
+
+### 11.11. Validação em SQL Server 2025 em contentor
+
+O procedimento de reposição foi também validado pelo Executor numa instância isolada de SQL Server 2025 executada em Docker.
+
+Foi utilizada a imagem:
+
+`mcr.microsoft.com/mssql/server:2025-latest`
+
+O contentor foi exposto apenas para o ambiente de teste local, utilizando uma base de dados dedicada:
+
+`ClinicaVeterinaria_I062_Container`
+
+A cadeia de ligação foi fornecida ao script através do parâmetro `ConnectionString`, sem utilização de credenciais ou instâncias partilhadas armazenadas no repositório.
+
+Foram efetuadas duas reposições consecutivas. Em ambas foram confirmados:
+
+- compilação da solução sem erros;
+- eliminação da base de dados existente;
+- criação de uma nova base de dados;
+- aplicação das migrations;
+- aplicação da collation `Latin1_General_100_CI_AS`;
+- criação dos dados de referência;
+- inexistência de alterações pendentes no modelo.
+
+Após a reposição foram confirmadas as seguintes contagens:
+
+- `Especie`: 2;
+- `Raca`: 5;
+- `Clinica`: 1;
+- `ConfiguracaoSistema`: 1.
+
+A evidência encontra-se em:
+
+`src/backend/scripts/logs/i062-reposicao-container-20261025.log`
+
+### 11.12. Reposição antes dos testes de integração
+
+Foi criada a pipeline:
+
+`.github/workflows/integration-tests.yml`
+
+A pipeline prepara automaticamente um ambiente isolado para os testes de integração.
+
+O processo executado é:
+
+1. obter o repositório;
+2. configurar .NET 10;
+3. instalar `dotnet-ef` 10.0.13;
+4. gerar uma credencial temporária e mascará-la nos logs;
+5. iniciar uma instância isolada de SQL Server 2025 em Docker;
+6. aguardar que o SQL Server esteja disponível;
+7. executar `reposicao-base-dados.ps1` com uma cadeia de ligação específica do ambiente de CI;
+8. disponibilizar essa cadeia de ligação aos testes através de `ConnectionStrings__ClinicaDb`;
+9. executar o projeto `ClinicaVeterinaria.IntegrationTests`;
+10. remover o contentor independentemente do resultado.
+
+Desta forma, a base de dados é reposta antes dos testes de integração e não existe dependência de uma instância SQL Server partilhada.
+
+O fluxo equivalente foi validado localmente pelo Executor, tendo sido obtido:
+
+- reposição concluída com sucesso;
+- 1 teste de integração executado;
+- 1 teste com sucesso;
+- 0 testes com falha.
+
+A execução efetiva da pipeline no GitHub Actions deve ser confirmada no Pull Request da I062.
+
+### 11.13. Integração com os dados da I061
+
+Foi validada a compatibilidade entre as migrations e os dados de referência da I062 e os scripts de dados de demonstração produzidos na I061.
+
+Os scripts da I061 foram executados sobre uma base criada pela I062, sem recorrer aos dados de referência provisórios da I061.
+
+Na primeira execução foram inseridos os dados de demonstração esperados.
+
+Na segunda execução não foram inseridos novos registos, confirmando a idempotência dos scripts.
+
+A verificação final apresentou:
+
+`28 verificações, 28 OK, 0 falhadas.`
+
+A evidência encontra-se em:
+
+`src/backend/scripts/logs/i062-integracao-i061-20261025.log`
+
+Esta validação confirma que os dados de referência mantidos através de `HasData` pela I062 são compatíveis com os dados de demonstração definidos pela I061.
