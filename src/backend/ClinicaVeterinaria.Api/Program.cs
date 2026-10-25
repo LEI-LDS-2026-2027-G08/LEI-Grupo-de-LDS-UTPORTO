@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
 using ClinicaVeterinaria.Api.Middleware;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var jwtKey = builder.Configuration["Jwt:Key"]
