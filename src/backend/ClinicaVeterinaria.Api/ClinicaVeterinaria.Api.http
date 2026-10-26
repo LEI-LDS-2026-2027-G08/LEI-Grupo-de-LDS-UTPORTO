@@ -772,3 +772,58 @@ Content-Type: application/json
 { "nome": "X", "email": "r.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
 
 ###
+
+# =============================================================================
+# I070 — Animais do Cliente na aplicação móvel (EP-019, EP-020)
+#
+# Dados da I061: João (loginCliente) tem Bobi e Mia; Maria tem Kiko.
+# Acrescentar ao http-client.env.json.user: "passwordClienteMaria".
+# Os ids dos animais vêm do GET /me/animais de cada Cliente.
+# =============================================================================
+
+@emailClienteMaria = cliente.maria@clinica-g08.test
+
+### Login Cliente Maria (para o acesso cruzado)
+# @name loginClienteMaria
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailClienteMaria}}", "password": "{{passwordClienteMaria}}" }
+
+### EP-019 · 200 — João vê só Bobi e Mia, por ordem de nome
+# @name meusAnimaisJoao
+GET {{host}}/me/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-019 · 200 — Maria vê só o Kiko
+# @name meusAnimaisMaria
+GET {{host}}/me/animais
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-019 · 401 — sem token
+GET {{host}}/me/animais
+
+### EP-019 · 403 — perfil interno (Rececionista)
+GET {{host}}/me/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-020 · 200 — João consulta o primeiro animal da sua lista
+GET {{host}}/me/animais/{{meusAnimaisJoao.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 403 — João pede o animal da Maria (nenhum dado do Kiko na resposta)
+GET {{host}}/me/animais/{{meusAnimaisMaria.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 404 — animal inexistente
+GET {{host}}/me/animais/999999
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 401 — sem token
+GET {{host}}/me/animais/1
+
+### EP-020 · 403 — perfil interno (Veterinário)
+GET {{host}}/me/animais/{{meusAnimaisJoao.response.body.$[0].id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+###

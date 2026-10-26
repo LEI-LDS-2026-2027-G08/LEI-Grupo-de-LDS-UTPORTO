@@ -16,4 +16,16 @@ public interface IAnimaisService
 
     /// <summary>EP-018 — atualiza os dados administrativos do paciente.</summary>
     Task<AnimalDto> AtualizarAsync(int id, UpdateAnimalDto pedido);
+
+    /// <summary>
+    /// EP-019 — animais do Cliente indicado, por ordem de nome e identificador.
+    /// O <paramref name="clienteId"/> vem sempre do token (RNF002).
+    /// </summary>
+    Task<IReadOnlyList<MeuAnimalListItemDto>> ListarDoClienteAsync(int clienteId);
+
+    /// <summary>
+    /// EP-020 — um animal do Cliente indicado. 404 se o animal não existir;
+    /// 403, sem devolver dados, se pertencer a outro Cliente.
+    /// </summary>
+    Task<MeuAnimalDto> ObterDoClienteAsync(int clienteId, int animalId);
 }

@@ -1,5 +1,6 @@
 using ClinicaVeterinaria.Application.DTOs.Animais;
 using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,9 @@ public sealed class AnimaisService : IAnimaisService
 {
     private const string MensagemAnimalNaoEncontrado =
         "O animal indicado não existe.";
+
+    private const string MensagemAnimalDeOutroCliente =
+        "O animal indicado não pertence ao Cliente autenticado.";
 
     private const string MensagemClienteNaoEncontrado =
         "O cliente indicado não existe.";
@@ -261,6 +265,85 @@ public async Task<AnimalDto> AtualizarAsync(
 
     return await ObterAsync(paciente.Id);
 }
+    public async Task<IReadOnlyList<MeuAnimalListItemDto>> ListarDoClienteAsync(int clienteId)
+    {
+        var dados = await (
+            from p in _db.Pacientes.AsNoTracking()
+            join e in _db.Especies.AsNoTracking()
+                on p.EspecieId equals e.Id
+            where p.ClienteId == clienteId
+            orderby p.Nome, p.Id
+            select new
+            {
+                p.Id,
+                p.Nome,
+                Especie = e.Nome,
+                Raca = _db.Racas
+                    .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
+                    .Select(r => r.Nome)
+                    .FirstOrDefault(),
+                p.DataNascimento,
+                p.Peso
+            })
+            .ToListAsync();
+
+        return dados
+            .Select(x => new MeuAnimalListItemDto
+            {
+                Id = x.Id,
+                Nome = x.Nome,
+                Especie = x.Especie,
+                Raca = x.Raca,
+                IdadeAnos = CalcularIdade(x.DataNascimento),
+                Peso = x.Peso
+            })
+            .ToList();
+    }
+
+    public async Task<MeuAnimalDto> ObterDoClienteAsync(int clienteId, int animalId)
+    {
+        var dados = await (
+            from p in _db.Pacientes.AsNoTracking()
+            join e in _db.Especies.AsNoTracking()
+                on p.EspecieId equals e.Id
+            where p.Id == animalId
+            select new
+            {
+                p.Id,
+                p.ClienteId,
+                p.Nome,
+                Especie = e.Nome,
+                Raca = _db.Racas
+                    .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
+                    .Select(r => r.Nome)
+                    .FirstOrDefault(),
+                p.Sexo,
+                p.DataNascimento,
+                p.Peso
+            })
+            .FirstOrDefaultAsync()
+            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+
+        // O dono é comparado com o Cliente do token; nenhum dado do animal
+        // é devolvido quando pertence a outro Cliente (RNF002).
+        if (dados.ClienteId != clienteId)
+        {
+            throw new ForbiddenException(MensagemAnimalDeOutroCliente);
+        }
+
+        return new MeuAnimalDto
+        {
+            Id = dados.Id,
+            Nome = dados.Nome,
+            Especie = dados.Especie,
+            Raca = dados.Raca,
+            Sexo = dados.Sexo,
+            DataNascimento = dados.DataNascimento,
+            IdadeAnos = CalcularIdade(dados.DataNascimento),
+            Peso = dados.Peso
+        };
+    }
+
     private int? CalcularIdade(DateOnly? dataNascimento)
 {
     if (!dataNascimento.HasValue)
