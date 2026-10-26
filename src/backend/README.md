@@ -77,11 +77,22 @@ No ASP.NET Core, `__` corresponde ao separador `:` da configuração.
 
 A chave JWT não deve ser armazenada nos ficheiros versionados.
 
+A chave tem de estar em Base64 e ter pelo menos 32 bytes (256 bits). Para gerar uma chave nova em PowerShell (funciona no Windows PowerShell 5.1 e no PowerShell 7):
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+$chave = [Convert]::ToBase64String($bytes)
+dotnet user-secrets set "Jwt:Key" $chave --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+```
+
 Pode ser configurada através de User Secrets:
 
 ```bash
 dotnet user-secrets set "Jwt:Key" "<CHAVE_JWT>" --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
 ```
+
+Se a secção `Jwt` estiver incompleta ou a chave for inválida, a API não arranca e indica o problema na consola. O `dotnet ef` continua a funcionar sem a chave.
 
 Para consultar os User Secrets configurados:
 
@@ -134,6 +145,50 @@ http://localhost:<PORTA>/swagger
 
 O Swagger possui suporte para autenticação Bearer JWT através do botão `Authorize`.
 
+## Autenticação e autorização
+
+O início de sessão é feito em `POST /auth/login` (EP-001) e devolve um JWT assinado com HS256, válido durante 8 horas, sem refresh token. `GET /auth/me` (EP-003) devolve o utilizador do token com o perfil atual na base de dados.
+
+O token contém as claims `sub`, `email`, `role`, `jti` e, conforme o perfil, `clienteId` ou `veterinarioId`.
+
+Em cada pedido autenticado, a API confirma ainda que a conta continua ativa, que o perfil não mudou desde a emissão do token e que o `jti` não foi revogado. Uma conta bloqueada ou com perfil alterado perde o acesso de imediato.
+
+### Regras para novos endpoints
+
+Todos os endpoints exigem autenticação por omissão. Um endpoint público tem de ser marcado com `[AllowAnonymous]`.
+
+Um único perfil — usar a política correspondente:
+
+```csharp
+[Authorize(Policy = PoliticasAutorizacao.Administrador)]
+```
+
+Políticas disponíveis em `PoliticasAutorizacao`: `Administrador`, `Rececionista`, `Veterinario`, `AuxiliarVeterinario`, `Cliente`, `Funcionario` (qualquer um dos quatro perfis internos) e `ClienteProprietario`.
+
+Vários perfis — usar as constantes de `Perfis` (os perfis são alternativos):
+
+```csharp
+[Authorize(Roles = Perfis.Administrador + "," + Perfis.Rececionista + "," + Perfis.Veterinario)]
+```
+
+Rotas `/me/*` da aplicação móvel — herdar de `ClienteAutenticadoControllerBase`, que aplica a política de propriedade e expõe `ClienteIdAutenticado`. O identificador do Cliente vem sempre do token e nunca do pedido (RNF002):
+
+```csharp
+[Route("me/animais")]
+public sealed class MeusAnimaisController : ClienteAutenticadoControllerBase
+{
+    // usar ClienteIdAutenticado para filtrar os dados
+}
+```
+
+Para ler o utilizador autenticado num controlador: `User.ObterUtilizadorId()`, `User.ObterPerfil()`, `User.ObterClienteId()` e `User.ObterVeterinarioId()`.
+
+Um pedido sem token válido recebe `401`; um perfil sem permissão recebe `403`. Ambos seguem o formato de erro descrito abaixo.
+
+### Verificação manual
+
+O ficheiro `ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http` tem um pedido válido e um pedido por cada erro previsto de EP-001 e EP-003. As palavras-passe das contas de demonstração ficam num ficheiro local `http-client.env.json.user` (ignorado pelo Git), como explicado no topo desse ficheiro.
+
 ## CORS
 
 As origens permitidas pelo frontend são configuradas através de:
@@ -160,6 +215,8 @@ A API possui tratamento transversal de erros com formato JSON uniforme:
   "detail": "Detalhe do erro."
 }
 ```
+
+As respostas `400` da validação automática dos modelos e as respostas `401` e `403` da autenticação seguem o mesmo formato.
 
 São tratados os códigos:
 

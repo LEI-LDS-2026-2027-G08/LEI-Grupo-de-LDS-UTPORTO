@@ -1,92 +1,27 @@
 using ClinicaVeterinaria.Api.Middleware;
+using ClinicaVeterinaria.Api.Seguranca;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("A chave JWT não está configurada.");
-
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException("O Issuer JWT não está configurado.");
-
-var jwtAudience = builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException("O Audience JWT não está configurado.");
 var allowedOrigins =
     builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-var jwtExpirationHours =
-    builder.Configuration.GetValue<int>("Jwt:ExpirationHours");
 
-if (jwtExpirationHours <= 0)
-{
-    throw new InvalidOperationException(
-        "A validade do token JWT não está corretamente configurada.");
-}
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+        options.InvalidModelStateResponseFactory = RespostaValidacaoModelo.Criar);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
 
-        options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
+// JWT (HS256, 8 horas) e políticas de autorização por perfil — I063.
+// Falha no arranque se a secção Jwt estiver incompleta.
+builder.Services.AddAutenticacaoJwt(builder.Configuration);
 
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
-
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Convert.FromBase64String(jwtKey)),
-
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnChallenge = async context =>
-            {
-                context.HandleResponse();
-
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    code = StatusCodes.Status401Unauthorized,
-                    message = "Autenticação necessária.",
-                    detail = "É necessário apresentar um token JWT válido."
-                });
-            },
-
-            OnForbidden = async context =>
-            {
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    code = StatusCodes.Status403Forbidden,
-                    message = "Não tem permissão para executar esta operação.",
-                    detail = "O utilizador autenticado não possui permissões suficientes."
-                });
-            }
-        };
-    });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
