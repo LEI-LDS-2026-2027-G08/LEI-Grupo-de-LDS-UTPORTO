@@ -577,6 +577,145 @@ Content-Type: application/json
 ###
 
 # =============================================================================
+# I065 — Contas de funcionário (EP-004 a EP-006)
+#
+# Usa os logins das secções anteriores (loginAdmin e loginRececao).
+# Os pedidos de criação usam um e-mail novo em cada execução ({{$random.uuid}}).
+# =============================================================================
+
+### EP-004 · 200 — todas as contas de funcionários (ordenadas por nome e id)
+GET {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — filtros por perfil e estado
+GET {{host}}/utilizadores?perfil=Veterinario&estado=Ativo
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — filtro só por estado (sem distinguir maiúsculas)
+GET {{host}}/utilizadores?estado=bloqueado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — pesquisa por nome ou e-mail
+GET {{host}}/utilizadores?pesquisa=ana
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 400 — perfil fora da enumeração
+GET {{host}}/utilizadores?perfil=Gerente
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 400 — estado fora da enumeração
+GET {{host}}/utilizadores?estado=Suspenso
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 401 — sem token
+GET {{host}}/utilizadores
+
+### EP-004 · 403 — Rececionista
+GET {{host}}/utilizadores
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-005 · 200 — conta de funcionário (sem hash da palavra-passe)
+GET {{host}}/utilizadores/4
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 404 — conta de Cliente (não é conta de funcionário)
+GET {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 404 — utilizador inexistente
+GET {{host}}/utilizadores/999999
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 401 — sem token
+GET {{host}}/utilizadores/4
+
+### EP-005 · 403 — Rececionista
+GET {{host}}/utilizadores/4
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-006 · 201 — criar Auxiliar Veterinário com apoio (Location na resposta)
+# @name criarFuncionario
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Funcionário de Teste",
+  "email": "func.{{$random.uuid}}@clinica.test",
+  "telefone": "934567890",
+  "perfil": "AuxiliarVeterinario",
+  "podeRegistarApoio": true,
+  "passwordInicial": "Temp#2026"
+}
+
+### EP-006 · login com a conta criada (critério 6) — 200
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{criarFuncionario.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-005 · 200 — conta criada: ativa e com o perfil indicado (critério 6)
+GET {{host}}/utilizadores/{{criarFuncionario.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-006 · 400 — campos em falta e e-mail inválido
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "email": "invalido", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 400 — palavra-passe fraca
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "fraca.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "12345678" }
+
+### EP-006 · 400 — perfil fora da enumeração
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "perfil.{{$random.uuid}}@clinica.test", "perfil": "Gerente", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 409 — e-mail já registado
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "{{emailRececao}}", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 422 — perfil Cliente não permitido
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "cli.{{$random.uuid}}@clinica.test", "perfil": "Cliente", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 422 — podeRegistarApoio para um perfil diferente de AuxiliarVeterinario
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "vet.{{$random.uuid}}@clinica.test", "perfil": "Veterinario", "podeRegistarApoio": true, "passwordInicial": "Temp#2026" }
+
+### EP-006 · 401 — sem token
+POST {{host}}/utilizadores
+Content-Type: application/json
+
+{ "nome": "X", "email": "s.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 403 — Rececionista
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "r.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+###
+
+# =============================================================================
 # I070 — Animais do Cliente na aplicação móvel (EP-019, EP-020)
 #
 # Dados da I061: João (loginCliente) tem Bobi e Mia; Maria tem Kiko.
