@@ -59,6 +59,31 @@ public static class AutenticacaoExtensions
         return services;
     }
 
+    /// <summary>
+    /// Limpeza periódica das revogações de tokens expirados (I064). O intervalo vem da
+    /// secção <c>LimpezaTokensRevogados</c> e é validado quando a API arranca.
+    /// </summary>
+    public static IServiceCollection AddLimpezaTokensRevogados(
+        this IServiceCollection services,
+        IConfiguration configuracao)
+    {
+        ArgumentNullException.ThrowIfNull(configuracao);
+
+        services
+            .AddOptions<LimpezaTokensRevogadosOptions>()
+            .Bind(configuracao.GetSection(LimpezaTokensRevogadosOptions.Seccao))
+            .Validate(
+                o => o.IntervaloMinutos is >= LimpezaTokensRevogadosOptions.IntervaloMinimoMinutos
+                    and <= LimpezaTokensRevogadosOptions.IntervaloMaximoMinutos,
+                "LimpezaTokensRevogados:IntervaloMinutos tem de estar entre 1 e 1440.")
+            .ValidateOnStart();
+
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddHostedService<LimpezaTokensRevogadosService>();
+
+        return services;
+    }
+
     private static void ConfigurarJwtBearer(JwtBearerOptions options, JwtOptions jwt)
     {
         // Mantém os nomes curtos das claims (sub, role, jti...) em vez de

@@ -34,6 +34,33 @@ public sealed class AuthController : ControllerBase
         return Ok(await _authService.LoginAsync(pedido));
     }
 
+    /// <summary>EP-002 — Terminar sessão (todos os perfis).</summary>
+    /// <remarks>
+    /// Revoga o token usado no pedido (o seu <c>jti</c>) até à expiração original (RF003).
+    /// Depois disso, qualquer pedido com esse token recebe 401, também depois de a API reiniciar.
+    /// </remarks>
+    /// <response code="204">Sessão terminada; o token deixa de permitir acesso autenticado.</response>
+    /// <response code="401">Token ausente, inválido, expirado ou já revogado.</response>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> TerminarSessao()
+    {
+        var utilizadorId = User.ObterUtilizadorId();
+        var jti = User.ObterJti();
+        var expiraEm = User.ObterExpiracao();
+
+        if (utilizadorId is null || string.IsNullOrEmpty(jti) || expiraEm is null)
+        {
+            throw new UnauthorizedAccessException("O token não contém as claims obrigatórias.");
+        }
+
+        await _authService.TerminarSessaoAsync(utilizadorId.Value, jti, expiraEm.Value);
+
+        return NoContent();
+    }
+
     /// <summary>EP-003 — Consultar utilizador autenticado (todos os perfis).</summary>
     /// <response code="200">Identidade e perfil atual do utilizador do token.</response>
     /// <response code="401">Token ausente, inválido, expirado ou revogado.</response>

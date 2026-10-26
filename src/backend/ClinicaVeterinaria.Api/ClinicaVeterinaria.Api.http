@@ -1,5 +1,5 @@
 # =============================================================================
-# Pedidos de verificação manual — I063 (EP-001 e EP-003)
+# Pedidos de verificação manual — I063 (EP-001 e EP-003) e I064 (EP-002)
 #
 # Antes de executar:
 #   1. Base de dados reposta (scripts/reposicao-base-dados.ps1) e com os dados
@@ -96,6 +96,64 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1ha
 ### EP-003 · 401 — token sem assinatura (alg "none")
 GET {{host}}/auth/me
 Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.
+
+# -----------------------------------------------------------------------------
+# I064 — EP-002 (fim de sessão). Executar por esta ordem, de cima para baixo.
+# Os pedidos usam uma sessão própria (loginFimSessao), para não invalidar o
+# token do Administrador usado nos pedidos de EP-003 acima.
+# -----------------------------------------------------------------------------
+
+### EP-002 · preparação — iniciar a sessão que vai ser terminada (Administrador)
+# @name loginFimSessao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "{{passwordAdmin}}" }
+
+### EP-002 · preparação — antes do fim de sessão o token é aceite (EP-003 · 200)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 204 — terminar sessão (sem corpo na resposta)
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — o mesmo token depois do fim de sessão (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — terminar sessão outra vez com o token já revogado
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token revogado num endpoint de cada perfil (critério 3)
+# Até existirem endpoints próprios de cada perfil (I065 a I085), GET /auth/me é
+# o endpoint protegido comum aos cinco perfis. Repetir os três pedidos anteriores
+# com o Cliente: iniciar sessão, terminar sessão e voltar a usar o token.
+# @name loginClienteFimSessao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailCliente}}", "password": "{{passwordCliente}}" }
+
+### EP-002 · 204 — terminar sessão do Cliente
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginClienteFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token do Cliente depois do fim de sessão
+GET {{host}}/auth/me
+Authorization: Bearer {{loginClienteFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token ausente
+POST {{host}}/auth/logout
+
+### EP-002 · 401 — token adulterado
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginAdmin.response.body.$.token}}x
+
+### EP-002 · 401 — token assinado com outra chave
+POST {{host}}/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.BAa2k5tgdKPMS594lDkv6hXJssVjeE9xAEHYr4b3xN8
 
 ###
 

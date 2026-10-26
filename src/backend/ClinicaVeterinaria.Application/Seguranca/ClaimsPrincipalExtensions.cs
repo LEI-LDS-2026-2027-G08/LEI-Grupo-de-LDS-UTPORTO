@@ -10,6 +10,9 @@ namespace ClinicaVeterinaria.Application.Seguranca;
 /// </summary>
 public static class ClaimsPrincipalExtensions
 {
+    // 9999-12-31T23:59:59Z, o maior valor aceite por DateTimeOffset.FromUnixTimeSeconds.
+    private const long MaximoSegundosUnix = 253_402_300_799;
+
     public static int? ObterUtilizadorId(this ClaimsPrincipal utilizador) =>
         LerIdentificador(utilizador, ClaimsClinica.UtilizadorId);
 
@@ -31,6 +34,25 @@ public static class ClaimsPrincipalExtensions
     {
         ArgumentNullException.ThrowIfNull(utilizador);
         return utilizador.FindFirst(ClaimsClinica.Jti)?.Value;
+    }
+
+    /// <summary>
+    /// Data de expiração do token (claim <c>exp</c>), em UTC. Usada no fim de sessão
+    /// para manter a revogação até ao momento em que o token deixaria de ser aceite (I064).
+    /// </summary>
+    public static DateTime? ObterExpiracao(this ClaimsPrincipal utilizador)
+    {
+        ArgumentNullException.ThrowIfNull(utilizador);
+
+        var valor = utilizador.FindFirst(ClaimsClinica.Expiracao)?.Value;
+
+        if (long.TryParse(valor, NumberStyles.None, CultureInfo.InvariantCulture, out var segundos)
+            && segundos <= MaximoSegundosUnix)
+        {
+            return DateTimeOffset.FromUnixTimeSeconds(segundos).UtcDateTime;
+        }
+
+        return null;
     }
 
     private static int? LerIdentificador(ClaimsPrincipal utilizador, string tipoClaim)
