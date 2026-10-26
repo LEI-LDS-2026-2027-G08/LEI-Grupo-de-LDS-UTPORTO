@@ -327,3 +327,249 @@ Content-Type: application/json
 { "nome": "X", "nif": "501234560", "morada": "X", "telefone": "229000000", "email": "x@x.pt", "duracaoConsultaMinutos": 30, "horarioFuncionamento": [] }
 
 ###
+
+###
+
+# =============================================================================
+# I069 — Gestão de pacientes (EP-015 a EP-018)
+#
+# Acrescentar ao http-client.env.json.user:
+#   "passwordAux": "..."
+#
+# Conta usada:
+#   aux.carla@clinica-g08.test
+# =============================================================================
+
+@emailAux = aux.carla@clinica-g08.test
+
+### Login Auxiliar Veterinário
+# @name loginAux
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAux}}", "password": "{{passwordAux}}" }
+
+### EP-015 · 200 — listar/pesquisar pacientes por proprietário
+GET {{host}}/animais?clienteId=1
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-015 · 200 — pesquisa por nome do animal/proprietário
+GET {{host}}/animais?pesquisa=Bobi
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-015 · 200 — filtro por espécie e paginação máxima
+GET {{host}}/animais?especie=Cão&pagina=1&tamanho=100
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-015 · 400 — paginação inválida
+GET {{host}}/animais?pagina=0&tamanho=101
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-015 · 401 — sem token
+GET {{host}}/animais
+
+### EP-015 · 403 — perfil Cliente
+GET {{host}}/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-016 · 200 — Auxiliar consulta apenas ficha administrativa
+GET {{host}}/animais/1
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-016 · 404 — animal inexistente
+GET {{host}}/animais/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-016 · 401 — sem token
+GET {{host}}/animais/1
+
+### EP-016 · 403 — perfil Cliente
+GET {{host}}/animais/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-017 · 201 — criar paciente
+# @name criarAnimal
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "raca": "Labrador Retriever",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 25.40,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — peso zero
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Peso Zero",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 0,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — data de nascimento futura
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Animal Futuro",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2030-01-01",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — clienteId em falta
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Sem Cliente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10
+}
+
+### EP-017 · 404 — Cliente inexistente
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Cliente Inexistente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 999999
+}
+
+### EP-017 · 401 — sem token
+POST {{host}}/animais
+Content-Type: application/json
+
+{
+  "nome": "Sem Token",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-017 · 403 — perfil Cliente
+POST {{host}}/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Sem Permissão",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 200 — atualizar paciente criado
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069 Atualizado",
+  "especie": "Cão",
+  "raca": "Labrador Retriever",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 26.10,
+  "clienteId": 1
+}
+
+### EP-018 · 400 — peso inválido
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 0,
+  "clienteId": 1
+}
+
+### EP-018 · 400 — data futura
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2030-01-01",
+  "peso": 26.10,
+  "clienteId": 1
+}
+
+### EP-018 · 404 — animal inexistente
+PUT {{host}}/animais/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Inexistente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 404 — novo Cliente inexistente
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 26.10,
+  "clienteId": 999999
+}
+
+### EP-018 · 401 — sem token
+PUT {{host}}/animais/1
+Content-Type: application/json
+
+{
+  "nome": "X",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 403 — perfil Cliente
+PUT {{host}}/animais/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "X",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
