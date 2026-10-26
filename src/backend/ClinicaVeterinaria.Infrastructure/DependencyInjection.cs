@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher<Utilizador>, PasswordHasher<Utilizador>>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IClinicaService, ClinicaService>();
         services.AddScoped<IClientesService, ClientesService>();
         return services;
     }
