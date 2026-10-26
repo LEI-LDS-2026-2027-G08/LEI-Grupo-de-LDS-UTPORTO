@@ -42,17 +42,20 @@ public sealed class AuthService : IAuthService
     private readonly IPasswordHasher<Utilizador> _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ILogger<AuthService> _logger;
+    private readonly TimeProvider _relogio;
 
     public AuthService(
         ClinicaDbContext db,
         IPasswordHasher<Utilizador> passwordHasher,
         IJwtTokenService jwtTokenService,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        TimeProvider relogio)
     {
         _db = db;
         _passwordHasher = passwordHasher;
         _jwtTokenService = jwtTokenService;
         _logger = logger;
+        _relogio = relogio;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto pedido)
@@ -99,7 +102,7 @@ public sealed class AuthService : IAuthService
         var autenticado = await CriarUtilizadorAutenticadoAsync(utilizador);
         var token = _jwtTokenService.GerarToken(autenticado);
 
-        utilizador.DataUltimoAcesso = DateTime.UtcNow;
+        utilizador.DataUltimoAcesso = _relogio.GetUtcNow().UtcDateTime;
         await _db.SaveChangesAsync();
 
         LogSessaoIniciada(_logger, utilizador.Id, utilizador.Perfil, null);
