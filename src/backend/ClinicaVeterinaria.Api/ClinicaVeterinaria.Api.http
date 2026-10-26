@@ -98,3 +98,140 @@ GET {{host}}/auth/me
 Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.
 
 ###
+
+# =============================================================================
+# I068 — Contas de Cliente (EP-011 a EP-014)
+#
+# Acrescentar ao http-client.env.json.user: "passwordRececao" e "passwordVet"
+# (contas rececao@ e vet.ana@ dos dados de demonstração da I061).
+# Os pedidos de criação usam um e-mail novo em cada execução ({{$random.uuid}}).
+# =============================================================================
+
+@emailRececao = rececao@clinica-g08.test
+@emailVet = vet.ana@clinica-g08.test
+
+### Login Rececionista
+# @name loginRececao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailRececao}}", "password": "{{passwordRececao}}" }
+
+### Login Veterinário
+# @name loginVet
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailVet}}", "password": "{{passwordVet}}" }
+
+### EP-011 · 200 — pesquisa parcial (nome, NIF, telefone ou e-mail)
+GET {{host}}/clientes?pesquisa=silva
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-011 · 200 — paginação
+GET {{host}}/clientes?pagina=2&tamanho=2
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-011 · 400 — página inválida
+GET {{host}}/clientes?pagina=0
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-011 · 401 — sem token
+GET {{host}}/clientes
+
+### EP-011 · 403 — perfil Cliente
+GET {{host}}/clientes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-012 · 200 — ficha com os animais
+GET {{host}}/clientes/1
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-012 · 404 — cliente inexistente
+GET {{host}}/clientes/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-013 · 201 — criar conta de Cliente (Location na resposta)
+# @name criarCliente
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Cliente de Teste",
+  "telefone": "912345678",
+  "email": "teste.{{$random.uuid}}@mail.test",
+  "morada": "Rua de Teste, 1",
+  "passwordInicial": "Teste#2026x"
+}
+
+### EP-013 · login com a conta criada (critério 7) — 200 com clienteId
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{criarCliente.response.body.$.email}}", "password": "Teste#2026x" }
+
+### EP-013 · 400 — campos em falta, NIF e e-mail inválidos
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nif": "123456780", "email": "invalido", "passwordInicial": "curta" }
+
+### EP-013 · 409 — NIF já registado (João Costa)
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Duplicado", "nif": "210000015", "telefone": "912345678", "email": "dup.{{$random.uuid}}@mail.test", "passwordInicial": "Teste#2026x" }
+
+### EP-013 · 409 — e-mail já registado (também conta de funcionário)
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Duplicado", "telefone": "912345678", "email": "{{emailAdmin}}", "passwordInicial": "Teste#2026x" }
+
+### EP-013 · 403 — Veterinário não cria clientes
+POST {{host}}/clientes
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x.{{$random.uuid}}@mail.test", "passwordInicial": "Teste#2026x" }
+
+### EP-014 · 200 — atualizar (o e-mail da conta muda na mesma operação)
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Cliente de Teste Alterado", "telefone": "912000000", "email": "alterado.{{$random.uuid}}@mail.test", "morada": "Rua de Teste, 2" }
+
+### EP-014 · 400 — campos inválidos
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "", "telefone": "12", "email": "invalido" }
+
+### EP-014 · 404 — cliente inexistente
+PUT {{host}}/clientes/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x@mail.test" }
+
+### EP-014 · 409 — NIF de outro cliente
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "nif": "210000023", "telefone": "912345678", "email": "{{criarCliente.response.body.$.email}}" }
+
+### EP-014 · 403 — Veterinário não altera clientes
+PUT {{host}}/clientes/1
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x@mail.test" }
+
+###
