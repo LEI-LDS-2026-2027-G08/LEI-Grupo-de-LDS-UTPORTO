@@ -19,7 +19,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-10-26 | André Filipe Moreira Mesquita | Versão inicial: 306 casos de teste unitário para as funcionalidades em âmbito (F001, F002, F003, F004 e F006), alinhada com a Documentação da API v02, o Modelo de Classes do Backend v02 e o Plano de Testes do Backend v02. |
+| v01 | 2026-10-26 | André Filipe Moreira Mesquita | Versão inicial: 306 casos de teste unitário para as funcionalidades em âmbito (F001, F002, F003, F004 e F006), alinhada com as versões v02 (em rascunho) da Documentação da API, do Modelo de Classes do Backend e do Plano de Testes do Backend. Revista após a revisão de 2026-10-26: dependências explícitas da D-07, da D-08 e das referências em rascunho; defeito do PA-07 registado. |
 
 ---
 
@@ -55,15 +55,30 @@ Resumo: **306 casos** (85 positivos, 138 negativos e 83 de fronteira), em 22 uni
 
 ## 2. Documentos de referência
 
-| Documento | Utilização |
-|---|---|
-| Documentação da API v02 (`m3-documentacao-api-v02.md`) | Regras de validação (400), de negócio (422), conflito (409), concorrência (412) e propriedade (403) de cada endpoint. |
-| Modelo de Classes do Backend v02 (`m3-modelo-classes-backend-v02.md`) | Serviços, DTOs e regras de consistência do modelo (secção 8). |
-| Plano de Testes do Backend v02 (`m3-plano-testes-backend-v02.md`) | Estratégia, convenção `UT-<módulo>-<nnn>` e condições de teste `CT-…` (secção 10). |
-| Especificação de Requisitos v02 (`m3-especificacao-requisitos-v02.md`) | Requisitos RF001–RF036 e RF043–RF047 em âmbito. |
-| Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`) | Limites de comprimento, restrições `CHECK` e convenção de datas em UTC. |
-| Especificação dos Testes de Integração v01 (I030) | Divisão de responsabilidades entre testes unitários e de integração; identificadores lógicos dos dados. |
-| Código do backend (`src/backend`, ramo `develop` e ramo da I063) | Unidades já existentes: `AuthService`, `JwtTokenService`, políticas de autorização e middleware de erros. |
+| Documento | Estado | Utilização |
+|---|---|---|
+| Declaração de Âmbito v05 | Aprovada e homologada (21/10/2026) | Funcionalidades em âmbito: F001 a F004 e F006; F005 e F007 fora. |
+| Documentação da API v02 (`m3-documentacao-api-v02.md`) | **Rascunho** — PR #170, por integrar | Regras de validação (400), de negócio (422), conflito (409), concorrência (412) e propriedade (403) de cada endpoint. |
+| Modelo de Classes do Backend v02 (`m3-modelo-classes-backend-v02.md`) | **Rascunho** — PR #169, por integrar | Serviços, DTOs e regras de consistência do modelo (secção 8). |
+| Plano de Testes do Backend v02 (`m3-plano-testes-backend-v02.md`) | **Rascunho** — PR #172, por integrar | Estratégia, convenção `UT-<módulo>-<nnn>`, condições de teste `CT-…` (secção 10) e decisões D-01 a D-10 (secção 17). |
+| Especificação de Requisitos v02 (`m3-especificacao-requisitos-v02.md`) | **Rascunho** — PR #179, por integrar | Requisitos RF001–RF036 e RF043–RF047 em âmbito. |
+| Modelo de Dados v02 (`m3-modelo-de-dados-clinica-veterinaria-v02.md`) | **Rascunho** — PR #183, por integrar | Limites de comprimento, restrições `CHECK` e convenção de datas em UTC. |
+| Especificação dos Testes de Integração v01 (I030) | Integrada no `develop` (PR #186) | Divisão de responsabilidades entre testes unitários e de integração; identificadores lógicos dos dados. |
+| Código do backend (`src/backend`) | `develop`; I063 em revisão | Unidades já existentes: `AuthService`, `JwtTokenService`, políticas de autorização e middleware de erros. |
+
+### 2.1. Dependência de documentos em rascunho
+
+Cinco das referências são versões v02 que ainda estão em Pull Requests por integrar (estado verificado na revisão de 2026-10-26). Foram usadas porque são as únicas alinhadas com a Declaração de Âmbito v05, que está homologada: as versões v01 aprovadas (I012, I018, I020, I027) ainda incluem F005 e F007 e não têm, por exemplo, o controlo de alterações concorrentes das marcações. A Especificação dos Testes de Integração (I030), já integrada no `develop`, usa as mesmas versões v02.
+
+Esta especificação fica, por isso, **condicionada à aprovação dessas versões v02** (ponto em aberto PA-17). A tabela indica o que depende só delas:
+
+| Conteúdo | Origem | Casos afetados se a origem mudar |
+|---|---|---|
+| Âmbito de 37 endpoints (sem F005 e F007) | Declaração de Âmbito v05 (aprovada) | Nenhum: não depende de rascunhos. |
+| Resposta 412 e comparação do `If-Match` (EP-026 a EP-028) | API v02, secção 5.1 (mecanismo ainda «proposta a confirmar pelo Revisor») | UT-F003-041, UT-F003-042, UT-F003-043, UT-F003-044, UT-F003-049, UT-F003-085, UT-F003-086, UT-F003-087, UT-F003-088, UT-F003-089, UT-F003-090 |
+| Nomes de serviços e DTOs | Modelo de Classes v02 | Nenhum: os casos descrevem comportamento e não dependem dos nomes (secção 6). |
+| Limites de comprimento e datas em UTC | Modelo de Dados v02 | Casos de fronteira de comprimento (por exemplo UT-F001-082, UT-F002-006, UT-F001-072, UT-F003-081, UT-F006-016) e a regra R-FUSO. |
+| Regras 400/409/422 por endpoint | API v02 (iguais às da v01 nos endpoints em âmbito, exceto a 412) | Secção 8. |
 
 ---
 
@@ -97,7 +112,7 @@ A descrição da I088 ainda refere o cálculo do valor em dívida, os pagamentos
 
 Os princípios seguem os critérios de aceitação das tarefas I086 a I089:
 
-1. **Sem base de dados real, rede nem relógio real.** As dependências são substituídas por duplos e a hora é injetada através de `TimeProvider` (decisão D-07 do Plano de Testes). `RELOGIO` (secção 5) é a hora de todos os casos, salvo indicação em contrário.
+1. **Sem base de dados real, rede nem relógio real.** As dependências são substituídas por duplos e a hora é injetada através de `TimeProvider`. `RELOGIO` (secção 5) é a hora de todos os casos, salvo indicação em contrário. Esta forma de injetar a hora corresponde à decisão D-07 do Plano de Testes v02, que **ainda está como proposta**; os casos que dependem dela estão na secção 4.5 (PA-16).
 2. **Preparar–agir–verificar.** Cada teste tem as três partes separadas, um único motivo de falha e os dados mínimos para o caso.
 3. **Resultado observável.** O resultado esperado é sempre um valor devolvido, uma exceção (com o código HTTP que lhe corresponde no `ExceptionHandlingMiddleware`) ou o estado gravado no duplo. Nos casos negativos, verifica-se também que **nada é gravado**, quando o resultado o indica.
 4. **Casos parametrizados.** Quando um caso indica «parametrizado», é implementado como um único `[Theory]` com uma linha `[InlineData]` por variante. O identificador do caso aplica-se a todas as linhas.
@@ -106,9 +121,11 @@ Os princípios seguem os critérios de aceitação das tarefas I086 a I089:
 
 As regras puras (validadores, cálculos, máquina de estados, versão da marcação) devem ficar em classes sem dependências de infraestrutura, testadas diretamente. É aí que se concentram os casos de fronteira.
 
-Os serviços que usam `ClinicaDbContext` (padrão Controller → Service → `ClinicaDbContext` do Modelo de Classes v02, secção 4) são testados com o fornecedor **EF Core InMemory** (`Microsoft.EntityFrameworkCore.InMemory`, a acrescentar com as dependências da decisão D-08). O `IPasswordHasher<Utilizador>` e o `IJwtTokenService` são substituídos por duplos Moq.
+Para os serviços que usam `ClinicaDbContext` (padrão Controller → Service → `ClinicaDbContext` do Modelo de Classes v02, secção 4), esta especificação **propõe** o fornecedor **EF Core InMemory** (`Microsoft.EntityFrameworkCore.InMemory`). Esta dependência **não consta** da decisão D-08 do Plano de Testes v02, que lista Moq, Mvc.Testing, Testcontainers.MsSql, Respawn e ReportGenerator, e o nível T1 do Plano prevê xUnit e Moq. Fica, por isso, como proposta a ratificar (PA-14).
 
-O fornecedor InMemory não aplica restrições `UNIQUE` ou `CHECK`, não preenche `RowVersion`, não tem transações e compara texto com distinção de maiúsculas. Por isso, os casos de conflito (409) verificam a **verificação prévia feita pelo serviço** (que tem de existir no código) e os comportamentos que dependem do SQL Server ficam para os testes de integração (secção 9).
+A alternativa compatível com o Plano tal como está é os serviços dependerem de interfaces de acesso a dados (por exemplo, `IUtilizadoresRepositorio`) substituídas por duplos Moq. **Os casos não dependem desta escolha:** as pré-condições descrevem os dados que existem e o resultado esperado descreve o comportamento observável e o que é gravado, seja num contexto InMemory, seja nas chamadas registadas no duplo. Em qualquer das opções, o `IPasswordHasher<Utilizador>` e o `IJwtTokenService` são duplos Moq.
+
+Nenhum dos dois tipos de duplo aplica restrições `UNIQUE` ou `CHECK`, preenche a `RowVersion` ou tem transações (e o InMemory compara texto com distinção de maiúsculas). Por isso, os casos de conflito (409) verificam a **verificação prévia feita pelo serviço** (que tem de existir no código) e os comportamentos que dependem do SQL Server ficam para os testes de integração (secção 9).
 
 ### 4.3. Identificadores e nomes dos testes
 
@@ -132,6 +149,26 @@ Para os casos serem executáveis tal como estão escritos (critério 5), fixam-s
 | **R-EMAIL** — e-mail | Até 256 caracteres (coluna `Utilizador.Email`), sem espaços, com exatamente um `@`, parte local não vazia e domínio com pelo menos um ponto. | UT-F001-067, UT-F001-068, UT-F001-069, UT-F001-070, UT-F001-071, UT-F001-072 |
 | **R-FUSO** — hora local da clínica | As datas e horas com instante são UTC (Modelo de Dados, D15); o horário de funcionamento (`TIME`) é hora local de `Europe/Lisbon`. A disponibilidade e a verificação «dentro do horário» convertem a marcação para hora local, o que muda com a hora de verão. `horariosLivres` (EP-022) é devolvido em hora local `HH:mm`. | UT-F003-011, UT-F003-019, UT-F003-024 |
 | **R-HORARIO** — marcação dentro do horário | O intervalo `[dataHora, dataHora + duração)` tem de caber inteiro num período do dia e não se pode sobrepor a outra marcação não cancelada do mesmo Veterinário. Intervalos que se tocam (um acaba quando o outro começa) não se sobrepõem. | UT-F003-026, UT-F003-024, UT-F003-029, UT-F003-028 |
+
+### 4.5. Casos que dependem da hora injetada (D-07)
+
+Os casos seguintes usam `RELOGIO` ou outra hora fixa. Só são determinísticos se a unidade receber a hora através de `TimeProvider`, como propõe a D-07, que ainda não está ratificada (PA-16). Sem essa decisão, ficariam a depender do relógio real e não seriam executáveis tal como estão escritos.
+
+| Unidade | Situação no código | Casos que dependem da hora |
+|---|---|---|
+| AUTH | `AuthService` (I063) usa `DateTime.UtcNow` em `DataUltimoAcesso`: tem de passar a receber `TimeProvider`. | UT-F001-001, UT-F001-021 |
+| JWT | `JwtTokenService` (I063) já recebe `TimeProvider`. | UT-F001-025, UT-F001-028, UT-F001-029, UT-F001-030 |
+| ANI | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (24): UT-F002-001 a UT-F002-024 |
+| IDADE | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (6): UT-F002-025 a UT-F002-030 |
+| DISP | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (18): UT-F003-001 a UT-F003-018 |
+| CONS | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (43): UT-F003-019 a UT-F003-061 |
+| NOTA | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (9): UT-F003-076 a UT-F003-084 |
+| REG | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (27): UT-F004-001 a UT-F004-027 |
+| VAC | Ainda por criar: deve receber `TimeProvider` desde o início. | Todos (17): UT-F006-008 a UT-F006-024 |
+
+Nas unidades que leem a hora atual, todos os casos dependem dela, mesmo os que não a mencionam: por exemplo, uma marcação para 2026-10-15 só é «futura» porque `RELOGIO` é 2026-10-14.
+
+Na situação atual do código, o caso UT-F001-001 (`DataUltimoAcesso = RELOGIO`) só passa depois de o `AuthService` receber `TimeProvider`. O mesmo vale para UT-F001-021 (`DataRevogacao = RELOGIO`), na I064.
 
 ---
 
@@ -720,7 +757,7 @@ Total: 67 regras (38 de 400, 16 de 422 e 13 de 403, 409 e 412), todas com casos 
 |---|---|---|
 | Controladores e atributos `[Authorize]` de cada endpoint | São finos: encaminham para o serviço. O que interessa é que cada rota tenha a política certa, o que só se vê com pedidos HTTP reais. | Testes de integração, matriz endpoint × perfil (CT-TRV-01, CT-TRV-02). |
 | Pipeline completa do `JwtBearer` (cabeçalho `Authorization` → 401 com corpo; `OnChallenge`, `OnForbidden`, `OnTokenValidated`) | Depende do *pipeline* do ASP.NET Core. As peças (emissão, parâmetros de validação, validação da sessão) têm casos unitários. | CT-F001-04, CT-F001-07 (I030). |
-| `ClinicaDbContext`: mapeamentos, restrições `CHECK` e `UNIQUE`, `HasData` e migrações | Só o SQL Server aplica as restrições; o fornecedor InMemory ignora-as. | Script de reposição da I062 e testes de integração (CT-TRV-05). |
+| `ClinicaDbContext`: mapeamentos, restrições `CHECK` e `UNIQUE`, `HasData` e migrações | Só o SQL Server aplica as restrições; os duplos (InMemory ou Moq) não as aplicam. | Script de reposição da I062 e testes de integração (CT-TRV-05). |
 | Unicidade com pedidos simultâneos (dois pedidos com o mesmo e-mail ou NIF) | A verificação prévia do serviço é testada; a garantia final é o índice `UQ_*`. | Testes de integração. |
 | Comparação de texto sem distinção de maiúsculas e ordenação | Dependem da *collation* `Latin1_General_100_CI_AS` da base de dados. | Testes de integração (PA-13). |
 | `RowVersion` e resposta 409 por `DbUpdateConcurrencyException` | O SQL Server é que preenche a `RowVersion`; um fornecedor em memória não a atualiza (decisão D-10). A comparação do `If-Match` (412) tem casos unitários. | IT-CONC-01 a IT-CONC-05 (CT-F003-09). |
@@ -914,15 +951,17 @@ O teste `TokenExpiradoERejeitado` usa um token emitido 9 horas antes; o caso UT-
 | PA-04 | **Validação do e-mail** não está definida. | Aprovar a regra R-EMAIL. | UT-F001-067, UT-F001-068, UT-F001-069, UT-F001-070, UT-F001-071, UT-F001-072 |
 | PA-05 | **Fuso horário e horários já passados.** O contrato não diz em que hora estão `horariosLivres`, nem se a disponibilidade de hoje inclui horários que já começaram. | Aprovar R-FUSO e excluir da disponibilidade os horários que já começaram. | UT-F003-011, UT-F003-012 |
 | PA-06 | **Formato de erro.** A API v02 (secção 5) prevê Problem Details (RFC 9457); a infraestrutura da I058 usa `{ code, message, detail }`. A I030 (CT-TRV-04) segue a API. | Decidir um formato único. Os casos unitários verificam o código e o `detail`, que existem nos dois formatos. | UT-TRV-006, UT-TRV-008, UT-TRV-009 |
-| PA-07 | **Possível defeito de segurança na I058.** O `ExceptionHandlingMiddleware` devolve `exception.Message` também nos erros 500, o que pode expor detalhes internos ao cliente. | Abrir um defeito (etiqueta `defeito`, decisão D-06) e devolver uma mensagem genérica no 500. O caso fica a falhar até à correção. | UT-TRV-007 |
+| PA-07 | **Defeito de segurança na I058.** O `ExceptionHandlingMiddleware` devolve `exception.Message` também nos erros 500, o que pode expor detalhes internos ao cliente. | Registado como defeito numa Issue própria do GitHub (etiqueta `defeito`), que referencia este caso. Corrigir devolvendo uma mensagem genérica no 500. O caso fica a falhar até à correção e a Issue garante a rastreabilidade. | UT-TRV-007 |
 | PA-08 | **Leitura do registo clínico pelo Auxiliar.** O critério 5 da I088 pede uma projeção sem campos excluídos, mas a API v02 (ponto em aberto 4) ainda dá ao Auxiliar o registo completo. | Manter o contrato atual. Se o grupo decidir uma projeção reduzida, acrescentar um caso que verifique a ausência desses campos. | UT-F004-022 |
 | PA-09 | **Idade com data de nascimento desconhecida.** `IdadeAnos` é `int` nos DTOs, mas `DataNascimento` é opcional. | Devolver 0, ou passar `IdadeAnos` a `int?` no Modelo de Classes. | UT-F002-030 |
 | PA-10 | **EP-032 com `id` de um elemento de outro registo.** O contrato não prevê o caso. | Responder 400. | UT-F004-019 |
 | PA-11 | **Lista `proximas` do boletim.** Não está definido se inclui datas previstas já passadas. | Incluir só datas ≥ hoje, por ordem crescente. | UT-F006-021 |
 | PA-12 | **Início das marcações.** Não está definido se `dataHora` (EP-025, EP-026) tem de coincidir com um horário devolvido por EP-022 (por exemplo, 10:15 quando a grelha é de 30 em 30 minutos). | Não exigir alinhamento (só a regra R-HORARIO). Se o grupo decidir exigi-lo, acrescentar casos. | UT-F003-028, UT-F003-038 |
-| PA-13 | **E-mails com maiúsculas diferentes.** Na base de dados, a comparação ignora maiúsculas por causa da *collation*; no fornecedor InMemory, não. | Comparar com normalização explícita no código, ou deixar este comportamento só para a integração. | — |
-| PA-14 | **Novas dependências de teste.** Moq e o fornecedor EF Core InMemory ainda não estão no projeto de testes. | Acrescentá-los com as dependências da decisão D-08 (I091 ou primeira tarefa de implementação dos testes). | — |
+| PA-13 | **E-mails com maiúsculas diferentes.** Na base de dados, a comparação ignora maiúsculas por causa da *collation*; nos duplos, depende da implementação (no InMemory, não ignora). | Comparar com normalização explícita no código, ou deixar este comportamento só para a integração. | — |
+| PA-14 | **Duplos dos serviços com `ClinicaDbContext`.** O EF Core InMemory proposto na secção 4.2 não consta da D-08 do Plano de Testes v02, e o nível T1 prevê xUnit e Moq. Moq também ainda não está no projeto de testes. | Decidir no Backlog Refinement entre (a) acrescentar `Microsoft.EntityFrameworkCore.InMemory` à D-08 ou (b) usar interfaces de acesso a dados com duplos Moq. Os casos servem para as duas opções. | Casos dos serviços AUTH, UTIL, CLIN, CLI, ANI, CONS, NOTA, REG e VAC |
 | PA-15 | **Logout repetido.** O contrato não diz o que acontece quando o mesmo `jti` é revogado duas vezes no serviço. | Operação idempotente (sem erro e sem linha repetida). | UT-F001-022 |
+| PA-16 | **Hora injetada (D-07).** A D-07 do Plano de Testes v02 (`TimeProvider`) ainda está como proposta, e o `AuthService` da I063 usa `DateTime.UtcNow`. | Ratificar a D-07 no Backlog Refinement e adaptar o `AuthService` para receber `TimeProvider`. Até lá, os casos da secção 4.5 ficam condicionados a essa decisão. | Secção 4.5 |
+| PA-17 | **Referências em rascunho.** A API v02 (#170), o Modelo de Classes v02 (#169), o Plano de Testes v02 (#172), a Especificação de Requisitos v02 (#179) e o Modelo de Dados v02 (#183) estão em PR por integrar. | Decisão do grupo: (a) integrar a I028 só depois dessas PRs, ou (b) aprová-la condicionada, como aconteceu com a I030. Em qualquer caso, se uma v02 mudar na revisão, rever os casos indicados na secção 2.1. | Secção 2.1 |
 
 ---
 
@@ -934,5 +973,5 @@ O teste `TokenExpiradoERejeitado` usa um token emitido 9 horas antes; o caso UT-
 | 2. As unidades críticas têm casos de fronteira | Disponibilidade: 12 casos de fronteira (marcações coladas, limite do fecho, dia fechado, dia com dois períodos, marcação cancelada, mudança da hora, 31/32 dias). Estados da marcação: as 16 combinações de origem e destino (secção 7.3.3), mais 10 fronteiras no `ConsultasService`. Próxima administração: 5 casos (mudança de mês e de ano, ano bissexto). Contas e pagamentos estão fora do âmbito (secção 3.2). |
 | 3. Cada caso tem identificador, unidade, pré-condições, dados, resultado esperado e requisito/endpoint | Colunas das tabelas da secção 7; a unidade é a da subsecção onde o caso está. |
 | 4. A matriz liga cada RF com implementação no backend a pelo menos um caso | Secção 10.1: os 41 RF em âmbito têm casos. |
-| 5. Os casos bastam para fundamentar a implementação em I086 a I089 | Dados de referência (secção 5), regras propostas (secção 4.4), unidades e tarefas (secção 6) e casos com valores concretos. Os pontos ainda por decidir estão na secção 12, com a proposta usada nos casos. |
+| 5. Os casos bastam para fundamentar a implementação em I086 a I089 | Dados de referência (secção 5), regras propostas (secção 4.4), unidades e tarefas (secção 6) e casos com valores concretos. Os pontos ainda por decidir estão na secção 12, com a proposta usada nos casos. Fica condicionado à ratificação da D-07 (PA-16), à escolha dos duplos (PA-14) e à aprovação das referências v02 (PA-17). |
 
