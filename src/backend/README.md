@@ -77,10 +77,13 @@ No ASP.NET Core, `__` corresponde ao separador `:` da configuração.
 
 A chave JWT não deve ser armazenada nos ficheiros versionados.
 
-A chave tem de estar em Base64 e ter pelo menos 32 bytes (256 bits). Para gerar uma chave nova em PowerShell:
+A chave tem de estar em Base64 e ter pelo menos 32 bytes (256 bits). Para gerar uma chave nova em PowerShell (funciona no Windows PowerShell 5.1 e no PowerShell 7):
 
 ```powershell
-[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+$chave = [Convert]::ToBase64String($bytes)
+dotnet user-secrets set "Jwt:Key" $chave --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
 ```
 
 Pode ser configurada através de User Secrets:
