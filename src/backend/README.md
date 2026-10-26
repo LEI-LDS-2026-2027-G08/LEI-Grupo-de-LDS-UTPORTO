@@ -163,7 +163,7 @@ Um token sem `jti` ou sem `exp` válido não é aceite. Repetir o fim de sessão
 
 ### Limpeza das revogações expiradas
 
-O serviço `LimpezaTokensRevogadosService` apaga as linhas de `TokenRevogado` cuja `DataExpiracao` já passou. Corre uma vez no arranque da API e depois de `LimpezaTokensRevogados:IntervaloMinutos` em `LimpezaTokensRevogados:IntervaloMinutos` minutos (por omissão 60; aceita de 1 a 1440). Um valor fora desse intervalo impede a API de arrancar.
+O serviço `LimpezaTokensRevogadosService` apaga as linhas de `TokenRevogado` cuja `DataExpiracao` já passou. Corre uma vez no arranque da API e depois a cada `LimpezaTokensRevogados:IntervaloMinutos` minutos (por omissão 60; aceita de 1 a 1440). Um valor fora desse intervalo impede a API de arrancar.
 
 Só são apagadas as revogações de tokens que já expiraram (`DataExpiracao` anterior ao instante atual). Um token é aceite até ao próprio instante da expiração, por isso a revogação mantém-se até lá e a limpeza nunca devolve o acesso a um token terminado por logout. Uma falha da limpeza (por exemplo, base de dados indisponível) fica no log (evento 3005) e não pára a API; o número de registos apagados fica no evento 3004.
 
