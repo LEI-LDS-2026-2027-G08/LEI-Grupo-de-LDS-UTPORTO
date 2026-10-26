@@ -22,6 +22,9 @@ builder.Services.AddInfrastructure();
 // Falha no arranque se a secção Jwt estiver incompleta.
 builder.Services.AddAutenticacaoJwt(builder.Configuration);
 
+// Fim de sessão (EP-002) — I064: apaga periodicamente as revogações de tokens expirados.
+builder.Services.AddLimpezaTokensRevogados(builder.Configuration);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>

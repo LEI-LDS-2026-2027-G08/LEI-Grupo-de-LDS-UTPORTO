@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 namespace ClinicaVeterinaria.Infrastructure;
 
 /// <summary>
-/// Autenticação (EP-001, EP-003) e validação da sessão em cada pedido autenticado.
-/// O fim de sessão (EP-002) é tratado na I064.
+/// Autenticação (EP-001, EP-003), fim de sessão com revogação do token (EP-002, I064)
+/// e validação da sessão em cada pedido autenticado.
 /// </summary>
 public sealed class AuthService : IAuthService
 {
@@ -37,6 +37,12 @@ public sealed class AuthService : IAuthService
             LogLevel.Information,
             new EventId(3002, "SessaoIniciada"),
             "Sessão iniciada pelo utilizador {UtilizadorId} com o perfil {Perfil}");
+
+    private static readonly Action<ILogger, int, Exception?> LogSessaoTerminada =
+        LoggerMessage.Define<int>(
+            LogLevel.Information,
+            new EventId(3003, "SessaoTerminada"),
+            "Sessão terminada pelo utilizador {UtilizadorId}; o token fica revogado até expirar");
 
     private readonly ClinicaDbContext _db;
     private readonly IPasswordHasher<Utilizador> _passwordHasher;
@@ -159,6 +165,74 @@ public sealed class AuthService : IAuthService
 
         return !revogado;
     }
+
+    public async Task TerminarSessaoAsync(int utilizadorId, string jti, DateTime dataExpiracao)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(jti);
+
+        // Idempotente (I028, PA-15): um segundo pedido com o mesmo jti não cria outra linha.
+        if (await JtiRevogadoAsync(jti))
+        {
+            return;
+        }
+
+        _db.TokensRevogados.Add(new TokenRevogado
+        {
+            Jti = jti,
+            UtilizadorId = utilizadorId,
+            DataExpiracao = dataExpiracao,
+            DataRevogacao = SemFracoesDeSegundo(_relogio.GetUtcNow().UtcDateTime)
+        });
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Dois pedidos simultâneos com o mesmo token: o segundo falha na chave
+            // primária (PK_TokenRevogado), mas o token já ficou revogado pelo primeiro.
+            _db.ChangeTracker.Clear();
+
+            if (!await JtiRevogadoAsync(jti))
+            {
+                throw;
+            }
+        }
+
+        LogSessaoTerminada(_logger, utilizadorId, null);
+    }
+
+    public async Task<int> RemoverRevogacoesExpiradasAsync(CancellationToken cancelamento = default)
+    {
+        var agora = _relogio.GetUtcNow().UtcDateTime;
+
+        // Só as que expiraram ANTES de agora. Com ClockSkew zero, um token ainda é
+        // aceite no próprio instante da expiração (exp >= agora), por isso a revogação
+        // tem de se manter até lá; depois disso o token é rejeitado por ter expirado.
+        var expiradas = await _db.TokensRevogados
+            .Where(t => t.DataExpiracao < agora)
+            .ToListAsync(cancelamento);
+
+        if (expiradas.Count == 0)
+        {
+            return 0;
+        }
+
+        _db.TokensRevogados.RemoveRange(expiradas);
+        await _db.SaveChangesAsync(cancelamento);
+
+        return expiradas.Count;
+    }
+
+    private Task<bool> JtiRevogadoAsync(string jti) =>
+        _db.TokensRevogados
+            .AsNoTracking()
+            .AnyAsync(t => t.Jti == jti);
+
+    // A coluna é DATETIME2(0): sem frações de segundo, o valor gravado é o valor lido.
+    private static DateTime SemFracoesDeSegundo(DateTime data) =>
+        new(data.Ticks - (data.Ticks % TimeSpan.TicksPerSecond), DateTimeKind.Utc);
 
     private static void ValidarCamposObrigatorios([NotNull] string? email, [NotNull] string? password)
     {
