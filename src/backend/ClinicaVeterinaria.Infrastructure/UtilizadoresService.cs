@@ -11,14 +11,15 @@ using Microsoft.EntityFrameworkCore;
 namespace ClinicaVeterinaria.Infrastructure;
 
 /// <summary>
-/// Consulta e criação de contas de funcionário (EP-004 a EP-006). Só são
-/// consideradas as contas com registo em <c>Funcionario</c>; as contas de
-/// Cliente são geridas em EP-011 a EP-014.
+/// Consulta, criação, atualização e bloqueio de contas de funcionário (EP-004 a
+/// EP-008). Só são consideradas as contas com registo em <c>Funcionario</c>; as
+/// contas de Cliente são geridas em EP-011 a EP-014.
 /// </summary>
 public sealed class UtilizadoresService : IUtilizadoresService
 {
     private const string MensagemNaoEncontrado = "A conta de funcionário indicada não existe.";
     private const string MensagemEmailRegistado = "Já existe uma conta registada com este e-mail.";
+    private const string MensagemEmailUsado = "O e-mail indicado já é usado por outra conta.";
 
     // Violação de índice único no SQL Server (UQ_Utilizador_Email).
     private const int ErroChaveDuplicada = 2601;
@@ -145,11 +146,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 "O perfil Cliente não pode ser atribuído neste endpoint; as contas de Cliente são criadas em POST /clientes.");
         }
 
-        if (pedido.PodeRegistarApoio && perfil != Perfis.AuxiliarVeterinario)
-        {
-            throw new UnprocessableEntityException(
-                "A autorização podeRegistarApoio só pode ser concedida ao perfil AuxiliarVeterinario.");
-        }
+        GarantirApoioCoerente(perfil, pedido.PodeRegistarApoio);
 
         var email = pedido.Email.Trim().ToLowerInvariant();
 
@@ -197,6 +194,118 @@ public sealed class UtilizadoresService : IUtilizadoresService
         };
     }
 
+    public async Task<UtilizadorDto> AtualizarAsync(int id, int administradorId, UpdateUtilizadorDto pedido)
+    {
+        ArgumentNullException.ThrowIfNull(pedido);
+
+        var perfil = NormalizarFiltro(pedido.Perfil, Perfis.Todos, "perfil")
+            ?? throw new ArgumentException("O perfil é obrigatório.");
+
+        // Em EP-007 o contrato prevê 400 para o perfil Cliente (em EP-006 é 422).
+        if (perfil == Perfis.Cliente)
+        {
+            throw new ArgumentException(
+                "O perfil Cliente não pode ser atribuído a uma conta de funcionário; as contas de Cliente são geridas em /clientes.");
+        }
+
+        var dados = await (
+                from u in _db.Utilizadores
+                join f in _db.Funcionarios on u.Id equals f.UtilizadorId
+                where u.Id == id && u.Perfil != Perfis.Cliente
+                select new { Utilizador = u, Funcionario = f })
+            .FirstOrDefaultAsync()
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+
+        // Regras de negócio do contrato (422), verificadas antes da unicidade do e-mail.
+        if (id == administradorId && perfil != Perfis.Administrador)
+        {
+            throw new UnprocessableEntityException(
+                "O Administrador não pode remover o próprio perfil de Administrador.");
+        }
+
+        // Verificada em cada atualização, incluindo na mudança de perfil (critério 3):
+        // um Auxiliar que muda de perfil tem de deixar de ter a autorização.
+        GarantirApoioCoerente(perfil, pedido.PodeRegistarApoio);
+
+        var email = pedido.Email.Trim().ToLowerInvariant();
+
+        // O próprio e-mail não conta como conflito.
+        if (await _db.Utilizadores.AnyAsync(u => u.Email == email && u.Id != id))
+        {
+            throw new InvalidOperationException(MensagemEmailUsado);
+        }
+
+        dados.Utilizador.Email = email;
+        dados.Utilizador.Perfil = perfil;
+        dados.Funcionario.Nome = pedido.Nome.Trim();
+        dados.Funcionario.Telefone = string.IsNullOrWhiteSpace(pedido.Telefone) ? null : pedido.Telefone.Trim();
+        dados.Funcionario.PodeRegistarApoio = pedido.PodeRegistarApoio;
+
+        // Um único SaveChanges: Utilizador e Funcionario mudam na mesma transação.
+        // Um token emitido com o perfil antigo deixa de ser aceite no pedido seguinte (EP-003).
+        await GravarAsync(MensagemEmailUsado);
+
+        return new UtilizadorDto
+        {
+            Id = dados.Utilizador.Id,
+            Nome = dados.Funcionario.Nome,
+            Email = dados.Utilizador.Email,
+            Telefone = dados.Funcionario.Telefone,
+            Perfil = dados.Utilizador.Perfil,
+            Estado = dados.Utilizador.Estado,
+            PodeRegistarApoio = dados.Funcionario.PodeRegistarApoio,
+            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc)
+        };
+    }
+
+    public async Task BloquearAsync(int id, int administradorId, AlterarEstadoUtilizadorDto pedido)
+    {
+        ArgumentNullException.ThrowIfNull(pedido);
+
+        // EP-008 só bloqueia; o desbloqueio não faz parte do contrato.
+        if (!string.Equals(pedido.Estado?.Trim(), EstadosUtilizador.Bloqueado, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                $"O estado '{pedido.Estado?.Trim()}' é inválido. Neste endpoint só é aceite {EstadosUtilizador.Bloqueado}.");
+        }
+
+        var utilizador = await _db.Utilizadores.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+
+        // Ao contrário de EP-005 e EP-007, uma conta de Cliente existe e dá 422 (contrato de EP-008).
+        if (utilizador.Perfil == Perfis.Cliente)
+        {
+            throw new UnprocessableEntityException(
+                "As contas de Cliente não podem ser bloqueadas neste endpoint; só as contas de funcionário.");
+        }
+
+        if (id == administradorId)
+        {
+            throw new UnprocessableEntityException("O Administrador não pode bloquear a própria conta.");
+        }
+
+        if (utilizador.Estado == EstadosUtilizador.Bloqueado)
+        {
+            throw new UnprocessableEntityException("A conta já está bloqueada.");
+        }
+
+        utilizador.Estado = EstadosUtilizador.Bloqueado;
+
+        // Efeito imediato: EP-001 passa a devolver 403 e os tokens já emitidos são
+        // rejeitados com 401 no pedido seguinte, porque cada pedido confirma o estado da conta.
+        await _db.SaveChangesAsync();
+    }
+
+    /// <summary>A autorização de registo de apoio só existe em contas de Auxiliar Veterinário (422).</summary>
+    private static void GarantirApoioCoerente(string perfil, bool podeRegistarApoio)
+    {
+        if (podeRegistarApoio && perfil != Perfis.AuxiliarVeterinario)
+        {
+            throw new UnprocessableEntityException(
+                "A autorização podeRegistarApoio só pode ser concedida ao perfil AuxiliarVeterinario.");
+        }
+    }
+
     /// <summary>
     /// Devolve o valor da enumeração com a grafia oficial (sem distinguir maiúsculas),
     /// null se não foi indicado, ou 400 se não pertence à enumeração (critério 5).
@@ -218,7 +327,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
     /// Grava as alterações; um pedido simultâneo com o mesmo e-mail, que passou a
     /// verificação anterior, é travado pelo índice único e devolve 409.
     /// </summary>
-    private async Task GravarAsync()
+    private async Task GravarAsync(string mensagemConflito = MensagemEmailRegistado)
     {
         try
         {
@@ -229,7 +338,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Number: ErroChaveDuplicada or ErroRestricaoUnica
         })
         {
-            throw new InvalidOperationException(MensagemEmailRegistado, ex);
+            throw new InvalidOperationException(mensagemConflito, ex);
         }
     }
 

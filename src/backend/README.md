@@ -207,9 +207,25 @@ O e-mail das contas de funcionário segue a regra R-EMAIL da Especificação de 
 
 A regra está em `PalavraPasseForteAttribute` (`ClinicaVeterinaria.Application/Validacao`) e aplica-se a um DTO com `[PalavraPasseForte]`. As palavras-passe são guardadas apenas como hash (`PasswordHasher` v3) e nenhuma resposta da API devolve o hash.
 
+### Atualização e bloqueio de contas de funcionário
+
+`PUT /utilizadores/{id}` (EP-007) atualiza o nome, o e-mail, o telefone, o perfil e a autorização `podeRegistarApoio` de uma conta de funcionário e devolve a conta no formato de EP-005. `PATCH /utilizadores/{id}/estado` (EP-008) bloqueia a conta e responde `204`. Ambos são só do Administrador, que é sempre identificado pelo token e nunca pelo pedido.
+
+Regras verificadas em cada pedido:
+
+- Em EP-007 o perfil `Cliente` dá `400` (em EP-006 dá `422`, como prevê o contrato de cada operação) e uma conta de Cliente dá `404`, porque não é uma conta de funcionário.
+- `podeRegistarApoio = true` só é aceite no perfil `AuxiliarVeterinario` (`422`). A regra é verificada em cada atualização, por isso um Auxiliar com apoio que muda de perfil tem de enviar `podeRegistarApoio = false`.
+- O Administrador não pode remover o próprio perfil de Administrador (`422`), mas pode alterar os seus outros dados e o perfil de outro Administrador.
+- O e-mail é guardado em minúsculas; um e-mail usado por outra conta, de funcionário ou de Cliente, dá `409` sem alterar dados. O próprio e-mail da conta não conta como conflito.
+- EP-008 só aceita o estado `Bloqueado` (sem distinguir maiúsculas); outro valor dá `400`. Bloquear uma conta já bloqueada, a própria conta do Administrador ou uma conta de Cliente dá `422`. O desbloqueio não faz parte do contrato.
+
+**Decisão sobre os tokens já emitidos (I066, critério 4):** o bloqueio e a mudança de perfil têm efeito imediato. Uma conta bloqueada deixa de iniciar sessão (EP-001 devolve `403`) e os tokens emitidos antes do bloqueio ou da mudança de perfil são rejeitados com `401` no pedido seguinte, porque cada pedido autenticado confirma o estado e o perfil atuais da conta (ver acima). Não é preciso revogar os tokens um a um na tabela `TokenRevogado`.
+
+**Divergência registada:** o campo `motivo` de EP-008 é aceite (até 500 caracteres), mas não é guardado, porque o Modelo de Dados (I016) não tem uma coluna para ele.
+
 ### Verificação manual
 
-O ficheiro `ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http` tem um pedido válido e um pedido por cada erro previsto de EP-001, EP-002 e EP-003. Os pedidos de EP-002 devem ser executados pela ordem do ficheiro. As palavras-passe das contas de demonstração ficam num ficheiro local `http-client.env.json.user` (ignorado pelo Git), como explicado no topo desse ficheiro.
+O ficheiro `ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http` tem um pedido válido e um pedido por cada erro previsto de EP-001 a EP-008 (os de EP-007 e EP-008 criam a sua própria conta para não alterar os dados de demonstração). Os pedidos de EP-002 devem ser executados pela ordem do ficheiro. As palavras-passe das contas de demonstração ficam num ficheiro local `http-client.env.json.user` (ignorado pelo Git), como explicado no topo desse ficheiro.
 
 ## CORS
 

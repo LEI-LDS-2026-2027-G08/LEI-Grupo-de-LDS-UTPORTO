@@ -771,6 +771,198 @@ Content-Type: application/json
 
 { "nome": "X", "email": "r.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
 
+# =============================================================================
+# I066 — Atualizar e bloquear contas de funcionário (EP-007, EP-008)
+#
+# Usa os logins das secções anteriores (loginAdmin, loginRececao e loginCliente).
+# Para não alterar as contas de demonstração, os pedidos trabalham sobre uma conta
+# nova, criada no primeiro pedido. Executar pela ordem do ficheiro.
+# =============================================================================
+
+### I066 · preparação — criar a conta usada nos pedidos seguintes (EP-006 · 201)
+# @name contaI066
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Conta I066",
+  "email": "i066.{{$random.uuid}}@clinica.test",
+  "telefone": "934567890",
+  "perfil": "Rececionista",
+  "podeRegistarApoio": false,
+  "passwordInicial": "Temp#2026"
+}
+
+### I066 · preparação — login com a conta criada (o token é usado depois do bloqueio)
+# @name loginContaI066
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-007 · 200 — mudar para Auxiliar Veterinário com apoio (formato de EP-005)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Conta I066 (atualizada)",
+  "email": "{{contaI066.response.body.$.email}}",
+  "telefone": "934 567 891",
+  "perfil": "AuxiliarVeterinario",
+  "podeRegistarApoio": true
+}
+
+### EP-007 · 401 — o token emitido com o perfil antigo deixa de ser aceite (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066.response.body.$.token}}
+
+### EP-007 · 200 — novo login com o perfil atual (necessário para os pedidos de EP-008)
+# @name loginContaI066Atualizada
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-007 · 200 — o Administrador altera os próprios dados mantendo o perfil
+PUT {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Administração (demonstração)", "email": "{{emailAdmin}}", "telefone": "910000001", "perfil": "Administrador", "podeRegistarApoio": false }
+
+### EP-007 · 400 — dados inválidos (nome vazio e e-mail inválido)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "", "email": "rec", "perfil": "Rececionista" }
+
+### EP-007 · 400 — perfil Cliente (em EP-006 é 422)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Cliente" }
+
+### EP-007 · 401 — sem token
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Rececionista" }
+
+### EP-007 · 403 — Rececionista
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Rececionista" }
+
+### EP-007 · 404 — conta inexistente
+PUT {{host}}/utilizadores/999999
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "nao.existe@clinica.test", "perfil": "Rececionista" }
+
+### EP-007 · 404 — conta de Cliente (não é conta de funcionário)
+PUT {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "João Costa", "email": "{{emailCliente}}", "perfil": "Rececionista" }
+
+### EP-007 · 409 — e-mail já usado por outra conta
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{emailRececao}}", "perfil": "Rececionista" }
+
+### EP-007 · 422 — o Administrador não pode remover o próprio perfil de Administrador
+PUT {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Administração (demonstração)", "email": "{{emailAdmin}}", "perfil": "Rececionista" }
+
+### EP-007 · 422 — podeRegistarApoio para um perfil diferente de AuxiliarVeterinario
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Veterinario", "podeRegistarApoio": true }
+
+### EP-008 · 400 — estado diferente de Bloqueado
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Ativo" }
+
+### EP-008 · 401 — sem token
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 403 — Rececionista
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 404 — conta inexistente
+PATCH {{host}}/utilizadores/999999/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 422 — o Administrador não pode bloquear a própria conta
+PATCH {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 422 — conta de Cliente
+PATCH {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · preparação — antes do bloqueio o token da conta é aceite (EP-003 · 200)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066Atualizada.response.body.$.token}}
+
+### EP-008 · 204 — bloquear a conta (sem corpo)
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado", "motivo": "Funcionário deixou a clínica." }
+
+### EP-008 · 401 — o token emitido antes do bloqueio deixa de ser aceite (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066Atualizada.response.body.$.token}}
+
+### EP-008 · 403 — a conta bloqueada já não inicia sessão (EP-001)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-008 · 422 — a conta já está bloqueada
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
 ###
 
 # =============================================================================

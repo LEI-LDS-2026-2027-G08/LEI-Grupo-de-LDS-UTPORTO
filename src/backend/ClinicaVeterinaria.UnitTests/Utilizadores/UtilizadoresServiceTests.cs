@@ -15,9 +15,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace ClinicaVeterinaria.UnitTests.Utilizadores;
 
 /// <summary>
-/// I065 — contas de funcionário (EP-004 a EP-006). Inclui os casos UT-F001-073 a UT-F001-082,
-/// UT-F001-098, UT-F001-099 e UT-TRV-001 da Especificação de Testes Unitários (I028, secções
-/// 7.1.8 e 7.6.1). As regras de formato (casos 078 a 082) estão no <see cref="CreateUtilizadorDto"/>
+/// I065 e I066 — contas de funcionário (EP-004 a EP-008). Inclui os casos UT-F001-073 a
+/// UT-F001-099 e UT-TRV-001 da Especificação de Testes Unitários (I028, secções 7.1.8 e 7.6.1). As regras de formato (casos 078 a 082) estão no <see cref="CreateUtilizadorDto"/>
 /// e dão 400 na validação automática do [ApiController]; por isso são verificadas no DTO.
 /// </summary>
 public class UtilizadoresServiceTests
@@ -424,6 +423,367 @@ public class UtilizadoresServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(cliente.Id));
     }
 
+    // ----- EP-007 — Atualizar conta de funcionário (I066) -----
+
+    [Fact(DisplayName = "UT-F001-083 — Atualizar REC_A para Veterinario muda o perfil e os dados e devolve a conta")]
+    public async Task AtualizarRececionistaParaVeterinario()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista, telefone: "910000002");
+        var pedido = PedidoAtualizacao("Rita Lopes", "rita.lopes" + Dominio, Perfis.Veterinario);
+        pedido.Telefone = " 910 000 099 ";
+
+        var atualizado = await CriarServico(db).AtualizarAsync(rececionista.Id, admin.Id, pedido);
+
+        var utilizador = await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id);
+        var funcionario = await db.Funcionarios.AsNoTracking().SingleAsync(f => f.UtilizadorId == rececionista.Id);
+        Assert.Equal(Perfis.Veterinario, utilizador.Perfil);
+        Assert.Equal("rita.lopes" + Dominio, utilizador.Email);
+        Assert.Equal(EstadosUtilizador.Ativo, utilizador.Estado);
+        Assert.Equal("Rita Lopes", funcionario.Nome);
+        Assert.Equal("910 000 099", funcionario.Telefone);
+        Assert.False(funcionario.PodeRegistarApoio);
+
+        Assert.Equal(rececionista.Id, atualizado.Id);
+        Assert.Equal("Rita Lopes", atualizado.Nome);
+        Assert.Equal("rita.lopes" + Dominio, atualizado.Email);
+        Assert.Equal("910 000 099", atualizado.Telefone);
+        Assert.Equal(Perfis.Veterinario, atualizado.Perfil);
+        Assert.Equal(EstadosUtilizador.Ativo, atualizado.Estado);
+        Assert.Equal(DataCriacaoExistente, atualizado.CriadoEm);
+        Assert.Equal(DateTimeKind.Utc, atualizado.CriadoEm.Kind);
+    }
+
+    [Fact(DisplayName = "UT-F001-084 — O perfil Cliente dá 400 (e não 422) e nada muda")]
+    public async Task AtualizarParaPerfilClienteERecusado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, Perfis.Cliente)));
+
+        await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
+    }
+
+    [Fact(DisplayName = "UT-F001-085 — O Administrador não pode remover o próprio perfil de Administrador (422)")]
+    public async Task AdministradorNaoRemoveOProprioPerfil()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+
+        await Assert.ThrowsAsync<UnprocessableEntityException>(() => CriarServico(db).AtualizarAsync(
+            admin.Id, admin.Id, PedidoAtualizacao("Ana Admin", admin.Email, Perfis.Rececionista)));
+
+        await ContaFicouInalteradaAsync(db, admin, "Ana Admin");
+    }
+
+    [Fact(DisplayName = "UT-F001-086 — O Administrador altera os próprios dados mantendo o perfil")]
+    public async Task AdministradorAlteraOsPropriosDados()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+
+        var atualizado = await CriarServico(db).AtualizarAsync(
+            admin.Id, admin.Id, PedidoAtualizacao("Ana Maria Admin", admin.Email, Perfis.Administrador));
+
+        Assert.Equal("Ana Maria Admin", atualizado.Nome);
+        Assert.Equal(Perfis.Administrador, atualizado.Perfil);
+        Assert.Equal(Perfis.Administrador, (await db.Utilizadores.AsNoTracking().SingleAsync()).Perfil);
+    }
+
+    [Fact(DisplayName = "I066 — O Administrador pode mudar o perfil de outro Administrador")]
+    public async Task AdministradorMudaPerfilDeOutroAdministrador()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var outro = await AdicionarFuncionarioAsync(db, "Bruno Admin", Perfis.Administrador);
+
+        var atualizado = await CriarServico(db).AtualizarAsync(
+            outro.Id, admin.Id, PedidoAtualizacao("Bruno Admin", outro.Email, Perfis.Rececionista));
+
+        Assert.Equal(Perfis.Rececionista, atualizado.Perfil);
+    }
+
+    [Fact(DisplayName = "UT-F001-087 — podeRegistarApoio num Veterinário dá 422 e nada muda")]
+    public async Task ApoioNumVeterinarioERecusado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var vet = await AdicionarFuncionarioAsync(db, "Vera Vet", Perfis.Veterinario);
+
+        await Assert.ThrowsAsync<UnprocessableEntityException>(() => CriarServico(db).AtualizarAsync(
+            vet.Id, admin.Id, PedidoAtualizacao("Vera Vet", vet.Email, Perfis.Veterinario, podeRegistarApoio: true)));
+
+        await ContaFicouInalteradaAsync(db, vet, "Vera Vet");
+    }
+
+    [Fact(DisplayName = "I066 — Um Auxiliar com apoio que muda de perfil sem retirar a autorização dá 422 (critério 3)")]
+    public async Task MudancaDePerfilComApoioERecusada()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var aux = await AdicionarFuncionarioAsync(db, "Carla Aux", Perfis.AuxiliarVeterinario, podeRegistarApoio: true);
+
+        await Assert.ThrowsAsync<UnprocessableEntityException>(() => CriarServico(db).AtualizarAsync(
+            aux.Id, admin.Id, PedidoAtualizacao("Carla Aux", aux.Email, Perfis.Veterinario, podeRegistarApoio: true)));
+
+        await ContaFicouInalteradaAsync(db, aux, "Carla Aux");
+        Assert.True((await db.Funcionarios.AsNoTracking().SingleAsync(f => f.UtilizadorId == aux.Id)).PodeRegistarApoio);
+    }
+
+    [Theory(DisplayName = "I066 — A autorização de apoio de um Auxiliar pode ser concedida ou retirada")]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public async Task AuxiliarAlteraAutorizacaoDeApoio(bool antes, bool depois)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var aux = await AdicionarFuncionarioAsync(db, "Carla Aux", Perfis.AuxiliarVeterinario, podeRegistarApoio: antes);
+
+        var atualizado = await CriarServico(db).AtualizarAsync(
+            aux.Id, admin.Id, PedidoAtualizacao("Carla Aux", aux.Email, Perfis.AuxiliarVeterinario, podeRegistarApoio: depois));
+
+        Assert.Equal(depois, atualizado.PodeRegistarApoio);
+        Assert.Equal(depois, (await db.Funcionarios.AsNoTracking().SingleAsync(f => f.UtilizadorId == aux.Id)).PodeRegistarApoio);
+    }
+
+    [Fact(DisplayName = "UT-F001-088 — O e-mail de outra conta dá 409 e nada muda")]
+    public async Task EmailDeOutraContaDaConflito()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+        var vet = await AdicionarFuncionarioAsync(db, "Vera Vet", Perfis.Veterinario);
+
+        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Lopes", vet.Email.ToUpperInvariant(), Perfis.Rececionista)));
+
+        Assert.Equal("O e-mail indicado já é usado por outra conta.", excecao.Message);
+        await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
+    }
+
+    [Fact(DisplayName = "I066 — O e-mail de uma conta de Cliente também dá 409")]
+    public async Task EmailDeClienteDaConflito()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+        var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", cliente.Email, Perfis.Rececionista)));
+
+        await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
+    }
+
+    [Fact(DisplayName = "UT-F001-089 — Manter o próprio e-mail (com outras maiúsculas) não é conflito")]
+    public async Task ProprioEmailNaoEConflito()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        var atualizado = await CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Lopes", rececionista.Email.ToUpperInvariant(), Perfis.Rececionista));
+
+        Assert.Equal(rececionista.Email, atualizado.Email);
+        Assert.Equal("Rita Lopes", atualizado.Nome);
+    }
+
+    [Fact(DisplayName = "UT-F001-090 — Um identificador inexistente dá 404")]
+    public async Task AtualizarContaInexistenteDaNaoEncontrado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+            999, admin.Id, PedidoAtualizacao("Rita Lopes", "rita.lopes" + Dominio, Perfis.Rececionista)));
+    }
+
+    [Fact(DisplayName = "I066 — Uma conta de Cliente dá 404 em EP-007 (só contas de funcionário)")]
+    public async Task AtualizarContaDeClienteDaNaoEncontrado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+            cliente.Id, admin.Id, PedidoAtualizacao("Joao Costa", cliente.Email, Perfis.Rececionista)));
+
+        Assert.Equal(Perfis.Cliente, (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == cliente.Id)).Perfil);
+    }
+
+    [Fact(DisplayName = "UT-F001-091 — Um e-mail sem formato válido dá 400 com o erro no campo email")]
+    public void EmailInvalidoNaAtualizacaoERecusado()
+    {
+        var pedido = PedidoAtualizacao("Rita Lopes", "rec", Perfis.Rececionista);
+
+        var erro = Assert.Single(ErrosDeValidacao(pedido));
+        Assert.Contains(nameof(UpdateUtilizadorDto.Email), erro.MemberNames);
+    }
+
+    [Theory(DisplayName = "I066 — Um perfil fora da enumeração dá 400 na atualização")]
+    [InlineData("Gestor")]
+    [InlineData("Auxiliar")]
+    public async Task PerfilInvalidoNaAtualizacaoERecusado(string perfil)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, perfil)));
+
+        await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
+    }
+
+    [Fact(DisplayName = "I066 — Depois da mudança de perfil, o token antigo deixa de ser aceite (EP-003)")]
+    public async Task MudancaDePerfilInvalidaOTokenAntigo()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+        var authService = CriarAuthService(db);
+        Assert.True(await authService.SessaoValidaAsync(rececionista.Id, Perfis.Rececionista, "jti-antigo"));
+
+        await CriarServico(db).AtualizarAsync(
+            rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, Perfis.Veterinario));
+
+        Assert.False(await authService.SessaoValidaAsync(rececionista.Id, Perfis.Rececionista, "jti-antigo"));
+    }
+
+    // ----- EP-008 — Bloquear conta de funcionário (I066) -----
+
+    [Fact(DisplayName = "UT-F001-092 — Bloquear REC_A ativo passa o estado a Bloqueado")]
+    public async Task BloquearContaAtiva()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await CriarServico(db).BloquearAsync(rececionista.Id, admin.Id, PedidoBloqueio());
+
+        Assert.Equal(
+            EstadosUtilizador.Bloqueado,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).Estado);
+        Assert.Equal(
+            EstadosUtilizador.Ativo,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == admin.Id)).Estado);
+    }
+
+    [Theory(DisplayName = "I066 — O estado Bloqueado é aceite sem distinguir maiúsculas e sem motivo")]
+    [InlineData("bloqueado")]
+    [InlineData(" BLOQUEADO ")]
+    public async Task EstadoBloqueadoSemDistinguirMaiusculas(string estado)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await CriarServico(db).BloquearAsync(rececionista.Id, admin.Id, new AlterarEstadoUtilizadorDto { Estado = estado });
+
+        Assert.Equal(
+            EstadosUtilizador.Bloqueado,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).Estado);
+    }
+
+    [Theory(DisplayName = "UT-F001-093 — Um estado diferente de Bloqueado dá 400 e a conta mantém-se ativa")]
+    [InlineData(EstadosUtilizador.Ativo)]
+    [InlineData("Suspenso")]
+    public async Task EstadoDiferenteDeBloqueadoERecusado(string estado)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).BloquearAsync(
+            rececionista.Id, admin.Id, new AlterarEstadoUtilizadorDto { Estado = estado }));
+
+        Assert.Equal(
+            EstadosUtilizador.Ativo,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).Estado);
+    }
+
+    [Fact(DisplayName = "I066 — Um pedido sem estado dá 400 na validação do DTO")]
+    public void PedidoSemEstadoERecusado()
+    {
+        var pedido = new AlterarEstadoUtilizadorDto();
+
+        var resultados = new List<ValidationResult>();
+        Assert.False(Validator.TryValidateObject(pedido, new ValidationContext(pedido), resultados, validateAllProperties: true));
+        Assert.Contains(nameof(AlterarEstadoUtilizadorDto.Estado), Assert.Single(resultados).MemberNames);
+    }
+
+    [Fact(DisplayName = "UT-F001-094 — Bloquear uma conta já bloqueada dá 422")]
+    public async Task BloquearContaJaBloqueadaERecusado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var bloqueado = await AdicionarFuncionarioAsync(db, "Rui Bloqueado", Perfis.Rececionista, EstadosUtilizador.Bloqueado);
+
+        var excecao = await Assert.ThrowsAsync<UnprocessableEntityException>(
+            () => CriarServico(db).BloquearAsync(bloqueado.Id, admin.Id, PedidoBloqueio()));
+
+        Assert.Equal("A conta já está bloqueada.", excecao.Message);
+    }
+
+    [Fact(DisplayName = "UT-F001-095 — O Administrador não pode bloquear a própria conta (422) e mantém-se ativo")]
+    public async Task AdministradorNaoSeBloqueia()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+
+        await Assert.ThrowsAsync<UnprocessableEntityException>(
+            () => CriarServico(db).BloquearAsync(admin.Id, admin.Id, PedidoBloqueio()));
+
+        Assert.Equal(EstadosUtilizador.Ativo, (await db.Utilizadores.AsNoTracking().SingleAsync()).Estado);
+    }
+
+    [Fact(DisplayName = "UT-F001-096 — Bloquear uma conta de Cliente dá 422 e a conta mantém-se ativa")]
+    public async Task BloquearClienteERecusado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
+
+        await Assert.ThrowsAsync<UnprocessableEntityException>(
+            () => CriarServico(db).BloquearAsync(cliente.Id, admin.Id, PedidoBloqueio()));
+
+        Assert.Equal(
+            EstadosUtilizador.Ativo,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == cliente.Id)).Estado);
+    }
+
+    [Fact(DisplayName = "UT-F001-097 — Bloquear um identificador inexistente dá 404")]
+    public async Task BloquearContaInexistenteDaNaoEncontrado()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => CriarServico(db).BloquearAsync(999, admin.Id, PedidoBloqueio()));
+    }
+
+    [Fact(DisplayName = "I066 — Depois do bloqueio, o login dá 403 e o token já emitido deixa de ser aceite (critério 4)")]
+    public async Task ContaBloqueadaNaoIniciaSessaoEPerdeOToken()
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        await CriarServico(db).CriarAsync(PedidoRui(Perfis.Rececionista, podeRegistarApoio: false));
+        var rui = await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Email == EmailRui);
+        var authService = CriarAuthService(db);
+        Assert.True(await authService.SessaoValidaAsync(rui.Id, Perfis.Rececionista, "jti-emitido"));
+
+        await CriarServico(db).BloquearAsync(rui.Id, admin.Id, PedidoBloqueio());
+
+        await Assert.ThrowsAsync<ForbiddenException>(() =>
+            authService.LoginAsync(new LoginRequestDto { Email = EmailRui, Password = PasswordInicial }));
+        Assert.False(await authService.SessaoValidaAsync(rui.Id, Perfis.Rececionista, "jti-emitido"));
+    }
+
     // ----- Preparação dos dados -----
 
     private static ClinicaDbContext CriarContexto() =>
@@ -446,6 +806,41 @@ public class UtilizadoresServiceTests
         PodeRegistarApoio = podeRegistarApoio,
         PasswordInicial = PasswordInicial
     };
+
+    /// <summary>Pedido de EP-007 com o telefone por omissão.</summary>
+    private static UpdateUtilizadorDto PedidoAtualizacao(
+        string nome, string email, string perfil, bool podeRegistarApoio = false) => new()
+    {
+        Nome = nome,
+        Email = email,
+        Telefone = "934567890",
+        Perfil = perfil,
+        PodeRegistarApoio = podeRegistarApoio
+    };
+
+    /// <summary>Pedido do exemplo de EP-008 da Documentação da API.</summary>
+    private static AlterarEstadoUtilizadorDto PedidoBloqueio() => new()
+    {
+        Estado = EstadosUtilizador.Bloqueado,
+        Motivo = "Funcionário deixou a clínica."
+    };
+
+    private static AuthService CriarAuthService(ClinicaDbContext db) => new(
+        db,
+        new PasswordHasher<Utilizador>(),
+        AjudaSeguranca.CriarTokenService(AjudaSeguranca.NovaChave(), new RelogioFixo(Relogio)),
+        NullLogger<AuthService>.Instance,
+        new RelogioFixo(Relogio));
+
+    /// <summary>A conta mantém o e-mail, o perfil, o estado e o nome que tinha antes do pedido recusado.</summary>
+    private static async Task ContaFicouInalteradaAsync(ClinicaDbContext db, Utilizador antes, string nome)
+    {
+        var utilizador = await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == antes.Id);
+        Assert.Equal(antes.Email, utilizador.Email);
+        Assert.Equal(antes.Perfil, utilizador.Perfil);
+        Assert.Equal(antes.Estado, utilizador.Estado);
+        Assert.Equal(nome, (await db.Funcionarios.AsNoTracking().SingleAsync(f => f.UtilizadorId == antes.Id)).Nome);
+    }
 
     /// <summary>Oito contas de funcionário (quatro perfis, duas bloqueadas) e duas de Cliente.</summary>
     private static async Task CriarBaseComTodosOsPerfisAsync(ClinicaDbContext db)
@@ -526,7 +921,7 @@ public class UtilizadoresServiceTests
         Assert.Empty(await db.Funcionarios.AsNoTracking().ToListAsync());
     }
 
-    private static List<ValidationResult> ErrosDeValidacao(CreateUtilizadorDto pedido)
+    private static List<ValidationResult> ErrosDeValidacao(UpdateUtilizadorDto pedido)
     {
         var resultados = new List<ValidationResult>();
         _ = Validator.TryValidateObject(pedido, new ValidationContext(pedido), resultados, validateAllProperties: true);
