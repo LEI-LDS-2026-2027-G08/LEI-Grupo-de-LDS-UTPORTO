@@ -14,8 +14,8 @@ public class CreateUtilizadorDto
     public string Nome { get; set; } = string.Empty;
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "O e-mail é obrigatório.")]
-    [EmailAddress(ErrorMessage = "O e-mail é inválido.")]
-    [MaxLength(256, ErrorMessage = "O e-mail não pode ter mais de 256 caracteres.")]
+    // Regra R-EMAIL (I028): o [EmailAddress] do .NET aceitava, por exemplo, "joao@mail".
+    [EmailValido]
     public string Email { get; set; } = string.Empty;
 
     // 9 a 20 caracteres no total (coluna Funcionario.Telefone NVARCHAR(20)), contando o + e os espaços.

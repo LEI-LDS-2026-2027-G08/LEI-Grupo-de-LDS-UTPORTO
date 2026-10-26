@@ -50,6 +50,8 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var consulta =
             from u in _db.Utilizadores.AsNoTracking()
             join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
+            // Garante que uma conta de Cliente nunca aparece, mesmo com dados incoerentes.
+            where u.Perfil != Perfis.Cliente
             select new { Utilizador = u, Funcionario = f };
 
         if (perfil is not null)
@@ -71,22 +73,31 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         var total = await consulta.CountAsync();
 
-        // Ordenação estável (critério 5): nome e, em caso de empate, identificador.
-        var itens = await consulta
-            .OrderBy(x => x.Funcionario.Nome)
-            .ThenBy(x => x.Utilizador.Id)
-            .Skip((filtro.Pagina - 1) * filtro.Tamanho)
-            .Take(filtro.Tamanho)
-            .Select(x => new UtilizadorListItemDto
-            {
-                Id = x.Utilizador.Id,
-                Nome = x.Funcionario.Nome,
-                Email = x.Utilizador.Email,
-                Perfil = x.Utilizador.Perfil,
-                Estado = x.Utilizador.Estado,
-                PodeRegistarApoio = x.Funcionario.PodeRegistarApoio
-            })
-            .ToListAsync();
+        // Em long: com uma página muito alta, (pagina - 1) * tamanho ultrapassava o limite
+        // de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
+        var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
+
+        List<UtilizadorListItemDto> itens = [];
+
+        if (salto < total)
+        {
+            // Ordenação estável (critério 5): nome e, em caso de empate, identificador.
+            itens = await consulta
+                .OrderBy(x => x.Funcionario.Nome)
+                .ThenBy(x => x.Utilizador.Id)
+                .Skip((int)salto)
+                .Take(filtro.Tamanho)
+                .Select(x => new UtilizadorListItemDto
+                {
+                    Id = x.Utilizador.Id,
+                    Nome = x.Funcionario.Nome,
+                    Email = x.Utilizador.Email,
+                    Perfil = x.Utilizador.Perfil,
+                    Estado = x.Utilizador.Estado,
+                    PodeRegistarApoio = x.Funcionario.PodeRegistarApoio
+                })
+                .ToListAsync();
+        }
 
         return new PagedResultDto<UtilizadorListItemDto>
         {
@@ -102,7 +113,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var dados = await (
                 from u in _db.Utilizadores.AsNoTracking()
                 join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
-                where u.Id == id
+                where u.Id == id && u.Perfil != Perfis.Cliente
                 select new { Utilizador = u, Funcionario = f })
             .FirstOrDefaultAsync()
             ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
