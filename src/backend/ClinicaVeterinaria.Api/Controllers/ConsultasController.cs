@@ -64,6 +64,7 @@ public sealed class ConsultasController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ConsultaDto>> GetConsulta(int id)
     {
+        int x = "texto"; // falha provocada (I102)
         var resultado = await _consultasService.ObterConsultaAsync(id, AcessoConsultas.DoUtilizador(User));
 
         Response.Headers.ETag = resultado.ETag;
