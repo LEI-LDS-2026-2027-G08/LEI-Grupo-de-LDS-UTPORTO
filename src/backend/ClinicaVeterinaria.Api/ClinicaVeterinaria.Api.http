@@ -1014,3 +1014,116 @@ GET {{host}}/me/animais/{{meusAnimaisJoao.response.body.$[0].id}}
 Authorization: Bearer {{loginVet.response.body.$.token}}
 
 ###
+
+# =============================================================================
+# I073 — Criar marcação (EP-025)
+#
+# Só a Rececionista cria marcações: usa "passwordRececao" do http-client.env.json.user.
+# dataHora é em UTC. 2026-11-25 é uma quarta-feira em hora de inverno, por isso a hora
+# UTC é igual à de Lisboa (horário: 09:00–13:00 e 14:00–19:00; domingo fechado).
+# Os ids abaixo são os de uma base reposta com os dados da I061 (animais Bobi = 1,
+# Kiko = 3; vet.ana = 4, vet.bruno = 5): confirmar em EP-015 e EP-021.
+# Executar os pedidos pela ordem: o 422 «indisponível» usa a marcação criada no 201.
+# Para repetir a sequência, repor a base de dados.
+# =============================================================================
+
+@idBobi = 1
+@idKiko = 3
+@idVetAnaMarcacao = 4
+
+### Login Rececionista (I073)
+# @name loginRececaoMarcacao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### EP-025 · 201 — Bobi com vet.ana, 25/11 às 10:00 (Location e ETag no cabeçalho)
+# @name criarMarcacao
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:00:00Z", "motivo": "Consulta de rotina" }
+
+### EP-024 · 200 — a marcação criada (mesmo ETag do 201)
+GET {{host}}/consultas/{{criarMarcacao.response.body.$.id}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### EP-025 · 201 — às 10:30 é aceite: só toca na marcação das 10:00
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idKiko}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:30:00Z" }
+
+### EP-025 · 400 — campos em falta (animalId e dataHora)
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "veterinarioId": {{idVetAnaMarcacao}} }
+
+### EP-025 · 400 — data no passado
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-01-14T10:00:00Z" }
+
+### EP-025 · 401 — sem token
+POST {{host}}/consultas
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 403 — Veterinário (vê a agenda, mas não cria marcações)
+POST {{host}}/consultas
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 403 — Administrador
+POST {{host}}/consultas
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 404 — animal inexistente
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": 999999, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 404 — conta que não é de Veterinário (a própria Rececionista)
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{loginRececaoMarcacao.response.body.$.utilizador.id}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 422 — fora do horário: 12:45 acaba às 13:15
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T12:45:00Z" }
+
+### EP-025 · 422 — fora do horário: domingo
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-29T10:00:00Z" }
+
+### EP-025 · 422 — vet.ana indisponível: 10:15 sobrepõe-se à marcação das 10:00
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idKiko}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:15:00Z" }
+
+###

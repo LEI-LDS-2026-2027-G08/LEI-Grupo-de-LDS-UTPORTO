@@ -4,7 +4,7 @@ using ClinicaVeterinaria.Application.Seguranca;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
-/// <summary>Agenda e consulta de marcações (EP-023, EP-024).</summary>
+/// <summary>Agenda, consulta e criação de marcações (EP-023 a EP-025).</summary>
 public interface IConsultasService
 {
     /// <summary>
@@ -19,4 +19,15 @@ public interface IConsultasService
     /// marcação de outro Veterinário, para um Veterinário: 403.
     /// </summary>
     Task<ConsultaComVersao> ObterConsultaAsync(int id, AcessoConsultas acesso);
+
+    /// <summary>
+    /// EP-025 — cria a marcação no estado <c>Pendente</c>, com a duração configurada, se o intervalo
+    /// couber inteiro num período do horário e não se sobrepuser a outra marcação não cancelada do
+    /// Veterinário. Devolve a marcação no formato de EP-024, com a versão (<c>ETag</c>).
+    /// Campos em falta ou data não futura: 400; animal ou Veterinário ativo inexistente: 404;
+    /// fora do horário ou Veterinário indisponível: 422.
+    /// </summary>
+    /// <param name="pedido">Animal, Veterinário, data e hora (UTC) e motivo.</param>
+    /// <param name="criadaPorId">Utilizador autenticado (Rececionista) que cria a marcação.</param>
+    Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId);
 }

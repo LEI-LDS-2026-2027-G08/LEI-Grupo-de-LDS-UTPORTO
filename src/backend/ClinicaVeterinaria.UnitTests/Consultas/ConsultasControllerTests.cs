@@ -29,13 +29,57 @@ public class ConsultasControllerTests
             Perfis.AuxiliarVeterinario + "," + Perfis.Rececionista + "," + Perfis.Veterinario,
             string.Join(',', autorizacao.Roles!.Split(',').Order(StringComparer.Ordinal)));
 
+        // I073: EP-025 acrescenta uma terceira ação, com a sua própria restrição (teste seguinte).
         var acoes = tipo.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-        Assert.Equal(2, acoes.Length);
-        Assert.All(acoes, acao =>
-        {
-            Assert.Empty(acao.GetCustomAttributes<AllowAnonymousAttribute>(inherit: true));
-            Assert.Empty(acao.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
-        });
+        Assert.Equal(3, acoes.Length);
+        Assert.All(acoes, acao => Assert.Empty(acao.GetCustomAttributes<AllowAnonymousAttribute>(inherit: true)));
+        Assert.Empty(tipo.GetMethod(nameof(ConsultasController.GetConsultas))!.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+        Assert.Empty(tipo.GetMethod(nameof(ConsultasController.GetConsulta))!.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+    }
+
+    [Fact(DisplayName = "I073 — EP-025 é POST /consultas e exige também a política Rececionista")]
+    public void CriarConsultaSoRececionista()
+    {
+        var acao = typeof(ConsultasController).GetMethod(nameof(ConsultasController.CriarConsulta))!;
+
+        Assert.Null(Assert.Single(acao.GetCustomAttributes<HttpPostAttribute>()).Template);
+        var autorizacao = Assert.Single(acao.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+        Assert.Equal(PoliticasAutorizacao.Rececionista, autorizacao.Policy);
+        Assert.Null(autorizacao.Roles);
+    }
+
+    [Fact(DisplayName = "I073 — EP-025 devolve 201 com Location, ETag e o utilizador do token como autor")]
+    public async Task CriarConsultaDevolve201()
+    {
+        var servico = new ConsultasServiceDeTeste();
+        // O utilizador do token (claim "sub") é 1 em AcessoConsultasTests.Principal.
+        var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.Rececionista));
+        var pedido = new CreateConsultaDto { AnimalId = 3, VeterinarioId = 5, DataHora = new DateTime(2026, 11, 25, 10, 0, 0, DateTimeKind.Utc) };
+
+        var resposta = await controlador.CriarConsulta(pedido);
+
+        var criada = Assert.IsType<CreatedAtActionResult>(resposta.Result);
+        Assert.Equal(nameof(ConsultasController.GetConsulta), criada.ActionName);
+        Assert.Equal(41, criada.RouteValues!["id"]);
+        Assert.Same(servico.Consulta, criada.Value);
+        Assert.Equal("\"AAAAAAAAB9E=\"", controlador.Response.Headers.ETag.ToString());
+        Assert.Same(pedido, servico.UltimoPedido);
+        Assert.Equal(1, servico.UltimoCriadaPorId);
+    }
+
+    [Fact(DisplayName = "I073 — EP-025 com um token sem identificador de utilizador dá 403 sem chamar o serviço")]
+    public async Task CriarConsultaSemUtilizadorNoToken()
+    {
+        var servico = new ConsultasServiceDeTeste();
+        var semSub = new ClaimsPrincipal(new ClaimsIdentity(
+            new[] { new Claim(ClaimsClinica.Perfil, Perfis.Rececionista) },
+            authenticationType: "Bearer",
+            nameType: ClaimsClinica.UtilizadorId,
+            roleType: ClaimsClinica.Perfil));
+        var controlador = CriarControlador(servico, semSub);
+
+        await Assert.ThrowsAsync<ForbiddenException>(() => controlador.CriarConsulta(new CreateConsultaDto()));
+        Assert.Null(servico.UltimoPedido);
     }
 
     [Fact(DisplayName = "I072 — As rotas são GET /consultas e GET /consultas/{id}")]
@@ -108,6 +152,10 @@ public class ConsultasControllerTests
 
         public int? UltimoId { get; private set; }
 
+        public CreateConsultaDto? UltimoPedido { get; private set; }
+
+        public int? UltimoCriadaPorId { get; private set; }
+
         public Task<PagedResultDto<ConsultaListItemDto>> ObterConsultasAsync(ConsultaFiltroQuery filtro, AcessoConsultas acesso)
         {
             UltimoFiltro = filtro;
@@ -120,6 +168,14 @@ public class ConsultasControllerTests
         {
             UltimoId = id;
             UltimoAcesso = acesso;
+
+            return Task.FromResult(new ConsultaComVersao(Consulta, "\"AAAAAAAAB9E=\""));
+        }
+
+        public Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId)
+        {
+            UltimoPedido = pedido;
+            UltimoCriadaPorId = criadaPorId;
 
             return Task.FromResult(new ConsultaComVersao(Consulta, "\"AAAAAAAAB9E=\""));
         }
