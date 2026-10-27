@@ -266,3 +266,36 @@ Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header
 Segredos não devem ser adicionados ao controlo de versões.
 
 Em desenvolvimento devem ser utilizados User Secrets. Nos restantes ambientes devem ser utilizadas variáveis de ambiente ou outro mecanismo seguro de gestão de segredos.
+
+## Disponibilidade dos Veterinários (EP-021, EP-022)
+
+`GET /veterinarios` (EP-021) lista os Veterinários com conta ativa, por nome. `GET /veterinarios/{id}/disponibilidade?dataInicio=AAAA-MM-DD&dataFim=AAAA-MM-DD` (EP-022) devolve, para cada dia do período, os horários livres do Veterinário. As duas operações são só para o perfil Rececionista.
+
+O cálculo está em `CalculadoraDisponibilidade` (`ClinicaVeterinaria.Application/Agenda`), uma função sem acesso à base de dados: recebe o horário de funcionamento, a duração das consultas, as marcações do Veterinário e o instante atual. O `VeterinariosService` só lê esses dados e prepara a resposta. `CalculadoraDisponibilidade.IntervaloDisponivel` aplica as mesmas regras a um intervalo qualquer, para ser usada na criação e alteração de marcações (EP-025, EP-026).
+
+Regras:
+
+- **Grelha:** os horários de cada período começam na abertura e repetem-se a cada `duracaoConsultaMinutos` (configuração de EP-010; 30 por omissão). Um horário só aparece se a consulta acabar até ao fecho do período.
+- **Marcações:** cada marcação não cancelada ocupa `[início, início + a sua duração)`. Um horário que se sobreponha a uma marcação não aparece; intervalos que só se tocam não se sobrepõem. As marcações `Cancelada` não ocupam horário.
+- **Hora local:** as marcações estão guardadas em UTC e o horário de funcionamento em hora de Lisboa (`Europe/Lisbon`). Os horários livres são devolvidos em hora de Lisboa (`HH:mm`), já com a hora de verão ou de inverno de cada dia. No dia da mudança para a hora de verão, uma hora que não existe (por exemplo, 01:00) não é um horário.
+- **Passado:** os horários que começam antes do instante atual não são devolvidos; um dia já passado aparece com a lista vazia.
+- **Período:** `dataInicio` é obrigatória; sem `dataFim`, o período é um só dia. `dataFim` não pode ser anterior a `dataInicio` e o período tem no máximo 31 dias, contando os dois extremos. As datas têm de estar entre 2000-01-01 e 9998-12-31. Caso contrário: `400`.
+- **Veterinário:** um id que não é de um Veterinário com conta ativa (inexistente, de outro perfil ou bloqueado) dá `404`.
+
+Exemplos com o horário dos dados da I061 (segunda a sexta 09:00–13:00 e 14:00–19:00; sábado 09:00–13:00) e consultas de 30 minutos:
+
+| Situação | Resultado |
+|---|---|
+| Dia útil sem marcações | 18 horários: `09:00` a `12:30` e `14:00` a `18:30` |
+| Fecho do período | `12:30` aparece (acaba às 13:00); `13:00` e `19:00` não |
+| Marcação às 10:00 (30 minutos) | `10:00` não aparece; `09:30` e `10:30` aparecem |
+| Marcação às 10:15 com 60 minutos | `10:00`, `10:30` e `11:00` não aparecem; `09:30` e `11:30` aparecem |
+| Marcação cancelada às 10:00 | `10:00` aparece |
+| Sábado | `09:00` a `12:30` |
+| Domingo | dia devolvido com a lista vazia |
+| Consultas de 45 minutos | manhã: `09:00`, `09:45`, `10:30`, `11:15`, `12:00` |
+| Hoje às 09:10 | o primeiro horário é `09:30` |
+| `dataInicio=2026-10-01&dataFim=2026-10-31` | aceite (31 dias) |
+| `dataInicio=2026-10-01&dataFim=2026-11-01` | `400` (32 dias) |
+
+Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `ValidadorPeriodoDisponibilidadeTests` e `VeterinariosServiceTests` (UT-F003-001 a UT-F003-018 da Especificação de Testes Unitários). Com a API e o SQL Server, `VeterinariosEndpointsTests` verifica um pedido válido e cada código de erro (200, 400, 401, 403 e 404). Os pedidos de verificação manual estão na secção I071 de `ClinicaVeterinaria.Api.http`.
