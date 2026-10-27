@@ -295,6 +295,110 @@ Content-Type: application/json
 ###
 
 # =============================================================================
+# I072 — Agenda e consulta de marcações (EP-023, EP-024)
+#
+# Usa "passwordRececao", "passwordVet" (vet.ana) e "passwordAux" (aux.carla) do
+# http-client.env.json.user.
+# Marcações da I061 (horas em UTC; em outubro, Lisboa = UTC+1 até dia 25):
+#   M1 Bobi/vet.ana 2026-10-14 09:30 Realizada (nota de preparação e registo clínico)
+#   M2 Mia/vet.bruno 2026-10-20 10:00 Cancelada
+#   M3 Kiko/vet.ana 2026-11-03 09:00 Confirmada
+#   M4 Luna/vet.bruno 2026-11-04 14:30 Pendente
+#   M5 Bobi/vet.ana 2026-11-05 11:00 Pendente
+# Os ids abaixo são os de uma base reposta com os dados da I061: confirmar na
+# resposta do primeiro pedido (a agenda vem por data, por isso M1 é o primeiro).
+# =============================================================================
+
+@idConsultaM1 = 1
+@idConsultaM4 = 4
+@idVeterinarioBruno = 5
+
+### Login Rececionista (I072)
+# @name loginRececaoConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### Login Veterinário vet.ana (I072)
+# @name loginVetConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### Login Auxiliar Veterinário aux.carla (I072)
+# @name loginAuxConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "aux.carla@clinica-g08.test", "password": "{{passwordAux}}" }
+
+### EP-023 · 200 — Rececionista: agenda do período (M1 a M5, por data)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Rececionista: filtro por Veterinário e estado (só M4)
+GET {{host}}/consultas?veterinarioId={{idVeterinarioBruno}}&estado=Pendente
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Veterinário: só as suas (M1, M3 e M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Veterinário com o veterinarioId de vet.bruno: ignorado (M1, M3 e M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05&veterinarioId={{idVeterinarioBruno}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Auxiliar Veterinário: agenda de todos (M1 a M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginAuxConsultas.response.body.$.token}}
+
+### EP-023 · 400 — dataFim anterior a dataInicio
+GET {{host}}/consultas?dataInicio=2026-10-15&dataFim=2026-10-14
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 400 — estado inválido
+GET {{host}}/consultas?estado=Faturada
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 401 — sem token
+GET {{host}}/consultas
+
+### EP-023 · 403 — Administrador
+GET {{host}}/consultas
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-024 · 200 — Rececionista: M1 com a nota de preparação (ver o cabeçalho ETag)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-024 · 200 — Auxiliar: M1 com a nota e sem dados clínicos (sem diagnóstico, tratamentos ou prescrições)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginAuxConsultas.response.body.$.token}}
+
+### EP-024 · 200 — Veterinário atribuído (vet.ana lê M1)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-024 · 403 — marcação de outro Veterinário (vet.ana lê M4, de vet.bruno)
+GET {{host}}/consultas/{{idConsultaM4}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-024 · 404 — marcação inexistente
+GET {{host}}/consultas/999999
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-024 · 401 — sem token
+GET {{host}}/consultas/{{idConsultaM1}}
+
+### EP-024 · 403 — Administrador
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+###
+
+# =============================================================================
 # I067 — Dados gerais e horário de funcionamento da clínica (EP-009, EP-010)
 #
 # Acrescentar ao http-client.env.json.user: "passwordRececao" (conta rececao@).

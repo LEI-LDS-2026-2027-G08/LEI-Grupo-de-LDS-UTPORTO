@@ -226,6 +226,8 @@ Cors__AllowedOrigins__0
 Cors__AllowedOrigins__1
 ```
 
+A política expõe o cabeçalho `ETag` (`Access-Control-Expose-Headers`), para o frontend web poder ler a versão da marcação devolvida por EP-024 (Documentação de API v02, secção 5.1). O cabeçalho `If-Match`, que a I074 vai usar, já é aceite por `AllowAnyHeader`.
+
 ## Tratamento de erros
 
 A API possui tratamento transversal de erros com formato JSON uniforme:
@@ -260,6 +262,32 @@ A infraestrutura transversal regista:
 - erros.
 
 Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header `Authorization`.
+
+## Agenda e consulta de marcações (EP-023, EP-024)
+
+`GET /consultas` (EP-023) devolve a agenda paginada (`PagedResultDto<ConsultaListItemDto>`) e `GET /consultas/{id}` (EP-024) devolve uma marcação com as notas de preparação (`ConsultaDto`). Os dois são da Rececionista, do Veterinário e do Auxiliar Veterinário; o Administrador e o Cliente recebem `403`.
+
+**Quem vê o quê.** A Rececionista e o Auxiliar Veterinário veem as marcações de todos os Veterinários e podem filtrar por `veterinarioId`. O Veterinário só vê as que lhe estão atribuídas: o servidor ignora o `veterinarioId` do pedido e usa a claim `veterinarioId` do token (RNF002). Em EP-024, uma marcação de outro Veterinário dá `403` e uma marcação inexistente dá `404` (para qualquer perfil). A regra está em `AcessoConsultas` (`ClinicaVeterinaria.Application/Seguranca`), que lê o perfil e o Veterinário do token.
+
+**Filtros de EP-023** (todos opcionais):
+
+- `dataInicio` e `dataFim` são dias em hora de Lisboa (`AAAA-MM-DD`) e incluem os dois extremos. Conta o início da marcação: de `dataInicio` 00:00 a `dataFim` 24:00, hora local, convertidos para UTC (regra R-FUSO). Só com `dataInicio`, vêm as marcações dessa data em diante; só com `dataFim`, até ao fim desse dia. Ao contrário de EP-022, não há um limite de dias, porque a resposta é paginada.
+- `dataFim` anterior a `dataInicio`, ou datas fora de 2000-01-01 a 9998-12-31, dão `400`. Uma data com formato inválido (por exemplo, `2026-13-40`) também dá `400`, com a mensagem do ASP.NET Core.
+- `estado` aceita `Pendente`, `Confirmada`, `Realizada` ou `Cancelada`, sem distinguir maiúsculas; outro valor dá `400`. Sem `estado`, a agenda inclui todos os estados, também as marcações canceladas.
+- `veterinarioId` e `animalId`, quando indicados, têm de ser superiores a 0 (`400`).
+- `pagina` (1 por omissão) e `tamanho` (20 por omissão, de 1 a 100), como nas outras listas. As marcações vêm por data e hora e, em caso de empate, por identificador.
+
+| Pedido | Marcação às 23:30 UTC de 24/10 (00:30 de 25/10 em Lisboa) | Marcação às 23:30 UTC de 25/10 (23:30 de 25/10 em Lisboa) |
+|---|---|---|
+| `dataInicio=dataFim=2026-10-24` | não | não |
+| `dataInicio=dataFim=2026-10-25` | sim | sim |
+| `dataInicio=dataFim=2026-10-26` | não | não |
+
+**Sem dados clínicos (critério 5).** `ConsultaListItemDto`, `ConsultaDto` e `NotaPreparacaoDto` só têm dados administrativos (data e hora, duração, estado, motivo, chegada, animal, proprietário e Veterinário) e as notas de preparação. O `ConsultasService` não lê o registo clínico, os tratamentos nem as prescrições. A resposta é a mesma para os três perfis, por isso o Auxiliar Veterinário, com ou sem autorização de apoio, recebe as notas e nenhum dado clínico. O telefone do proprietário (`cliente.telefone`) vem a `null`: só é devolvido na ficha do animal (EP-016).
+
+**Versão da marcação.** EP-024 devolve o cabeçalho `ETag` com a versão atual (`Marcacao.RowVersion` em Base64, entre aspas, por exemplo `"AAAAAAAAB9E="`), calculado em `VersaoMarcacao` (`ClinicaVeterinaria.Application/Agenda`). A comparação com `If-Match` e a resposta `412` são da I074 (EP-026 a EP-028).
+
+As datas e horas da resposta (`dataHora`, `chegadaEm`, `criadaEm`) estão em UTC, com o sufixo `Z`.
 
 ## Segurança
 
