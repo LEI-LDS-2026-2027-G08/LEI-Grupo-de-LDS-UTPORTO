@@ -389,6 +389,89 @@ Content-Type: application/json
 ###
 
 # =============================================================================
+# I071 — Veterinários e disponibilidade (EP-021, EP-022)
+#
+# Só a Rececionista tem acesso: usa "passwordRececao" do http-client.env.json.user.
+# Dados da I061: Veterinários ativos vet.ana e vet.bruno; horário padrão (segunda
+# a sexta 09:00–13:00 e 14:00–19:00; sábado 09:00–13:00; domingo fechado);
+# marcações M3 (vet.ana, 2026-11-03 09:00), M4 (vet.bruno, 2026-11-04 14:30) e
+# M5 (vet.ana, 2026-11-05 11:00), em hora de Lisboa.
+# Os ids abaixo são os de uma base reposta com os dados da I061: confirmar na
+# resposta de EP-021 (o id da Rececionista vem do login).
+# Os horários são devolvidos em hora de Lisboa e os que já começaram não aparecem.
+# =============================================================================
+
+@idVetAna = 4
+@idVetBruno = 5
+
+### Login Rececionista (I071)
+# @name loginRececaoAgenda
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### EP-021 · 200 — Veterinários ativos, por nome
+GET {{host}}/veterinarios
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-021 · 401 — sem token
+GET {{host}}/veterinarios
+
+### EP-021 · 403 — Administrador
+GET {{host}}/veterinarios
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-022 · 200 — vet.ana, três dias: 09:00 ocupado a 03/11 (M3) e 11:00 a 05/11 (M5)
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-03&dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — sem dataFim (um só dia): vet.bruno a 04/11, 14:30 ocupado (M4)
+GET {{host}}/veterinarios/{{idVetBruno}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — sábado só de manhã e domingo com a lista vazia
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-07&dataFim=2026-11-08
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — 31 dias (limite)
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-01&dataFim=2026-12-01
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — dataInicio em falta
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — data inválida
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-13-40
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — período de 32 dias
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-01&dataFim=2026-12-02
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — dataFim anterior a dataInicio
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-05&dataFim=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 404 — Veterinário inexistente
+GET {{host}}/veterinarios/999999/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 404 — conta que não é de Veterinário (a própria Rececionista)
+GET {{host}}/veterinarios/{{loginRececaoAgenda.response.body.$.utilizador.id}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 401 — sem token
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-04
+
+### EP-022 · 403 — Administrador
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+###
+
+# =============================================================================
 # I069 — Gestão de pacientes (EP-015 a EP-018)
 #
 # Acrescentar ao http-client.env.json.user:
