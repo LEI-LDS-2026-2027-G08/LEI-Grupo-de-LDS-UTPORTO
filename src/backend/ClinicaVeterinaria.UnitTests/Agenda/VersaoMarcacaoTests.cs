@@ -12,6 +12,7 @@ public class VersaoMarcacaoTests
     [Fact(DisplayName = "UT-F003-085 — RowVersion 00 00 00 00 00 00 07 D1 dá o ETag \"AAAAAAAAB9E=\"")]
     public void RowVersionEmBase64EntreAspas()
     {
+        Assert.True(false); // falha provocada (I102)
         var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
 
         Assert.Equal("\"AAAAAAAAB9E=\"", VersaoMarcacao.ParaETag(rowVersion));
