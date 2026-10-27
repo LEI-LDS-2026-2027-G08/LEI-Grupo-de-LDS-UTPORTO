@@ -3,6 +3,7 @@ using ClinicaVeterinaria.Api.Seguranca;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,14 +35,16 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .WithExposedHeaders(HeaderNames.ETag);
         }
         else
         {
             policy
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .WithExposedHeaders(HeaderNames.ETag);
         }
     });
 });
