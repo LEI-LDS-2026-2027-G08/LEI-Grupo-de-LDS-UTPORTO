@@ -573,4 +573,122 @@ public sealed class ConsultasService : IConsultasService
         public int VeterinarioId { get; set; }
         public string VeterinarioNome { get; set; } = string.Empty;
     }
+    /// <summary>EP-028 — marcação que não está Confirmada (422).</summary>
+    public const string MensagemChegadaNaoConfirmada = "Só é possível registar a chegada numa marcação Confirmada.";
+
+    /// <summary>EP-028 — chegada já registada (422).</summary>
+    public const string MensagemChegadaJaRegistada = "A chegada desta marcação já foi registada.";
+
+    /// <summary>EP-029 — Auxiliar sem autorização de registo de apoio (403).</summary>
+    public const string MensagemSemAutorizacaoApoio =
+        "O Auxiliar Veterinário autenticado não tem autorização para registar informação de apoio.";
+
+    /// <summary>EP-029 — marcação Cancelada (422).</summary>
+    public const string MensagemNotaMarcacaoCancelada =
+        "Não é possível registar notas de preparação numa marcação Cancelada.";
+
+    public async Task<ChegadaComVersao> RegistarChegadaAsync(int id, string? ifMatch)
+    {
+        var marcacao = await _db.Marcacoes.FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+
+        if (!VersaoMarcacao.CorrespondeIfMatch(marcacao.RowVersion, ifMatch))
+        {
+            throw new PreconditionFailedException(
+                "A versão indicada em If-Match não corresponde à versão atual da marcação.");
+        }
+
+        // A chegada só é aceite uma vez e só em marcações Confirmadas.
+        if (marcacao.DataHoraChegada is not null)
+        {
+            throw new UnprocessableEntityException(MensagemChegadaJaRegistada);
+        }
+
+        if (marcacao.Estado != EstadosConsulta.Confirmada)
+        {
+            throw new UnprocessableEntityException(MensagemChegadaNaoConfirmada);
+        }
+
+        var agora = ParaUtcAoSegundo(_relogio.GetUtcNow().UtcDateTime);
+
+        marcacao.DataHoraChegada = agora;
+        marcacao.DataUltimaAlteracao = agora;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException erro)
+        {
+            // Dois pedidos ao mesmo tempo: a RowVersion só deixa gravar o primeiro (IT-CONC-04).
+            throw new PreconditionFailedException(
+                "A marcação foi alterada por outro pedido. Obtenha a versão atual e tente novamente.",
+                erro);
+        }
+
+        return new ChegadaComVersao(
+            new ChegadaDto { Id = marcacao.Id, ChegadaEm = agora },
+            VersaoMarcacao.ParaETag(marcacao.RowVersion));
+    }
+
+    public async Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(
+        int id,
+        CreateNotaPreparacaoDto pedido,
+        int auxiliarId)
+    {
+        ArgumentNullException.ThrowIfNull(pedido);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(auxiliarId);
+
+        Validar(pedido);
+
+        // A autorização é lida da base de dados em cada pedido e nunca do token.
+        var auxiliar = await (
+                from u in _db.Utilizadores.AsNoTracking()
+                join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
+                where u.Id == auxiliarId
+                      && u.Perfil == Perfis.AuxiliarVeterinario
+                      && u.Estado == EstadosUtilizador.Ativo
+                select new { f.Nome, f.PodeRegistarApoio })
+            .FirstOrDefaultAsync();
+
+        if (auxiliar is null || !auxiliar.PodeRegistarApoio)
+        {
+            throw new ForbiddenException(MensagemSemAutorizacaoApoio);
+        }
+
+        // A marcação só é lida: a nota não a altera.
+        var estado = await _db.Marcacoes.AsNoTracking()
+            .Where(m => m.Id == id)
+            .Select(m => m.Estado)
+            .FirstOrDefaultAsync()
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+
+        // Só Cancelada impede o registo; Realizada é aceite.
+        if (estado == EstadosConsulta.Cancelada)
+        {
+            throw new UnprocessableEntityException(MensagemNotaMarcacaoCancelada);
+        }
+
+        var agora = ParaUtcAoSegundo(_relogio.GetUtcNow().UtcDateTime);
+
+        var nota = new InformacaoApoio
+        {
+            MarcacaoId = id,
+            AuxiliarId = auxiliarId,
+            Descricao = pedido.Texto!.Trim(),
+            DataRegisto = agora
+        };
+
+        _db.InformacoesApoio.Add(nota);
+        await _db.SaveChangesAsync();
+
+        return new NotaPreparacaoDto
+        {
+            Id = nota.Id,
+            ConsultaId = id,
+            Texto = nota.Descricao,
+            Autor = auxiliar.Nome,
+            CriadaEm = agora
+        };
+    }
 }
