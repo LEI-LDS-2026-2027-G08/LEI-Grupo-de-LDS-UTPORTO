@@ -1,0 +1,5669 @@
+{
+  "info": {
+    "name": "Clínica Veterinária G08 — API m3 (EP-001 a EP-020)",
+    "description": "I098 — Collection Postman da API do backend: identidade, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020).\n\nUsar com o ambiente m3-ambiente-postman-v01.json, com as palavras-passe das contas de demonstração preenchidas localmente (não estão no repositório). Executar a collection inteira e pela ordem: a pasta 00 guarda os tokens por perfil e as pastas seguintes guardam os identificadores que criam.\n\nConvenções: ver o README.md da pasta 03.01.05-postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Executado depois de cada pedido da collection.",
+          "pm.test(\"Não expõe palavras-passe nem hashes\", function () {",
+          "    pm.expect(pm.response.text()).to.not.match(/passwordHash|\"password\"/i);",
+          "});",
+          "",
+          "if (pm.response.code >= 400) {",
+          "    pm.test(\"Erro no formato único da API (code, message, detail)\", function () {",
+          "        const erro = pm.response.json();",
+          "        pm.expect(erro.code).to.eql(pm.response.code);",
+          "        pm.expect(erro.message).to.be.a(\"string\").and.not.empty;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 · Preparação — sessões por perfil",
+      "description": "Um login por perfil (EP-001 · 200). Cada pedido guarda o token no ambiente (tokenAdmin, tokenRececionista, tokenVeterinario, tokenAuxiliar, tokenCliente), reutilizado por todos os pedidos seguintes. Executar primeiro.",
+      "item": [
+        {
+          "name": "EP-001 · 200 — iniciar sessão (Administrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Administrador\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Administrador\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenAdmin\", corpo.token);",
+                  "        pm.environment.set(\"adminId\", corpo.utilizador.id);",
+                  "    }",
+                  "    pm.test(\"O Administrador não tem clienteId\", function () {",
+                  "        pm.expect(corpo.utilizador.clienteId).to.be.null;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAdmin}}\",\n  \"password\": \"{{passwordAdmin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 200 — iniciar sessão (Rececionista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Rececionista\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Rececionista\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenRececionista\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailRececionista}}\",\n  \"password\": \"{{passwordRececionista}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 200 — iniciar sessão (Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Veterinario\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Veterinario\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenVeterinario\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailVeterinario}}\",\n  \"password\": \"{{passwordVeterinario}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 200 — iniciar sessão (Auxiliar Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil AuxiliarVeterinario\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"AuxiliarVeterinario\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenAuxiliar\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAuxiliar}}\",\n  \"password\": \"{{passwordAuxiliar}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 200 — iniciar sessão (Cliente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Cliente\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Cliente\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenCliente\", corpo.token);",
+                  "        pm.environment.set(\"clienteId\", corpo.utilizador.clienteId);",
+                  "        pm.environment.set(\"clienteUtilizadorId\", corpo.utilizador.id);",
+                  "    }",
+                  "    pm.test(\"O Cliente tem clienteId\", function () {",
+                  "        pm.expect(corpo.utilizador.clienteId).to.be.a(\"number\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailCliente}}\",\n  \"password\": \"{{passwordCliente}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 · Autenticação (EP-001 a EP-003)",
+      "description": "Erros de EP-001, utilizador autenticado (EP-003) e fim de sessão (EP-002). O fim de sessão usa uma sessão própria (tokenFimSessao), para não invalidar o token do Administrador.",
+      "item": [
+        {
+          "name": "EP-001 · 400 — e-mail em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"Qualquer#2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 400 — palavra-passe em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAdmin}}\",\n  \"password\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 401 — palavra-passe incorreta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Não devolve token\", function () {",
+                  "        pm.expect(corpo.token).to.be.undefined;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAdmin}}\",\n  \"password\": \"Errada#0000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 401 — e-mail inexistente (mesma resposta)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nao.existe@clinica-g08.test\",\n  \"password\": \"Errada#0000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-001 · 403 — conta bloqueada (palavra-passe correta)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailBloqueada}}\",\n  \"password\": \"{{passwordBloqueada}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-003 · 200 — utilizador autenticado (Administrador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve o Administrador do token\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"adminId\"));",
+                  "        pm.expect(corpo.perfil).to.eql(\"Administrador\");",
+                  "        pm.expect(corpo.email).to.eql(pm.environment.get(\"emailAdmin\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-003 · 200 — utilizador autenticado (Cliente, com clienteId)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve o Cliente com clienteId\", function () {",
+                  "        pm.expect(corpo.perfil).to.eql(\"Cliente\");",
+                  "        pm.expect(corpo.clienteId).to.eql(pm.environment.get(\"clienteId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-003 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-003 · 401 — token adulterado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}x"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-003 · 401 — token assinado com outra chave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.BAa2k5tgdKPMS594lDkv6hXJssVjeE9xAEHYr4b3xN8"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-002 · preparação — iniciar a sessão a terminar (EP-001 · 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Administrador\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Administrador\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenFimSessao\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAdmin}}\",\n  \"password\": \"{{passwordAdmin}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-002 · 204 — terminar sessão",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "    pm.test(\"Sem corpo\", function () {",
+                  "        pm.expect(pm.response.text()).to.be.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenFimSessao}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-002 · 401 — o token terminado deixa de ser aceite (EP-003)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenFimSessao}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-002 · 401 — terminar sessão outra vez com o token revogado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenFimSessao}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-002 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Contas de funcionário (EP-004 a EP-008)",
+      "description": "Só o Administrador. EP-007 e EP-008 trabalham sobre uma conta criada em EP-006 (funcionarioNovoId), para não alterar as contas de demonstração. Executar pela ordem.",
+      "item": [
+        {
+          "name": "EP-004 · 200 — listar contas de funcionário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Envelope paginado (itens, pagina, tamanho, total)\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\");",
+                  "        pm.expect(corpo.pagina).to.be.a(\"number\");",
+                  "        pm.expect(corpo.tamanho).to.be.a(\"number\");",
+                  "        pm.expect(corpo.total).to.be.a(\"number\");",
+                  "    });",
+                  "    pm.test(\"Nunca lista contas de Cliente\", function () {",
+                  "        corpo.itens.forEach(function (u) { pm.expect(u.perfil).to.not.eql(\"Cliente\"); });",
+                  "    });",
+                  "    pm.test(\"Cada conta tem id, nome, e-mail, perfil e estado\", function () {",
+                  "        corpo.itens.forEach(function (u) { pm.expect(u).to.include.keys(\"id\", \"nome\", \"email\", \"perfil\", \"estado\", \"podeRegistarApoio\"); });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-004 · 200 — filtrar por perfil e estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Só Veterinários ativos\", function () {",
+                  "        pm.expect(corpo.itens).to.not.be.empty;",
+                  "        corpo.itens.forEach(function (u) { pm.expect(u.perfil).to.eql(\"Veterinario\"); pm.expect(u.estado).to.eql(\"Ativo\"); });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores?perfil=Veterinario&estado=Ativo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ],
+              "query": [
+                {
+                  "key": "perfil",
+                  "value": "Veterinario"
+                },
+                {
+                  "key": "estado",
+                  "value": "Ativo"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-004 · 400 — perfil fora da enumeração",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores?perfil=Gestor",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ],
+              "query": [
+                {
+                  "key": "perfil",
+                  "value": "Gestor"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-004 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-004 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-005 · 200 — consultar conta de funcionário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a conta do Administrador\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"adminId\"));",
+                  "        pm.expect(corpo.perfil).to.eql(\"Administrador\");",
+                  "        pm.expect(corpo.criadoEm).to.be.a(\"string\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{adminId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-005 · 404 — conta de Cliente não é conta de funcionário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{clienteUtilizadorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{clienteUtilizadorId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-005 · 404 — conta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-005 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{adminId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-005 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{adminId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 201 — criar conta de funcionário (Rececionista)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.environment.set(\"funcionarioNovoEmail\", \"i098.func.\" + Date.now() + \"@clinica-g08.test\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Conta ativa com os dados enviados\", function () {",
+                  "        pm.expect(corpo.email).to.eql(pm.environment.get(\"funcionarioNovoEmail\"));",
+                  "        pm.expect(corpo.perfil).to.eql(\"Rececionista\");",
+                  "        pm.expect(corpo.estado).to.eql(\"Ativo\");",
+                  "    });",
+                  "    pm.test(\"Location indica a conta criada\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/utilizadores/\" + corpo.id);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"funcionarioNovoId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Funcionário I098\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"telefone\": \"934567890\",\n  \"perfil\": \"Rececionista\",\n  \"podeRegistarApoio\": false,\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 400 — palavra-passe fraca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Fraca\",\n  \"email\": \"i098.fraca@clinica-g08.test\",\n  \"perfil\": \"Rececionista\",\n  \"passwordInicial\": \"12345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 409 — e-mail já registado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Duplicado\",\n  \"email\": \"{{emailRececionista}}\",\n  \"perfil\": \"Rececionista\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 422 — perfil Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente\",\n  \"email\": \"i098.cliente422@clinica-g08.test\",\n  \"perfil\": \"Cliente\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 422 — podeRegistarApoio para um Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Vet\",\n  \"email\": \"i098.vet422@clinica-g08.test\",\n  \"perfil\": \"Veterinario\",\n  \"podeRegistarApoio\": true,\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"email\": \"i098.x@clinica-g08.test\",\n  \"perfil\": \"Rececionista\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"email\": \"i098.x@clinica-g08.test\",\n  \"perfil\": \"Rececionista\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-006 · 200 — a conta criada inicia sessão (EP-001)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Rececionista\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Rececionista\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenFuncionarioNovo\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"password\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 200 — atualizar e atribuir o perfil Auxiliar com apoio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a conta atualizada (formato de EP-005)\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"funcionarioNovoId\"));",
+                  "        pm.expect(corpo.nome).to.eql(\"Funcionário I098 (atualizado)\");",
+                  "        pm.expect(corpo.perfil).to.eql(\"AuxiliarVeterinario\");",
+                  "        pm.expect(corpo.podeRegistarApoio).to.be.true;",
+                  "        pm.expect(corpo.criadoEm).to.be.a(\"string\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Funcionário I098 (atualizado)\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"telefone\": \"934 567 891\",\n  \"perfil\": \"AuxiliarVeterinario\",\n  \"podeRegistarApoio\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 401 — o token com o perfil antigo deixa de ser aceite (EP-003)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenFuncionarioNovo}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 400 — dados inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"email\": \"rec\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 400 — perfil Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Funcionário I098\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"perfil\": \"Cliente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 404 — conta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"email\": \"i098.inexistente@clinica-g08.test\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 409 — e-mail usado por outra conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Funcionário I098\",\n  \"email\": \"{{emailRececionista}}\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 422 — o Administrador remove o próprio perfil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Administração\",\n  \"email\": \"{{emailAdmin}}\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{adminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{adminId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 422 — podeRegistarApoio para um perfil diferente de Auxiliar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Funcionário I098\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"perfil\": \"Veterinario\",\n  \"podeRegistarApoio\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-007 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"perfil\": \"Rececionista\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · preparação — sessão da conta com o perfil atual (EP-001 · 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil AuxiliarVeterinario\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"AuxiliarVeterinario\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenFuncionarioNovo\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"password\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 400 — estado diferente de Bloqueado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Ativo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 404 — conta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{idInexistente}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{idInexistente}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 422 — o Administrador bloqueia a própria conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{adminId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{adminId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 422 — conta de Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{clienteUtilizadorId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{clienteUtilizadorId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 204 — bloquear a conta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "    pm.test(\"Sem corpo\", function () {",
+                  "        pm.expect(pm.response.text()).to.be.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\",\n  \"motivo\": \"Funcionário deixou a clínica.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 401 — o token emitido antes do bloqueio deixa de ser aceite (EP-003)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenFuncionarioNovo}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 403 — a conta bloqueada já não inicia sessão (EP-001)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{funcionarioNovoEmail}}\",\n  \"password\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-008 · 422 — conta já bloqueada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Bloqueado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/utilizadores/{{funcionarioNovoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "utilizadores",
+                "{{funcionarioNovoId}}",
+                "estado"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Clínica (EP-009, EP-010)",
+      "description": "Só o Administrador. O primeiro pedido guarda os dados atuais (clinicaOriginal) e o último repõe-nos, para a execução não alterar a clínica do seed.",
+      "item": [
+        {
+          "name": "EP-009 · 200 — consultar dados, configurações e horário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Tem os dados gerais e a duração das consultas\", function () {",
+                  "        pm.expect(corpo).to.include.keys(\"nome\", \"nif\", \"morada\", \"telefone\", \"email\", \"duracaoConsultaMinutos\", \"horarioFuncionamento\");",
+                  "        pm.expect(corpo.duracaoConsultaMinutos).to.be.above(0);",
+                  "    });",
+                  "    pm.test(\"Cada período tem dia, abertura e fecho\", function () {",
+                  "        corpo.horarioFuncionamento.forEach(function (p) { pm.expect(p).to.include.keys(\"diaSemana\", \"abertura\", \"fecho\"); });",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"clinicaOriginal\", pm.response.text());",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-009 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-009 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 200 — atualizar a duração e o horário (vários períodos, fora de ordem)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    const original = JSON.parse(pm.environment.get(\"clinicaOriginal\"));",
+                  "    original.duracaoConsultaMinutos = 45;",
+                  "    original.horarioFuncionamento = [{\"diaSemana\":\"Sabado\",\"abertura\":\"09:00\",\"fecho\":\"13:00\"},{\"diaSemana\":\"Segunda\",\"abertura\":\"14:00\",\"fecho\":\"19:00\"},{\"diaSemana\":\"Segunda\",\"abertura\":\"09:00\",\"fecho\":\"13:00\"},{\"diaSemana\":\"Sexta\",\"abertura\":\"09:00\",\"fecho\":\"13:00\"}];",
+                  "    pm.environment.set(\"corpoClinicaAtualizada\", JSON.stringify(original));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Guarda a nova duração\", function () {",
+                  "        pm.expect(corpo.duracaoConsultaMinutos).to.eql(45);",
+                  "    });",
+                  "    pm.test(\"Devolve o horário ordenado por dia e hora\", function () {",
+                  "        pm.expect(corpo.horarioFuncionamento).to.have.lengthOf(4);",
+                  "        pm.expect(corpo.horarioFuncionamento[0]).to.eql({ diaSemana: \"Segunda\", abertura: \"09:00\", fecho: \"13:00\" });",
+                  "        pm.expect(corpo.horarioFuncionamento[3].diaSemana).to.eql(\"Sabado\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{corpoClinicaAtualizada}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 400 — períodos sobrepostos no mesmo dia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Veterinária G08\",\n  \"nif\": \"501234560\",\n  \"morada\": \"Rua do Exemplo, 100, 4470-000 Maia\",\n  \"telefone\": \"229000000\",\n  \"email\": \"geral@clinica-g08.test\",\n  \"duracaoConsultaMinutos\": 30,\n  \"horarioFuncionamento\": [\n    {\n      \"diaSemana\": \"Segunda\",\n      \"abertura\": \"09:00\",\n      \"fecho\": \"13:00\"\n    },\n    {\n      \"diaSemana\": \"Segunda\",\n      \"abertura\": \"12:00\",\n      \"fecho\": \"15:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 400 — hora de fecho igual à de abertura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Veterinária G08\",\n  \"nif\": \"501234560\",\n  \"morada\": \"Rua do Exemplo, 100, 4470-000 Maia\",\n  \"telefone\": \"229000000\",\n  \"email\": \"geral@clinica-g08.test\",\n  \"duracaoConsultaMinutos\": 30,\n  \"horarioFuncionamento\": [\n    {\n      \"diaSemana\": \"Segunda\",\n      \"abertura\": \"13:00\",\n      \"fecho\": \"13:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 400 — campos inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"nif\": \"123\",\n  \"email\": \"x\",\n  \"telefone\": \"1\",\n  \"duracaoConsultaMinutos\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{clinicaOriginal}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{clinicaOriginal}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-010 · 200 — repor os dados originais",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"A clínica volta ao estado inicial\", function () {",
+                  "        const original = JSON.parse(pm.environment.get(\"clinicaOriginal\"));",
+                  "        pm.expect(corpo.duracaoConsultaMinutos).to.eql(original.duracaoConsultaMinutos);",
+                  "        pm.expect(corpo.horarioFuncionamento).to.eql(original.horarioFuncionamento);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{{clinicaOriginal}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clinica",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinica"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 · Clientes (EP-011 a EP-014)",
+      "description": "Consulta: Administrador, Rececionista e Veterinário. Criação e atualização: Administrador e Rececionista. EP-014 atualiza o Cliente criado em EP-013 (clienteNovoId).",
+      "item": [
+        {
+          "name": "EP-011 · 200 — pesquisar clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Envelope paginado (itens, pagina, tamanho, total)\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\");",
+                  "        pm.expect(corpo.pagina).to.be.a(\"number\");",
+                  "        pm.expect(corpo.tamanho).to.be.a(\"number\");",
+                  "        pm.expect(corpo.total).to.be.a(\"number\");",
+                  "    });",
+                  "    pm.test(\"Encontra clientes e indica o número de animais\", function () {",
+                  "        pm.expect(corpo.itens).to.not.be.empty;",
+                  "        corpo.itens.forEach(function (c) { pm.expect(c).to.include.keys(\"id\", \"nome\", \"telefone\", \"email\", \"numeroAnimais\"); });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes?pesquisa=silva",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ],
+              "query": [
+                {
+                  "key": "pesquisa",
+                  "value": "silva"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-011 · 400 — página inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes?pagina=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-011 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-011 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-011 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-012 · 200 — consultar cliente com os animais",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve o Cliente do seed\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"clienteId\"));",
+                  "        pm.expect(corpo.email).to.eql(pm.environment.get(\"emailCliente\"));",
+                  "        pm.expect(corpo.estadoConta).to.eql(\"Ativo\");",
+                  "    });",
+                  "    pm.test(\"Lista os animais do Cliente\", function () {",
+                  "        pm.expect(corpo.animais.map(function (a) { return a.nome; })).to.include.members([\"Bobi\", \"Mia\"]);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-012 · 404 — cliente inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-012 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-012 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 201 — criar conta de Cliente",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.environment.set(\"clienteNovoEmail\", \"i098.cliente.\" + Date.now() + \"@clinica-g08.test\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Cliente criado com a conta ativa\", function () {",
+                  "        pm.expect(corpo.nome).to.eql(\"Cliente I098\");",
+                  "        pm.expect(corpo.email).to.eql(pm.environment.get(\"clienteNovoEmail\"));",
+                  "        pm.expect(corpo.estadoConta).to.eql(\"Ativo\");",
+                  "        pm.expect(corpo.animais).to.be.empty;",
+                  "    });",
+                  "    pm.test(\"Location indica a ficha\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/clientes/\" + corpo.id);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"clienteNovoId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente I098\",\n  \"telefone\": \"912345678\",\n  \"email\": \"{{clienteNovoEmail}}\",\n  \"morada\": \"Rua de Teste, 1\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 200 — o Cliente criado inicia sessão (EP-001)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve um token JWT e a data de expiração\", function () {",
+                  "        pm.expect(corpo.token).to.be.a(\"string\").and.match(/^[\\w-]+\\.[\\w-]+\\.[\\w-]+$/);",
+                  "        pm.expect(corpo.expiraEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"O utilizador tem o perfil Cliente\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"Cliente\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenClienteNovo\", corpo.token);",
+                  "    }",
+                  "    pm.test(\"O token é do Cliente criado\", function () {",
+                  "        pm.expect(corpo.utilizador.clienteId).to.eql(pm.environment.get(\"clienteNovoId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clienteNovoEmail}}\",\n  \"password\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 400 — campos em falta, NIF e e-mail inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nif\": \"123456780\",\n  \"email\": \"invalido\",\n  \"passwordInicial\": \"curta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 409 — NIF já registado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Duplicado\",\n  \"nif\": \"{{nifClienteSeed}}\",\n  \"telefone\": \"912345678\",\n  \"email\": \"i098.dup.nif@clinica-g08.test\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 409 — e-mail já registado (conta de funcionário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Duplicado\",\n  \"telefone\": \"912345678\",\n  \"email\": \"{{emailAdmin}}\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"telefone\": \"912345678\",\n  \"email\": \"i098.x@clinica-g08.test\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-013 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"telefone\": \"912345678\",\n  \"email\": \"i098.x@clinica-g08.test\",\n  \"passwordInicial\": \"{{passwordInicialTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 200 — atualizar cliente (e o e-mail da conta)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.environment.set(\"clienteNovoEmail\", \"i098.cliente.alterado.\" + Date.now() + \"@clinica-g08.test\");",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve o cliente atualizado\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"clienteNovoId\"));",
+                  "        pm.expect(corpo.nome).to.eql(\"Cliente I098 Alterado\");",
+                  "        pm.expect(corpo.telefone).to.eql(\"912000000\");",
+                  "        pm.expect(corpo.email).to.eql(pm.environment.get(\"clienteNovoEmail\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente I098 Alterado\",\n  \"telefone\": \"912000000\",\n  \"email\": \"{{clienteNovoEmail}}\",\n  \"morada\": \"Rua de Teste, 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 400 — campos inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"telefone\": \"12\",\n  \"email\": \"invalido\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 404 — cliente inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"telefone\": \"912345678\",\n  \"email\": \"i098.x@clinica-g08.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 409 — NIF de outro cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"nif\": \"{{nifClienteSeed}}\",\n  \"telefone\": \"912345678\",\n  \"email\": \"{{clienteNovoEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"telefone\": \"912345678\",\n  \"email\": \"{{clienteNovoEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-014 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"X\",\n  \"telefone\": \"912345678\",\n  \"email\": \"{{clienteNovoEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteNovoId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 · Pacientes (EP-015 a EP-018)",
+      "description": "Pesquisa, criação e atualização: Rececionista e Veterinário. Ficha (EP-016): também o Auxiliar Veterinário. EP-017 cria um animal do Cliente criado em EP-013 (animalNovoId).",
+      "item": [
+        {
+          "name": "EP-015 · 200 — pacientes de um Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Envelope paginado (itens, pagina, tamanho, total)\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\");",
+                  "        pm.expect(corpo.pagina).to.be.a(\"number\");",
+                  "        pm.expect(corpo.tamanho).to.be.a(\"number\");",
+                  "        pm.expect(corpo.total).to.be.a(\"number\");",
+                  "    });",
+                  "    pm.test(\"Só animais do Cliente indicado\", function () {",
+                  "        corpo.itens.forEach(function (a) { pm.expect(a.cliente.id).to.eql(pm.environment.get(\"clienteId\")); });",
+                  "    });",
+                  "    pm.test(\"Inclui o Bobi e a Mia\", function () {",
+                  "        pm.expect(corpo.itens.map(function (a) { return a.nome; })).to.include.members([\"Bobi\", \"Mia\"]);",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"animalClienteId\", corpo.itens.find(function (a) { return a.nome === \"Bobi\"; }).id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais?clienteId={{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "{{clienteId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-015 · 200 — pesquisar por nome do animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Encontra o Kiko, de outro Cliente\", function () {",
+                  "        pm.expect(corpo.itens.map(function (a) { return a.nome; })).to.include(\"Kiko\");",
+                  "        pm.expect(corpo.itens[0].cliente.id).to.not.eql(pm.environment.get(\"clienteId\"));",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"animalOutroClienteId\", corpo.itens.find(function (a) { return a.nome === \"Kiko\"; }).id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais?pesquisa=Kiko",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ],
+              "query": [
+                {
+                  "key": "pesquisa",
+                  "value": "Kiko"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-015 · 400 — paginação inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais?pagina=0&tamanho=101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "0"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "101"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-015 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-015 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-016 · 200 — ficha administrativa (Auxiliar Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a ficha com o proprietário\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        pm.expect(corpo.nome).to.eql(\"Bobi\");",
+                  "        pm.expect(corpo.cliente.id).to.eql(pm.environment.get(\"clienteId\"));",
+                  "        pm.expect(corpo).to.include.keys(\"especie\", \"sexo\", \"dataNascimento\", \"peso\");",
+                  "    });",
+                  "    pm.test(\"Sem dados clínicos\", function () {",
+                  "        pm.expect(corpo).to.not.have.any.keys(\"diagnostico\", \"registosClinicos\", \"notasClinicas\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-016 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-016 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-016 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 201 — registar paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Ficha criada para o Cliente indicado\", function () {",
+                  "        pm.expect(corpo.nome).to.eql(\"Thor I098\");",
+                  "        pm.expect(corpo.cliente.id).to.eql(pm.environment.get(\"clienteNovoId\"));",
+                  "        pm.expect(corpo.peso).to.eql(25.4);",
+                  "    });",
+                  "    pm.test(\"Location indica a ficha\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/animais/\" + corpo.id);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"animalNovoId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 400 — peso igual a zero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Peso Zero\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 0,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 400 — data de nascimento futura",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    const data = new Date();",
+                  "    data.setUTCFullYear(data.getUTCFullYear() + 1);",
+                  "    pm.environment.set(\"dataFutura\", data.toISOString().substring(0, 10));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Futuro\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"{{dataFutura}}\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 400 — clienteId em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sem Cliente\",\n  \"especie\": \"Cão\",\n  \"sexo\": \"Macho\",\n  \"peso\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 404 — cliente inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{idInexistente}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-017 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 200 — atualizar dados administrativos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a ficha atualizada\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"animalNovoId\"));",
+                  "        pm.expect(corpo.nome).to.eql(\"Thor I098 Atualizado\");",
+                  "        pm.expect(corpo.peso).to.eql(26.1);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098 Atualizado\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 26.1,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 400 — peso inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 0,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 400 — data de nascimento futura",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    const data = new Date();",
+                  "    data.setUTCFullYear(data.getUTCFullYear() + 1);",
+                  "    pm.environment.set(\"dataFutura\", data.toISOString().substring(0, 10));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"{{dataFutura}}\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 404 — novo cliente inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{idInexistente}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-018 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Thor I098\",\n  \"especie\": \"Cão\",\n  \"raca\": \"Labrador Retriever\",\n  \"sexo\": \"Macho\",\n  \"dataNascimento\": \"2022-05-10\",\n  \"peso\": 25.4,\n  \"clienteId\": {{clienteNovoId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Animais do Cliente — aplicação móvel (EP-019, EP-020)",
+      "description": "Só o perfil Cliente. O Cliente é sempre o do token; os animais de outro Cliente dão 403.",
+      "item": [
+        {
+          "name": "EP-019 · 200 — listar os meus animais",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve uma lista com os animais do Cliente\", function () {",
+                  "        pm.expect(corpo).to.be.an(\"array\");",
+                  "        pm.expect(corpo.map(function (a) { return a.nome; })).to.include.members([\"Bobi\", \"Mia\"]);",
+                  "    });",
+                  "    pm.test(\"Não inclui animais de outro Cliente\", function () {",
+                  "        pm.expect(corpo.map(function (a) { return a.nome; })).to.not.include(\"Kiko\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-019 · 200 — o Cliente criado vê só o animal registado em EP-017",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Um único animal: o criado nesta execução\", function () {",
+                  "        pm.expect(corpo).to.have.lengthOf(1);",
+                  "        pm.expect(corpo[0].id).to.eql(pm.environment.get(\"animalNovoId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenClienteNovo}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-019 · 200 — o clienteId no pedido é ignorado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Continua a devolver os animais do Cliente do token\", function () {",
+                  "        pm.expect(corpo.map(function (a) { return a.nome; })).to.not.include(\"Thor I098 Atualizado\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais?clienteId={{clienteNovoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais"
+              ],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "{{clienteNovoId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-019 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-019 · 403 — perfil interno (Rececionista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-020 · 200 — consultar o meu animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve os dados básicos do animal\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        pm.expect(corpo.nome).to.eql(\"Bobi\");",
+                  "        pm.expect(corpo).to.include.keys(\"especie\", \"raca\", \"sexo\", \"dataNascimento\", \"idadeAnos\", \"peso\");",
+                  "    });",
+                  "    pm.test(\"Sem dados do proprietário nem clínicos\", function () {",
+                  "        pm.expect(corpo).to.not.have.any.keys(\"cliente\", \"diagnostico\", \"notasClinicas\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-020 · 403 — animal de outro Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "    pm.test(\"Não revela dados do animal\", function () {",
+                  "        pm.expect(pm.response.text()).to.not.include(\"Kiko\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalOutroClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalOutroClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-020 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-020 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-020 · 403 — perfil interno (Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
