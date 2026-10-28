@@ -3,9 +3,8 @@ using ClinicaVeterinaria.Application.Agenda;
 namespace ClinicaVeterinaria.UnitTests.Agenda;
 
 /// <summary>
-/// I072 — versão da marcação como <c>ETag</c> (Documentação de API v02, secção 5.1), devolvida por
-/// EP-024. Caso UT-F003-085 da Especificação de Testes Unitários (I028, secção 7.3.5); a comparação
-/// com <c>If-Match</c> (UT-F003-086 a 090) é da I074.
+/// I072/I074 — versão da marcação como ETag e comparação forte de If-Match.
+/// Casos UT-F003-085 a UT-F003-090 da Especificação de Testes Unitários.
 /// </summary>
 public class VersaoMarcacaoTests
 {
@@ -15,6 +14,71 @@ public class VersaoMarcacaoTests
         var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
 
         Assert.Equal("\"AAAAAAAAB9E=\"", VersaoMarcacao.ParaETag(rowVersion));
+    }
+    [Fact(DisplayName = "UT-F003-086 — If-Match com a versão atual corresponde")]
+    public void IfMatchComVersaoAtualCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.True(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                "\"AAAAAAAAB9E=\""));
+    }
+
+    [Fact(DisplayName = "UT-F003-087 — If-Match com versão diferente não corresponde")]
+    public void IfMatchComVersaoDiferenteNaoCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.False(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                "\"AAAAAAAAB9I=\""));
+    }
+
+    [Fact(DisplayName = "UT-F003-088 — If-Match fraco não corresponde")]
+    public void IfMatchFracoNaoCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.False(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                "W/\"AAAAAAAAB9E=\""));
+    }
+
+    [Fact(DisplayName = "UT-F003-089 — If-Match asterisco corresponde a recurso existente")]
+    public void IfMatchAsteriscoCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.True(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                "*"));
+    }
+
+    [Fact(DisplayName = "UT-F003-090 — If-Match sem aspas não corresponde")]
+    public void IfMatchSemAspasNaoCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.False(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                "AAAAAAAAB9E="));
+    }
+
+    [Fact(DisplayName = "I074 — Sem If-Match a operação não fica condicionada à versão")]
+    public void SemIfMatchCorresponde()
+    {
+        var rowVersion = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1 };
+
+        Assert.True(
+            VersaoMarcacao.CorrespondeIfMatch(
+                rowVersion,
+                null));
     }
 
     [Fact(DisplayName = "I072 — versões diferentes dão ETags diferentes")]

@@ -56,6 +56,7 @@ public sealed partial class ExceptionHandlingMiddleware
             ForbiddenException => HttpStatusCode.Forbidden,
             KeyNotFoundException => HttpStatusCode.NotFound,
             InvalidOperationException => HttpStatusCode.Conflict,
+            PreconditionFailedException => HttpStatusCode.PreconditionFailed,
             UnprocessableEntityException => HttpStatusCode.UnprocessableEntity,
             _ => HttpStatusCode.InternalServerError
         };
@@ -83,6 +84,7 @@ public sealed partial class ExceptionHandlingMiddleware
             HttpStatusCode.Forbidden => "Não tem permissão para executar esta operação.",
             HttpStatusCode.NotFound => "Recurso não encontrado.",
             HttpStatusCode.Conflict => "Conflito ao processar o pedido.",
+            HttpStatusCode.PreconditionFailed => "A pré-condição indicada não corresponde à versão atual do recurso.",
             HttpStatusCode.UnprocessableEntity => "Não foi possível processar os dados fornecidos.",
             _ => "Ocorreu um erro interno no servidor."
         };
