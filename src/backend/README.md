@@ -289,6 +289,40 @@ Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header
 
 As datas e horas da resposta (`dataHora`, `chegadaEm`, `criadaEm`) estão em UTC, com o sufixo `Z`.
 
+## Criar marcação (EP-025)
+
+`POST /consultas` (EP-025) cria uma marcação no estado `Pendente` e devolve `201` com a marcação no formato de EP-024 (`ConsultaDto`) e os cabeçalhos `Location` (`/consultas/{id}`) e `ETag`. Só a Rececionista pode criar: o controlador aceita os três perfis da agenda e a ação acrescenta a política `Rececionista`, por isso o Veterinário e o Auxiliar Veterinário recebem `403`, tal como o Administrador e o Cliente.
+
+```json
+{ "animalId": 1, "veterinarioId": 4, "dataHora": "2026-11-25T10:00:00Z", "motivo": "Consulta de rotina" }
+```
+
+Regras, pela ordem em que são verificadas:
+
+- **400:** `animalId`, `veterinarioId` ou `dataHora` em falta, identificadores inferiores a 1, `motivo` com mais de 250 caracteres, ou `dataHora` que não é estritamente futura (a hora atual já não serve). `dataHora` é em UTC; uma data sem fuso é lida como UTC e os segundos fracionários são retirados (a coluna é `datetime2(0)`).
+- **404:** animal inexistente, ou `veterinarioId` que não é de um Veterinário com conta ativa (inexistente, de outro perfil ou bloqueado), como em EP-021 e EP-022.
+- **422 — fora do horário:** a consulta, com a duração configurada em EP-010 (30 minutos por omissão), tem de começar e acabar dentro de um período do horário de funcionamento desse dia, em hora de Lisboa (regra R-FUSO). Não tem de coincidir com a grelha de EP-022: 10:10 é aceite se estiver livre.
+- **422 — Veterinário indisponível:** o intervalo `[dataHora, dataHora + duração)` não se pode sobrepor a outra marcação não cancelada do mesmo Veterinário. Intervalos que só se tocam são aceites e as marcações `Cancelada` não ocupam horário.
+
+As duas verificações de `422` usam `CalculadoraDisponibilidade.IntervaloDisponivel` (I071): primeiro sem marcações, para distinguir «fora do horário» de «indisponível», e depois com as marcações do Veterinário.
+
+**Pedidos simultâneos para a mesma vaga.** A leitura da agenda e a gravação são feitas numa transação, com a agenda do Veterinário bloqueada por `sp_getapplock` (`BloqueioAgendaVeterinario`, em `ClinicaVeterinaria.Infrastructure`). O segundo pedido espera que o primeiro termine, volta a ler a agenda e recebe `422`; só uma marcação é gravada. O `RowVersion` não chega para isto, porque só protege alterações a uma linha que já existe. Se o bloqueio não for obtido em 15 segundos, a resposta é `409`. A alteração de marcações (EP-026, I074) deve usar o mesmo bloqueio quando muda a data, a hora ou o Veterinário.
+
+Exemplos com o horário dos dados da I061 e consultas de 30 minutos (horas de Lisboa):
+
+| Situação | Resultado |
+|---|---|
+| Quarta-feira às 10:00, Veterinário livre | `201`, estado `Pendente` |
+| Às 12:30 | `201` (acaba às 13:00) |
+| Às 12:45 ou às 13:00 | `422` (fora do horário) |
+| Domingo | `422` (fora do horário) |
+| Já existe uma marcação às 10:00; nova às 10:15 | `422` (indisponível) |
+| Já existe uma marcação às 10:00; nova às 10:30 | `201` (só se tocam) |
+| Marcação cancelada às 10:00; nova às 10:00 | `201` |
+| Oito pedidos simultâneos para a mesma vaga | um `201` e sete `422` |
+
+Os casos estão nos testes unitários `CriarConsultaServiceTests` (UT-F003-019 a UT-F003-032 da Especificação de Testes Unitários, mais casos próprios) e `ConsultasControllerTests`. Com a API e o SQL Server, `CriarConsultaEndpointsTests` cobre IT-EP025-01 a IT-EP025-08, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I073 de `ClinicaVeterinaria.Api.http`.
+
 ## Segurança
 
 Segredos não devem ser adicionados ao controlo de versões.

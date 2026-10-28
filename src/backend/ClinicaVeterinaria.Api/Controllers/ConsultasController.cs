@@ -1,5 +1,6 @@
 using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ namespace ClinicaVeterinaria.Api.Controllers;
 /// <summary>
 /// Agenda e consulta de marcações (EP-023, EP-024): Rececionista, Veterinário e Auxiliar
 /// Veterinário. O Veterinário só vê as marcações que lhe estão atribuídas, identificado pelo token.
+/// Criação de marcações (EP-025): só Rececionista.
 /// </summary>
 [ApiController]
 [Route("consultas")]
@@ -69,5 +71,39 @@ public sealed class ConsultasController : ControllerBase
         Response.Headers.ETag = resultado.ETag;
 
         return Ok(resultado.Consulta);
+    }
+
+    /// <summary>EP-025 — Criar marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Cria a marcação no estado <c>Pendente</c>, com a duração configurada (EP-010), se a consulta
+    /// couber inteira num período do horário de funcionamento (hora de Lisboa) e o Veterinário não
+    /// tiver outra marcação não cancelada que se sobreponha. <c>dataHora</c> é em UTC e tem de ser
+    /// estritamente futura. Devolve a marcação no formato de EP-024, com o cabeçalho <c>ETag</c>.
+    /// </remarks>
+    /// <response code="201">Marcação criada, com os cabeçalhos Location e ETag.</response>
+    /// <response code="400">Campos em falta ou inválidos, ou data e hora que não é futura.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Animal inexistente, ou Veterinário inexistente ou não ativo.</response>
+    /// <response code="422">Fora do horário de funcionamento ou Veterinário indisponível nesse horário.</response>
+    [HttpPost]
+    // Soma-se ao [Authorize] do controlador: dos três perfis da agenda, só a Rececionista cria.
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ConsultaDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ConsultaDto>> CriarConsulta(CreateConsultaDto pedido)
+    {
+        var criadaPorId = User.ObterUtilizadorId()
+            ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
+
+        var resultado = await _consultasService.CriarConsultaAsync(pedido, criadaPorId);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return CreatedAtAction(nameof(GetConsulta), new { id = resultado.Consulta.Id }, resultado.Consulta);
     }
 }
