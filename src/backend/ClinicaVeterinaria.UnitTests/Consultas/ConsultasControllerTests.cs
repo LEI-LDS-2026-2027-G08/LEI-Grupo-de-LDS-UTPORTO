@@ -573,5 +573,31 @@ public class ConsultasControllerTests
 
             return Task.FromResult("\"AAAAAAAAB9E=\"");
         }
+
+        public Task<ChegadaComVersao> RegistarChegadaAsync(int id, string? ifMatch)
+        {
+            UltimoId = id;
+            UltimoIfMatch = ifMatch;
+
+            return Task.FromResult(new ChegadaComVersao(
+                new ChegadaDto { Id = id, ChegadaEm = DateTime.UnixEpoch },
+                "\"AAAAAAAAB9E=\""));
+        }
+
+        public Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(
+            int id,
+            CreateNotaPreparacaoDto pedido,
+            int auxiliarId)
+        {
+            UltimoId = id;
+
+            return Task.FromResult(new NotaPreparacaoDto
+            {
+                Id = 2,
+                ConsultaId = id,
+                Texto = pedido.Texto!,
+                Autor = "Carla Auxiliar"
+            });
+        }
     }
 }

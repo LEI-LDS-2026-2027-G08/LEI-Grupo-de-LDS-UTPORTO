@@ -49,4 +49,17 @@ public interface IConsultasService
         int id,
         UpdateEstadoConsultaDto pedido,
         string? ifMatch);
+
+    /// <summary>
+    /// EP-028 — regista a chegada com a hora do servidor. Inexistente: 404; If-Match desatualizado: 412;
+    /// marcação não Confirmada ou chegada já registada: 422.
+    /// </summary>
+    Task<ChegadaComVersao> RegistarChegadaAsync(int id, string? ifMatch);
+
+    /// <summary>
+    /// EP-029 — regista uma nota não clínica de apoio. A autorização (PodeRegistarApoio) é lida da
+    /// base de dados no momento do pedido. Sem autorização: 403; inexistente: 404; Cancelada: 422.
+    /// Não altera a marcação nem o registo clínico.
+    /// </summary>
+    Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(int id, CreateNotaPreparacaoDto pedido, int auxiliarId);
 }

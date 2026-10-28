@@ -180,4 +180,59 @@ public sealed class ConsultasController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>EP-028 — Registar chegada (só Rececionista).</summary>
+    /// <remarks>Regista a chegada com a hora atual do servidor. O cabeçalho If-Match é opcional.</remarks>
+    /// <response code="200">Chegada registada, com a nova ETag.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Marcação não Confirmada ou chegada já registada.</response>
+    [HttpPatch("{id:int}/chegada")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ChegadaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ChegadaDto>> RegistarChegada(
+        int id,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var resultado = await _consultasService.RegistarChegadaAsync(id, ifMatch);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return Ok(resultado.Chegada);
+    }
+
+    /// <summary>EP-029 — Registar informação não clínica de apoio (só Auxiliar Veterinário).</summary>
+    /// <remarks>
+    /// Exige PodeRegistarApoio ativo, lido no momento do pedido. Não altera a marcação nem o registo clínico.
+    /// </remarks>
+    /// <response code="201">Nota criada.</response>
+    /// <response code="400">Texto vazio ou com mais de 1000 caracteres.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão ou Auxiliar sem autorização de registo de apoio.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="422">Marcação Cancelada.</response>
+    [HttpPost("{id:int}/notas-preparacao")]
+    [Authorize(Policy = PoliticasAutorizacao.AuxiliarVeterinario)]
+    [ProducesResponseType<NotaPreparacaoDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<NotaPreparacaoDto>> CriarNotaPreparacao(int id, CreateNotaPreparacaoDto pedido)
+    {
+        var auxiliarId = User.ObterUtilizadorId()
+            ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
+
+        var nota = await _consultasService.CriarNotaPreparacaoAsync(id, pedido, auxiliarId);
+
+        return CreatedAtAction(nameof(GetConsulta), new { id }, nota);
+    }
 }
