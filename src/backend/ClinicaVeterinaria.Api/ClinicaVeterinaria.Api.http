@@ -1022,13 +1022,13 @@ Authorization: Bearer {{loginVet.response.body.$.token}}
 # dataHora é em UTC. 2026-11-25 é uma quarta-feira em hora de inverno, por isso a hora
 # UTC é igual à de Lisboa (horário: 09:00–13:00 e 14:00–19:00; domingo fechado).
 # Os ids abaixo são os de uma base reposta com os dados da I061 (animais Bobi = 1,
-# Kiko = 3; vet.ana = 4, vet.bruno = 5): confirmar em EP-015 e EP-021.
+# Mia = 3; vet.ana = 4, vet.bruno = 5): confirmar em EP-015 e EP-021.
 # Executar os pedidos pela ordem: o 422 «indisponível» usa a marcação criada no 201.
 # Para repetir a sequência, repor a base de dados.
 # =============================================================================
 
 @idBobi = 1
-@idKiko = 3
+@idMia = 3
 @idVetAnaMarcacao = 4
 
 ### Login Rececionista (I073)
@@ -1055,7 +1055,7 @@ POST {{host}}/consultas
 Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
 Content-Type: application/json
 
-{ "animalId": {{idKiko}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:30:00Z" }
+{ "animalId": {{idMia}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:30:00Z" }
 
 ### EP-025 · 400 — campos em falta (animalId e dataHora)
 POST {{host}}/consultas
@@ -1124,6 +1124,6 @@ POST {{host}}/consultas
 Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
 Content-Type: application/json
 
-{ "animalId": {{idKiko}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:15:00Z" }
+{ "animalId": {{idMia}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:15:00Z" }
 
 ###
