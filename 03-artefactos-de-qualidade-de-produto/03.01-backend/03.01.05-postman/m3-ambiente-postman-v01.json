@@ -1,0 +1,228 @@
+{
+  "name": "Clínica Veterinária G08 — local (seed I061)",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5159",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailAdmin",
+      "value": "admin@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailRececionista",
+      "value": "rececao@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailVeterinario",
+      "value": "vet.ana@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailAuxiliar",
+      "value": "aux.carla@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailCliente",
+      "value": "cliente.joao@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailBloqueada",
+      "value": "rececao.bloqueada@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "passwordAdmin",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordRececionista",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordVeterinario",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordAuxiliar",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordCliente",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordBloqueada",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordInicialTeste",
+      "value": "Temp#2026x",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "nifClienteSeed",
+      "value": "210000015",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "idInexistente",
+      "value": "999999",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenRececionista",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenVeterinario",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenAuxiliar",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenCliente",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenFimSessao",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenFuncionarioNovo",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenClienteNovo",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "adminId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clienteUtilizadorId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "funcionarioNovoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "funcionarioNovoEmail",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clinicaOriginal",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "corpoClinicaAtualizada",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clienteNovoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clienteNovoEmail",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "animalClienteId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "animalOutroClienteId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "animalNovoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataFutura",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
