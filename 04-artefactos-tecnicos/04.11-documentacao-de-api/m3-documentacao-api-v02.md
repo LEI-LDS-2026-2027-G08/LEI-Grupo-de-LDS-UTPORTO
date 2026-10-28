@@ -170,7 +170,7 @@ Legenda: **L** — leitura; **E** — escrita (criar/alterar); **—** — sem a
 | Registos clínicos | — | — | L/E | L | — |
 | Vacinações e desparasitações | — | — | L/E | — | L (`/me`) |
 
-Os recursos «Contas e pagamentos», «Alojamentos» e «Internamentos», que constavam da v01, foram retirados com as funcionalidades F005 e F007.
+Os recursos «Contas e pagamentos», «Alojamentos» e «Internamentos», que constavam da v01, foram retirados com as funcionalidades F005 e F007, que passaram a fora do âmbito.
 
 ## 5. Formato de erros e códigos HTTP
 

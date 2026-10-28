@@ -18,7 +18,7 @@
 | Versão | Data | Descrição das alterações |
 |---|---|---|
 | v01 | 25/09/2026 | Plano de Qualidade inicial (m1). Mantém-se inalterado como histórico (`m1-plano-qualidade-processo-v01.md` e `.pdf`). |
-| v02 | 23/10/2026 | Alinha o plano com o Regulamento Interno do Grupo v02 (24/10/2026): tecnologias (.NET 10, React 19.3 e TypeScript 6.0, Android nativo em Kotlin com Jetpack Compose), GitHub em vez de SharePoint, quality gates QG-01 a QG-08. Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito) e a CCA (v07 homologada e v08 com as novas versões documentais). Os objetivos, responsabilidades, procedimentos de processo e métricas não mudam. |
+| v02 | 23/10/2026 | Alinha o plano com o Regulamento Interno do Grupo v02 (24/10/2026): tecnologias (.NET 10, React 19.3 e TypeScript 6.0, Android nativo em Kotlin com Jetpack Compose), GitHub em vez de SharePoint, quality gates QG-01 a QG-08. Reflete a Declaração de Âmbito v05 (F005 e F007 fora do âmbito) e a CCA (v07 homologada). Os objetivos, responsabilidades, procedimentos de processo e métricas não mudam. |
 
 ---
 ## 1. Objetivo e Âmbito
@@ -42,7 +42,7 @@ Este plano articula-se diretamente com os documentos oficiais da UC e com os art
 
 * Declaração de Âmbito homologada (`m1-declaracao-ambito-v03.pdf` — código CCA `OF-M1-002`) e `m3-declaracao-ambito-v05.pdf` (código CCA `AD-003`, homologada a 21/10/2026), que passa `F005` e `F007` para o não-âmbito;
 
-* Checklist de Controlo de Artefactos homologada em 21/10/2026 (`m3-checklist-controlo-artefactos-v07.xlsx` e `m3-checklist-controlo-artefactos-v07.pdf`); a v08 acrescenta as linhas das novas versões documentais da `m3`;
+* Checklist de Controlo de Artefactos homologada em 21/10/2026 (`m3-checklist-controlo-artefactos-v07.xlsx` e `m3-checklist-controlo-artefactos-v07.pdf`);
 
 * Critérios de Qualidade dos Requisitos (`m1-criterios-qualidade-requisitos-v01.md` — código CCA `OF-M1-003`);
 
@@ -56,9 +56,9 @@ O Grupo G08 estabelece os seguintes objetivos mensuráveis de qualidade para o p
 
 1. **Independência Estrita de Papéis:** Garantir que 100% das tarefas normais são executadas, revistas e auditadas por três alunos distintos (Executor, Revisor e Auditor), impedindo técnica e processualmente qualquer autoaprovação de código ou documentação.
 
-2. **Cumprimento Integral da CCA e do Âmbito (`F001` a `F004` e `F006`; `F005` e `F007` estão fora do âmbito desde a Declaração de Âmbito `v05`):** Assegurar a entrega atempada e validada dos **68 artefactos com compromisso assumido na CCA `v08`** (`3` em `m1`, `12` em `m2`, `31` em `m3` e `22` em `m4`), mantendo rastreabilidade total na *Requirements Traceability Matrix* (RTM — `OF-M2-003`, `OF-M3-001` e `OF-M4-001`).
+2. **Cumprimento Integral da CCA e do Âmbito (`F001` a `F004` e `F006`; `F005` e `F007` estão fora do âmbito desde a Declaração de Âmbito `v05`):** Assegurar a entrega atempada e validada dos **55 artefactos com compromisso assumido na CCA `v07`** (`3` em `m1`, `12` em `m2`, `18` em `m3` e `22` em `m4`), mantendo rastreabilidade total na *Requirements Traceability Matrix* (RTM — `OF-M2-003`, `OF-M3-001` e `OF-M4-001`).
 
-3. **Qualidade e Padronização dos Requisitos:** Garantir que 100% dos requisitos especificados em `OF-M2-001` (e na versão 2, `AD-012`) são avaliados face aos 11 critérios definidos em `m1-criterios-qualidade-requisitos-v01.md` e obtêm o resultado final `Aprovado` na Checklist de Aprovação dos Requisitos (`OF-M2-002`).
+3. **Qualidade e Padronização dos Requisitos:** Garantir que 100% dos requisitos especificados em `OF-M2-001` (incluindo a sua versão 2) são avaliados face aos 11 critérios definidos em `m1-criterios-qualidade-requisitos-v01.md` e obtêm o resultado final `Aprovado` na Checklist de Aprovação dos Requisitos (`OF-M2-002`).
 
 4. **Segurança Funcional e Isolamento de Registos Clínicos (RBAC):** Validar através de testes automáticos que os 5 perfis do sistema (`Administrador`, `Rececionista`, `Veterinário`, `Auxiliar Veterinário` e `Cliente (Proprietário do animal)`) respeitam rigorosamente a separação entre dados administrativos e registos clínicos fixada na Declaração de Âmbito (`v05`, que mantém o conteúdo da `v03` nesta matéria).
 
@@ -122,9 +122,9 @@ Todas as tarefas cumprem o fluxo obrigatório da Secção 15 do Regulamento da U
 ---
 ## 6. Procedimentos de Qualidade de Produto
 ### 6.1. Qualidade dos Requisitos, Modelos e Arquitetura (`m1` e `m2`)
-* **Validação de Requisitos (`OF-M1-003`, `OF-M2-001`, `OF-M2-002` e a versão 2 `AD-012`):** Todos os requisitos funcionais e não funcionais são verificados pelo Revisor e auditados pelo Auditor face aos 11 critérios definidos em `m1-criterios-qualidade-requisitos-v01.md` (Correção, Clareza, Completude, Consistência, Necessidade, Viabilidade, Verificabilidade, Rastreabilidade, Singularidade, Ausência de Ambiguidade e Independência da Solução), registando na **Checklist de Aprovação dos Requisitos** `Cumpre`, `Não cumpre — <justificação objetiva>` ou `Não aplicável — <justificação>`, e aprovando apenas requisitos com Resultado Final `Aprovado`.
+* **Validação de Requisitos (`OF-M1-003`, `OF-M2-001`, `OF-M2-002` e a sua versão 2):** Todos os requisitos funcionais e não funcionais são verificados pelo Revisor e auditados pelo Auditor face aos 11 critérios definidos em `m1-criterios-qualidade-requisitos-v01.md` (Correção, Clareza, Completude, Consistência, Necessidade, Viabilidade, Verificabilidade, Rastreabilidade, Singularidade, Ausência de Ambiguidade e Independência da Solução), registando na **Checklist de Aprovação dos Requisitos** `Cumpre`, `Não cumpre — <justificação objetiva>` ou `Não aplicável — <justificação>`, e aprovando apenas requisitos com Resultado Final `Aprovado`.
 
-* **Coerência de Modelos e Diagramas (`OF-M2-004` a `OF-M2-011`, `AD-001` e as versões 2 `AD-004` a `AD-009`, `AD-013`, `AD-014` e `AD-015`):** Todos os diagramas (incluindo casos de uso, arquitetura, modelo de dados `clinica-veterinaria v1`, modelos de classes de backend, frontend web e frontend mobile, o compromisso adicional `AD-001 — Diagrama de sequência — autenticar utilizador v1` e as versões 2 dos casos de uso, da API, dos três modelos de classes, do protótipo, do diagrama de sequência, da documentação da arquitetura e do modelo de dados) são produzidos em **PlantUML**, preservando o código-fonte textual e editável dentro dos ficheiros Markdown.
+* **Coerência de Modelos e Diagramas (`OF-M2-004` a `OF-M2-011`, `AD-001` e as respetivas versões 2):** Todos os diagramas (incluindo casos de uso, arquitetura, modelo de dados `clinica-veterinaria v1`, modelos de classes de backend, frontend web e frontend mobile, o compromisso adicional `AD-001 — Diagrama de sequência — autenticar utilizador v1` e as versões 2 dos casos de uso, da API, dos três modelos de classes, do protótipo, do diagrama de sequência, da documentação da arquitetura e do modelo de dados) são produzidos em **PlantUML**, preservando o código-fonte textual e editável dentro dos ficheiros Markdown.
 
 ### 6.2. Verificação das Regras de Negócio e Permissões Homologadas (`F001` a `F004` e `F006`; `F005` e `F007` fora do âmbito)
 Os planos e especificações de testes (`m3` e `m4`) têm de validar obrigatoriamente as regras de negócio e restrições de acesso fixadas na Proposta de Sistema (`v03`, reposta na `v05`) e na Declaração de Âmbito (`v05`):
@@ -139,12 +139,12 @@ Os planos e especificações de testes (`m3` e `m4`) têm de validar obrigatoria
 | `F006` | Boletim de Vacinas e Desparasitações | Testar unitariamente o **cálculo automático da data prevista para a próxima administração** (a partir da data de administração e do intervalo definido pelo `Veterinário`), o registo/atualização exclusivo pelo `Veterinário` na Web e a visualização do boletim digital pelo `Cliente` no Mobile. |
 | `F007` | Gestão de internamento (Hospitalização) | **Fora do âmbito** (Declaração de Âmbito `v05`). Não há testes nem verificações previstas; o código `F007` não é reutilizado. |
 
-### 6.3. Artefactos e Verificações de Qualidade de Produto por Milestone (CCA `v07` homologada e `v08`)
-Em articulação direta com a CCA homologada (`m3-checklist-controlo-artefactos-v07.xlsx`) e com a v08 em preparação, o grupo produzirá e validará os seguintes artefactos de qualidade de produto:
+### 6.3. Artefactos e Verificações de Qualidade de Produto por Milestone (CCA `v07` homologada)
+Em articulação direta com a CCA homologada (`m3-checklist-controlo-artefactos-v07.xlsx`), o grupo produzirá e validará os seguintes artefactos de qualidade de produto:
 
 * **Milestone `m3` — Backend (.NET 10, EF Core 10, MS SQL Server 2025):**
 
-  * Plano de testes do backend v1 (`OF-M3-009`) e v2 (`AD-010`);
+  * Plano de testes do backend v1 (`OF-M3-009`) e v2;
 
   * Especificação (`OF-M3-010`) e Resultados (`OF-M3-011`) dos testes unitários do backend v1 (xUnit 2.6 e Moq 4.20);
 
@@ -221,7 +221,7 @@ Todas as evidências produzidas no âmbito deste Plano de Qualidade seguem a nom
 ### 9.2. Qualidade de Produto (`/projeto/03-artefactos-de-qualidade-de-produto`)
 * `03.01-backend`:
 
-  * `03.01.01-plano-de-testes` (`OF-M3-009` e `AD-010`)
+  * `03.01.01-plano-de-testes` (`OF-M3-009`)
 
   * `03.01.02-testes-unitarios` (`OF-M3-010`, `OF-M3-011`)
 

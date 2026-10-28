@@ -485,7 +485,7 @@ A Collection Postman e o relatório de cobertura têm tarefas próprias no Backl
 | Objetivo 4 — Segurança funcional (RBAC) validada por testes automáticos para os 5 perfis | Matriz endpoint × perfil (CT-TRV-01) e condições da secção 10 |
 | Objetivo 5 e MQ-02 — Cobertura de linhas ≥ 70% no backend | LT-01 (obrigatório) |
 | QG-01 a QG-04 e QG-08 (Plano de Qualidade v02, rascunho, e Regulamento de Grupo v02) | Secções 7.2 e 8.2 |
-| Secção 6.2 — Regras críticas por funcionalidade (F001–F004 e F006; F005 e F007 saíram do âmbito) | Secção 10 |
+| Secção 6.2 — Regras críticas por funcionalidade (F001–F004 e F006; F005 e F007 passaram a fora do âmbito) | Secção 10 |
 | Secção 6.3 — Artefactos de m3 (OF-M3-009 a OF-M3-016) | Secção 4 (coluna de evidências) |
 | Secção 5.3 — Defeito vs. proposta de melhoria | Secção 12 |
 | Ferramentas: xUnit 2.6, Moq 4.20, Coverlet 6.0, ReportGenerator, Respawn / Testcontainers .NET, Roslyn | Secção 5. O ReportGenerator passa a 5.5, conforme o Regulamento de Grupo v02 (secção 11.5) |
