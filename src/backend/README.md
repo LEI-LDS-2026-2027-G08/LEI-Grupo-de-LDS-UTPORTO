@@ -323,6 +323,34 @@ Exemplos com o horário dos dados da I061 e consultas de 30 minutos (horas de Li
 
 Os casos estão nos testes unitários `CriarConsultaServiceTests` (UT-F003-019 a UT-F003-032 da Especificação de Testes Unitários, mais casos próprios) e `ConsultasControllerTests`. Com a API e o SQL Server, `CriarConsultaEndpointsTests` cobre IT-EP025-01 a IT-EP025-08, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I073 de `ClinicaVeterinaria.Api.http`.
 
+## Registo clínico (EP-031, EP-032)
+
+`POST /registos-clinicos` (EP-031) cria o registo clínico de uma consulta e devolve `201` com o registo (`RegistoClinicoDto`) e o cabeçalho `Location: /registos-clinicos/{id}`. `PUT /registos-clinicos/{id}` (EP-032) altera-o e devolve `200`. As duas operações são só do perfil Veterinário (política `Veterinario`): o Auxiliar Veterinário, a Rececionista, o Administrador e o Cliente recebem `403`. Dentro do perfil, só o Veterinário a quem a consulta está atribuída cria o registo, e só quem o criou o altera (`403` para os outros). O Veterinário vem sempre da claim `veterinarioId` do token.
+
+```json
+{
+  "consultaId": 3,
+  "notasClinicas": "Animal ativo; ligeira inflamação no ouvido esquerdo.",
+  "diagnostico": "Otite externa",
+  "tratamentos": [ { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" } ],
+  "prescricoes": [ { "medicamento": "Gotas auriculares X", "dosagem": "3 gotas", "frequencia": "2 vezes por dia", "duracaoDias": 7 } ]
+}
+```
+
+Regras de EP-031, pela ordem em que são verificadas:
+
+- **400:** `consultaId` em falta ou inferior a 1; nenhum elemento clínico (notas, diagnóstico, um tratamento ou uma prescrição; texto só com espaços não conta); tratamento sem descrição ou sem data; prescrição sem medicamento, dosagem ou frequência; `duracaoDias` indicada e não superior a 0; textos acima do tamanho das colunas (notas 4000, diagnóstico 1000, descrição 1000, medicamento 150, dosagem e frequência 100).
+- **404:** consulta inexistente.
+- **403:** consulta atribuída a outro Veterinário.
+- **422:** consulta `Pendente` ou `Cancelada` (só `Confirmada` e `Realizada` admitem registo).
+- **409:** a consulta já tem registo clínico. Dois pedidos simultâneos para a mesma consulta: um é aceite e o outro recebe `409`, pelo índice único `UQ_RegistoClinico_Marcacao`.
+
+O registo, os tratamentos e as prescrições são gravados numa só transação: um pedido recusado não deixa nada gravado. O registo não altera o estado da marcação. Os textos são aparados e as notas ou o diagnóstico só com espaços ficam nulos.
+
+**EP-032** aceita o mesmo corpo sem `consultaId` (um `consultaId` enviado é ignorado: a consulta e o paciente não mudam). É uma substituição completa, como em qualquer `PUT`: notas e diagnóstico ficam como vierem, e as listas substituem as anteriores. Um tratamento ou prescrição que já existe mantém-se e é atualizado indicando o seu `id`; sem `id`, é acrescentado; os que não vierem (ou uma lista omitida) são removidos. Um `id` que não é deste registo, ou repetido no pedido, dá `400`. O registo não pode ficar sem elemento clínico (`400`). Ficam registados `atualizadoEm` (UTC) e `atualizadoPor` (nome do Veterinário). Registo inexistente: `404`.
+
+Os casos estão nos testes unitários `RegistosClinicosServiceTests` (UT-F004-001 a UT-F004-021 da Especificação de Testes Unitários, mais casos próprios) e `RegistosClinicosControllerTests`. Com a API e o SQL Server, `RegistosClinicosEndpointsTests` cobre IT-EP031-01 a 09 e IT-EP032-01 a 05, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I077 de `ClinicaVeterinaria.Api.http`.
+
 ## Segurança
 
 Segredos não devem ser adicionados ao controlo de versões.

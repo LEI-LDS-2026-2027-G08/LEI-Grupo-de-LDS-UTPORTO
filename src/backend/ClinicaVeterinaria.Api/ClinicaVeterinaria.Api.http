@@ -1127,3 +1127,155 @@ Content-Type: application/json
 { "animalId": {{idMia}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:15:00Z" }
 
 ###
+
+# =============================================================================
+# I077 — Registo clínico (EP-031, EP-032)
+#
+# Só o perfil Veterinário, e só o Veterinário da consulta. Usa "passwordVet"
+# (vet.ana), "passwordAux" (aux.carla) e "passwordRececao" do
+# http-client.env.json.user.
+# Marcações da I061 numa base acabada de repor: M1 = 1 (Bobi, vet.ana, Realizada,
+# já com registo clínico 1), M3 = 3 (Kiko, vet.ana, Confirmada, sem registo) e
+# M5 = 5 (Bobi, vet.ana, Pendente). Confirmar em EP-023 se os ids forem outros.
+# Executar os pedidos pela ordem: o 409 e o EP-032 usam o registo criado no 201.
+# EP-032 substitui as listas: tratamentos ou prescrições que não vierem no pedido
+# (ou listas omitidas) são removidos; um elemento existente mantém-se com o seu id.
+# =============================================================================
+
+@consultaM1 = 1
+@consultaM3 = 3
+@consultaM5 = 5
+
+### Login Veterinária (I077)
+# @name loginVetRegisto
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-031 · 201 — registo clínico da M3 (Location no cabeçalho)
+# @name criarRegisto
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "consultaId": {{consultaM3}},
+  "notasClinicas": "Animal ativo; ligeira inflamação no ouvido esquerdo.",
+  "diagnostico": "Otite externa",
+  "tratamentos": [ { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" } ],
+  "prescricoes": [ { "medicamento": "Gotas auriculares X", "dosagem": "3 gotas", "frequencia": "2 vezes por dia", "duracaoDias": 7 } ]
+}
+
+### EP-031 · 409 — a M3 já tem registo (o criado acima)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Segundo registo" }
+
+### EP-031 · 400 — consultaId em falta
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-031 · 400 — nenhum elemento clínico
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "notasClinicas": "   ", "tratamentos": [], "prescricoes": [] }
+
+### EP-031 · 400 — prescrição incompleta (sem dosagem)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "prescricoes": [ { "medicamento": "Gotas X", "frequencia": "2 vezes por dia" } ] }
+
+### EP-031 · 404 — consulta inexistente
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": 999999, "diagnostico": "Otite externa" }
+
+### EP-031 · 422 — consulta Pendente (M5)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
+
+### EP-031 · 401 — sem token
+POST {{host}}/registos-clinicos
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Otite externa" }
+
+### EP-031 · 403 — Auxiliar Veterinário (só consulta; não regista)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Otite externa" }
+
+### EP-032 · 200 — mantém o tratamento (id), acrescenta outro e remove a prescrição
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "notasClinicas": "Reavaliação: melhoria evidente.",
+  "diagnostico": "Otite externa (em resolução)",
+  "tratamentos": [
+    { "id": {{criarRegisto.response.body.$.tratamentos[0].id}}, "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" },
+    { "descricao": "Aplicação de pomada", "dataAplicacao": "2026-11-04" }
+  ],
+  "prescricoes": []
+}
+
+### EP-032 · 400 — o registo não pode ficar sem elemento clínico
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "notasClinicas": "", "tratamentos": [], "prescricoes": [] }
+
+### EP-032 · 404 — registo inexistente
+PUT {{host}}/registos-clinicos/999999
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-032 · 401 — sem token
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-032 · 403 — Rececionista
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### (opcional) EP-027 — cancelar a M5 como Rececionista, para o 422 «Cancelada» abaixo
+PATCH {{host}}/consultas/{{consultaM5}}/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Cancelada" }
+
+### (opcional) EP-031 · 422 — consulta Cancelada (M5, depois do pedido anterior)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
+
+###

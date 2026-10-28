@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IAnimaisService, AnimaisService>();
         services.AddScoped<IUtilizadoresService, UtilizadoresService>();
         services.AddScoped<IConsultasService, ConsultasService>();
+        services.AddScoped<IRegistosClinicosService, RegistosClinicosService>();
         return services;
     }
 }
