@@ -30,4 +30,23 @@ public interface IConsultasService
     /// <param name="pedido">Animal, Veterinário, data e hora (UTC) e motivo.</param>
     /// <param name="criadaPorId">Utilizador autenticado (Rececionista) que cria a marcação.</param>
     Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId);
+
+    /// <summary>
+    /// EP-026 — altera o Veterinário, a data/hora e o motivo de uma marcação Pendente ou Confirmada.
+    /// Revalida horário e disponibilidade.
+    /// If-Match é opcional; quando indicado e não corresponde à versão atual: 412.
+    /// </summary>
+    Task<ConsultaComVersao> AtualizarConsultaAsync(
+        int id,
+        UpdateConsultaDto pedido,
+        string? ifMatch);
+
+    /// <summary>
+    /// EP-027 — altera o estado da marcação segundo a máquina de estados.
+    /// If-Match é opcional; quando indicado e não corresponde à versão atual: 412.
+    /// </summary>
+    Task<string> AtualizarEstadoAsync(
+        int id,
+        UpdateEstadoConsultaDto pedido,
+        string? ifMatch);
 }

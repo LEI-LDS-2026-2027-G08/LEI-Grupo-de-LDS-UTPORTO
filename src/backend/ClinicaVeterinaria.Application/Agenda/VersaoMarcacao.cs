@@ -1,21 +1,46 @@
 namespace ClinicaVeterinaria.Application.Agenda;
 
 /// <summary>
-/// Versão de uma marcação exposta como <c>ETag</c> (Documentação de API v02, secção 5.1): o valor
-/// de <c>Marcacao.RowVersion</c> em Base64, entre aspas. EP-024 devolve-a no cabeçalho
-/// <c>ETag</c>; os DTOs não têm um campo de versão.
+/// Versão de uma marcação exposta como ETag.
 /// </summary>
-/// <remarks>
-/// A comparação com o cabeçalho <c>If-Match</c> (412 em EP-026 a EP-028, casos UT-F003-086 a
-/// UT-F003-090) fica para a I074, que acrescenta essa operação a esta classe.
-/// </remarks>
 public static class VersaoMarcacao
 {
-    /// <summary>ETag forte da versão: por exemplo, <c>00 00 00 00 00 00 07 D1</c> dá <c>"AAAAAAAAB9E="</c>.</summary>
     public static string ParaETag(byte[] rowVersion)
     {
         ArgumentNullException.ThrowIfNull(rowVersion);
 
         return "\"" + Convert.ToBase64String(rowVersion) + "\"";
+    }
+
+    /// <summary>
+    /// Verifica o cabeçalho If-Match usando comparação forte.
+    /// Sem If-Match, a operação é aceite.
+    /// "*" corresponde sempre quando o recurso existe.
+    /// </summary>
+    public static bool CorrespondeIfMatch(byte[] rowVersion, string? ifMatch)
+    {
+        ArgumentNullException.ThrowIfNull(rowVersion);
+
+        if (string.IsNullOrWhiteSpace(ifMatch))
+        {
+            return true;
+        }
+
+        var valor = ifMatch.Trim();
+
+        if (valor == "*")
+        {
+            return true;
+        }
+
+        // If-Match exige comparação forte: ETags fracos nunca correspondem.
+        if (valor.StartsWith("W/", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var atual = ParaETag(rowVersion);
+
+        return string.Equals(valor, atual, StringComparison.Ordinal);
     }
 }

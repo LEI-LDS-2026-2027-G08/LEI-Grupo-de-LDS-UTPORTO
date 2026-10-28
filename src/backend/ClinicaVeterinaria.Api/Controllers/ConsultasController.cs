@@ -11,7 +11,7 @@ namespace ClinicaVeterinaria.Api.Controllers;
 /// <summary>
 /// Agenda e consulta de marcações (EP-023, EP-024): Rececionista, Veterinário e Auxiliar
 /// Veterinário. O Veterinário só vê as marcações que lhe estão atribuídas, identificado pelo token.
-/// Criação de marcações (EP-025): só Rececionista.
+/// Criação, alteração e gestão do estado das marcações (EP-025 a EP-027): só Rececionista.
 /// </summary>
 [ApiController]
 [Route("consultas")]
@@ -105,5 +105,79 @@ public sealed class ConsultasController : ControllerBase
         Response.Headers.ETag = resultado.ETag;
 
         return CreatedAtAction(nameof(GetConsulta), new { id = resultado.Consulta.Id }, resultado.Consulta);
+    }
+
+    /// <summary>EP-026 — Alterar marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Altera o Veterinário, a data/hora e o motivo de uma marcação Pendente ou Confirmada.
+    /// O novo horário volta a ser validado quanto ao horário da clínica e disponibilidade
+    /// do Veterinário. O cabeçalho If-Match é opcional.
+    /// </remarks>
+    /// <response code="200">Marcação atualizada, com a nova ETag.</response>
+    /// <response code="400">Dados inválidos ou data/hora não futura.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação ou Veterinário inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Marcação finalizada ou novo horário indisponível.</response>
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ConsultaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ConsultaDto>> AtualizarConsulta(
+        int id,
+        UpdateConsultaDto pedido,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var resultado = await _consultasService.AtualizarConsultaAsync(
+            id,
+            pedido,
+            ifMatch);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return Ok(resultado.Consulta);
+    }
+
+    /// <summary>EP-027 — Atualizar estado da marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Aplica uma transição válida para Confirmada, Realizada ou Cancelada.
+    /// Pendente nunca pode ser escolhido manualmente.
+    /// O cabeçalho If-Match é opcional.
+    /// </remarks>
+    /// <response code="204">Estado atualizado.</response>
+    /// <response code="400">Estado inexistente ou Pendente.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Transição de estado inválida.</response>
+    [HttpPatch("{id:int}/estado")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> AtualizarEstado(
+        int id,
+        UpdateEstadoConsultaDto pedido,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var etag = await _consultasService.AtualizarEstadoAsync(
+            id,
+            pedido,
+            ifMatch);
+
+        Response.Headers.ETag = etag;
+
+        return NoContent();
     }
 }

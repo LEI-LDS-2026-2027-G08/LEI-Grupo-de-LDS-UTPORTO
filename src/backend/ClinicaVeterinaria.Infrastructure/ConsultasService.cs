@@ -281,6 +281,196 @@ public sealed class ConsultasService : IConsultasService
         return await ObterConsultaAsync(marcacao.Id, AcessoConsultas.Rececionista);
     }
 
+    public async Task<ConsultaComVersao> AtualizarConsultaAsync(
+    int id,
+    UpdateConsultaDto pedido,
+    string? ifMatch)
+    {
+        ArgumentNullException.ThrowIfNull(pedido);
+
+        // Aplica também as DataAnnotations quando o serviço é chamado diretamente.
+        Validar(pedido);
+
+        var inicioUtc = ParaUtcAoSegundo(pedido.DataHora!.Value);
+        var agoraUtc = _relogio.GetUtcNow().UtcDateTime;
+
+        if (inicioUtc <= agoraUtc)
+        {
+            throw new ArgumentException(MensagemDataNaoFutura);
+        }
+
+        var marcacao = await _db.Marcacoes
+            .FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+
+        // If-Match é opcional. Quando vem indicado, tem de corresponder
+        // fortemente à RowVersion atual.
+        if (!VersaoMarcacao.CorrespondeIfMatch(marcacao.RowVersion, ifMatch))
+        {
+            throw new PreconditionFailedException(
+                "A versão indicada em If-Match não corresponde à versão atual da marcação.");
+        }
+
+        // Realizada e Cancelada são estados finais para efeitos de alteração.
+        if (marcacao.Estado is EstadosConsulta.Realizada or EstadosConsulta.Cancelada)
+        {
+            throw new UnprocessableEntityException(
+                "Uma marcação Realizada ou Cancelada não pode ser alterada.");
+        }
+
+        var veterinarioId = pedido.VeterinarioId!.Value;
+
+        // Mesma regra de EP-025: tem de existir um funcionário ativo
+        // com perfil de Veterinário.
+        var veterinarioAtivo = await (
+                from u in _db.Utilizadores.AsNoTracking()
+                join f in _db.Funcionarios.AsNoTracking()
+                    on u.Id equals f.UtilizadorId
+                where u.Id == veterinarioId
+                      && u.Perfil == Perfis.Veterinario
+                      && u.Estado == EstadosUtilizador.Ativo
+                select u.Id)
+            .AnyAsync();
+
+        if (!veterinarioAtivo)
+        {
+            throw new KeyNotFoundException(MensagemVeterinarioNaoEncontrado);
+        }
+
+        var horario = await _db.HorariosFuncionamento.AsNoTracking()
+            .Where(h => h.Ativo)
+            .Select(h => new PeriodoValidado(
+                h.DiaSemana,
+                h.HoraAbertura,
+                h.HoraFecho))
+            .ToListAsync();
+
+        var fuso = FusoHorarioClinica.Obter();
+
+        // Primeiro distinguimos "fora do horário" de "Veterinário indisponível".
+        if (!CalculadoraDisponibilidade.IntervaloDisponivel(
+                inicioUtc,
+                marcacao.DuracaoMinutos,
+                horario,
+                [],
+                fuso))
+        {
+            throw new UnprocessableEntityException(MensagemForaDoHorario);
+        }
+
+        var relacional = _db.Database.IsRelational();
+
+        await using var transacao = relacional
+            ? await _db.Database.BeginTransactionAsync()
+            : null;
+
+        // A I073 deixou este bloqueio precisamente para ser reutilizado pelo EP-026.
+        await BloqueioAgendaVeterinario.AdquirirAsync(_db, veterinarioId);
+
+        var fimUtc = inicioUtc.AddMinutes(marcacao.DuracaoMinutos);
+
+        var marcacoes = await _db.Marcacoes.AsNoTracking()
+            .Where(m =>
+                m.Id != id
+                && m.VeterinarioId == veterinarioId
+                && m.Estado != EstadosConsulta.Cancelada
+                && m.DataHoraInicio < fimUtc
+                && m.DataHoraInicio.AddMinutes(m.DuracaoMinutos) > inicioUtc)
+            .Select(m => new MarcacaoAgendada(
+                m.DataHoraInicio,
+                m.DuracaoMinutos,
+                m.Estado))
+            .ToListAsync();
+
+        if (!CalculadoraDisponibilidade.IntervaloDisponivel(
+                inicioUtc,
+                marcacao.DuracaoMinutos,
+                horario,
+                marcacoes,
+                fuso))
+        {
+            throw new UnprocessableEntityException(
+                MensagemVeterinarioIndisponivel);
+        }
+
+        marcacao.VeterinarioId = veterinarioId;
+        marcacao.DataHoraInicio = inicioUtc;
+        marcacao.Motivo = string.IsNullOrWhiteSpace(pedido.Motivo)
+            ? null
+            : pedido.Motivo.Trim();
+
+        marcacao.DataUltimaAlteracao = ParaUtcAoSegundo(agoraUtc);
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException erro)
+        {
+            throw new PreconditionFailedException(
+                "A marcação foi alterada por outro pedido. Obtenha a versão atual e tente novamente.",
+                erro);
+        }
+
+        if (transacao is not null)
+        {
+            await transacao.CommitAsync();
+        }
+
+        return await ObterConsultaAsync(
+            marcacao.Id,
+            AcessoConsultas.Rececionista);
+    }
+
+    public async Task<string> AtualizarEstadoAsync(
+        int id,
+        UpdateEstadoConsultaDto pedido,
+        string? ifMatch)
+    {
+        ArgumentNullException.ThrowIfNull(pedido);
+
+        Validar(pedido);
+
+        var novoEstado = MaquinaEstadosMarcacao.NormalizarDestino(
+            pedido.Estado);
+
+        var marcacao = await _db.Marcacoes
+            .FirstOrDefaultAsync(m => m.Id == id)
+            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+
+        if (!VersaoMarcacao.CorrespondeIfMatch(
+                marcacao.RowVersion,
+                ifMatch))
+        {
+            throw new PreconditionFailedException(
+                "A versão indicada em If-Match não corresponde à versão atual da marcação.");
+        }
+
+        MaquinaEstadosMarcacao.ValidarTransicao(
+            marcacao.Estado,
+            novoEstado);
+
+        marcacao.Estado = novoEstado;
+        marcacao.DataUltimaAlteracao =
+            ParaUtcAoSegundo(_relogio.GetUtcNow().UtcDateTime);
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException erro)
+        {
+            throw new PreconditionFailedException(
+                "A marcação foi alterada por outro pedido. Obtenha a versão atual e tente novamente.",
+                erro);
+        }
+
+        return VersaoMarcacao.ParaETag(marcacao.RowVersion);
+
+        // pedido.Observacao faz parte do contrato de EP-027,
+        // mas o Modelo de Dados atual não tem campo onde a persistir.
+    }
+
     /// <summary>
     /// Marcações com o animal, a espécie, o proprietário e o nome do Veterinário, por data e hora
     /// e, em caso de empate, por identificador (ordem estável para a paginação).
