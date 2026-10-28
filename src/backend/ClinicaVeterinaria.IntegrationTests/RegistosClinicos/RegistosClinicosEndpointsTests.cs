@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Infrastructure;
 using ClinicaVeterinaria.IntegrationTests.Infraestrutura;
 using Microsoft.EntityFrameworkCore;
@@ -88,6 +89,10 @@ public sealed class RegistosClinicosEndpointsTests :
             new { consultaId = m3, notasClinicas = "   ", diagnostico = "", tratamentos = Array.Empty<object>(), prescricoes = Array.Empty<object>() });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
+
+        // A mensagem é a da regra, e não a de «corpo inválido» (o erro tem de estar associado a campos).
+        using var documento = await LerAsync(resposta);
+        Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, documento.RootElement.GetProperty("detail").GetString());
     }
 
     [Fact(DisplayName = "IT-EP031-04 — prescrição incompleta (sem dosagem) devolve 400")]
@@ -302,6 +307,8 @@ public sealed class RegistosClinicosEndpointsTests :
         using var resposta = await cliente.PutAsJsonAsync($"/registos-clinicos/{registoId}", new { notasClinicas = "" });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
+        using var documento = await LerAsync(resposta);
+        Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, documento.RootElement.GetProperty("detail").GetString());
         var depois = await LerRegistoAsync(registoId);
         Assert.Equal(antes.Diagnostico, depois.Diagnostico);
         Assert.Equal(antes.AtualizadoEm, depois.AtualizadoEm);

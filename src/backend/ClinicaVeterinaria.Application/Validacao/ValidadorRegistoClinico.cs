@@ -37,7 +37,16 @@ public static class ValidadorRegistoClinico
 
         if (!temElemento)
         {
-            yield return new ValidationResult(MensagemSemElementoClinico);
+            // Com os campos indicados, para o ASP.NET Core não guardar o erro numa chave vazia,
+            // que o RespostaValidacaoModelo (I058) trata como «corpo inválido».
+            yield return new ValidationResult(
+                MensagemSemElementoClinico,
+                [
+                    nameof(UpdateRegistoClinicoDto.NotasClinicas),
+                    nameof(UpdateRegistoClinicoDto.Diagnostico),
+                    nameof(UpdateRegistoClinicoDto.Tratamentos),
+                    nameof(UpdateRegistoClinicoDto.Prescricoes)
+                ]);
         }
 
         if (TemIdRepetido(tratamentos?.Select(t => t.Id)))
