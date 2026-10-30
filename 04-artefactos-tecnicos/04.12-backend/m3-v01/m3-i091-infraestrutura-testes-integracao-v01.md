@@ -1,15 +1,15 @@
 # I091 — Infraestrutura dos Testes de Integração
 
-| Campo     | Valor                                                                                 |
-| --------- | ------------------------------------------------------------------------------------- |
-| Issue     | I091 — Criar a infraestrutura dos testes de integração                                |
-| Sprint    | S04                                                                                   |
-| Milestone | M3                                                                                    |
-| Executor  | Gonçalo Dinis Magalhães Teixeira                                                      |
-| Revisor   | Ivan Cristiano Silva Mendes                                                           |
-| Auditor   | Gonçalo Magalhães Ribeiro                                                             |
-| Data      | 2026-10-26                                                                            |
-| Estado    | Implementação do Executor concluída localmente; aguarda pipeline, revisão e auditoria |
+| Campo     | Valor                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------- |
+| Issue     | I091 — Criar a infraestrutura dos testes de integração                                               |
+| Sprint    | S04                                                                                                  |
+| Milestone | M3                                                                                                   |
+| Executor  | Gonçalo Dinis Magalhães Teixeira                                                                     |
+| Revisor   | Ivan Cristiano Silva Mendes                                                                          |
+| Auditor   | Gonçalo Magalhães Ribeiro                                                                            |
+| Data      | 2026-10-26                                                                                           |
+| Estado    | Integrada em develop (PR #193, 46860a4, 2026-10-26 12:07); confirmada na pipeline; revisão concluída |
 
 ## 1. Objetivo
 
@@ -387,16 +387,14 @@ skipped: 0
 
 ## 14. Critérios de aceitação da I091
 
-| Critério                                                              | Estado                                |
-| --------------------------------------------------------------------- | ------------------------------------- |
-| 1. Casos I030 aplicáveis implementados com identificador              | Cumprido                              |
-| 2. API real em memória + SQL Server isolado + independência da ordem  | Cumprido localmente                   |
-| 3. Cliente HTTP autenticado por perfil numa única linha               | Cumprido                              |
-| 4. Base criada e destruída automaticamente sem instâncias partilhadas | Cumprido localmente                   |
-| 5. Teste demonstrativo de autenticação e isolamento                   | Cumprido                              |
-| 6. Execução sem falhas e resultado legível pela pipeline              | Cumprido localmente através de `.trx` |
-
-A confirmação da execução na pipeline fica dependente do push da branch.
+| Critério                                                              | Estado                                                                                                                                                                                                                                     |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. Casos I030 aplicáveis implementados com identificador              | Cumprido                                                                                                                                                                                                                                   |
+| 2. API real em memória + SQL Server isolado + independência da ordem  | Cumprido — confirmado na pipeline (https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/40319862837)                                                                                                             |
+| 3. Cliente HTTP autenticado por perfil numa única linha               | Cumprido                                                                                                                                                                                                                                   |
+| 4. Base criada e destruída automaticamente sem instâncias partilhadas | Cumprido — confirmado na pipeline (https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/40319862837)                                                                                                             |
+| 5. Teste demonstrativo de autenticação e isolamento                   | Cumprido                                                                                                                                                                                                                                   |
+| 6. Execução sem falhas e resultado legível pela pipeline              | Cumprido — confirmado na pipeline (https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/40319862837); os resultados TRX são publicados pela pipeline `backend-ci.yml` (artefacto `resultados-testes-integracao`) |
 
 ---
 
@@ -417,17 +415,12 @@ Foram produzidas localmente as seguintes evidências:
 
 ---
 
-## 16. Estado antes da revisão
+## 16. Estado após a integração
 
-A implementação técnica local do Executor encontra-se concluída.
-
-Ainda ficam pendentes:
-
-1. commit das alterações;
-2. push da branch;
-3. execução da pipeline;
-4. confirmação dos testes na pipeline;
-5. revisão independente pelo Revisor;
-6. auditoria pelo Auditor.
-
-Após a pipeline ficar verde, o registo deverá ser atualizado com a evidência dessa execução.
+| Passo                 | Estado                | Evidência                                                                                                                   |
+| --------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Commit e Pull Request | Concluído             | Commit 7c02f8a; PR #193, aberta a 2026-10-26 11:41                                                                          |
+| Execução da pipeline  | Concluído com sucesso | [Execução no separador Actions](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/40319862837) |
+| Revisão               | Concluída             | Ivan Cristiano Silva Mendes; aprovação a 2026-10-26 12:06; relatório `m3-s04-i091-20261026-relatorio-revisao-v01`           |
+| Integração em develop | Concluída             | Merge como 46860a4 (2026-10-26 12:07)                                                                                       |
+| Auditoria             | A cargo do Auditor    | Gonçalo Magalhães Ribeiro                                                                                                   |
