@@ -242,7 +242,7 @@ Cors__AllowedOrigins__0
 Cors__AllowedOrigins__1
 ```
 
-A política expõe o cabeçalho `ETag` (`Access-Control-Expose-Headers`), para o frontend web poder ler a versão da marcação devolvida por EP-024 (Documentação de API v02, secção 5.1). O cabeçalho `If-Match`, que a I074 vai usar, já é aceite por `AllowAnyHeader`.
+A política expõe o cabeçalho `ETag` (`Access-Control-Expose-Headers`), para o frontend web poder ler a versão da marcação devolvida por EP-024 (Documentação de API v02, secção 5.1). O cabeçalho `If-Match`, utilizado em EP-026 e EP-027, é aceite por `AllowAnyHeader`.
 
 ## Tratamento de erros
 
@@ -265,6 +265,7 @@ São tratados os códigos:
 - `403` - Forbidden
 - `404` - Not Found
 - `409` - Conflict
+- `412` - Precondition Failed (concorrência otimista nas marcações)
 - `422` - Unprocessable Entity
 
 ## Logging
@@ -301,7 +302,7 @@ Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header
 
 **Sem dados clínicos (critério 5).** `ConsultaListItemDto`, `ConsultaDto` e `NotaPreparacaoDto` só têm dados administrativos (data e hora, duração, estado, motivo, chegada, animal, proprietário e Veterinário) e as notas de preparação. O `ConsultasService` não lê o registo clínico, os tratamentos nem as prescrições. A resposta é a mesma para os três perfis, por isso o Auxiliar Veterinário, com ou sem autorização de apoio, recebe as notas e nenhum dado clínico. O telefone do proprietário (`cliente.telefone`) vem a `null`: só é devolvido na ficha do animal (EP-016).
 
-**Versão da marcação.** EP-024 devolve o cabeçalho `ETag` com a versão atual (`Marcacao.RowVersion` em Base64, entre aspas, por exemplo `"AAAAAAAAB9E="`), calculado em `VersaoMarcacao` (`ClinicaVeterinaria.Application/Agenda`). A comparação com `If-Match` e a resposta `412` são da I074 (EP-026 a EP-028).
+**Versão da marcação.** EP-024 devolve o cabeçalho `ETag` com a versão atual (`Marcacao.RowVersion` em Base64, entre aspas, por exemplo `"AAAAAAAAB9E="`), calculado em `VersaoMarcacao` (`ClinicaVeterinaria.Application/Agenda`). A comparação com `If-Match` e a resposta `412` são utilizadas em EP-026 e EP-027 (I074).
 
 As datas e horas da resposta (`dataHora`, `chegadaEm`, `criadaEm`) estão em UTC, com o sufixo `Z`.
 
@@ -327,7 +328,7 @@ Regras, pela ordem em que são verificadas:
 
 As duas verificações de `422` usam `CalculadoraDisponibilidade.IntervaloDisponivel` (I071): primeiro sem marcações, para distinguir «fora do horário» de «indisponível», e depois com as marcações do Veterinário.
 
-**Pedidos simultâneos para a mesma vaga.** A leitura da agenda e a gravação são feitas numa transação, com a agenda do Veterinário bloqueada por `sp_getapplock` (`BloqueioAgendaVeterinario`, em `ClinicaVeterinaria.Infrastructure`). O segundo pedido espera que o primeiro termine, volta a ler a agenda e recebe `422`; só uma marcação é gravada. O `RowVersion` não chega para isto, porque só protege alterações a uma linha que já existe. Se o bloqueio não for obtido em 15 segundos, a resposta é `409`. A alteração de marcações (EP-026, I074) deve usar o mesmo bloqueio quando muda a data, a hora ou o Veterinário.
+**Pedidos simultâneos para a mesma vaga.** A leitura da agenda e a gravação são feitas numa transação, com a agenda do Veterinário bloqueada por `sp_getapplock` (`BloqueioAgendaVeterinario`, em `ClinicaVeterinaria.Infrastructure`). O segundo pedido espera que o primeiro termine, volta a ler a agenda e recebe `422`; só uma marcação é gravada. O `RowVersion` não chega para isto, porque só protege alterações a uma linha que já existe. Se o bloqueio não for obtido em 15 segundos, a resposta é `409`. A alteração de marcações (EP-026, I074) reutiliza o mesmo bloqueio quando muda a data, a hora ou o Veterinário.
 
 Exemplos com o horário dos dados da I061 e consultas de 30 minutos (horas de Lisboa):
 
