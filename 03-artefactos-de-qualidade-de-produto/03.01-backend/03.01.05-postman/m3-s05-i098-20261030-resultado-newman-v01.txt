@@ -1,0 +1,808 @@
+newman
+
+Clínica Veterinária G08 — API m3 (EP-001 a EP-020)
+
+Folder 00 · Preparação — sessões por perfil
+Sub-folder EP-001 · 200 — iniciar sessão (Administrador)
+  POST http://localhost:5159/auth/login [200 OK, 714B, 118ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Administrador
+  Pass  O Administrador não tem clienteId
+
+Sub-folder EP-001 · 200 — iniciar sessão (Rececionista)
+  POST http://localhost:5159/auth/login [200 OK, 719B, 75ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Rececionista
+
+Sub-folder EP-001 · 200 — iniciar sessão (Veterinário)
+  POST http://localhost:5159/auth/login [200 OK, 747B, 79ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Veterinario
+
+Sub-folder EP-001 · 200 — iniciar sessão (Auxiliar Veterinário)
+  POST http://localhost:5159/auth/login [200 OK, 732B, 81ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil AuxiliarVeterinario
+
+Sub-folder EP-001 · 200 — iniciar sessão (Cliente)
+  POST http://localhost:5159/auth/login [200 OK, 731B, 72ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Cliente
+  Pass  O Cliente tem clienteId
+
+Folder 01 · Autenticação (EP-001 a EP-003)
+Sub-folder EP-001 · 400 — e-mail em falta
+  POST http://localhost:5159/auth/login [400 Bad Request, 236B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-001 · 400 — palavra-passe em falta
+  POST http://localhost:5159/auth/login [400 Bad Request, 243B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-001 · 401 — palavra-passe incorreta
+  POST http://localhost:5159/auth/login [401 Unauthorized, 246B, 78ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+  Pass  Não devolve token
+
+Sub-folder EP-001 · 401 — e-mail inexistente (mesma resposta)
+  POST http://localhost:5159/auth/login [401 Unauthorized, 246B, 69ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-001 · 403 — conta bloqueada (palavra-passe correta)
+  POST http://localhost:5159/auth/login [403 Forbidden, 296B, 64ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-003 · 200 — utilizador autenticado (Administrador)
+  GET http://localhost:5159/auth/me [200 OK, 273B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve o Administrador do token
+
+Sub-folder EP-003 · 200 — utilizador autenticado (Cliente, com clienteId)
+  GET http://localhost:5159/auth/me [200 OK, 267B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve o Cliente com clienteId
+
+Sub-folder EP-003 · 401 — sem token
+  GET http://localhost:5159/auth/me [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-003 · 401 — token adulterado
+  GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 5ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-003 · 401 — token assinado com outra chave
+  GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-002 · preparação — iniciar a sessão a terminar (EP-001 · 200)
+  POST http://localhost:5159/auth/login [200 OK, 714B, 67ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Administrador
+
+Sub-folder EP-002 · 204 — terminar sessão
+  POST http://localhost:5159/auth/logout [204 No Content, 81B, 13ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 204
+  Pass  Sem corpo
+
+Sub-folder EP-002 · 401 — o token terminado deixa de ser aceite (EP-003)
+  GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-002 · 401 — terminar sessão outra vez com o token revogado
+  POST http://localhost:5159/auth/logout [401 Unauthorized, 288B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-002 · 401 — sem token
+  POST http://localhost:5159/auth/logout [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Folder 02 · Contas de funcionário (EP-004 a EP-008)
+Sub-folder EP-004 · 200 — listar contas de funcionário
+  GET http://localhost:5159/utilizadores [200 OK, 1.65kB, 25ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Envelope paginado (itens, pagina, tamanho, total)
+  Pass  Nunca lista contas de Cliente
+  Pass  Cada conta tem id, nome, e-mail, perfil e estado
+
+Sub-folder EP-004 · 200 — filtrar por perfil e estado
+  GET http://localhost:5159/utilizadores?perfil=Veterinario&estado=Ativo [200 OK, 512B, 16ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Só Veterinários ativos
+
+Sub-folder EP-004 · 400 — perfil fora da enumeração
+  GET http://localhost:5159/utilizadores?perfil=Gestor [400 Bad Request, 341B, 13ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-004 · 401 — sem token
+  GET http://localhost:5159/utilizadores [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-004 · 403 — Rececionista
+  GET http://localhost:5159/utilizadores [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-005 · 200 — consultar conta de funcionário
+  GET http://localhost:5159/utilizadores/1 [200 OK, 356B, 13ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve a conta do Administrador
+
+Sub-folder EP-005 · 404 — conta de Cliente não é conta de funcionário
+  GET http://localhost:5159/utilizadores/8 [404 Not Found, 258B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-005 · 404 — conta inexistente
+  GET http://localhost:5159/utilizadores/999999 [404 Not Found, 258B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-005 · 401 — sem token
+  GET http://localhost:5159/utilizadores/1 [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-005 · 403 — Veterinário
+  GET http://localhost:5159/utilizadores/1 [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-006 · 201 — criar conta de funcionário (Rececionista)
+  POST http://localhost:5159/utilizadores [201 Created, 356B, 80ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 201
+  Pass  Conta ativa com os dados enviados
+  Pass  Location indica a conta criada
+
+Sub-folder EP-006 · 400 — palavra-passe fraca
+  POST http://localhost:5159/utilizadores [400 Bad Request, 348B, 9ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-006 · 409 — e-mail já registado
+  POST http://localhost:5159/utilizadores [409 Conflict, 258B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 409
+
+Sub-folder EP-006 · 422 — perfil Cliente
+  POST http://localhost:5159/utilizadores [422 Unprocessable Entity, 367B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-006 · 422 — podeRegistarApoio para um Veterinário
+  POST http://localhost:5159/utilizadores [422 Unprocessable Entity, 344B, 10ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-006 · 401 — sem token
+  POST http://localhost:5159/utilizadores [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-006 · 403 — Rececionista
+  POST http://localhost:5159/utilizadores [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-006 · 200 — a conta criada inicia sessão (EP-001)
+  POST http://localhost:5159/auth/login [200 OK, 741B, 67ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Rececionista
+
+Sub-folder EP-007 · 200 — atualizar e atribuir o perfil Auxiliar com apoio
+  PUT http://localhost:5159/utilizadores/15 [200 OK, 380B, 19ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve a conta atualizada (formato de EP-005)
+
+Sub-folder EP-007 · 401 — o token com o perfil antigo deixa de ser aceite (EP-003)
+  GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 6ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-007 · 400 — dados inválidos
+  PUT http://localhost:5159/utilizadores/15 [400 Bad Request, 344B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-007 · 400 — perfil Cliente
+  PUT http://localhost:5159/utilizadores/15 [400 Bad Request, 334B, 10ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-007 · 404 — conta inexistente
+  PUT http://localhost:5159/utilizadores/999999 [404 Not Found, 258B, 15ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-007 · 409 — e-mail usado por outra conta
+  PUT http://localhost:5159/utilizadores/15 [409 Conflict, 262B, 16ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 409
+
+Sub-folder EP-007 · 422 — o Administrador remove o próprio perfil
+  PUT http://localhost:5159/utilizadores/1 [422 Unprocessable Entity, 322B, 14ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-007 · 422 — podeRegistarApoio para um perfil diferente de Auxiliar
+  PUT http://localhost:5159/utilizadores/15 [422 Unprocessable Entity, 344B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-007 · 401 — sem token
+  PUT http://localhost:5159/utilizadores/15 [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-007 · 403 — Rececionista
+  PUT http://localhost:5159/utilizadores/15 [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-008 · preparação — sessão da conta com o perfil atual (EP-001 · 200)
+  POST http://localhost:5159/auth/login [200 OK, 771B, 84ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil AuxiliarVeterinario
+
+Sub-folder EP-008 · 400 — estado diferente de Bloqueado
+  PATCH http://localhost:5159/utilizadores/15/estado [400 Bad Request, 296B, 9ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-008 · 404 — conta inexistente
+  PATCH http://localhost:5159/utilizadores/999999/estado [404 Not Found, 258B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-008 · 422 — o Administrador bloqueia a própria conta
+  PATCH http://localhost:5159/utilizadores/1/estado [422 Unprocessable Entity, 305B, 9ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-008 · 422 — conta de Cliente
+  PATCH http://localhost:5159/utilizadores/8/estado [422 Unprocessable Entity, 350B, 10ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Sub-folder EP-008 · 401 — sem token
+  PATCH http://localhost:5159/utilizadores/15/estado [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-008 · 403 — Rececionista
+  PATCH http://localhost:5159/utilizadores/15/estado [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-008 · 204 — bloquear a conta
+  PATCH http://localhost:5159/utilizadores/15/estado [204 No Content, 81B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 204
+  Pass  Sem corpo
+
+Sub-folder EP-008 · 401 — o token emitido antes do bloqueio deixa de ser aceite (EP-003)
+  GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 5ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-008 · 403 — a conta bloqueada já não inicia sessão (EP-001)
+  POST http://localhost:5159/auth/login [403 Forbidden, 296B, 64ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-008 · 422 — conta já bloqueada
+  PATCH http://localhost:5159/utilizadores/15/estado [422 Unprocessable Entity, 281B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 422
+
+Folder 03 · Clínica (EP-009, EP-010)
+Sub-folder EP-009 · 200 — consultar dados, configurações e horário
+  GET http://localhost:5159/clinica [200 OK, 993B, 18ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Tem os dados gerais e a duração das consultas
+  Pass  Cada período tem dia, abertura e fecho
+
+Sub-folder EP-009 · 401 — sem token
+  GET http://localhost:5159/clinica [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-009 · 403 — Rececionista
+  GET http://localhost:5159/clinica [403 Forbidden, 311B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-010 · 200 — atualizar a duração e o horário (vários períodos, fora de ordem)
+  PUT http://localhost:5159/clinica [200 OK, 590B, 43ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Guarda a nova duração
+  Pass  Devolve o horário ordenado por dia e hora
+
+Sub-folder EP-010 · 400 — períodos sobrepostos no mesmo dia
+  PUT http://localhost:5159/clinica [400 Bad Request, 280B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-010 · 400 — hora de fecho igual à de abertura
+  PUT http://localhost:5159/clinica [400 Bad Request, 270B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-010 · 400 — campos inválidos
+  PUT http://localhost:5159/clinica [400 Bad Request, 608B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-010 · 401 — sem token
+  PUT http://localhost:5159/clinica [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-010 · 403 — Rececionista
+  PUT http://localhost:5159/clinica [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-010 · 200 — repor os dados originais
+  PUT http://localhost:5159/clinica [200 OK, 993B, 33ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  A clínica volta ao estado inicial
+
+Folder 04 · Clientes (EP-011 a EP-014)
+Sub-folder EP-011 · 200 — pesquisar clientes
+  GET http://localhost:5159/clientes?pesquisa=silva [200 OK, 340B, 24ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Envelope paginado (itens, pagina, tamanho, total)
+  Pass  Encontra clientes e indica o número de animais
+
+Sub-folder EP-011 · 400 — página inválida
+  GET http://localhost:5159/clientes?pagina=0 [400 Bad Request, 252B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-011 · 401 — sem token
+  GET http://localhost:5159/clientes [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-011 · 403 — Auxiliar Veterinário
+  GET http://localhost:5159/clientes [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-011 · 403 — Cliente
+  GET http://localhost:5159/clientes [403 Forbidden, 311B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-012 · 200 — consultar cliente com os animais
+  GET http://localhost:5159/clientes/1 [200 OK, 448B, 15ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve o Cliente do seed
+  Pass  Lista os animais do Cliente
+
+Sub-folder EP-012 · 404 — cliente inexistente
+  GET http://localhost:5159/clientes/999999 [404 Not Found, 240B, 13ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-012 · 401 — sem token
+  GET http://localhost:5159/clientes/1 [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-012 · 403 — Auxiliar Veterinário
+  GET http://localhost:5159/clientes/1 [403 Forbidden, 311B, 6ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-013 · 201 — criar conta de Cliente
+  POST http://localhost:5159/clientes [201 Created, 395B, 73ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 201
+  Pass  Cliente criado com a conta ativa
+  Pass  Location indica a ficha
+
+Sub-folder EP-013 · 200 — o Cliente criado inicia sessão (EP-001)
+  POST http://localhost:5159/auth/login [200 OK, 750B, 72ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve um token JWT e a data de expiração
+  Pass  O utilizador tem o perfil Cliente
+  Pass  O token é do Cliente criado
+
+Sub-folder EP-013 · 400 — campos em falta, NIF e e-mail inválidos
+  POST http://localhost:5159/clientes [400 Bad Request, 418B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-013 · 409 — NIF já registado
+  POST http://localhost:5159/clientes [409 Conflict, 256B, 18ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 409
+
+Sub-folder EP-013 · 409 — e-mail já registado (conta de funcionário)
+  POST http://localhost:5159/clientes [409 Conflict, 258B, 10ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 409
+
+Sub-folder EP-013 · 401 — sem token
+  POST http://localhost:5159/clientes [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-013 · 403 — Veterinário
+  POST http://localhost:5159/clientes [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-014 · 200 — atualizar cliente (e o e-mail da conta)
+  PUT http://localhost:5159/clientes/6 [200 OK, 364B, 26ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve o cliente atualizado
+
+Sub-folder EP-014 · 400 — campos inválidos
+  PUT http://localhost:5159/clientes/6 [400 Bad Request, 366B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-014 · 404 — cliente inexistente
+  PUT http://localhost:5159/clientes/999999 [404 Not Found, 240B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-014 · 409 — NIF de outro cliente
+  PUT http://localhost:5159/clientes/6 [409 Conflict, 256B, 16ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 409
+
+Sub-folder EP-014 · 401 — sem token
+  PUT http://localhost:5159/clientes/6 [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-014 · 403 — Veterinário
+  PUT http://localhost:5159/clientes/6 [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Folder 05 · Pacientes (EP-015 a EP-018)
+Sub-folder EP-015 · 200 — pacientes de um Cliente
+  GET http://localhost:5159/animais?clienteId=1 [200 OK, 490B, 21ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Envelope paginado (itens, pagina, tamanho, total)
+  Pass  Só animais do Cliente indicado
+  Pass  Inclui o Bobi e a Mia
+
+Sub-folder EP-015 · 200 — pesquisar por nome do animal
+  GET http://localhost:5159/animais?pesquisa=Kiko [200 OK, 345B, 24ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Encontra o Kiko, de outro Cliente
+
+Sub-folder EP-015 · 400 — paginação inválida
+  GET http://localhost:5159/animais?pagina=0&tamanho=101 [400 Bad Request, 299B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-015 · 401 — sem token
+  GET http://localhost:5159/animais [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-015 · 403 — Cliente
+  GET http://localhost:5159/animais [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-016 · 200 — ficha administrativa (Auxiliar Veterinário)
+  GET http://localhost:5159/animais/1 [200 OK, 387B, 15ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve a ficha com o proprietário
+  Pass  Sem dados clínicos
+
+Sub-folder EP-016 · 404 — animal inexistente
+  GET http://localhost:5159/animais/999999 [404 Not Found, 239B, 19ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-016 · 401 — sem token
+  GET http://localhost:5159/animais/1 [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-016 · 403 — Cliente
+  GET http://localhost:5159/animais/1 [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-017 · 201 — registar paciente
+  POST http://localhost:5159/animais [201 Created, 433B, 28ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 201
+  Pass  Ficha criada para o Cliente indicado
+  Pass  Location indica a ficha
+
+Sub-folder EP-017 · 400 — peso igual a zero
+  POST http://localhost:5159/animais [400 Bad Request, 240B, 6ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-017 · 400 — data de nascimento futura
+  POST http://localhost:5159/animais [400 Bad Request, 246B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-017 · 400 — clienteId em falta
+  POST http://localhost:5159/animais [400 Bad Request, 245B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-017 · 404 — cliente inexistente
+  POST http://localhost:5159/animais [404 Not Found, 240B, 9ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-017 · 401 — sem token
+  POST http://localhost:5159/animais [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-017 · 403 — Auxiliar Veterinário
+  POST http://localhost:5159/animais [403 Forbidden, 311B, 6ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-017 · 403 — Cliente
+  POST http://localhost:5159/animais [403 Forbidden, 311B, 6ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-018 · 200 — atualizar dados administrativos
+  PUT http://localhost:5159/animais/7 [200 OK, 413B, 30ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve a ficha atualizada
+
+Sub-folder EP-018 · 400 — peso inválido
+  PUT http://localhost:5159/animais/7 [400 Bad Request, 240B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-018 · 400 — data de nascimento futura
+  PUT http://localhost:5159/animais/7 [400 Bad Request, 246B, 10ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 400
+
+Sub-folder EP-018 · 404 — animal inexistente
+  PUT http://localhost:5159/animais/999999 [404 Not Found, 239B, 11ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-018 · 404 — novo cliente inexistente
+  PUT http://localhost:5159/animais/7 [404 Not Found, 240B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-018 · 401 — sem token
+  PUT http://localhost:5159/animais/7 [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-018 · 403 — Cliente
+  PUT http://localhost:5159/animais/7 [403 Forbidden, 311B, 9ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Folder 06 · Animais do Cliente — aplicação móvel (EP-019, EP-020)
+Sub-folder EP-019 · 200 — listar os meus animais
+  GET http://localhost:5159/me/animais [200 OK, 332B, 13ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve uma lista com os animais do Cliente
+  Pass  Não inclui animais de outro Cliente
+
+Sub-folder EP-019 · 200 — o Cliente criado vê só o animal registado em EP-017
+  GET http://localhost:5159/me/animais [200 OK, 260B, 12ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Um único animal: o criado nesta execução
+
+Sub-folder EP-019 · 200 — o clienteId no pedido é ignorado
+  GET http://localhost:5159/me/animais?clienteId=6 [200 OK, 332B, 16ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Continua a devolver os animais do Cliente do token
+
+Sub-folder EP-019 · 401 — sem token
+  GET http://localhost:5159/me/animais [401 Unauthorized, 269B, 2ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-019 · 403 — perfil interno (Rececionista)
+  GET http://localhost:5159/me/animais [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+Sub-folder EP-020 · 200 — consultar o meu animal
+  GET http://localhost:5159/me/animais/1 [200 OK, 287B, 14ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Devolve 200
+  Pass  Devolve os dados básicos do animal
+  Pass  Sem dados do proprietário nem clínicos
+
+Sub-folder EP-020 · 403 — animal de outro Cliente
+  GET http://localhost:5159/me/animais/2 [403 Forbidden, 302B, 8ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+  Pass  Não revela dados do animal
+
+Sub-folder EP-020 · 404 — animal inexistente
+  GET http://localhost:5159/me/animais/999999 [404 Not Found, 239B, 14ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 404
+
+Sub-folder EP-020 · 401 — sem token
+  GET http://localhost:5159/me/animais/1 [401 Unauthorized, 269B, 1ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 401
+
+Sub-folder EP-020 · 403 — perfil interno (Veterinário)
+  GET http://localhost:5159/me/animais/1 [403 Forbidden, 311B, 7ms]
+  Pass  Não expõe palavras-passe nem hashes
+  Pass  Erro no formato único da API (code, message, detail)
+  Pass  Devolve 403
+
+------------------------------------------------------------------
+|                         |          executed |           failed |
+--------------------------+-------------------+-------------------
+|              iterations |                 1 |                0 |
+--------------------------+-------------------+-------------------
+|                requests |               125 |                0 |
+--------------------------+-------------------+-------------------
+|            test-scripts |               250 |                0 |
+--------------------------+-------------------+-------------------
+|      prerequest-scripts |                 6 |                0 |
+--------------------------+-------------------+-------------------
+|              assertions |               403 |                0 |
+------------------------------------------------------------------
+| total run duration: 12.7s                                      |
+------------------------------------------------------------------
+| total data received: 25.46kB (approx)                          |
+------------------------------------------------------------------
+| average response time: 17ms [min: 1ms, max: 118ms, s.d.: 23ms] |
+------------------------------------------------------------------

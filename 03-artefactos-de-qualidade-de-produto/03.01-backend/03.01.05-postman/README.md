@@ -6,6 +6,7 @@ Collection Postman e ambiente de variáveis para testar a API do backend, com os
 |---|---|
 | `m3-collection-postman-v01.json` | Collection (formato Postman v2.1), com 125 pedidos e os respetivos testes |
 | `m3-ambiente-postman-v01.json` | Ambiente: URL base, contas de demonstração, palavras-passe vazias e variáveis preenchidas pelos scripts |
+| `m3-s05-i098-20261030-resultado-newman-v01.txt` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
 
 Referências: Documentação de API (I018), dados de demonstração da I061 (`04.13-scripts-de-base-de-dados/m3-v02`) e pedidos de verificação manual do backend (`src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http`).
 
@@ -24,16 +25,21 @@ Referências: Documentação de API (I018), dados de demonstração da I061 (`04
 
 ## Executar com o Newman
 
-Na pasta deste README, com o Node.js instalado:
+Com o Node.js instalado:
+
+1. Copiar `m3-ambiente-postman-v01.json` para uma pasta **fora do repositório** (por exemplo, `C:\Users\<utilizador>\Desktop\newman\`) e preencher nessa cópia o `value` das seis variáveis `password…`. A cópia com palavras-passe nunca volta para o repositório.
+2. Na pasta deste README, executar no PowerShell, indicando o caminho da cópia em `-e`:
 
 ```powershell
-npx -y newman@6.2.1 run m3-collection-postman-v01.json -e m3-ambiente-postman-v01.json `
-  --env-var "passwordAdmin=<...>" --env-var "passwordRececionista=<...>" `
-  --env-var "passwordVeterinario=<...>" --env-var "passwordAuxiliar=<...>" `
-  --env-var "passwordCliente=<...>" --env-var "passwordBloqueada=<...>"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+npx -y newman@6.2.1 run m3-collection-postman-v01.json -e <caminho-da-copia>\m3-ambiente-postman-v01.json `
+  --reporters cli --color off --disable-unicode |
+  Out-File -Encoding utf8 m3-s05-i098-<aaaammdd>-resultado-newman-v01.txt
 ```
 
-Para guardar o resultado como evidência, acrescentar `--reporters cli,json --reporter-json-export newman-resultado.json`. O relatório não deve ser guardado com as palavras-passe: o Newman inclui o ambiente final no JSON, por isso é preciso rever o ficheiro antes de o arquivar, ou arquivar só a saída da consola.
+A primeira linha evita que os acentos fiquem trocados no ficheiro. A evidência é a saída da consola, gravada no `.txt`. Antes de o arquivar, confirmar que a tabela final tem 0 falhas e que o ficheiro não contém nenhuma palavra-passe (por exemplo, procurar `Demo-`).
+
+As palavras-passe não devem ser passadas com `--env-var`: o `npx` escreve o comando completo na consola (linha `npm notice run newman run …`), e ficariam no `.txt`. Pela mesma razão, não usar o relatório `json` do Newman como evidência, porque inclui o ambiente final com as palavras-passe.
 
 A collection pode ser executada várias vezes seguidas sem repor a base de dados. Os pedidos que criam dados usam e-mails novos em cada execução, e a clínica volta aos dados iniciais no fim da pasta 03.
 
@@ -100,7 +106,11 @@ Cada pasta depende das anteriores: a pasta 00 guarda os tokens e as pastas segui
 
 ## Validação da collection
 
-Execução com o Newman 6.2.1 a 2026-10-26, contra a API do branch da I098 (que inclui a I066) e uma base de dados descartável criada com as migrações e os dados de demonstração da I061. Nessa base, e só nela, as palavras-passe das contas de demonstração foram substituídas por uma palavra-passe de teste, porque as verdadeiras não estão no repositório.
+### Execução de referência — 2026-10-30 (evidência do critério 6)
+
+Execução com o Newman 6.2.1 a 2026-10-30, contra a API do ramo `develop` (commit `265cedf`) e uma base de dados nova, criada com `src/backend/scripts/reposicao-base-dados.ps1` (migrações da I062) e com os dados de demonstração da I061 (`executar-dados.ps1`: 28 verificações, 28 OK). As contas de demonstração usaram as palavras-passe originais do seed, as do ficheiro de credenciais da submissão.
+
+Resultado completo: [`m3-s05-i098-20261030-resultado-newman-v01.txt`](m3-s05-i098-20261030-resultado-newman-v01.txt).
 
 | | Executados | Falhados |
 |---|---|---|
@@ -109,4 +119,8 @@ Execução com o Newman 6.2.1 a 2026-10-26, contra a API do branch da I098 (que 
 | Scripts de pré-pedido | 6 | 0 |
 | Verificações (`pm.test`) | 403 | 0 |
 
-A segunda execução seguida, sobre a mesma base, teve o mesmo resultado. A execução de referência para a evidência da I098 (critério 6) deve ser feita contra a base com o seed original, com as credenciais da submissão.
+Duração total: 12,7 s. O ficheiro de resultado não contém palavras-passe nem tokens.
+
+### Primeira validação — 2026-10-26
+
+Execução com o Newman 6.2.1 a 2026-10-26, contra a API do branch da I098 (que inclui a I066) e uma base de dados descartável criada com as migrações e os dados de demonstração da I061. Nessa base, e só nela, as palavras-passe das contas de demonstração foram substituídas por uma palavra-passe de teste, porque as verdadeiras não estão no repositório. O resultado foi o mesmo (125 pedidos e 403 verificações, sem falhas), também numa segunda execução seguida sobre a mesma base.
