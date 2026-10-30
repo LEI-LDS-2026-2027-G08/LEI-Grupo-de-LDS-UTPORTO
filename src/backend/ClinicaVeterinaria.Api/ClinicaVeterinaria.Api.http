@@ -1321,6 +1321,253 @@ Content-Type: application/json
 ###
 
 # =============================================================================
+# I074 — Alteração de marcações e mudança de estado (EP-026, EP-027)
+#
+# Só a Rececionista pode executar EP-026 e EP-027.
+# Usa "passwordRececao" do http-client.env.json.user.
+#
+# Dados da I061 numa base reposta:
+#   M1 = 1 — Realizada
+#   M2 = 2 — Cancelada
+#   M3 = 3 — Confirmada (vet.ana)
+#   M4 = 4 — Pendente (vet.bruno)
+#   M5 = 5 — Pendente (vet.ana)
+#
+# Executar primeiro os dois pedidos auxiliares de leitura para guardar os ETags.
+# Depois executar os 21 cenários pela ordem apresentada.
+# Para repetir toda a sequência, repor a base de dados.
+# =============================================================================
+
+@idConsultaRealizadaI074 = 1
+@idConsultaCanceladaI074 = 2
+@idConsultaConfirmadaI074 = 3
+@idConsultaPendenteI074 = 4
+@idConsultaPendente2I074 = 5
+@idVetAnaI074 = 4
+@idVetBrunoI074 = 5
+
+### Preparação — obter ETag original da M4
+# @name obterM4I074
+GET {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### Preparação — obter ETag original da M5
+# @name obterM5I074
+GET {{host}}/consultas/{{idConsultaPendente2I074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### EP-026 · 200 — alterar marcação Pendente para horário disponível
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM4I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T15:00:00Z",
+  "motivo": "Consulta reagendada"
+}
+
+### EP-026 · 200 — alterar marcação Confirmada para horário disponível
+PUT {{host}}/consultas/{{idConsultaConfirmadaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-03T10:00:00Z",
+  "motivo": "Consulta reagendada"
+}
+
+### EP-026 · 400 — data no passado
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-01-14T10:00:00Z",
+  "motivo": "Data inválida"
+}
+
+### EP-026 · 401 — sem token
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 403 — Administrador
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 404 — marcação inexistente
+PUT {{host}}/consultas/999999
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 412 — If-Match desatualizado
+# O ETag de obterM4I074 ficou antigo depois do primeiro PUT.
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM4I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 422 — marcação Realizada
+PUT {{host}}/consultas/{{idConsultaRealizadaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-25T10:00:00Z"
+}
+
+### EP-026 · 422 — marcação Cancelada
+PUT {{host}}/consultas/{{idConsultaCanceladaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-25T10:00:00Z"
+}
+
+### EP-026 · 422 — novo horário indisponível
+# M3 ocupa vet.ana no período das 10:00 após o segundo pedido desta secção.
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-03T10:15:00Z"
+}
+
+### EP-027 · 400 — Pendente não pode ser escolhido manualmente
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Pendente"
+}
+
+### EP-027 · 422 — transição inválida Pendente → Realizada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Realizada"
+}
+
+### EP-027 · 204 — Pendente → Confirmada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada",
+  "observacao": "Confirmação manual da marcação"
+}
+
+### EP-027 · 204 — Confirmada → Cancelada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Cancelada",
+  "observacao": "Cancelamento manual da marcação"
+}
+
+### EP-027 · 204 — Pendente → Cancelada
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM5I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "estado": "Cancelada"
+}
+
+### EP-027 · 204 — Confirmada → Realizada
+PATCH {{host}}/consultas/{{idConsultaConfirmadaI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Realizada"
+}
+
+### EP-027 · 401 — sem token
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 403 — Administrador
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 404 — marcação inexistente
+PATCH {{host}}/consultas/999999/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 412 — If-Match desatualizado
+# O ETag de obterM5I074 ficou antigo após Pendente → Cancelada.
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM5I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 422 — estado final Cancelada não permite nova transição
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+###
+
+# =============================================================================
 # I077 — Registo clínico (EP-031, EP-032)
 #
 # Só o perfil Veterinário, e só o Veterinário da consulta. Usa "passwordVet"

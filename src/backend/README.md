@@ -293,11 +293,11 @@ Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header
 - `veterinarioId` e `animalId`, quando indicados, têm de ser superiores a 0 (`400`).
 - `pagina` (1 por omissão) e `tamanho` (20 por omissão, de 1 a 100), como nas outras listas. As marcações vêm por data e hora e, em caso de empate, por identificador.
 
-| Pedido | Marcação às 23:30 UTC de 24/10 (00:30 de 25/10 em Lisboa) | Marcação às 23:30 UTC de 25/10 (23:30 de 25/10 em Lisboa) |
-|---|---|---|
-| `dataInicio=dataFim=2026-10-24` | não | não |
-| `dataInicio=dataFim=2026-10-25` | sim | sim |
-| `dataInicio=dataFim=2026-10-26` | não | não |
+| Pedido                          | Marcação às 23:30 UTC de 24/10 (00:30 de 25/10 em Lisboa) | Marcação às 23:30 UTC de 25/10 (23:30 de 25/10 em Lisboa) |
+| ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| `dataInicio=dataFim=2026-10-24` | não                                                       | não                                                       |
+| `dataInicio=dataFim=2026-10-25` | sim                                                       | sim                                                       |
+| `dataInicio=dataFim=2026-10-26` | não                                                       | não                                                       |
 
 **Sem dados clínicos (critério 5).** `ConsultaListItemDto`, `ConsultaDto` e `NotaPreparacaoDto` só têm dados administrativos (data e hora, duração, estado, motivo, chegada, animal, proprietário e Veterinário) e as notas de preparação. O `ConsultasService` não lê o registo clínico, os tratamentos nem as prescrições. A resposta é a mesma para os três perfis, por isso o Auxiliar Veterinário, com ou sem autorização de apoio, recebe as notas e nenhum dado clínico. O telefone do proprietário (`cliente.telefone`) vem a `null`: só é devolvido na ficha do animal (EP-016).
 
@@ -310,7 +310,12 @@ As datas e horas da resposta (`dataHora`, `chegadaEm`, `criadaEm`) estão em UTC
 `POST /consultas` (EP-025) cria uma marcação no estado `Pendente` e devolve `201` com a marcação no formato de EP-024 (`ConsultaDto`) e os cabeçalhos `Location` (`/consultas/{id}`) e `ETag`. Só a Rececionista pode criar: o controlador aceita os três perfis da agenda e a ação acrescenta a política `Rececionista`, por isso o Veterinário e o Auxiliar Veterinário recebem `403`, tal como o Administrador e o Cliente.
 
 ```json
-{ "animalId": 1, "veterinarioId": 4, "dataHora": "2026-11-25T10:00:00Z", "motivo": "Consulta de rotina" }
+{
+  "animalId": 1,
+  "veterinarioId": 4,
+  "dataHora": "2026-11-25T10:00:00Z",
+  "motivo": "Consulta de rotina"
+}
 ```
 
 Regras, pela ordem em que são verificadas:
@@ -326,18 +331,43 @@ As duas verificações de `422` usam `CalculadoraDisponibilidade.IntervaloDispon
 
 Exemplos com o horário dos dados da I061 e consultas de 30 minutos (horas de Lisboa):
 
-| Situação | Resultado |
-|---|---|
-| Quarta-feira às 10:00, Veterinário livre | `201`, estado `Pendente` |
-| Às 12:30 | `201` (acaba às 13:00) |
-| Às 12:45 ou às 13:00 | `422` (fora do horário) |
-| Domingo | `422` (fora do horário) |
-| Já existe uma marcação às 10:00; nova às 10:15 | `422` (indisponível) |
-| Já existe uma marcação às 10:00; nova às 10:30 | `201` (só se tocam) |
-| Marcação cancelada às 10:00; nova às 10:00 | `201` |
-| Oito pedidos simultâneos para a mesma vaga | um `201` e sete `422` |
+| Situação                                       | Resultado                |
+| ---------------------------------------------- | ------------------------ |
+| Quarta-feira às 10:00, Veterinário livre       | `201`, estado `Pendente` |
+| Às 12:30                                       | `201` (acaba às 13:00)   |
+| Às 12:45 ou às 13:00                           | `422` (fora do horário)  |
+| Domingo                                        | `422` (fora do horário)  |
+| Já existe uma marcação às 10:00; nova às 10:15 | `422` (indisponível)     |
+| Já existe uma marcação às 10:00; nova às 10:30 | `201` (só se tocam)      |
+| Marcação cancelada às 10:00; nova às 10:00     | `201`                    |
+| Oito pedidos simultâneos para a mesma vaga     | um `201` e sete `422`    |
 
 Os casos estão nos testes unitários `CriarConsultaServiceTests` (UT-F003-019 a UT-F003-032 da Especificação de Testes Unitários, mais casos próprios) e `ConsultasControllerTests`. Com a API e o SQL Server, `CriarConsultaEndpointsTests` cobre IT-EP025-01 a IT-EP025-08, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I073 de `ClinicaVeterinaria.Api.http`.
+
+## Alteração de marcações e mudança de estado (EP-026, EP-027)
+
+`PUT /consultas/{id}` (EP-026) permite à Rececionista alterar o Veterinário, a data/hora e o motivo de uma marcação `Pendente` ou `Confirmada`. A disponibilidade é novamente validada e a própria marcação é excluída da pesquisa de conflitos. A alteração reutiliza `BloqueioAgendaVeterinario`, tal como EP-025, para impedir sobreposições concorrentes. Marcações `Realizada` ou `Cancelada` devolvem `422`.
+
+`PATCH /consultas/{id}/estado` (EP-027) permite as transições:
+
+- `Pendente → Confirmada`;
+- `Pendente → Cancelada`;
+- `Confirmada → Realizada`;
+- `Confirmada → Cancelada`.
+
+O estado `Pendente` não pode ser escolhido manualmente. Estados inexistentes devolvem `400` e transições não permitidas devolvem `422`.
+
+EP-026 e EP-027 suportam concorrência otimista através de `ETag`/`If-Match`. Um `If-Match` desatualizado devolve `412 Precondition Failed` sem alterar a marcação. Em caso de sucesso é emitido um novo `ETag`.
+
+### Divergência conhecida — `observacao` de EP-027
+
+O corpo de EP-027 inclui o campo opcional `observacao`, representado por `UpdateEstadoConsultaDto.Observacao`.
+
+O Modelo de Dados atualmente integrado e a entidade `Marcacao` não possuem, contudo, qualquer coluna ou propriedade destinada a persistir essa observação. Por esse motivo, a implementação atual aceita `observacao` no pedido para manter compatibilidade com o contrato de EP-027, mas o valor não é persistido nem devolvido posteriormente.
+
+Nesta Issue não foi criada qualquer alteração ao esquema nem migration para este campo. Caso a observação de mudança de estado deva ser persistente, essa decisão exige uma alteração explícita ao Modelo de Dados e respetiva tarefa de implementação/migração.
+
+Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 
 ## Registo clínico (EP-031, EP-032)
 
@@ -348,8 +378,17 @@ Os casos estão nos testes unitários `CriarConsultaServiceTests` (UT-F003-019 a
   "consultaId": 3,
   "notasClinicas": "Animal ativo; ligeira inflamação no ouvido esquerdo.",
   "diagnostico": "Otite externa",
-  "tratamentos": [ { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" } ],
-  "prescricoes": [ { "medicamento": "Gotas auriculares X", "dosagem": "3 gotas", "frequencia": "2 vezes por dia", "duracaoDias": 7 } ]
+  "tratamentos": [
+    { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" }
+  ],
+  "prescricoes": [
+    {
+      "medicamento": "Gotas auriculares X",
+      "dosagem": "3 gotas",
+      "frequencia": "2 vezes por dia",
+      "duracaoDias": 7
+    }
+  ]
 }
 ```
 
@@ -390,18 +429,18 @@ Regras:
 
 Exemplos com o horário dos dados da I061 (segunda a sexta 09:00–13:00 e 14:00–19:00; sábado 09:00–13:00) e consultas de 30 minutos:
 
-| Situação | Resultado |
-|---|---|
-| Dia útil sem marcações | 18 horários: `09:00` a `12:30` e `14:00` a `18:30` |
-| Fecho do período | `12:30` aparece (acaba às 13:00); `13:00` e `19:00` não |
-| Marcação às 10:00 (30 minutos) | `10:00` não aparece; `09:30` e `10:30` aparecem |
-| Marcação às 10:15 com 60 minutos | `10:00`, `10:30` e `11:00` não aparecem; `09:30` e `11:30` aparecem |
-| Marcação cancelada às 10:00 | `10:00` aparece |
-| Sábado | `09:00` a `12:30` |
-| Domingo | dia devolvido com a lista vazia |
-| Consultas de 45 minutos | manhã: `09:00`, `09:45`, `10:30`, `11:15`, `12:00` |
-| Hoje às 09:10 | o primeiro horário é `09:30` |
-| `dataInicio=2026-10-01&dataFim=2026-10-31` | aceite (31 dias) |
-| `dataInicio=2026-10-01&dataFim=2026-11-01` | `400` (32 dias) |
+| Situação                                   | Resultado                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| Dia útil sem marcações                     | 18 horários: `09:00` a `12:30` e `14:00` a `18:30`                  |
+| Fecho do período                           | `12:30` aparece (acaba às 13:00); `13:00` e `19:00` não             |
+| Marcação às 10:00 (30 minutos)             | `10:00` não aparece; `09:30` e `10:30` aparecem                     |
+| Marcação às 10:15 com 60 minutos           | `10:00`, `10:30` e `11:00` não aparecem; `09:30` e `11:30` aparecem |
+| Marcação cancelada às 10:00                | `10:00` aparece                                                     |
+| Sábado                                     | `09:00` a `12:30`                                                   |
+| Domingo                                    | dia devolvido com a lista vazia                                     |
+| Consultas de 45 minutos                    | manhã: `09:00`, `09:45`, `10:30`, `11:15`, `12:00`                  |
+| Hoje às 09:10                              | o primeiro horário é `09:30`                                        |
+| `dataInicio=2026-10-01&dataFim=2026-10-31` | aceite (31 dias)                                                    |
+| `dataInicio=2026-10-01&dataFim=2026-11-01` | `400` (32 dias)                                                     |
 
 Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `ValidadorPeriodoDisponibilidadeTests` e `VeterinariosServiceTests` (UT-F003-001 a UT-F003-018 da Especificação de Testes Unitários). Com a API e o SQL Server, `VeterinariosEndpointsTests` verifica um pedido válido e cada código de erro (200, 400, 401, 403 e 404). Os pedidos de verificação manual estão na secção I071 de `ClinicaVeterinaria.Api.http`.
