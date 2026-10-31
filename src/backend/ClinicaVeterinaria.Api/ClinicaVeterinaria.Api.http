@@ -1718,3 +1718,72 @@ Content-Type: application/json
 { "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
 
 ###
+
+# =============================================================================
+# I076 — Marcações do Cliente na aplicação móvel (EP-030)
+#
+# Usa "passwordCliente" (João) e "passwordClienteMaria" do http-client.env.json.user
+# (logins loginCliente, no topo, e loginClienteMaria, na secção I070) e
+# "passwordRececao" (loginRececao) para o 403.
+# Dados da I061 numa base reposta (horas em UTC):
+#   João: Bobi — M1 2026-10-14 Realizada, M5 2026-11-05 Pendente; Mia — M2 2026-10-20 Cancelada
+#   Maria: Kiko — M3 2026-11-03 Confirmada
+# Futuras: Pendentes ou Confirmadas que ainda não começaram, por data crescente.
+# Histórico: passadas e Canceladas ou Realizadas (mesmo com data futura), por data decrescente.
+# Executar numa base reposta: outras secções (I074, I077) mudam o estado de M3 e M5.
+# =============================================================================
+
+### Preparação — animais do João (Bobi e Mia, por nome)
+# @name meusAnimaisJoaoI076
+GET {{host}}/me/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### Preparação — animais da Maria (Kiko)
+# @name meusAnimaisMariaI076
+GET {{host}}/me/animais
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-030 · 200 — João: futuras (M5)
+GET {{host}}/me/consultas?tipo=futuras
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — João: sem tipo é igual a futuras
+GET {{host}}/me/consultas
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — João: histórico (M2 e M1, por data decrescente; sem dados clínicos)
+GET {{host}}/me/consultas?tipo=historico
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — Maria: futuras (só M3; nada do João)
+GET {{host}}/me/consultas?tipo=futuras
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-030 · 200 — João: histórico só da Mia (M2)
+GET {{host}}/me/consultas?tipo=historico&animalId={{meusAnimaisJoaoI076.response.body.$[1].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 400 — tipo inválido
+GET {{host}}/me/consultas?tipo=todas
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 401 — sem token
+GET {{host}}/me/consultas
+
+### EP-030 · 403 — perfil interno (Rececionista)
+GET {{host}}/me/consultas
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-030 · 403 — João com o animalId do Kiko (animal da Maria)
+GET {{host}}/me/consultas?animalId={{meusAnimaisMariaI076.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### (opcional) EP-027 — cancelar a M5 como Rececionista: passa das futuras para o histórico do João
+# Repetir depois os dois primeiros pedidos de EP-030 do João.
+PATCH {{host}}/consultas/5/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Cancelada" }
+
+###
