@@ -370,7 +370,7 @@ Nesta Issue não foi criada qualquer alteração ao esquema nem migration para e
 
 Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 
-## Registo clínico (EP-031, EP-032)
+## Registo clínico (EP-031 a EP-034)
 
 `POST /registos-clinicos` (EP-031) cria o registo clínico de uma consulta e devolve `201` com o registo (`RegistoClinicoDto`) e o cabeçalho `Location: /registos-clinicos/{id}`. `PUT /registos-clinicos/{id}` (EP-032) altera-o e devolve `200`. As duas operações são só do perfil Veterinário (política `Veterinario`): o Auxiliar Veterinário, a Rececionista, o Administrador e o Cliente recebem `403`. Dentro do perfil, só o Veterinário a quem a consulta está atribuída cria o registo, e só quem o criou o altera (`403` para os outros). O Veterinário vem sempre da claim `veterinarioId` do token.
 
@@ -406,6 +406,27 @@ O registo, os tratamentos e as prescrições são gravados numa só transação:
 **EP-032** aceita o mesmo corpo sem `consultaId` (um `consultaId` enviado é ignorado: a consulta e o paciente não mudam). É uma substituição completa, como em qualquer `PUT`: notas e diagnóstico ficam como vierem, e as listas substituem as anteriores. Um tratamento ou prescrição que já existe mantém-se e é atualizado indicando o seu `id`; sem `id`, é acrescentado; os que não vierem (ou uma lista omitida) são removidos. Um `id` que não é deste registo, ou repetido no pedido, dá `400`. O registo não pode ficar sem elemento clínico (`400`). Ficam registados `atualizadoEm` (UTC) e `atualizadoPor` (nome do Veterinário). Registo inexistente: `404`.
 
 Os casos estão nos testes unitários `RegistosClinicosServiceTests` (UT-F004-001 a UT-F004-021 da Especificação de Testes Unitários, mais casos próprios) e `RegistosClinicosControllerTests`. Com a API e o SQL Server, `RegistosClinicosEndpointsTests` cobre IT-EP031-01 a 09 e IT-EP032-01 a 05, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I077 de `ClinicaVeterinaria.Api.http`.
+
+### Consultar o registo e o histórico clínico (EP-033, EP-034)
+
+`GET /registos-clinicos/{id}` (EP-033) devolve o registo completo, no mesmo formato da resposta de EP-031 (`RegistoClinicoDto`). `GET /animais/{id}/historico-clinico` (EP-034) devolve o animal (`AnimalRefDto`) e os resumos dos seus registos (`RegistoClinicoResumoDto`: `id`, `consultaId`, `data`, `veterinario`, `diagnostico`, `numeroTratamentos` e `numeroPrescricoes`), do mais recente para o mais antigo. Um animal sem registos devolve `registos: []`.
+
+```json
+{
+  "animal": { "id": 1, "nome": "Bobi", "especie": "Cão" },
+  "registos": [
+    { "id": 1, "consultaId": 1, "data": "2026-10-14", "veterinario": "Dra. Ana Veterinária (demonstração)", "diagnostico": "Otite externa", "numeroTratamentos": 1, "numeroPrescricoes": 1 }
+  ]
+}
+```
+
+- **Perfis:** Veterinário e Auxiliar Veterinário (`[Authorize(Roles = Veterinario,AuxiliarVeterinario)]` no controlador). A Rececionista, o Administrador e o Cliente recebem `403`; sem token, `401`. EP-031 e EP-032 acrescentam a política `Veterinario`, por isso o Auxiliar só tem operações de leitura (`403` ao criar ou alterar).
+- **O que o Auxiliar vê:** o mesmo registo completo que o Veterinário, como prevê a Documentação de API v02 (EP-033, ponto em aberto 4) e o UC13. Se o grupo decidir uma projeção reduzida, muda o DTO de resposta para este perfil.
+- **Registos de outros Veterinários:** qualquer Veterinário lê o registo e o histórico de qualquer paciente, incluindo os registos feitos por colegas (RF035: «os registos clínicos anteriormente armazenados e associados a esse paciente»). A restrição ao Veterinário da consulta aplica-se só à criação e à alteração.
+- **Datas:** `data` é o dia da consulta em hora de Lisboa. `dataInicio` e `dataFim` são opcionais, no formato `AAAA-MM-DD`, com os dois dias incluídos e as mesmas regras da agenda (EP-023): `dataFim` anterior a `dataInicio`, data mal formada ou fora de 2000-01-01 a 9998-12-31 dá `400`.
+- **Inexistentes:** registo (EP-033) ou animal (EP-034) que não existe dá `404`.
+
+Os casos estão nos testes unitários `RegistosClinicosLeituraServiceTests` (UT-F004-022 a UT-F004-027, mais casos próprios) e `RegistosClinicosControllerTests`. Com a API e o SQL Server, `RegistosClinicosLeituraEndpointsTests` cobre IT-EP033-01 a 03, IT-EP034-01 a 05 e a matriz de perfis (`401` e `403`). Os pedidos de verificação manual estão na secção I078 de `ClinicaVeterinaria.Api.http`.
 
 ## Segurança
 

@@ -1718,3 +1718,115 @@ Content-Type: application/json
 { "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
 
 ###
+
+# =============================================================================
+# I078 — Consultar o registo e o histórico clínico (EP-033, EP-034)
+#
+# Veterinário e Auxiliar Veterinário, só de leitura. Usa "passwordVet" (vet.ana),
+# "passwordAux" (aux.carla), "passwordRececao", "passwordAdmin" e
+# "passwordCliente" do http-client.env.json.user.
+# Numa base acabada de repor com os dados da I061: o registo clínico 1 é o da M1
+# (Bobi = 1, vet.ana, 2026-10-14, um tratamento e uma prescrição) e o Kiko não tem
+# registos (o id do Kiko vem da pesquisa EP-015 abaixo). Se a secção I077 já foi
+# executada, o Kiko passa a ter o registo criado no 201 dessa secção.
+# Executar primeiro os logins (vet.ana: secção I077; aux.carla: secção I069;
+# Rececionista: secção I068; Administrador e Cliente: início do ficheiro).
+# =============================================================================
+
+@registoM1 = 1
+@animalBobi = 1
+
+### Login Veterinária (I078)
+# @name loginVetHistorico
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-015 · 200 — id do Kiko (usado no histórico vazio)
+# @name pesquisaKiko
+GET {{host}}/animais?pesquisa=Kiko
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 200 — Veterinário: registo completo da M1
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 200 — Auxiliar Veterinário: o mesmo registo, só de leitura
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-033 · 404 — registo inexistente
+GET {{host}}/registos-clinicos/999999
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 401 — sem token
+GET {{host}}/registos-clinicos/{{registoM1}}
+
+### EP-033 · 403 — Rececionista
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-033 · 403 — Administrador
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-033 · 403 — Cliente
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-032 · 403 — o Auxiliar não altera o registo que acabou de ler
+PUT {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Alterado pelo Auxiliar" }
+
+### EP-034 · 200 — Veterinário: histórico do Bobi, do mais recente para o mais antigo
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — Auxiliar Veterinário: o mesmo histórico
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-034 · 200 — intervalo com a M1 (dataInicio = dataFim = 2026-10-14)
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-10-14&dataFim=2026-10-14
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — intervalo sem registos (setembro): lista vazia
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-09-01&dataFim=2026-09-30
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — animal sem histórico (Kiko): lista vazia
+GET {{host}}/animais/{{pesquisaKiko.response.body.$.itens[0].id}}/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 400 — dataFim anterior a dataInicio
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-10-14&dataFim=2026-09-01
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 400 — data mal formada
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-13-40
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 404 — animal inexistente
+GET {{host}}/animais/999999/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 401 — sem token
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+
+### EP-034 · 403 — Rececionista
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-034 · 403 — Administrador
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-034 · 403 — Cliente
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+###
