@@ -191,4 +191,4 @@ Execuções feitas a 2026-10-31 sobre o ramo `27-i092-testes-integracao-identida
 
 O job «3 · Testes de integração (QG-02)» da «Backend CI» (`backend-ci.yml`) executa estes testes com `--logger trx` e publica o artefacto `resultados-testes-integracao`.
 
-Execução: `<preencher com a ligação da execução da Pull Request no separador Actions>`
+Execução da Pull Request #218 (commit `5e41ad5`), concluída com sucesso: [Backend CI](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41216862581).
