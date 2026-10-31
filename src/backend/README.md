@@ -445,3 +445,29 @@ Exemplos com o horário dos dados da I061 (segunda a sexta 09:00–13:00 e 14:00
 | `dataInicio=2026-10-01&dataFim=2026-11-01` | `400` (32 dias)                                                     |
 
 Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `ValidadorPeriodoDisponibilidadeTests` e `VeterinariosServiceTests` (UT-F003-001 a UT-F003-018 da Especificação de Testes Unitários). Com a API e o SQL Server, `VeterinariosEndpointsTests` verifica um pedido válido e cada código de erro (200, 400, 401, 403 e 404). Os pedidos de verificação manual estão na secção I071 de `ClinicaVeterinaria.Api.http`.
+
+## Boletim de vacinas e desparasitações (EP-042 a EP-044)
+
+`POST /animais/{id}/vacinacoes` (EP-043) regista uma vacinação ou desparasitação e devolve `201` com a administração (`AdministracaoDto`) e o cabeçalho `Location: /animais/{id}/vacinacoes/{administracaoId}`. `GET /animais/{id}/vacinacoes` (EP-042) devolve o boletim do animal (`BoletimDto`). `PUT /animais/{id}/vacinacoes/{administracaoId}` atualiza uma administração (RF056; ver «Divergência» abaixo). As três operações são só do perfil Veterinário (política `Veterinario`): a Rececionista, o Auxiliar Veterinário, o Administrador e o Cliente recebem `403`. O Veterinário vem sempre da claim `veterinarioId` do token.
+
+```json
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+```
+
+- **400:** `tipo` em falta ou diferente de `Vacina`/`Desparasitacao`; `produto` ou `lote` em falta (texto só com espaços não conta) ou acima do tamanho das colunas (produto 150, lote 50); `dataAdministracao` em falta ou futura (hoje é aceite, em hora de Lisboa); `intervaloDias` indicado e fora de 1 a 32767.
+- **404:** animal inexistente.
+- **Próxima administração (RF045):** com `intervaloDias`, `dataProximaPrevista = dataAdministracao + intervaloDias` (dias de calendário, `CalculadoraProximaAdministracao`); sem intervalo, `null`. Nunca vem do pedido. É a mesma regra da coluna calculada `RegistoProfilaxia.DataProximaAdministracao`, que o SQL Server mantém.
+
+**EP-042** devolve `animal`, `administracoes` (todas, da data de administração mais recente para a mais antiga, com `lote`, `intervaloDias`, `dataProximaPrevista` e o nome do Veterinário) e `proximas` (as datas previstas iguais ou posteriores a hoje, da mais próxima para a mais distante; as que já passaram não aparecem, PA-11 da I028). `tipo` (opcional) filtra as duas listas; um valor inválido dá `400`. Animal inexistente: `404`. Sem registos, as listas vêm vazias.
+
+**Atualização (RF056):** aceita o mesmo corpo de EP-043 e substitui todos os campos; `dataProximaPrevista` é recalculada (sem intervalo, fica `null`). O registo mantém o animal e o Veterinário. Mesmas regras de `400`; animal inexistente, ou administração inexistente nesse animal: `404`; administração registada por outro Veterinário: `403` (como em EP-032).
+
+### Boletim do Cliente (EP-044)
+
+`GET /me/animais/{id}/vacinacoes` é só do perfil Cliente (`ClienteAutenticadoControllerBase`, política `ClienteProprietario`) e devolve `MeuBoletimDto`: `historico` (tipo, produto e data de administração, da mais recente para a mais antiga) e `proximas` (as mesmas regras de EP-042). O Cliente vem sempre do token (RNF002): um animal de outro Cliente dá `403`, sem nenhum dado desse animal na resposta; um animal inexistente dá `404`.
+
+### Divergência — atualização de uma administração (RF056)
+
+A Issue I082 (critério 4, aprovado no Backlog Refinement do Sprint 05) pede a atualização de um registo com recálculo da próxima administração, mas a Documentação de API v02 ainda não tem essa operação (ponto em aberto 2: prevista para a v03, «uma operação de atualização em EP-043») e o RF056 ainda não consta da Especificação de Requisitos v02. Foi implementada como `PUT /animais/{id}/vacinacoes/{administracaoId}`, com o DTO `UpdateAdministracaoDto` previsto no Modelo de Classes do Backend v02 (ponto em aberto 4). Fica para registar na API v03 e na Especificação de Requisitos.
+
+Os casos estão nos testes unitários `CalculadoraProximaAdministracaoTests` (UT-F006-001 a 007), `VacinacoesServiceTests` (UT-F006-008 a 024 e a atualização), `AdministracaoDtoValidacaoTests` e `VacinacoesControllerTests`. Com a API e o SQL Server, `VacinacoesEndpointsTests` cobre IT-EP042-01 a 05, IT-EP043-01 a 07, IT-EP044-01 a 04, IT-TRV-15, a atualização (incluindo a coluna calculada) e a matriz de perfis (`401` e `403`). Os pedidos de verificação manual estão na secção I082 de `ClinicaVeterinaria.Api.http`.
