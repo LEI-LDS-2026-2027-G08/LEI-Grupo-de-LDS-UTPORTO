@@ -1,4 +1,4 @@
-﻿Commit analisado: 7f85c75 (2026-11-01 15:58:10 +0000)
+Commit analisado: 7f85c75 (2026-11-01 15:58:10 +0000)
 SDK .NET: 10.0.402
 
 === 1. dotnet build -warnaserror (Roslyn/NetAnalyzers, perfil Recommended)

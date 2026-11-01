@@ -1,4 +1,4 @@
-﻿Commit base: 7f85c75 + correção de formatação (dotnet format whitespace), por gravar
+Commit base: 7f85c75 + correção de formatação (dotnet format whitespace), por gravar
 SDK .NET: 10.0.402
 
 === 1. dotnet build -warnaserror (Roslyn/NetAnalyzers, perfil Recommended)
