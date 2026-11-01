@@ -2,7 +2,11 @@ using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
-/// <summary>Registo clínico das consultas (EP-031, EP-032). Só o Veterinário da consulta.</summary>
+/// <summary>
+/// Registo clínico das consultas. Criação e alteração (EP-031, EP-032): só o Veterinário da
+/// consulta. Leitura do registo e do histórico do paciente (EP-033, EP-034): Veterinário e
+/// Auxiliar Veterinário, só de leitura.
+/// </summary>
 public interface IRegistosClinicosService
 {
     /// <summary>
@@ -22,4 +26,18 @@ public interface IRegistosClinicosService
     /// registo inexistente: 404; registo de outro Veterinário: 403.
     /// </summary>
     Task<RegistoClinicoDto> AtualizarAsync(int id, UpdateRegistoClinicoDto pedido, int veterinarioId);
+
+    /// <summary>
+    /// EP-033 — devolve o registo clínico completo (notas, diagnóstico, tratamentos e prescrições),
+    /// no formato da resposta de EP-031. Registo inexistente: 404.
+    /// </summary>
+    Task<RegistoClinicoDto> ObterAsync(int id);
+
+    /// <summary>
+    /// EP-034 — devolve o animal e os resumos dos seus registos clínicos, do mais recente para o
+    /// mais antigo (pela data e hora da consulta), opcionalmente entre <c>dataInicio</c> e
+    /// <c>dataFim</c> (dias em hora de Lisboa, os dois incluídos). Intervalo inválido: 400; animal
+    /// inexistente: 404. Um animal sem registos tem a lista vazia.
+    /// </summary>
+    Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query);
 }
