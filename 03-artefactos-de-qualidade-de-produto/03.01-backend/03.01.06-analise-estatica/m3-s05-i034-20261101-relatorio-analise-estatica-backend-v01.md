@@ -19,7 +19,7 @@
 
 | Versão | Data       | Autor                            | Descrição |
 | ------ | ---------- | -------------------------------- | --------- |
-| v01    | 2026-11-01 | Gonçalo Dinis Magalhães Teixeira | Análise sobre o `develop` em `7f85c75`, correção da formatação (`9a14849`) e justificação das ocorrências aceites. A integração da verificação de formatação na pipeline depende da I103 e fica para a v02. |
+| v01    | 2026-11-01 | Gonçalo Dinis Magalhães Teixeira | Análise sobre o `develop` em `7f85c75`, correção da formatação (`9a14849`), nova análise sobre o ramo atualizado com o `develop` em `16c4bbb` (`d98e1ff`), justificação das ocorrências aceites e log da pipeline do quality gate (execução 41336627718). |
 
 ## 1. Objetivo
 
@@ -41,7 +41,7 @@ Demonstrar que o backend cumpre as regras de análise estática do Regulamento I
 **Commits analisados:**
 
 - antes: `develop` em `7f85c75` (2026-11-01 15:58, depois da integração da I086);
-- depois: `9a14849` (este ramo), que só contém a correção da formatação descrita na secção 5.
+- depois: `d98e1ff` (este ramo), com a correção da formatação descrita na secção 5 (`9a14849`) e atualizado com o `develop` em `16c4bbb` (2026-11-01 17:55, depois da integração da I078). É o código da versão entregue: o commit seguinte (`0e277f7`) e os da atualização deste relatório só alteram ficheiros desta pasta.
 
 **Comandos executados** (na raiz do repositório):
 
@@ -55,7 +55,7 @@ O primeiro comando aplica os analisadores com o quality gate; o segundo verifica
 
 ## 3. Resultados antes e depois, por severidade (critério 5)
 
-| Severidade / categoria | Antes (`7f85c75`) | Depois (`9a14849`) |
+| Severidade / categoria | Antes (`7f85c75`) | Depois (`d98e1ff`) |
 | --- | --- | --- |
 | `Error` de análise (compilação com `-warnaserror`) | 0 | 0 |
 | `Warning` de análise | 0 | 0 |
@@ -63,15 +63,15 @@ O primeiro comando aplica os analisadores com o quality gate; o segundo verifica
 | · `WHITESPACE` (indentação e espaços) | 2085 | 0 |
 | · `CHARSET` (ficheiros com BOM) | 7 | 0 |
 | · `FINALNEWLINE` (sem linha final) | 3 | 0 |
-| `Info` (sugestões, não bloqueiam) | 47 | 47 |
-| · `IDE0290` | 44 | 44 |
+| `Info` (sugestões, não bloqueiam) | 47 | 48 |
+| · `IDE0290` | 44 | 45 |
 | · `ASP0027` | 1 | 1 |
 | · `SYSLIB1045` | 1 | 1 |
 | · `xUnit1004` | 1 | 1 |
 
-Não existem ocorrências de severidade alta ou crítica (`Error` ou `Warning`) nem antes nem depois: o código já cumpria o quality gate dos analisadores. As ocorrências a tratar eram de formatação; as de nível `info` estão justificadas na secção 6.
+Não existem ocorrências de severidade alta ou crítica (`Error` ou `Warning`) nem antes nem depois: o código já cumpria o quality gate dos analisadores. As ocorrências a tratar eram de formatação; as de nível `info` estão justificadas na secção 6. O `IDE0290` a mais no depois vem da classe nova `RegistosClinicosLeituraEndpointsTests` (I078), integrada no `develop` entre as duas análises; o código da I078 não trouxe ocorrências de formatação.
 
-Registos completos: `m3-s05-i034-20261101-analise-estatica-antes-v01.txt` e `m3-s05-i034-20261101-analise-estatica-depois-v01.txt`, nesta pasta.
+Registos completos: `m3-s05-i034-20261101-analise-estatica-antes-v01.txt` e `m3-s05-i034-20261101-analise-estatica-depois-v01.txt`, nesta pasta. Cada um começa com o commit analisado.
 
 ## 4. Origem das ocorrências de formatação
 
@@ -88,7 +88,7 @@ As 2095 ocorrências estavam em 22 ficheiros, todos já integrados no `develop` 
 | I091 | os 7 ficheiros de `IntegrationTests/Infraestrutura/` (gravados com BOM) |
 | I092 | `AutenticacaoEndpointsTests.cs`, `ClientesEndpointsTests.cs`, `ClinicaEndpointsTests.cs`, `FuncionariosEndpointsTests.cs` (indentação de 2 espaços) |
 
-A formatação não é verificada pela pipeline atual (o `backend-ci.yml` deixa o QG-08 fora do âmbito), por isso estas ocorrências passaram pelas PR sem falhar. A integração dessa verificação na pipeline é o objeto da I103.
+A formatação não é verificada pela pipeline atual (o `backend-ci.yml` deixa o QG-08 fora do âmbito e atribui-o à I103), por isso estas ocorrências passaram pelas PR sem falhar.
 
 ## 5. Correções (critério 2)
 
@@ -97,13 +97,14 @@ Correção feita com `dotnet format whitespace src/backend/ClinicaVeterinaria.sl
 Verificação de que a correção não altera o código:
 
 - `git diff -w --ignore-blank-lines` (ignorando espaços) só mostra a remoção do BOM na primeira linha dos 7 ficheiros de `Infraestrutura/` e, em `AnimaisServiceTests.cs`, a inicialização de um `Paciente` passada de duas linhas para uma linha por campo, com os mesmos campos e valores;
-- testes depois da correção: **unitários 673, 672 aprovados, 0 falhados, 1 ignorado** (UT-TRV-007, ver 6); **integração 343, 343 aprovados, 0 falhados** (2 min 53 s, SQL Server com Testcontainers).
+- testes locais depois da correção (`9a14849`): **unitários 673, 672 aprovados, 0 falhados, 1 ignorado** (UT-TRV-007, ver 6); **integração 343, 343 aprovados, 0 falhados** (2 min 53 s, SQL Server com Testcontainers);
+- testes na pipeline sobre a versão entregue: jobs «2 · Testes unitários (QG-02)» e «3 · Testes de integração (QG-02)» da execução 41336627718, com sucesso.
 
 ## 6. Ocorrências aceites e justificações (critério 4)
 
 | Regra | N.º | Onde | Justificação | Seguimento |
 | --- | --- | --- | --- | --- |
-| `IDE0290` — usar *primary constructor* | 44 | Controladores, serviços, middleware, exceções e classes de teste | Preferência de estilo, não defeito. A I101 fixou a severidade em `suggestion` no `.editorconfig` («primary constructors são uma preferência estilística, não uma condição do quality gate»). Converter 44 construtores mudaria a forma de 44 classes sem ganho funcional. | Aceite pela configuração. |
+| `IDE0290` — usar *primary constructor* | 45 | Controladores, serviços, middleware, exceções e classes de teste | Preferência de estilo, não defeito. A I101 fixou a severidade em `suggestion` no `.editorconfig` («primary constructors são uma preferência estilística, não uma condição do quality gate»). Converter 45 construtores mudaria a forma de 45 classes sem ganho funcional. | Aceite pela configuração. |
 | `ASP0027` — `public partial class Program { }` já não é necessário | 1 | `Api/Program.cs` | Desde o .NET 10 o `Program` gerado já é público. A declaração mantém-se porque é a referência usada pelo `WebApplicationFactory<Program>` dos testes de integração (I091); retirá-la exige voltar a validar os 343 testes de integração. | Aceite; pode ser removida numa alteração futura à infraestrutura de testes. |
 | `SYSLIB1045` — usar `[GeneratedRegex]` | 1 | `IntegrationTests/Infraestrutura/IntegracaoFixture.cs` | Sugestão de desempenho (expressão regular gerada em compilação) num ponto do código de testes executado poucas vezes por execução; sem impacto no produto. | Aceite. |
 | `xUnit1004` — teste com `Skip` | 1 | `UnitTests` — UT-TRV-007 | Ignorado de propósito pela I086, com a justificação no atributo: o caso deteta o defeito D-01 do `ExceptionHandlingMiddleware` (devolve a mensagem interna no 500). | Retirar o `Skip` quando o D-01 for corrigido (melhoria M2 da revisão da I086). |
@@ -112,18 +113,19 @@ Não foram identificados falsos positivos: as quatro regras acima são ocorrênc
 
 ## 7. Quality gate e pipeline (critério 3)
 
-- **Analisadores (QG-01):** a pipeline Backend CI compila a solução com os avisos tratados como erros (job «1 · Restauro e compilação (QG-01)»), por isso cada PR já comprova que não há `Warning` nem `Error` de análise. A execução da pipeline sobre o commit desta PR é a evidência deste ponto.
-- **Formatação (QG-08):** ainda não está na pipeline. Nesta v01 o resultado é comprovado pelo registo local `…-analise-estatica-depois-v01.txt` (0 ocorrências). A I103 (Integrar análise estática, cobertura e quality gates na pipeline) acrescenta esta verificação; a v02 deste relatório regista o log da pipeline com ela integrada.
+- **Analisadores (QG-01):** a pipeline Backend CI compila a solução com os avisos tratados como erros (`Directory.Build.props` da I101), no job «1 · Restauro e compilação (QG-01)»; qualquer `Warning` ou `Error` de análise faz falhar a etapa e bloqueia o merge.
+- **Evidência (critério 3):** [Backend CI, execução 41336627718](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41336627718), do evento `pull_request` da PR #225 sobre o commit `0e277f7` (o resultado do merge com o `develop`, ou seja, o que vai ser integrado). O log do job 1 está arquivado nesta pasta, em `m3-s05-i034-20261101-log-pipeline-qg01-v01.txt`, e termina com `Build succeeded.`, `0 Warning(s)` e `0 Error(s)`.
+- **Formatação (QG-08):** não faz parte do quality gate da pipeline atual; a sua integração é o objeto da I103 (Integrar análise estática, cobertura e quality gates na pipeline), fora do âmbito desta tarefa. O resultado é comprovado pelo registo local `…-analise-estatica-depois-v01.txt` sobre `d98e1ff` (0 ocorrências).
 
 ## 8. Resultado
 
 | Quality gate | Resultado |
 | --- | --- |
-| Zero `Warning` e `Error` de análise (QG-01) | Cumprido, antes e depois |
+| Zero `Warning` e `Error` de análise (QG-01) | Cumprido, antes e depois; comprovado na pipeline (execução 41336627718) |
 | Zero ocorrências de formatação (QG-08) | Cumprido depois da correção (2095 → 0) |
-| Sugestões `info` | 47, todas justificadas (secção 6) |
+| Sugestões `info` | 48, todas justificadas (secção 6) |
 
 ## 9. Pendentes
 
-1. v02 deste relatório depois da integração da I103: log da pipeline com a verificação de formatação.
-2. Correção do defeito D-01 (I086) e reativação do UT-TRV-007.
+1. Correção do defeito D-01 (I086) e reativação do UT-TRV-007 (fora do âmbito desta tarefa).
+2. Integração da verificação de formatação (QG-08) na pipeline pela I103 (fora do âmbito desta tarefa).
