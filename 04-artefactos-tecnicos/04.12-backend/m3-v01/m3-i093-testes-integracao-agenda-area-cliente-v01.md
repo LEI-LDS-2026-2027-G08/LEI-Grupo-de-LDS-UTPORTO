@@ -1,15 +1,15 @@
 # I093 — Testes de Integração de Agenda e Área do Cliente
 
-| Campo     | Valor                                                                                 |
-| --------- | ------------------------------------------------------------------------------------- |
+| Campo     | Valor                                                                     |
+| --------- | ------------------------------------------------------------------------- |
 | Issue     | I093 — Implementar testes de integração de agenda e área do Cliente (#28) |
-| Sprint    | S05                                                                                   |
-| Milestone | M3                                                                                    |
-| Executor  | Gonçalo Magalhães Ribeiro                                                             |
-| Revisor   | André Filipe Moreira Mesquita                                                         |
-| Auditor   | Ivan Cristiano Silva Mendes                                                           |
-| Data      | 2026-11-01                                                                            |
-| Estado    | Implementação do Executor concluída; em revisão                                       |
+| Sprint    | S05                                                                       |
+| Milestone | M3                                                                        |
+| Executor  | Gonçalo Magalhães Ribeiro                                                 |
+| Revisor   | André Filipe Moreira Mesquita                                             |
+| Auditor   | Ivan Cristiano Silva Mendes                                               |
+| Data      | 2026-11-01                                                                |
+| Estado    | Implementação do Executor concluída; em revisão                           |
 
 ## 1. Objetivo
 
@@ -21,6 +21,7 @@ Grande parte dos casos foi escrita pelas tarefas de implementação de cada endp
 
 | Documento                                               | Versão                                            |
 | ------------------------------------------------------- | ------------------------------------------------- |
+| Backlog de Projeto                                      | v03 (I093, aprovada como Ready a 2026-10-27)      |
 | Especificação de Testes de Integração do Backend (I030) | v01 (secções 11, 14 e 15)                         |
 | Documentação da API                                     | v02 (EP-021 a EP-030)                             |
 | Especificação de Requisitos                             | v02 (RF019 a RF029)                               |
@@ -156,7 +157,7 @@ Os restantes casos transversais (IT-TRV-01 a 09, 11, 12, 15 a 25, 27 e 29 a 34) 
 
 | Critério                                                              | Como é cumprido                                                                                                                                                                                                                                            |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Casos da I030 implementados, com o identificador no nome           | 60 casos de EP-021 a EP-030 e 5 IT-CONC, todos com o identificador completo no `DisplayName` (secções 5.1 e 5.2). EP-041 não tem casos na I030 (nota N1).                                                                                                  |
+| 1. Casos da I030 implementados, com o identificador no nome           | 60 casos de EP-021 a EP-030 e 5 IT-CONC, todos com o identificador completo no `DisplayName` (secções 5.1 e 5.2).                                                                                                                                          |
 | 2. API real em memória, SQL Server isolado, independente da ordem     | `WebApplicationFactory` com a API real e SQL Server em contentor (Testcontainers), base reposta antes de cada teste (Respawn e dados da I061); cada teste cria o que precisa (secção 4, decisão 1).                                                        |
 | 3. Concorrência com pedidos em paralelo: só um aceite e base coerente | `PedidosEmParaleloComOMesmoIfMatch` (EP-026 a EP-028) e `GravacoesSimultaneasSemIfMatch` (IT-CONC-05); criação simultânea na I073 (`PedidosSimultaneosParaAMesmaVaga`). Verificam o número de pedidos aceites e o estado gravado na base (decisões 5 e 6). |
 | 4. Um teste por transição inválida e para a visibilidade da agenda    | As 12 transições recusadas de EP-027, uma linha cada (decisão 3); `VisibilidadePorPerfil` com os cinco perfis e o pedido anónimo (decisão 4).                                                                                                              |
@@ -166,7 +167,7 @@ Os restantes casos transversais (IT-TRV-01 a 09, 11, 12, 15 a 25, 27 e 29 a 34) 
 
 - **D1 — IT-CONC-05: 412 em vez de 409.** A I030 prevê `409 Conflict` quando a gravação deteta a `DbUpdateConcurrencyException`. A implementação (I074 e I075) devolve `412 Precondition Failed` (`PreconditionFailedException`), o mesmo código do `If-Match` desatualizado. O teste segue a implementação e aceita 412 ou 422 (decisão 6). A divergência já está registada na revisão da I075 (melhoria M2); a decisão fica para a Documentação da API v03.
 - **D2 — formato do erro.** Como na I092 (D1), a I030 indica Problem Details; a implementação devolve o formato único da I058.
-- **N1 — EP-041 (despesas do Cliente).** A descrição da I093 inclui EP-041, mas a F005 (contas e pagamentos) saiu do âmbito na Declaração de Âmbito v05: a I030 não especifica casos para EP-035 a EP-041 (secção 3.2) e o endpoint não está implementado. Não há casos a implementar.
+- **N1 — Definição da tarefa.** Esta tarefa segue a definição da I093 aprovada no Backlog Refinement do Sprint 05 (Backlog de Projeto v03) e o Sprint Backlog v02. A descrição da Issue #28 no GitHub é anterior a esse refinamento.
 - **N2 — IT-CONC-05 em EP-026.** Sem `If-Match`, duas alterações de data e hora seguidas são as duas válidas (a segunda substitui a primeira): o `If-Match` é opcional no contrato. Por isso o IT-CONC-05 é verificado em EP-027 e EP-028, onde o segundo pedido não pode ser aceite.
 
 ## 7. Execução
