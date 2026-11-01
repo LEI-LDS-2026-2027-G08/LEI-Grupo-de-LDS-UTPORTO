@@ -27,7 +27,7 @@ public sealed class MeusAnimaisEndpointsTests :
     {
     }
 
-    [Fact(DisplayName = "IT-EP019 — lista só os animais do Cliente autenticado, por nome")]
+    [Fact(DisplayName = "IT-EP019-01 — lista só os animais do Cliente autenticado, por nome")]
     public async Task ListaSoOsAnimaisDoClienteAutenticado()
     {
         using var cliente = await CriarClienteAutenticadoPorEmailAsync(EmailJoao);
@@ -44,7 +44,7 @@ public sealed class MeusAnimaisEndpointsTests :
             nome => Assert.Equal("Mia", nome));
     }
 
-    [Fact(DisplayName = "IT-EP019 — outro Cliente vê apenas o seu animal, com campos vazios quando não há dados")]
+    [Fact(DisplayName = "IT-EP019-03 — outro Cliente vê apenas o seu animal, com campos vazios quando não há dados")]
     public async Task OutroClienteVeApenasOSeuAnimal()
     {
         using var cliente = await CriarClienteAutenticadoPorEmailAsync(EmailRui);
@@ -62,7 +62,7 @@ public sealed class MeusAnimaisEndpointsTests :
         Assert.Equal(JsonValueKind.Null, animal.GetProperty("peso").ValueKind);
     }
 
-    [Fact(DisplayName = "IT-EP019 — o clienteId no pedido é ignorado: vale o Cliente do token")]
+    [Fact(DisplayName = "IT-EP019-03 — o clienteId no pedido é ignorado: vale o Cliente do token")]
     public async Task ClienteIdNoPedidoEIgnorado()
     {
         var clienteIdMaria = await ObterClienteIdAsync(EmailMaria);
@@ -81,7 +81,7 @@ public sealed class MeusAnimaisEndpointsTests :
             nome => Assert.Equal("Mia", nome));
     }
 
-    [Fact(DisplayName = "IT-EP019 — Cliente sem animais recebe uma lista vazia")]
+    [Fact(DisplayName = "IT-EP019-02 — Cliente sem animais recebe uma lista vazia")]
     public async Task ClienteSemAnimaisRecebeListaVazia()
     {
         var email = await CriarClienteSemAnimaisAsync();
@@ -98,7 +98,7 @@ public sealed class MeusAnimaisEndpointsTests :
         Assert.Empty(documento.RootElement.EnumerateArray());
     }
 
-    [Fact(DisplayName = "IT-EP020 — consulta um animal próprio só com dados administrativos")]
+    [Fact(DisplayName = "IT-EP020-01 — consulta um animal próprio só com dados administrativos")]
     public async Task ConsultaAnimalProprio()
     {
         var animalId = await ObterAnimalIdAsync("Bobi");
@@ -124,7 +124,7 @@ public sealed class MeusAnimaisEndpointsTests :
         Assert.False(raiz.TryGetProperty("notasClinicas", out _));
     }
 
-    [Fact(DisplayName = "IT-EP020 — animal de outro Cliente devolve 403 sem dados do animal")]
+    [Fact(DisplayName = "IT-EP020-02 — animal de outro Cliente devolve 403 sem dados do animal")]
     public async Task AnimalDeOutroClienteDevolve403()
     {
         var animalIdMaria = await ObterAnimalIdAsync("Kiko");
@@ -145,7 +145,7 @@ public sealed class MeusAnimaisEndpointsTests :
         Assert.Equal(403, documento.RootElement.GetProperty("code").GetInt32());
     }
 
-    [Fact(DisplayName = "IT-EP020 — animal inexistente devolve 404")]
+    [Fact(DisplayName = "IT-EP020-03 — animal inexistente devolve 404")]
     public async Task AnimalInexistenteDevolve404()
     {
         var idInexistente = await ObterIdInexistenteAsync();
