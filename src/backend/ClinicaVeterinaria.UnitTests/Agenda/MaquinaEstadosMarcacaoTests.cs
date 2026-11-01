@@ -15,8 +15,8 @@ public class MaquinaEstadosMarcacaoTests
     [InlineData(EstadosConsulta.Pendente, EstadosConsulta.Cancelada)]
     [InlineData(EstadosConsulta.Confirmada, EstadosConsulta.Cancelada)]
     public void TransicoesPermitidasSaoAceites(
-      string estadoAtual,
-      string novoEstado)
+        string estadoAtual,
+        string novoEstado)
     {
         var erro = Record.Exception(
             () => MaquinaEstadosMarcacao.ValidarTransicao(
