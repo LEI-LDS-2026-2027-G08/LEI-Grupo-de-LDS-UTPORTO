@@ -1208,6 +1208,168 @@ Authorization: Bearer {{loginVet.response.body.$.token}}
 ###
 
 # =============================================================================
+# I082 — Boletim de vacinas e desparasitações (EP-042 a EP-044 e RF056)
+#
+# EP-042, EP-043 e a atualização (RF056): só Veterinário. EP-044: só Cliente, e
+# só dos seus animais. Usa "passwordVet" (vet.ana), "passwordCliente" (João),
+# "passwordClienteMaria" (Maria), "passwordRececao", "passwordAux" e
+# "passwordAdmin" do http-client.env.json.user.
+# Numa base acabada de repor com os dados da I061: Bobi = 1 (João; vacinas de
+# 2025-10-14 e 2026-10-14 e desparasitante de 2026-10-14 com 90 dias), Kiko = 2
+# (Maria; desparasitante de 2026-08-01, sem intervalo) e Mia = 3 (João, sem
+# registos). Confirmar em EP-015 se os ids forem outros.
+# Executar os logins primeiro (Rececionista: secção I068; Auxiliar: secção
+# I069; Maria: secção I070; Administrador e João: início do ficheiro) e os
+# pedidos pela ordem: a atualização usa a administração criada no 201.
+# =============================================================================
+
+@vacBobi = 1
+@vacKiko = 2
+@vacMia = 3
+
+### Login Veterinária (I082)
+# @name loginVetVacinas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-042 · 200 — boletim do Bobi (administrações e próximas a partir de hoje)
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — só vacinas
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Vacina
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — só desparasitações
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Desparasitacao
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — animal sem registos (Mia): listas vazias
+GET {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 400 — tipo inválido
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Vacinas
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 404 — animal inexistente
+GET {{host}}/animais/999999/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-043 · 201 — desparasitação da Mia com 90 dias (dataProximaPrevista = 2027-01-12)
+# @name registarDesparasitacao
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+
+### EP-043 · 201 — vacina da Mia sem intervalo (dataProximaPrevista = null)
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina felina (fictícia)", "lote": "VF-0001", "dataAdministracao": "2026-10-20" }
+
+### EP-043 · 400 — lote em falta
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "dataAdministracao": "2026-10-14" }
+
+### EP-043 · 400 — data de administração futura
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2099-01-01" }
+
+### EP-043 · 400 — intervaloDias = 0
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14", "intervaloDias": 0 }
+
+### EP-043 · 404 — animal inexistente
+POST {{host}}/animais/999999/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+
+### RF056 · 200 — atualizar a desparasitação criada: nova data e 30 dias (próxima 2026-11-19)
+PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+
+### RF056 · 400 — intervaloDias negativo
+PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": -30 }
+
+### RF056 · 404 — a administração não é deste animal (pedida pelo Bobi)
+PUT {{host}}/animais/{{vacBobi}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+
+### EP-042 · 403 — Rececionista
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-043 · 403 — Auxiliar Veterinário
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+
+### EP-042 · 403 — Administrador
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-042 · 403 — Cliente (usa EP-044)
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-042 · 401 — sem token
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+
+### EP-044 · 200 — João: boletim do Bobi (histórico e próximas)
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 200 — Maria: boletim do Kiko (só o Kiko, sem próximas)
+GET {{host}}/me/animais/{{vacKiko}}/vacinacoes
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-044 · 403 — João pede o Kiko (da Maria): nenhum dado do Kiko
+GET {{host}}/me/animais/{{vacKiko}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 404 — animal inexistente
+GET {{host}}/me/animais/999999/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 403 — Veterinário (só Cliente)
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-044 · 401 — sem token
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+
+###
+
+# =============================================================================
 # I073 — Criar marcação (EP-025)
 #
 # Só a Rececionista cria marcações: usa "passwordRececao" do http-client.env.json.user.
