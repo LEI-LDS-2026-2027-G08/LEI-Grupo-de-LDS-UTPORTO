@@ -155,7 +155,7 @@ public sealed class ChegadaENotasPreparacaoEndpointsTests :
             n => n.GetProperty("texto").GetString() == texto);
     }
 
-    [Theory(DisplayName = "IT-EP029-02 e 03 — texto vazio ou com mais de 1000 caracteres devolve 400")]
+    [Theory(DisplayName = "IT-EP029-02 e IT-EP029-03 — texto vazio ou com mais de 1000 caracteres devolve 400")]
     [InlineData(0)]
     [InlineData(1001)]
     public async Task TextoInvalidoDevolve400(int comprimento)
