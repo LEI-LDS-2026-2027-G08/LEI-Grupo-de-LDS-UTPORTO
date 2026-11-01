@@ -1,4 +1,4 @@
-﻿namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
+namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
 
 /// <summary>
 /// Base comum dos testes de integração.

@@ -491,13 +491,13 @@ public class VacinacoesServiceTests
         string lote = "RB-2291",
         DateOnly? data = null,
         int? intervaloDias = 365) => new()
-    {
-        Tipo = tipo,
-        Produto = produto,
-        Lote = lote,
-        DataAdministracao = data ?? Hoje,
-        IntervaloDias = intervaloDias
-    };
+        {
+            Tipo = tipo,
+            Produto = produto,
+            Lote = lote,
+            DataAdministracao = data ?? Hoje,
+            IntervaloDias = intervaloDias
+        };
 
     /// <summary>
     /// Dados de referência da I028 (secção 5): VET_A (Ana Vet) e VET_B (Bruno Vet); CLIENTE_A com
@@ -546,16 +546,16 @@ public class VacinacoesServiceTests
         string lote,
         DateOnly data,
         short? intervaloDias) => new()
-    {
-        PacienteId = pacienteId,
-        VeterinarioId = veterinarioId,
-        Tipo = tipo,
-        Produto = produto,
-        Lote = lote,
-        DataAdministracao = data,
-        IntervaloDias = intervaloDias,
-        DataRegisto = Relogio.UtcDateTime.AddDays(-1)
-    };
+        {
+            PacienteId = pacienteId,
+            VeterinarioId = veterinarioId,
+            Tipo = tipo,
+            Produto = produto,
+            Lote = lote,
+            DataAdministracao = data,
+            IntervaloDias = intervaloDias,
+            DataRegisto = Relogio.UtcDateTime.AddDays(-1)
+        };
 
     private static async Task<int> AdicionarFuncionarioAsync(ClinicaDbContext db, string nome)
     {

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using ClinicaVeterinaria.Infrastructure;
 using Microsoft.Data.SqlClient;

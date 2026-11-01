@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Infrastructure;
 using Microsoft.EntityFrameworkCore;

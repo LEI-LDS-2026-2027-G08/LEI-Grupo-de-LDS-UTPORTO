@@ -372,8 +372,15 @@ public class AnimaisServiceTests
         db.Pacientes.AddRange(
             new Paciente
             {
-                Id = AnimalA1, ClienteId = ClienteA, Nome = "Bobi", EspecieId = EspecieCao, RacaId = 1, Sexo = "Macho",
-                DataNascimento = new DateOnly(2022, 5, 10), Peso = 28.4m, DataRegisto = Relogio.UtcDateTime.AddDays(-30)
+                Id = AnimalA1,
+                ClienteId = ClienteA,
+                Nome = "Bobi",
+                EspecieId = EspecieCao,
+                RacaId = 1,
+                Sexo = "Macho",
+                DataNascimento = new DateOnly(2022, 5, 10),
+                Peso = 28.4m,
+                DataRegisto = Relogio.UtcDateTime.AddDays(-30)
             },
             new Paciente { Id = AnimalA2, ClienteId = ClienteA, Nome = "Mia", EspecieId = EspecieGato, RacaId = 2 },
             new Paciente { Id = AnimalB1, ClienteId = ClienteB, Nome = "Kiko", EspecieId = EspecieCao });

@@ -810,13 +810,13 @@ public class UtilizadoresServiceTests
     /// <summary>Pedido de EP-007 com o telefone por omissão.</summary>
     private static UpdateUtilizadorDto PedidoAtualizacao(
         string nome, string email, string perfil, bool podeRegistarApoio = false) => new()
-    {
-        Nome = nome,
-        Email = email,
-        Telefone = "934567890",
-        Perfil = perfil,
-        PodeRegistarApoio = podeRegistarApoio
-    };
+        {
+            Nome = nome,
+            Email = email,
+            Telefone = "934567890",
+            Perfil = perfil,
+            PodeRegistarApoio = podeRegistarApoio
+        };
 
     /// <summary>Pedido do exemplo de EP-008 da Documentação da API.</summary>
     private static AlterarEstadoUtilizadorDto PedidoBloqueio() => new()
