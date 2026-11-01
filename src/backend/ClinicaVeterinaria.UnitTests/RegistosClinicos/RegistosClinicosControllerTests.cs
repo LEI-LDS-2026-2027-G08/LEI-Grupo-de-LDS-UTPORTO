@@ -13,27 +13,68 @@ using Microsoft.AspNetCore.Mvc;
 namespace ClinicaVeterinaria.UnitTests.RegistosClinicos;
 
 /// <summary>
-/// I077 — critério 6: EP-031 e EP-032 só aceitam o perfil Veterinário (403 para os restantes,
-/// incluindo o Auxiliar Veterinário). A política em si está verificada em UT-F001-041
-/// (<c>PoliticasAutorizacaoTests</c>). O Veterinário passado ao serviço é sempre o do token.
+/// I077 e I078 — EP-031 e EP-032 só aceitam o perfil Veterinário (403 para os restantes, incluindo
+/// o Auxiliar Veterinário; I077, critério 6). EP-033 e EP-034 aceitam o Veterinário e o Auxiliar
+/// Veterinário, só de leitura (I078, critérios 2, 3 e 5). As políticas em si estão verificadas em
+/// UT-F001-041 (<c>PoliticasAutorizacaoTests</c>). O Veterinário passado ao serviço é sempre o do
+/// token.
 /// </summary>
 public class RegistosClinicosControllerTests
 {
-    [Fact(DisplayName = "I077 — EP-031 e EP-032 exigem a política Veterinário e nenhuma ação a dispensa")]
-    public void ControladorExigePerfilVeterinario()
+    [Fact(DisplayName = "I078 — o controlador aceita só o Veterinário e o Auxiliar Veterinário e nenhuma ação dispensa a autenticação")]
+    public void ControladorSoVeterinarioEAuxiliar()
     {
         var tipo = typeof(RegistosClinicosController);
 
         var autorizacao = Assert.Single(tipo.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
-        Assert.Equal(PoliticasAutorizacao.Veterinario, autorizacao.Policy);
-        Assert.Null(autorizacao.Roles);
+        Assert.Null(autorizacao.Policy);
+        Assert.Equal(
+            Perfis.AuxiliarVeterinario + "," + Perfis.Veterinario,
+            string.Join(',', autorizacao.Roles!.Split(',').Order(StringComparer.Ordinal)));
 
         var acoes = tipo.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-        Assert.Equal(2, acoes.Length);
-        Assert.All(acoes, acao =>
+        Assert.Equal(4, acoes.Length);
+        Assert.All(acoes, acao => Assert.Empty(acao.GetCustomAttributes<AllowAnonymousAttribute>(inherit: true)));
+    }
+
+    [Theory(DisplayName = "I077 e I078 — EP-031 e EP-032 exigem também a política Veterinário (o Auxiliar recebe 403)")]
+    [InlineData(nameof(RegistosClinicosController.Criar))]
+    [InlineData(nameof(RegistosClinicosController.Atualizar))]
+    public void EscritaSoVeterinario(string nomeAcao)
+    {
+        var acao = typeof(RegistosClinicosController).GetMethod(nomeAcao)!;
+
+        var autorizacao = Assert.Single(acao.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+        Assert.Equal(PoliticasAutorizacao.Veterinario, autorizacao.Policy);
+        Assert.Null(autorizacao.Roles);
+    }
+
+    [Theory(DisplayName = "I078 — EP-033 e EP-034 não acrescentam restrições: Veterinário e Auxiliar Veterinário leem")]
+    [InlineData(nameof(RegistosClinicosController.Obter))]
+    [InlineData(nameof(RegistosClinicosController.ObterHistorico))]
+    public void LeituraVeterinarioEAuxiliar(string nomeAcao)
+    {
+        var acao = typeof(RegistosClinicosController).GetMethod(nomeAcao)!;
+
+        Assert.Empty(acao.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+    }
+
+    [Fact(DisplayName = "I078 — o Auxiliar Veterinário só tem operações de leitura (GET) neste controlador")]
+    public void AuxiliarSoTemLeitura()
+    {
+        var acoes = typeof(RegistosClinicosController)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        // As ações que o Auxiliar alcança (sem política própria) são todas GET.
+        var semPolitica = acoes.Where(a => !a.GetCustomAttributes<AuthorizeAttribute>(inherit: true).Any()).ToList();
+        Assert.Equal(2, semPolitica.Count);
+        Assert.All(semPolitica, acao =>
         {
-            Assert.Empty(acao.GetCustomAttributes<AllowAnonymousAttribute>(inherit: true));
-            Assert.Empty(acao.GetCustomAttributes<AuthorizeAttribute>(inherit: true));
+            Assert.Single(acao.GetCustomAttributes<HttpGetAttribute>());
+            Assert.Empty(acao.GetCustomAttributes<HttpPostAttribute>());
+            Assert.Empty(acao.GetCustomAttributes<HttpPutAttribute>());
+            Assert.Empty(acao.GetCustomAttributes<HttpPatchAttribute>());
+            Assert.Empty(acao.GetCustomAttributes<HttpDeleteAttribute>());
         });
     }
 
@@ -47,6 +88,21 @@ public class RegistosClinicosControllerTests
         Assert.Equal(
             "{id:int}",
             Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.Atualizar))!.GetCustomAttributes<HttpPutAttribute>()).Template);
+    }
+
+    [Fact(DisplayName = "I078 — As rotas são GET /registos-clinicos/{id} e GET /animais/{id}/historico-clinico")]
+    public void RotasDeLeituraDoContrato()
+    {
+        var tipo = typeof(RegistosClinicosController);
+
+        Assert.Equal(
+            "{id:int}",
+            Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.Obter))!.GetCustomAttributes<HttpGetAttribute>()).Template);
+
+        // Começa por «/»: não se junta ao prefixo «registos-clinicos» do controlador.
+        Assert.Equal(
+            "/animais/{id:int}/historico-clinico",
+            Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.ObterHistorico))!.GetCustomAttributes<HttpGetAttribute>()).Template);
     }
 
     [Fact(DisplayName = "I077 — EP-031 devolve 201 com Location /registos-clinicos/{id} e usa o Veterinário do token")]
@@ -92,6 +148,34 @@ public class RegistosClinicosControllerTests
         Assert.Null(servico.UltimoPedido);
     }
 
+    [Fact(DisplayName = "I078 — EP-033 devolve 200 com o registo do serviço")]
+    public async Task ObterDevolve200()
+    {
+        var servico = new RegistosClinicosServiceDeTeste();
+        var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.AuxiliarVeterinario));
+
+        var resposta = await controlador.Obter(18);
+
+        var ok = Assert.IsType<OkObjectResult>(resposta.Result);
+        Assert.Same(servico.Registo, ok.Value);
+        Assert.Equal(18, servico.UltimoId);
+    }
+
+    [Fact(DisplayName = "I078 — EP-034 devolve 200 com o histórico e passa o animal e as datas ao serviço")]
+    public async Task ObterHistoricoDevolve200()
+    {
+        var servico = new RegistosClinicosServiceDeTeste();
+        var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.Veterinario, veterinarioId: 4));
+        var query = new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 9, 1), DataFim = new DateOnly(2026, 10, 31) };
+
+        var resposta = await controlador.ObterHistorico(3, query);
+
+        var ok = Assert.IsType<OkObjectResult>(resposta.Result);
+        Assert.Same(servico.Historico, ok.Value);
+        Assert.Equal(3, servico.UltimoId);
+        Assert.Same(query, servico.UltimaQuery);
+    }
+
     private static RegistosClinicosController CriarControlador(RegistosClinicosServiceDeTeste servico, ClaimsPrincipal utilizador) =>
         new(servico)
         {
@@ -104,6 +188,10 @@ public class RegistosClinicosControllerTests
     private sealed class RegistosClinicosServiceDeTeste : IRegistosClinicosService
     {
         public RegistoClinicoDto Registo { get; } = new() { Id = 18, ConsultaId = 41 };
+
+        public HistoricoClinicoDto Historico { get; } = new();
+
+        public HistoricoClinicoQuery? UltimaQuery { get; private set; }
 
         public UpdateRegistoClinicoDto? UltimoPedido { get; private set; }
 
@@ -126,6 +214,21 @@ public class RegistosClinicosControllerTests
             UltimoVeterinarioId = veterinarioId;
 
             return Task.FromResult(Registo);
+        }
+
+        public Task<RegistoClinicoDto> ObterAsync(int id)
+        {
+            UltimoId = id;
+
+            return Task.FromResult(Registo);
+        }
+
+        public Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query)
+        {
+            UltimoId = animalId;
+            UltimaQuery = query;
+
+            return Task.FromResult(Historico);
         }
     }
 }
