@@ -13,6 +13,9 @@ namespace ClinicaVeterinaria.IntegrationTests.Consultas;
 /// <summary>
 /// I074 — EP-027 (PATCH /consultas/{id}/estado) com API real e SQL Server.
 /// Casos IT-EP027-01 a IT-EP027-10 da especificação de integração.
+/// A I093 alargou os casos IT-EP027-05, 07 e 08 a todas as combinações da tabela de transições
+/// (critério 4 da I093): cada transição inválida tem uma linha e confirma que nem o estado nem a
+/// versão (RowVersion) da marcação mudam.
 /// </summary>
 public sealed class AtualizarEstadoConsultaEndpointsTests :
     TesteIntegracaoBase,
@@ -33,7 +36,7 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
     {
     }
 
-    [Theory(DisplayName = "IT-EP027-01 a 04 — as quatro transições válidas devolvem 204 e ficam persistidas")]
+    [Theory(DisplayName = "IT-EP027-01, IT-EP027-02, IT-EP027-03 e IT-EP027-04 — as quatro transições válidas devolvem 204 e ficam persistidas")]
     [InlineData(EmailVetBruno, "Pendente", "Confirmada")]
     [InlineData(EmailVetBruno, "Pendente", "Cancelada")]
     [InlineData(EmailVetAna, "Confirmada", "Realizada")]
@@ -79,28 +82,19 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
                 .GetString());
     }
 
-    [Theory(DisplayName = "IT-EP027-05 — estado inexistente ou Pendente devolve 400")]
-    [InlineData("Faltou")]
-    [InlineData("Pendente")]
+    [Theory(DisplayName = "IT-EP027-05 — estado inexistente, ou Pendente a partir de qualquer estado, devolve 400 e não altera a marcação")]
+    [InlineData("Pendente", "Faltou")]
+    [InlineData("Pendente", "Pendente")]
+    [InlineData("Confirmada", "Pendente")]
+    [InlineData("Realizada", "Pendente")]
+    [InlineData("Cancelada", "Pendente")]
     public async Task EstadoInvalidoDevolve400(
-        string estado)
+        string estadoAtual,
+        string estadoPedido)
     {
-        var marcacao =
-            await ObterMarcacaoAsync(
-                EmailVetBruno,
-                "Pendente");
-
-        using var cliente =
-            await ClienteDeAsync(EmailRececao);
-
-        using var resposta =
-            await EnviarPatchAsync(
-                cliente,
-                marcacao.Id,
-                estado);
-
-        await AssertErroAsync(
-            resposta,
+        await AssertTransicaoRecusadaAsync(
+            estadoAtual,
+            estadoPedido,
             HttpStatusCode.BadRequest);
     }
 
@@ -121,65 +115,34 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
             HttpStatusCode.NotFound);
     }
 
-    [Fact(DisplayName = "IT-EP027-07 — transição inválida devolve 422")]
-    public async Task TransicaoInvalidaDevolve422()
-    {
-        var marcacao =
-            await ObterMarcacaoAsync(
-                EmailVetBruno,
-                "Pendente");
-
-        using var cliente =
-            await ClienteDeAsync(EmailRececao);
-
-        using var resposta =
-            await EnviarPatchAsync(
-                cliente,
-                marcacao.Id,
-                "Realizada");
-
-        await AssertErroAsync(
-            resposta,
-            HttpStatusCode.UnprocessableEntity);
-
-        Assert.Equal(
-            "Pendente",
-            await ObterEstadoAsync(
-                cliente,
-                marcacao.Id));
-    }
-
-    [Theory(DisplayName = "IT-EP027-08 — estados finais não permitem nova transição")]
-    [InlineData(EmailVetAna, "Realizada", "Cancelada")]
-    [InlineData(EmailVetBruno, "Cancelada", "Confirmada")]
-    public async Task EstadoFinalDevolve422(
-        string emailVeterinario,
+    [Theory(DisplayName = "IT-EP027-07 — transição inválida a partir de Pendente ou Confirmada devolve 422 e não altera a marcação")]
+    [InlineData("Pendente", "Realizada")]
+    [InlineData("Confirmada", "Confirmada")]
+    public async Task TransicaoInvalidaDevolve422(
         string estadoAtual,
         string novoEstado)
     {
-        var marcacao =
-            await ObterMarcacaoAsync(
-                emailVeterinario,
-                estadoAtual);
-
-        using var cliente =
-            await ClienteDeAsync(EmailRececao);
-
-        using var resposta =
-            await EnviarPatchAsync(
-                cliente,
-                marcacao.Id,
-                novoEstado);
-
-        await AssertErroAsync(
-            resposta,
-            HttpStatusCode.UnprocessableEntity);
-
-        Assert.Equal(
+        await AssertTransicaoRecusadaAsync(
             estadoAtual,
-            await ObterEstadoAsync(
-                cliente,
-                marcacao.Id));
+            novoEstado,
+            HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Theory(DisplayName = "IT-EP027-08 — os estados finais (Realizada e Cancelada) não permitem nova transição: 422 e nada muda")]
+    [InlineData("Realizada", "Confirmada")]
+    [InlineData("Realizada", "Realizada")]
+    [InlineData("Realizada", "Cancelada")]
+    [InlineData("Cancelada", "Confirmada")]
+    [InlineData("Cancelada", "Realizada")]
+    [InlineData("Cancelada", "Cancelada")]
+    public async Task EstadoFinalDevolve422(
+        string estadoAtual,
+        string novoEstado)
+    {
+        await AssertTransicaoRecusadaAsync(
+            estadoAtual,
+            novoEstado,
+            HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact(DisplayName = "IT-EP027-09 — If-Match antigo devolve 412 e mantém o estado atual")]
@@ -328,6 +291,98 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
     // ----- Auxiliares -----
 
     private sealed record MarcacaoDemo(int Id);
+
+    private sealed record VersaoDemo(
+        int Id,
+        string Estado,
+        byte[] RowVersion);
+
+    /// <summary>
+    /// Envia a transição pedida a partir de uma marcação de demonstração no estado indicado e
+    /// confirma o código de erro, no formato da I058, e que o estado e a versão da marcação
+    /// ficam iguais (IT-TRV-26 e IT-TRV-28).
+    /// </summary>
+    private async Task AssertTransicaoRecusadaAsync(
+        string estadoAtual,
+        string estadoPedido,
+        HttpStatusCode esperado)
+    {
+        var antes =
+            await ObterMarcacaoPorEstadoAsync(
+                estadoAtual);
+
+        using var cliente =
+            await ClienteDeAsync(EmailRececao);
+
+        using var resposta =
+            await EnviarPatchAsync(
+                cliente,
+                antes.Id,
+                estadoPedido);
+
+        await AssertErroAsync(
+            resposta,
+            esperado);
+
+        var depois =
+            await ObterVersaoAsync(
+                antes.Id);
+
+        Assert.Equal(
+            estadoAtual,
+            depois.Estado);
+
+        Assert.Equal(
+            antes.RowVersion,
+            depois.RowVersion);
+    }
+
+    /// <summary>
+    /// Primeira marcação de demonstração no estado indicado. Os dados da I061 têm uma marcação
+    /// em cada estado (duas Pendentes, uma de cada Veterinário).
+    /// </summary>
+    private async Task<VersaoDemo> ObterMarcacaoPorEstadoAsync(
+        string estado)
+    {
+        using var scope =
+            Fixture.Factory.Services.CreateScope();
+
+        var db =
+            scope.ServiceProvider
+                .GetRequiredService<ClinicaDbContext>();
+
+        return await db.Marcacoes
+            .AsNoTracking()
+            .Where(m => m.Estado == estado)
+            .OrderBy(m => m.Id)
+            .Select(
+                m => new VersaoDemo(
+                    m.Id,
+                    m.Estado,
+                    m.RowVersion))
+            .FirstAsync();
+    }
+
+    private async Task<VersaoDemo> ObterVersaoAsync(
+        int id)
+    {
+        using var scope =
+            Fixture.Factory.Services.CreateScope();
+
+        var db =
+            scope.ServiceProvider
+                .GetRequiredService<ClinicaDbContext>();
+
+        return await db.Marcacoes
+            .AsNoTracking()
+            .Where(m => m.Id == id)
+            .Select(
+                m => new VersaoDemo(
+                    m.Id,
+                    m.Estado,
+                    m.RowVersion))
+            .SingleAsync();
+    }
 
     private static async Task<HttpResponseMessage> EnviarPatchAsync(
         HttpClient cliente,
