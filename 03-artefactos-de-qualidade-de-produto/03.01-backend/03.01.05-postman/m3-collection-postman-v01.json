@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Clínica Veterinária G08 — API m3 (EP-001 a EP-020)",
-    "description": "I098 — Collection Postman da API do backend: identidade, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020).\n\nUsar com o ambiente m3-ambiente-postman-v01.json, com as palavras-passe das contas de demonstração preenchidas localmente (não estão no repositório). Executar a collection inteira e pela ordem: a pasta 00 guarda os tokens por perfil e as pastas seguintes guardam os identificadores que criam.\n\nConvenções: ver o README.md da pasta 03.01.05-postman.",
+    "name": "Clínica Veterinária G08 — API m3",
+    "description": "Collection Postman da API do backend. I098: identidade, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020). I100: registo clínico (EP-031 a EP-034) e boletim de vacinas e desparasitações (EP-042 a EP-044 e a atualização do RF056). A pasta 07 fica reservada à agenda e à área do Cliente (EP-021 a EP-030, I099).\n\nUsar com o ambiente m3-ambiente-postman-v01.json, com as palavras-passe das contas de demonstração preenchidas localmente (não estão no repositório). Executar a collection inteira e pela ordem: a pasta 00 guarda os tokens por perfil e as pastas seguintes guardam os identificadores que criam.\n\nConvenções: ver o README.md da pasta 03.01.05-postman.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "event": [
@@ -5659,6 +5659,3079 @@
                 "me",
                 "animais",
                 "{{animalClienteId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 · Registo clínico (EP-031 a EP-034)",
+      "description": "I100. Os seis pedidos de preparação identificam o Veterinário da sessão, uma marcação de outro Veterinário (M4 da I061) e os dois próximos horários livres (EP-022), e criam duas marcações: uma confirmada, para o registo clínico, e outra que fica Pendente (422 em EP-031) e é cancelada no fim da pasta. Assim a pasta pode ser executada várias vezes sem repor a base de dados.",
+      "item": [
+        {
+          "name": "EP-023 · preparação — identificar o Veterinário da sessão",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"A agenda do Veterinário tem marcações (dados da I061)\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\").that.is.not.empty;",
+                  "    });",
+                  "    pm.test(\"Só aparecem marcações do próprio Veterinário\", function () {",
+                  "        corpo.itens.forEach(function (m) { pm.expect(m.veterinario.id).to.eql(corpo.itens[0].veterinario.id); });",
+                  "    });",
+                  "    if (pm.response.code === 200 && corpo.itens.length > 0) {",
+                  "        pm.environment.set(\"veterinarioId\", corpo.itens[0].veterinario.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · preparação — marcação de outro Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    const outra = corpo.itens.find(function (m) { return m.veterinario.id !== pm.environment.get(\"veterinarioId\"); });",
+                  "    pm.test(\"Existe uma marcação de outro Veterinário (M4 da I061)\", function () {",
+                  "        pm.expect(outra).to.be.an(\"object\");",
+                  "    });",
+                  "    if (outra) {",
+                  "        pm.environment.set(\"consultaOutroVeterinarioId\", outra.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-11-04&dataFim=2026-11-04&tamanho=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-11-04"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-11-04"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · preparação — próximos horários livres do Veterinário",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Hora de Lisboa (R-FUSO): +1 h entre o último domingo de março e o último domingo de outubro.",
+                  "function ultimoDomingo(ano, mes) {",
+                  "    const d = new Date(Date.UTC(ano, mes + 1, 0));",
+                  "    d.setUTCDate(d.getUTCDate() - d.getUTCDay());",
+                  "    return d;",
+                  "}",
+                  "function desvioLisboa(data) {",
+                  "    const d = new Date(data + \"T12:00:00Z\");",
+                  "    const ano = d.getUTCFullYear();",
+                  "    return d >= ultimoDomingo(ano, 2) && d < ultimoDomingo(ano, 9) ? 1 : 0;",
+                  "}",
+                  "// Do dia seguinte (em Lisboa) a 30 dias depois: 31 dias, o máximo de EP-022.",
+                  "const agora = new Date();",
+                  "const hojeUtc = agora.toISOString().slice(0, 10);",
+                  "const hoje = new Date(agora.getTime() + desvioLisboa(hojeUtc) * 3600000).toISOString().slice(0, 10);",
+                  "const inicio = new Date(hoje + \"T00:00:00Z\");",
+                  "inicio.setUTCDate(inicio.getUTCDate() + 1);",
+                  "const fim = new Date(inicio.getTime());",
+                  "fim.setUTCDate(fim.getUTCDate() + 30);",
+                  "pm.variables.set(\"dataInicioDisponibilidade\", inicio.toISOString().slice(0, 10));",
+                  "pm.variables.set(\"dataFimDisponibilidade\", fim.toISOString().slice(0, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    // Hora de Lisboa (R-FUSO): +1 h entre o último domingo de março e o último domingo de outubro.",
+                  "    function ultimoDomingo(ano, mes) {",
+                  "        const d = new Date(Date.UTC(ano, mes + 1, 0));",
+                  "        d.setUTCDate(d.getUTCDate() - d.getUTCDay());",
+                  "        return d;",
+                  "    }",
+                  "    function desvioLisboa(data) {",
+                  "        const d = new Date(data + \"T12:00:00Z\");",
+                  "        const ano = d.getUTCFullYear();",
+                  "        return d >= ultimoDomingo(ano, 2) && d < ultimoDomingo(ano, 9) ? 1 : 0;",
+                  "    }",
+                  "    function paraUtc(data, hora) {",
+                  "        const t = new Date(data + \"T\" + hora + \":00Z\").getTime() - desvioLisboa(data) * 3600000;",
+                  "        return new Date(t).toISOString().replace(\".000Z\", \"Z\");",
+                  "    }",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    const vagas = [];",
+                  "    corpo.dias.forEach(function (dia) {",
+                  "        dia.horariosLivres.forEach(function (hora) { vagas.push({ data: dia.data, hora: hora }); });",
+                  "    });",
+                  "    pm.test(\"Há pelo menos dois horários livres nos próximos 31 dias\", function () {",
+                  "        pm.expect(vagas.length).to.be.at.least(2);",
+                  "    });",
+                  "    if (vagas.length >= 2) {",
+                  "        pm.environment.set(\"dataMarcacaoRegisto\", vagas[0].data);",
+                  "        pm.environment.set(\"dataHoraMarcacaoRegisto\", paraUtc(vagas[0].data, vagas[0].hora));",
+                  "        pm.environment.set(\"dataHoraMarcacaoPendente\", paraUtc(vagas[1].data, vagas[1].hora));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio={{dataInicioDisponibilidade}}&dataFim={{dataFimDisponibilidade}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataInicioDisponibilidade}}"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "{{dataFimDisponibilidade}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · preparação — marcação para o registo clínico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Marcação Pendente do Veterinário da sessão\", function () {",
+                  "        pm.expect(corpo.estado).to.eql(\"Pendente\");",
+                  "        pm.expect(corpo.veterinario.id).to.eql(pm.environment.get(\"veterinarioId\"));",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"consultaRegistoId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraMarcacaoRegisto}}\",\n  \"motivo\": \"Consulta para o registo clínico (I100)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · preparação — confirmar a marcação",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaRegistoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaRegistoId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · preparação — marcação que fica Pendente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"consultaPendenteId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraMarcacaoPendente}}\",\n  \"motivo\": \"Marcação Pendente (I100)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 201 — criar registo clínico com tratamento e prescrição",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Registo associado à consulta e ao paciente\", function () {",
+                  "        pm.expect(corpo.consultaId).to.eql(pm.environment.get(\"consultaRegistoId\"));",
+                  "        pm.expect(corpo.animalId).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        pm.expect(corpo.diagnostico).to.eql(\"Otite externa\");",
+                  "        pm.expect(corpo.veterinario).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(corpo.criadoEm).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(corpo.atualizadoEm).to.eql(null);",
+                  "    });",
+                  "    pm.test(\"Um tratamento e uma prescrição, com identificador\", function () {",
+                  "        pm.expect(corpo.tratamentos).to.have.lengthOf(1);",
+                  "        pm.expect(corpo.tratamentos[0].id).to.be.a(\"number\");",
+                  "        pm.expect(corpo.prescricoes).to.have.lengthOf(1);",
+                  "        pm.expect(corpo.prescricoes[0].duracaoDias).to.eql(7);",
+                  "    });",
+                  "    pm.test(\"Location indica o registo\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/registos-clinicos/\" + corpo.id);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"registoClinicoId\", corpo.id);",
+                  "        pm.environment.set(\"tratamentoId\", corpo.tratamentos[0].id);",
+                  "        pm.environment.set(\"prescricaoId\", corpo.prescricoes[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"notasClinicas\": \"Animal ativo; ligeira inflamação no ouvido esquerdo (I100).\",\n  \"diagnostico\": \"Otite externa\",\n  \"tratamentos\": [\n    {\n      \"descricao\": \"Limpeza auricular\",\n      \"dataAplicacao\": \"{{dataMarcacaoRegisto}}\"\n    }\n  ],\n  \"prescricoes\": [\n    {\n      \"medicamento\": \"Gotas auriculares X\",\n      \"dosagem\": \"3 gotas\",\n      \"frequencia\": \"2 vezes por dia\",\n      \"duracaoDias\": 7\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 400 — nenhum elemento clínico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"notasClinicas\": \"   \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 400 — prescrição incompleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"prescricoes\": [\n    {\n      \"medicamento\": \"Gotas auriculares X\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 404 — consulta inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{idInexistente}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 403 — consulta de outro Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaOutroVeterinarioId}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 422 — marcação Pendente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaPendenteId}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 409 — a consulta já tem registo clínico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 409\", function () { pm.response.to.have.status(409); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-031 · 403 — Auxiliar Veterinário (só leitura)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consultaId\": {{consultaRegistoId}},\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 200 — atualizar notas, diagnóstico, tratamentos e prescrições",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Notas e diagnóstico atualizados; consulta e paciente mantêm-se\", function () {",
+                  "        pm.expect(corpo.diagnostico).to.eql(\"Otite externa em melhoria\");",
+                  "        pm.expect(corpo.consultaId).to.eql(pm.environment.get(\"consultaRegistoId\"));",
+                  "        pm.expect(corpo.animalId).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "    });",
+                  "    pm.test(\"O tratamento indicado mantém-se e o novo é acrescentado\", function () {",
+                  "        pm.expect(corpo.tratamentos).to.have.lengthOf(2);",
+                  "        pm.expect(corpo.tratamentos.map(function (t) { return t.id; })).to.include(pm.environment.get(\"tratamentoId\"));",
+                  "    });",
+                  "    pm.test(\"A prescrição indicada é alterada\", function () {",
+                  "        pm.expect(corpo.prescricoes).to.have.lengthOf(1);",
+                  "        pm.expect(corpo.prescricoes[0].id).to.eql(pm.environment.get(\"prescricaoId\"));",
+                  "        pm.expect(corpo.prescricoes[0].frequencia).to.eql(\"3 vezes por dia\");",
+                  "    });",
+                  "    pm.test(\"Regista atualizadoEm e atualizadoPor\", function () {",
+                  "        pm.expect(corpo.atualizadoEm).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(corpo.atualizadoPor).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notasClinicas\": \"Reavaliação: inflamação a diminuir (I100).\",\n  \"diagnostico\": \"Otite externa em melhoria\",\n  \"tratamentos\": [\n    {\n      \"id\": {{tratamentoId}},\n      \"descricao\": \"Limpeza auricular\",\n      \"dataAplicacao\": \"{{dataMarcacaoRegisto}}\"\n    },\n    {\n      \"descricao\": \"Aplicação de pomada\",\n      \"dataAplicacao\": \"{{dataMarcacaoRegisto}}\"\n    }\n  ],\n  \"prescricoes\": [\n    {\n      \"id\": {{prescricaoId}},\n      \"medicamento\": \"Gotas auriculares X\",\n      \"dosagem\": \"3 gotas\",\n      \"frequencia\": \"3 vezes por dia\",\n      \"duracaoDias\": 10\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 400 — o registo ficaria sem elemento clínico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notasClinicas\": null,\n  \"diagnostico\": null,\n  \"tratamentos\": [],\n  \"prescricoes\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 400 — tratamento que não é deste registo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostico\": \"Otite externa em melhoria\",\n  \"tratamentos\": [\n    {\n      \"id\": {{idInexistente}},\n      \"descricao\": \"Limpeza auricular\",\n      \"dataAplicacao\": \"{{dataMarcacaoRegisto}}\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 404 — registo inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-032 · 403 — Auxiliar Veterinário (só leitura)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"diagnostico\": \"Otite externa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 200 — consultar o registo (Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Registo completo, já com a atualização\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"registoClinicoId\"));",
+                  "        pm.expect(corpo.diagnostico).to.eql(\"Otite externa em melhoria\");",
+                  "        pm.expect(corpo.tratamentos).to.have.lengthOf(2);",
+                  "        pm.expect(corpo.prescricoes).to.have.lengthOf(1);",
+                  "        pm.expect(corpo.atualizadoPor).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 200 — consultar o registo (Auxiliar Veterinário, só leitura)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Registo completo, já com a atualização\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"registoClinicoId\"));",
+                  "        pm.expect(corpo.diagnostico).to.eql(\"Otite externa em melhoria\");",
+                  "        pm.expect(corpo.tratamentos).to.have.lengthOf(2);",
+                  "        pm.expect(corpo.prescricoes).to.have.lengthOf(1);",
+                  "        pm.expect(corpo.atualizadoPor).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 404 — registo inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-033 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/registos-clinicos/{{registoClinicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registos-clinicos",
+                "{{registoClinicoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 200 — histórico clínico do paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Histórico do animal pedido, com o registo criado\", function () {",
+                  "        pm.expect(corpo.animal.id).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        pm.expect(corpo.registos.map(function (r) { return r.id; })).to.include(pm.environment.get(\"registoClinicoId\"));",
+                  "    });",
+                  "    pm.test(\"Do registo mais recente para o mais antigo\", function () {",
+                  "        for (let i = 1; i < corpo.registos.length; i++) {",
+                  "            pm.expect(corpo.registos[i - 1].data >= corpo.registos[i].data).to.eql(true);",
+                  "        }",
+                  "    });",
+                  "    pm.test(\"O resumo conta os tratamentos e as prescrições\", function () {",
+                  "        const r = corpo.registos.find(function (x) { return x.id === pm.environment.get(\"registoClinicoId\"); });",
+                  "        pm.expect(r.numeroTratamentos).to.eql(2);",
+                  "        pm.expect(r.numeroPrescricoes).to.eql(1);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/historico-clinico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "historico-clinico"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 200 — histórico filtrado por datas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Só registos do dia pedido, incluindo o registo criado\", function () {",
+                  "        corpo.registos.forEach(function (r) { pm.expect(r.data).to.eql(pm.environment.get(\"dataMarcacaoRegisto\")); });",
+                  "        pm.expect(corpo.registos.map(function (r) { return r.id; })).to.include(pm.environment.get(\"registoClinicoId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/historico-clinico?dataInicio={{dataMarcacaoRegisto}}&dataFim={{dataMarcacaoRegisto}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "historico-clinico"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataMarcacaoRegisto}}"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "{{dataMarcacaoRegisto}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 200 — animal sem registos (Auxiliar Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Lista de registos vazia\", function () {",
+                  "        pm.expect(corpo.animal.id).to.eql(pm.environment.get(\"animalNovoId\"));",
+                  "        pm.expect(corpo.registos).to.be.an(\"array\").that.is.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}/historico-clinico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}",
+                "historico-clinico"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 400 — dataFim anterior a dataInicio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/historico-clinico?dataInicio=2026-10-15&dataFim=2026-10-14",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "historico-clinico"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-10-14"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{idInexistente}}/historico-clinico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{idInexistente}}",
+                "historico-clinico"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/historico-clinico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "historico-clinico"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-034 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/historico-clinico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "historico-clinico"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · preparação — cancelar a marcação Pendente (limpeza)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Cancelada\",\n  \"observacao\": \"Marcação de teste da collection (I100).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaPendenteId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaPendenteId}}",
+                "estado"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 · Boletim de vacinas e desparasitações (EP-042 a EP-044)",
+      "description": "I100. Regista uma vacinação e uma desparasitação no animal do Cliente da sessão, atualiza-as (RF056: PUT /animais/{id}/vacinacoes/{administracaoId}, ainda não descrito na API v02) e consulta o boletim no web (EP-042) e na aplicação móvel (EP-044) com dois Clientes. As datas de administração são fixas e passadas, para as datas previstas serem verificáveis.",
+      "item": [
+        {
+          "name": "EP-043 · 201 — registar vacinação com intervalo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Vacinação registada com os dados enviados\", function () {",
+                  "        pm.expect(corpo.tipo).to.eql(\"Vacina\");",
+                  "        pm.expect(corpo.lote).to.eql(\"I100-VAC-01\");",
+                  "        pm.expect(corpo.dataAdministracao).to.eql(\"2026-10-14\");",
+                  "        pm.expect(corpo.veterinario).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"Próxima administração = data + intervalo (2026-10-14 + 365 dias)\", function () {",
+                  "        pm.expect(corpo.intervaloDias).to.eql(365);",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2027-10-14\");",
+                  "    });",
+                  "    pm.test(\"Location indica a administração do animal\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/animais/\" + pm.environment.get(\"animalClienteId\") + \"/vacinacoes/\" + corpo.id);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"administracaoVacinaId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 201 — registar desparasitação sem intervalo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Sem intervalo, não há próxima administração\", function () {",
+                  "        pm.expect(corpo.tipo).to.eql(\"Desparasitacao\");",
+                  "        pm.expect(corpo.intervaloDias).to.eql(null);",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(null);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"administracaoDesparasitacaoId\", corpo.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"2026-10-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 400 — data de administração futura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2099-01-01\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 400 — intervaloDias igual a zero",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 400 — tipo inválido e lote em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Antibiotico\",\n  \"produto\": \"Produto (I100)\",\n  \"dataAdministracao\": \"2026-10-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{idInexistente}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{idInexistente}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-043 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 200 — boletim completo do paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Boletim do animal pedido, com as duas administrações registadas\", function () {",
+                  "        pm.expect(corpo.animal.id).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        const ids = corpo.administracoes.map(function (a) { return a.id; });",
+                  "        pm.expect(ids).to.include.members([pm.environment.get(\"administracaoVacinaId\"), pm.environment.get(\"administracaoDesparasitacaoId\")]);",
+                  "    });",
+                  "    pm.test(\"Cada administração tem lote, intervalo, próxima e Veterinário\", function () {",
+                  "        corpo.administracoes.forEach(function (a) {",
+                  "            pm.expect(a).to.have.all.keys(\"id\", \"tipo\", \"produto\", \"lote\", \"dataAdministracao\", \"intervaloDias\", \"dataProximaPrevista\", \"veterinario\");",
+                  "        });",
+                  "    });",
+                  "    pm.test(\"Administrações da mais recente para a mais antiga\", function () {",
+                  "        for (let i = 1; i < corpo.administracoes.length; i++) {",
+                  "            pm.expect(corpo.administracoes[i - 1].dataAdministracao >= corpo.administracoes[i].dataAdministracao).to.eql(true);",
+                  "        }",
+                  "    });",
+                  "    pm.test(\"Próximas da mais próxima para a mais distante\", function () {",
+                  "        for (let i = 1; i < corpo.proximas.length; i++) {",
+                  "            pm.expect(corpo.proximas[i - 1].dataProximaPrevista <= corpo.proximas[i].dataProximaPrevista).to.eql(true);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 200 — filtrar por tipo (Desparasitacao)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Só desparasitações, nas administrações e nas próximas\", function () {",
+                  "        corpo.administracoes.forEach(function (a) { pm.expect(a.tipo).to.eql(\"Desparasitacao\"); });",
+                  "        corpo.proximas.forEach(function (p) { pm.expect(p.tipo).to.eql(\"Desparasitacao\"); });",
+                  "        pm.expect(corpo.administracoes.map(function (a) { return a.id; })).to.include(pm.environment.get(\"administracaoDesparasitacaoId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes?tipo=Desparasitacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "Desparasitacao"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 400 — tipo inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes?tipo=Antibiotico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "Antibiotico"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{idInexistente}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{idInexistente}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-042 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 200 — atualizar a data e o intervalo e recalcular a próxima",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Próxima recalculada (2026-10-01 + 90 dias)\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"administracaoVacinaId\"));",
+                  "        pm.expect(corpo.dataAdministracao).to.eql(\"2026-10-01\");",
+                  "        pm.expect(corpo.intervaloDias).to.eql(90);",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2026-12-30\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-01\",\n  \"intervaloDias\": 90\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{administracaoVacinaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{administracaoVacinaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 200 — acrescentar um intervalo a uma desparasitação",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Passa a ter próxima administração (2026-10-14 + 30 dias)\", function () {",
+                  "        pm.expect(corpo.intervaloDias).to.eql(30);",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2026-11-13\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{administracaoDesparasitacaoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{administracaoDesparasitacaoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 400 — data de administração futura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2099-01-01\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{administracaoVacinaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{administracaoVacinaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 404 — administração inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 404 — administração de outro animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalNovoId}}/vacinacoes/{{administracaoVacinaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalNovoId}}",
+                "vacinacoes",
+                "{{administracaoVacinaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{administracaoVacinaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{administracaoVacinaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RF056 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animais/{{animalClienteId}}/vacinacoes/{{administracaoVacinaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes",
+                "{{administracaoVacinaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 200 — boletim do meu animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Histórico com o registo atualizado e sem lote nem Veterinário\", function () {",
+                  "        pm.expect(corpo.historico.map(function (h) { return h.produto; })).to.include(\"Vacina antirrábica (I100)\");",
+                  "        corpo.historico.forEach(function (h) { pm.expect(h).to.have.all.keys(\"tipo\", \"produto\", \"dataAdministracao\"); });",
+                  "    });",
+                  "    pm.test(\"Próximas da mais próxima para a mais distante\", function () {",
+                  "        for (let i = 1; i < corpo.proximas.length; i++) {",
+                  "            pm.expect(corpo.proximas[i - 1].dataProximaPrevista <= corpo.proximas[i].dataProximaPrevista).to.eql(true);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 200 — outro Cliente vê o boletim do seu animal (vazio)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Sem registos, as duas listas vêm vazias\", function () {",
+                  "        pm.expect(corpo.historico).to.be.an(\"array\").that.is.empty;",
+                  "        pm.expect(corpo.proximas).to.be.an(\"array\").that.is.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenClienteNovo}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalNovoId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalNovoId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 403 — animal de outro Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "    pm.test(\"A resposta não tem dados do animal\", function () {",
+                  "        pm.expect(pm.response.text().indexOf(\"historico\") >= 0 || pm.response.text().indexOf(\"Thor\") >= 0).to.eql(false);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalNovoId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalNovoId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 403 — o outro Cliente pede um animal que não é seu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "    pm.test(\"A resposta não tem dados do animal\", function () {",
+                  "        pm.expect(pm.response.text().indexOf(\"historico\") >= 0 || pm.response.text().indexOf(\"I100\") >= 0).to.eql(false);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenClienteNovo}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{idInexistente}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{idInexistente}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-044 · 403 — perfil interno (Veterinário)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/animais/{{animalClienteId}}/vacinacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "animais",
+                "{{animalClienteId}}",
+                "vacinacoes"
               ]
             }
           }
