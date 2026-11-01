@@ -123,4 +123,4 @@ Execução a 2026-11-01, com o .NET 10, em Release, no ramo da I088 criado a par
 
 O job «2 · Testes unitários (QG-02)» da «Backend CI» (`backend-ci.yml`) corre os testes unitários com `--logger trx` e publica o artefacto `resultados-testes-unitarios`.
 
-Execução da Pull Request #<N.º DA PR> (commit `<COMMIT>`): <LIGAÇÃO DA EXECUÇÃO>.
+Execução da Pull Request #226 (commit `80ccbfe`), concluída com sucesso: [Backend CI](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41337018798).
