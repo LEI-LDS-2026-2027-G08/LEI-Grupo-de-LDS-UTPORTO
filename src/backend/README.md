@@ -370,6 +370,41 @@ Nesta Issue não foi criada qualquer alteração ao esquema nem migration para e
 
 Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 
+## Marcações do Cliente na aplicação móvel (EP-030)
+
+`GET /me/consultas` (EP-030) devolve ao Cliente autenticado as marcações dos seus animais (RF028, RF029). O controlador (`MinhasConsultasController`) herda de `ClienteAutenticadoControllerBase`: só o perfil Cliente entra e o Cliente vem sempre do token (`clienteId`), nunca do pedido (RNF002). Não há operações de criação, alteração, confirmação ou cancelamento.
+
+Parâmetros:
+
+- `tipo` = `futuras` (por omissão) ou `historico`, sem distinguir maiúsculas; outro valor dá `400`.
+- `animalId` (opcional) filtra por um animal do Cliente; inferior a 1 dá `400`.
+
+| Vista | Marcações | Ordem |
+|---|---|---|
+| `futuras` | `Pendente` ou `Confirmada` que começam agora ou depois | Data crescente |
+| `historico` | Todas as outras: passadas, e as `Cancelada` ou `Realizada` mesmo com data futura | Data decrescente |
+
+Cada marcação aparece numa só das duas vistas. A regra está em `TiposMinhasConsultas` (`ClinicaVeterinaria.Application/Agenda`) e na consulta de `MinhasConsultasService`.
+
+A resposta (`MinhaConsultaDto`) só tem dados administrativos: `id`, `dataHora` (UTC), `estado`, `animal` (`id`, `nome`, `especie`) e `veterinario` (nome). Não inclui o motivo, as notas de preparação nem nada do registo clínico.
+
+```json
+[
+  { "id": 5, "dataHora": "2026-11-05T11:00:00Z", "estado": "Pendente", "animal": { "id": 1, "nome": "Bobi", "especie": "Cão" }, "veterinario": "Dra. Ana Veterinária (demonstração)" }
+]
+```
+
+Erros: `400` (tipo inválido ou `animalId` inferior a 1), `401` (sem token válido) e `403` (perfil diferente de Cliente, ou `animalId` que não é de um animal do Cliente).
+
+### Decisões e divergências (I076)
+
+- **Marcação futura cancelada vai para o histórico.** A Especificação de Testes Unitários (I028, UT-F003-056 a UT-F003-058) separava as vistas só pela data (`dataHora ≥ agora`). Na I076 decidiu-se que as futuras são só as marcações `Pendente` ou `Confirmada`: uma marcação cancelada (ou realizada) já não está por acontecer e fica no histórico, como prevê o RF029 («marcações passadas e consultas realizadas»). Os testes UT-F003-056 a 061 seguem esta regra.
+- **`animalId` inexistente dá `403`.** O contrato de EP-030 só prevê `403` para o `animalId` de outro Cliente e não prevê `404`. Um `animalId` que não é de um animal do Cliente autenticado, exista ou não, dá `403`, para a resposta não revelar se o animal existe.
+- **`animal` inclui a espécie.** O exemplo de EP-030 na Documentação de API v02 mostra só `id` e `nome`; o Modelo de Classes v02 usa `AnimalRefDto`, que também tem `especie`, como nos restantes endpoints.
+- **Sem paginação.** O contrato devolve `List<MinhaConsultaDto>`.
+
+Testes: `MinhasConsultasServiceTests` (UT-F003-056 a UT-F003-061 e casos próprios), `MinhasConsultasControllerTests` e, com a API e o SQL Server, `MinhasConsultasEndpointsTests` (IT-EP030-01 a IT-EP030-06, `401` e `403`). Os pedidos de verificação manual estão na secção I076 de `ClinicaVeterinaria.Api.http`.
+
 ## Registo clínico (EP-031, EP-032)
 
 `POST /registos-clinicos` (EP-031) cria o registo clínico de uma consulta e devolve `201` com o registo (`RegistoClinicoDto`) e o cabeçalho `Location: /registos-clinicos/{id}`. `PUT /registos-clinicos/{id}` (EP-032) altera-o e devolve `200`. As duas operações são só do perfil Veterinário (política `Veterinario`): o Auxiliar Veterinário, a Rececionista, o Administrador e o Cliente recebem `403`. Dentro do perfil, só o Veterinário a quem a consulta está atribuída cria o registo, e só quem o criou o altera (`403` para os outros). O Veterinário vem sempre da claim `veterinarioId` do token.
