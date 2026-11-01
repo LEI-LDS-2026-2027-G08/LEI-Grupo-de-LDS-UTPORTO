@@ -188,4 +188,4 @@ Execuções feitas a 2026-11-01 sobre o ramo da I093, criado a partir de `develo
 
 O job «3 · Testes de integração (QG-02)» da «Backend CI» (`backend-ci.yml`) executa estes testes com `--logger trx` e publica o artefacto `resultados-testes-integracao`.
 
-Execução da Pull Request #<N.º DA PR> (commit `<COMMIT>`): <LIGAÇÃO DA EXECUÇÃO>.
+Execução da Pull Request #224 (commit `0b4b493`), concluída com sucesso: [Backend CI](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41325848766) (11 verificações, incluindo «3 · Testes de integração (QG-02)»).
