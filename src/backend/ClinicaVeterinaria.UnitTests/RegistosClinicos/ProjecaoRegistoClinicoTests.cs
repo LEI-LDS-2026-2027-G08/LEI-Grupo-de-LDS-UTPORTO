@@ -5,17 +5,18 @@ using ClinicaVeterinaria.Application.Interfaces;
 namespace ClinicaVeterinaria.UnitTests.RegistosClinicos;
 
 /// <summary>
-/// I088 — critério 5: o que o Auxiliar Veterinário recebe do registo clínico. Fixa os campos de cada
-/// DTO de EP-033 e EP-034, para um campo novo não entrar sem ser revisto (como a I072 fez para a
-/// agenda, em <c>ProjecaoConsultaTests</c>).
+/// I088 — projeção do registo clínico autorizada ao Auxiliar Veterinário (descrição e critério 5 da
+/// I088 no Backlog de Projeto v03). Fixa os campos de cada DTO de EP-033 e EP-034, para um campo novo
+/// não entrar sem ser revisto (como a I072 fez para a agenda, em <c>ProjecaoConsultaTests</c>), e
+/// confirma que a leitura não depende do perfil.
 /// </summary>
 /// <remarks>
 /// Pelo contrato v02 (EP-033), pelo UC13 e pelo PA-08 da I028, o Auxiliar Veterinário lê o mesmo
-/// registo completo que o Veterinário: não há campos excluídos no registo. O ponto em aberto 4 da
-/// Documentação de API v02 (projeção reduzida para o Auxiliar) continua por decidir; se o grupo a
-/// aprovar, estes testes passam a falhar até a nova projeção ser implementada e testada. O que já
-/// está excluído é o detalhe clínico no resumo do histórico (EP-034), que só tem o diagnóstico e as
-/// contagens de tratamentos e prescrições.
+/// registo completo que o Veterinário. Que essa projeção não lhe concede operações de edição é
+/// verificado no controlador (<c>RegistosClinicosControllerTests</c>: EP-031 e EP-032 exigem a
+/// política Veterinário e o Auxiliar só tem ações GET). O ponto em aberto 4 da Documentação de API
+/// v02 (projeção reduzida para o Auxiliar) continua por decidir; se o grupo a aprovar, estes testes
+/// passam a falhar até a nova projeção ser implementada e testada.
 /// </remarks>
 public class ProjecaoRegistoClinicoTests
 {
