@@ -125,7 +125,7 @@ A I100 inclui «a atualização do registo profilático», mas a Documentação 
 
 ### Execução de referência da I100 — 2026-11-01
 
-Execução com o Newman 6.2.1 a 2026-11-01, contra a API do ramo `develop` (commit `93c5723`) com os ramos da I078 (PR #219, `e16b821`) e da I082 (PR #220, `736772d`) juntados localmente, porque essas PR ainda não estavam integradas, e uma base de dados nova, criada com as migrações da I062 e com os dados de demonstração da I061 (`executar-dados.ps1`: 28 verificações, 28 OK), com as palavras-passe originais do seed.
+Execução com o Newman 6.2.1 a 2026-11-01, contra a API do ramo `develop` (commit `16c4bbb`, já com a I078 e a I082 integradas) e uma base de dados nova, criada com `src/backend/scripts/reposicao-base-dados.ps1` (migrações da I062) e com os dados de demonstração da I061 (`executar-dados.ps1`: 28 verificações, 28 OK), com as palavras-passe originais do seed.
 
 Resultado completo: [`m3-s05-i100-20261101-resultado-newman-v01.txt`](m3-s05-i100-20261101-resultado-newman-v01.txt).
 
@@ -136,7 +136,7 @@ Resultado completo: [`m3-s05-i100-20261101-resultado-newman-v01.txt`](m3-s05-i10
 | Scripts de pré-pedido | 7 | 0 |
 | Verificações (`pm.test`) | 611 | 0 |
 
-Duração total: 20,3 s. O ficheiro de resultado não contém palavras-passe nem tokens.
+Duração total: 21,2 s. O ficheiro de resultado não contém palavras-passe nem tokens.
 
 ### Execução de referência da I098 — 2026-10-30 (evidência do critério 6)
 
