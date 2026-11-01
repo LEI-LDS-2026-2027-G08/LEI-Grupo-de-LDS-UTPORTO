@@ -222,6 +222,78 @@
       "value": "",
       "type": "default",
       "enabled": true
+    },
+    {
+      "key": "veterinarioId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultaOutroVeterinarioId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataMarcacaoRegisto",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraMarcacaoRegisto",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraMarcacaoPendente",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultaRegistoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultaPendenteId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "registoClinicoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "tratamentoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "prescricaoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "administracaoVacinaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "administracaoDesparasitacaoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
     }
   ],
   "_postman_variable_scope": "environment"
