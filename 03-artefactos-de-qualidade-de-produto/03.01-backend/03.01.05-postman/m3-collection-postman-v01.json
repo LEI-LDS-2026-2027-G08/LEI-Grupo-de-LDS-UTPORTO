@@ -2714,7 +2714,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "{",
-                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(201); });",
                   "    const corpo = pm.response.json();",
                   "    pm.test(\"Tem os dados gerais e a duração das consultas\", function () {",
                   "        pm.expect(corpo).to.include.keys(\"nome\", \"nif\", \"morada\", \"telefone\", \"email\", \"duracaoConsultaMinutos\", \"horarioFuncionamento\");",
