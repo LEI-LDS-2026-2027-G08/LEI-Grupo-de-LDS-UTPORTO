@@ -9,7 +9,7 @@ namespace ClinicaVeterinaria.UnitTests.Vacinacao;
 /// </summary>
 public class CalculadoraProximaAdministracaoTests
 {
-    [Theory(DisplayName = "UT-F006-001 e 003 a 007 — data de administração + intervalo em dias de calendário")]
+    [Theory(DisplayName = "UT-F006-001, UT-F006-003, UT-F006-004, UT-F006-005, UT-F006-006 e UT-F006-007 — data de administração + intervalo em dias de calendário")]
     [InlineData("2026-10-14", 90, "2027-01-12")]
     [InlineData("2026-01-31", 1, "2026-02-01")]
     [InlineData("2028-02-28", 1, "2028-02-29")]
