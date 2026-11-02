@@ -266,7 +266,7 @@ public sealed class RegistosClinicosEndpointsTests :
 
     // ----- EP-032 — Atualizar registo clínico -----
 
-    [Fact(DisplayName = "IT-EP032-01 e 04 — atualiza o registo da M1 e regista atualizadoEm e o autor")]
+    [Fact(DisplayName = "IT-EP032-01 e IT-EP032-04 — atualiza o registo da M1 e regista atualizadoEm e o autor")]
     public async Task AtualizaRegisto()
     {
         var m1 = await ObterMarcacaoIdAsync(EmailVetAna, InicioM1);
