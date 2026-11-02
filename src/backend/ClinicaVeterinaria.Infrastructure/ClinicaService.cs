@@ -32,7 +32,7 @@ public sealed class ClinicaService : IClinicaService
         var clinica = await _db.Clinica.AsNoTracking().FirstOrDefaultAsync(c => c.Id == IdClinica)
             ?? new Clinica { Id = IdClinica };
 
-        var duracao = await _db.ConfiguracaoSistema.AsNoTracking()
+        var duracao   = await _db.ConfiguracaoSistema.AsNoTracking()
             .Where(c => c.Chave == ChaveDuracaoConsulta)
             .Select(c => c.Valor)
             .FirstOrDefaultAsync();
