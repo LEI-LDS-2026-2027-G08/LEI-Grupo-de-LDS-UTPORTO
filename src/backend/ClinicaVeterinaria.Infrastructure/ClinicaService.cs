@@ -29,6 +29,7 @@ public sealed class ClinicaService : IClinicaService
 
     public async Task<ClinicaDto> ObterAsync()
     {
+        int variavelNaoUsada;
         var clinica = await _db.Clinica.AsNoTracking().FirstOrDefaultAsync(c => c.Id == IdClinica)
             ?? new Clinica { Id = IdClinica };
 
