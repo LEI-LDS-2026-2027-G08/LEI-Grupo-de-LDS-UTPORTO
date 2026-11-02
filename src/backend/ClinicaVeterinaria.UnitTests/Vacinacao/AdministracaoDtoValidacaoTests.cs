@@ -58,7 +58,7 @@ public class AdministracaoDtoValidacaoTests
         Assert.Equal(valido, Validar(pedido).Count == 0);
     }
 
-    [Theory(DisplayName = "UT-F006-013 a 016 — intervaloDias de 1 a 32767 quando indicado; lote até 50 e produto até 150 caracteres")]
+    [Theory(DisplayName = "UT-F006-013, UT-F006-014, UT-F006-015 e UT-F006-016 — intervaloDias de 1 a 32767 quando indicado; lote até 50 e produto até 150 caracteres")]
     [InlineData(null, 50, 150, true)]
     [InlineData(1, 50, 150, true)]
     [InlineData(32767, 50, 150, true)]
