@@ -32,7 +32,7 @@ Alterações na API (`src/backend/ClinicaVeterinaria.Api`), necessárias para o 
 
 | Ficheiro | Alteração |
 |---|---|
-| `Program.cs` | O Swagger fica ativo em Development **ou** com `Swagger:Ativo = true` (critério 1). Com `BaseDados:AplicarMigracoesNoArranque = true`, a API aplica as migrações da I062 ao arrancar. |
+| `Program.cs` | O Swagger fica ativo em Development **ou** com `Swagger:Ativo = true` (critério 1). Com `BaseDados:AplicarMigracoesNoArranque = true`, a API aplica as migrações da I062 ao arrancar; se a base serverless estiver em pausa (erro transitório 40613), tenta de novo de 15 em 15 segundos, até 12 vezes, em vez de terminar (o primeiro arranque no Azure, a 2026-11-03, falhou por esse motivo). |
 | `appsettings.json` | `Swagger:Ativo` e `BaseDados:AplicarMigracoesNoArranque` com o valor `false` por omissão. Só as definições do App Service os põem a `true`. |
 
 ## 2. Ambiente público de avaliação
