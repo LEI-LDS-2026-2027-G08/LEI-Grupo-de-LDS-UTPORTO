@@ -1,24 +1,33 @@
 # =============================================================================
 # Projeto        : Gestão de Clínica Veterinária — Grupo G08 — LDS 2026/2027
-# Issue          : I102 — Criar a pipeline de compilação e testes do backend
+# Issues         : I102 — Criar a pipeline de compilação e testes do backend
+#                  I103 — Integrar análise estática, cobertura e quality gates
 # Ficheiro       : .github/workflows/backend-ci.yml
 #                  (nome fixado no Regulamento Interno do Grupo v02, secção 11.6)
-# Versão         : m3-v01 (cópia arquivada em
-#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v01)
+# Versão         : m3-v02 (cópia arquivada em
+#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v02; a m3-v01,
+#                  da I102, mantém-se sem alterações)
 # Plataforma     : GitHub Actions, runner ubuntu-latest (Regulamento do Grupo, 11.6)
 # Finalidade     : Em cada push e em cada Pull Request para develop e main:
 #                  restaurar as dependências, compilar a solução com o quality
 #                  gate da I101 (QG-01), executar os testes unitários e os testes
 #                  de integração (QG-02) com uma base de dados SQL Server própria
-#                  de cada execução, publicar os resultados dos testes e a
-#                  cobertura como artefactos e terminar sem sucesso se alguma
-#                  etapa falhar, o que bloqueia o merge através da verificação
-#                  obrigatória «Resultado da pipeline» na proteção dos ramos.
-# Fora do âmbito : Limiar de cobertura (QG-03), formatação (QG-08) e Collection
-#                  Postman — Issue I103. Entrega contínua — Issue I104.
-# Segredos       : Nenhum. A base de dados dos testes de integração e a chave JWT
-#                  da API são criadas pela própria infraestrutura de testes (I091)
-#                  em cada execução e destruídas no fim.
+#                  de cada execução, aplicar os quality gates de cobertura
+#                  (QG-03), análise estática (QG-04) e formatação (QG-08),
+#                  executar a Collection Postman com o Newman contra a API
+#                  arrancada na própria execução, publicar os relatórios como
+#                  artefactos e terminar sem sucesso se alguma etapa falhar, o
+#                  que bloqueia o merge através da verificação obrigatória
+#                  «Resultado da pipeline» na proteção dos ramos.
+# Limiares       : Lidos de .github/quality-gates.json (critério 1 da I103);
+#                  nenhum limiar está escrito neste ficheiro.
+# Fora do âmbito : Entrega contínua — Issue I104.
+# Segredos       : Nenhum no repositório nem nos secrets do GitHub. A base de
+#                  dados dos testes de integração e a chave JWT são criadas pela
+#                  infraestrutura de testes (I091). Na etapa 7, a palavra-passe
+#                  do SQL Server, a chave JWT e a palavra-passe das contas de
+#                  demonstração são geradas em cada execução, escondidas nos
+#                  registos e destruídas com o runner.
 # =============================================================================
 name: Backend CI
 
@@ -57,6 +66,8 @@ env:
   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
   RESULTADOS: resultados-ci
   REPORTGENERATOR_VERSAO: "5.5.11"
+  # Limiares e âmbitos dos quality gates (I103, critério 1).
+  QUALITY_GATES: .github/quality-gates.json
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -84,12 +95,16 @@ jobs:
       # ContinuousIntegrationBuild só nesta etapa, de propósito: torna a compilação
       # determinística, mas nos jobs de testes trocaria os caminhos das fontes e o
       # relatório de cobertura deixaria de as encontrar.
+      # PastaRelatoriosAnalise (I103): o Directory.Build.props grava um relatório
+      # SARIF por projeto, avaliado na etapa 5 (QG-04).
       - name: Compilação da solução (QG-01 — zero erros, avisos tratados como erros)
         run: |
+          mkdir -p "$GITHUB_WORKSPACE/$RESULTADOS/analise-estatica"
           dotnet build "$SOLUCAO" \
             --configuration "$CONFIGURACAO" \
             --no-restore \
-            -p:ContinuousIntegrationBuild=true
+            -p:ContinuousIntegrationBuild=true \
+            -p:PastaRelatoriosAnalise="$GITHUB_WORKSPACE/$RESULTADOS/analise-estatica"
 
       - name: Resumo da compilação
         run: |
@@ -99,6 +114,17 @@ jobs:
             echo "✅ A solução \`$SOLUCAO\` foi restaurada e compilada em \`$CONFIGURACAO\` sem erros nem avisos (quality gate da I101)."
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Publicado mesmo quando a compilação falha: é o relatório que mostra o
+      # aviso ou erro que bloqueou (etapa 5).
+      - name: Publicar os relatórios SARIF da análise estática como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: relatorio-analise-estatica-sarif
+          path: ${{ env.RESULTADOS }}/analise-estatica
+          if-no-files-found: warn
+          retention-days: 90
 
   # ---------------------------------------------------------------------------
   # 2. Testes unitários — QG-02 (100% dos testes a passar)
@@ -226,13 +252,16 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
+
   # ---------------------------------------------------------------------------
-  # 4. Relatório de cobertura — publicado como artefacto (critério 4 da I102).
-  #    O limiar de 70% (QG-03) e as exclusões do Regulamento do Grupo (11.5)
-  #    são aplicados na Issue I103; aqui a cobertura é medida e publicada.
+  # 4. Cobertura — QG-03 (cobertura de linhas ≥ limiar em Domínio e Serviços)
+  #    Junta a cobertura dos testes unitários e de integração e gera dois
+  #    relatórios com o ReportGenerator: o completo (informativo, como na I102)
+  #    e o do âmbito do QG-03, com os filtros de .github/quality-gates.json.
+  #    O limiar também vem desse ficheiro; abaixo dele a etapa falha (I103).
   # ---------------------------------------------------------------------------
   cobertura:
-    name: 4 · Relatório de cobertura (artefacto)
+    name: 4 · Cobertura (QG-03)
     needs: [testes-unitarios, testes-integracao]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
@@ -257,19 +286,21 @@ jobs:
       - name: Instalar o ReportGenerator
         run: dotnet tool install dotnet-reportgenerator-globaltool --version "$REPORTGENERATOR_VERSAO" --tool-path .ferramentas
 
-      - name: Gerar o relatório de cobertura (unitários e integração em conjunto)
+      - name: Gerar o relatório de cobertura completo (unitários e integração em conjunto)
+        id: completo
         env:
           TESTES_OK: ${{ needs.testes-unitarios.result == 'success' && needs.testes-integracao.result == 'success' }}
         run: |
           shopt -s globstar nullglob
           FICHEIROS=("$RESULTADOS"/entrada/**/coverage.cobertura.xml)
           if [ "${#FICHEIROS[@]}" -eq 0 ]; then
+            echo "gerado=false" >> "$GITHUB_OUTPUT"
             if [ "$TESTES_OK" = "true" ]; then
               echo "::error title=Cobertura::Os testes passaram, mas não foi produzido nenhum coverage.cobertura.xml."
               exit 1
             fi
             echo "::notice title=Cobertura::Sem ficheiros de cobertura, porque os testes não terminaram com sucesso."
-            echo "ℹ️ Relatório de cobertura não gerado: os testes não terminaram com sucesso." >> "$GITHUB_STEP_SUMMARY"
+            echo "ℹ️ Relatório de cobertura e QG-03 não avaliados: os testes não terminaram com sucesso." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           echo "Ficheiros de cobertura: ${#FICHEIROS[@]}"
@@ -279,17 +310,46 @@ jobs:
             "-reporttypes:Html;Cobertura;MarkdownSummaryGithub;TextSummary" \
             "-assemblyfilters:-*.UnitTests;-*.IntegrationTests" \
             "-title:Backend — Gestão de Clínica Veterinária (G08)"
+          echo "gerado=true" >> "$GITHUB_OUTPUT"
           {
-            echo "### 4 · Relatório de cobertura"
+            echo "### 4 · Cobertura — relatório completo (informativo)"
             echo ""
-            echo "Medida com Coverlet sobre os testes unitários e de integração em conjunto e gerada com ReportGenerator ${REPORTGENERATOR_VERSAO}."
-            echo "O limiar de 70% de cobertura de linhas (QG-03) é aplicado na Issue I103."
+            echo "Medida com Coverlet sobre os testes unitários e de integração em conjunto e gerada com ReportGenerator ${REPORTGENERATOR_VERSAO}, para todas as camadas exceto os projetos de testes."
+            echo ""
+            echo "<details><summary>Resumo por assembly e classe</summary>"
             echo ""
             cat "$RESULTADOS/cobertura/SummaryGithub.md"
             echo ""
+            echo "</details>"
+            echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Publicar o relatório de cobertura como artefacto
+      - name: Ler o âmbito e o limiar do QG-03 (.github/quality-gates.json)
+        id: ambito
+        if: ${{ steps.completo.outputs.gerado == 'true' }}
+        run: python3 .github/scripts/gate-cobertura.py filtros "$QUALITY_GATES"
+
+      - name: Gerar o relatório de cobertura do âmbito do QG-03
+        if: ${{ steps.completo.outputs.gerado == 'true' }}
+        env:
+          FILTRO_ASSEMBLIES: ${{ steps.ambito.outputs.assemblyfilters }}
+          FILTRO_CLASSES: ${{ steps.ambito.outputs.classfilters }}
+          FILTRO_FICHEIROS: ${{ steps.ambito.outputs.filefilters }}
+        run: |
+          ./.ferramentas/reportgenerator \
+            "-reports:$RESULTADOS/entrada/**/coverage.cobertura.xml" \
+            "-targetdir:$RESULTADOS/cobertura/qg-03" \
+            "-reporttypes:Html;Cobertura;MarkdownSummaryGithub;TextSummary" \
+            "-assemblyfilters:$FILTRO_ASSEMBLIES" \
+            "-classfilters:$FILTRO_CLASSES" \
+            "-filefilters:$FILTRO_FICHEIROS" \
+            "-title:Backend — âmbito do QG-03 (Domínio e Serviços)"
+
+      - name: Aplicar o quality gate QG-03 (cobertura de linhas)
+        if: ${{ steps.completo.outputs.gerado == 'true' }}
+        run: python3 .github/scripts/gate-cobertura.py avaliar "$QUALITY_GATES" "$RESULTADOS/cobertura/qg-03/Cobertura.xml"
+
+      - name: Publicar os relatórios de cobertura como artefacto
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -299,13 +359,387 @@ jobs:
           retention-days: 90
 
   # ---------------------------------------------------------------------------
+  # 5. Análise estática — QG-04 (zero ocorrências de nível warning/error)
+  #    Os analisadores Roslyn correm na compilação da etapa 1 (I101), que já
+  #    falha com qualquer aviso. Esta etapa lê os relatórios SARIF dessa
+  #    compilação, aplica os níveis e o máximo de .github/quality-gates.json e
+  #    publica o relatório legível (I103, critério 4). Corre também quando a
+  #    etapa 1 falha, para mostrar o que bloqueou.
+  # ---------------------------------------------------------------------------
+  analise-estatica:
+    name: 5 · Análise estática (QG-04)
+    needs: compilacao
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Obter o código do commit (configuração dos quality gates)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Obter os relatórios SARIF da compilação
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: relatorio-analise-estatica-sarif
+          path: ${{ env.RESULTADOS }}/analise-estatica
+
+      - name: Aplicar o quality gate QG-04 (análise estática)
+        run: |
+          python3 .github/scripts/gate-analise-estatica.py \
+            "$QUALITY_GATES" \
+            "$RESULTADOS/analise-estatica" \
+            "$RESULTADOS/analise-estatica/relatorio-analise-estatica.md"
+
+      - name: Publicar o relatório da análise estática como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: relatorio-analise-estatica
+          path: ${{ env.RESULTADOS }}/analise-estatica
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # 6. Formatação — QG-08 (zero ficheiros por formatar)
+  #    dotnet format --verify-no-changes com o .editorconfig da I101. O
+  #    .editorconfig fixa end_of_line = crlf e o repositório guarda LF (o Git
+  #    converte para CRLF no checkout em Windows, onde o grupo trabalha). Para o
+  #    runner verificar o mesmo que um computador do grupo, a cópia de trabalho
+  #    é convertida para o final de linha de .github/quality-gates.json.
+  # ---------------------------------------------------------------------------
+  formatacao:
+    name: 6 · Formatação (QG-08)
+    needs: compilacao
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Converter a cópia de trabalho para o final de linha do .editorconfig
+        run: |
+          FINAL="$(jq -r '."QG-08".finalDeLinha' "$QUALITY_GATES")"
+          if [ "$FINAL" = "crlf" ]; then
+            git config core.autocrlf true
+            git rm -r -q --cached .
+            git reset -q --hard HEAD
+            echo "Cópia de trabalho convertida para CRLF, como num checkout em Windows."
+          else
+            echo "Final de linha configurado: ${FINAL}; sem conversão."
+          fi
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Restauro das dependências
+        run: dotnet restore "$SOLUCAO"
+
+      - name: Verificação da formatação (dotnet format --verify-no-changes)
+        id: formatacao
+        run: |
+          mkdir -p "$RESULTADOS/formatacao"
+          set +e
+          dotnet format "$SOLUCAO" --verify-no-changes --no-restore --verbosity minimal \
+            --report "$RESULTADOS/formatacao"
+          echo "codigo=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Aplicar o quality gate QG-08 (formatação)
+        env:
+          CODIGO_FORMAT: ${{ steps.formatacao.outputs.codigo }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, sys
+          cfg = json.load(open(os.environ["QUALITY_GATES"], encoding="utf-8"))["QG-08"]
+          maximo = int(cfg["maximoFicheirosPorFormatar"])
+          codigo = int(os.environ.get("CODIGO_FORMAT") or 1)
+          caminho = os.path.join(os.environ["RESULTADOS"], "formatacao", "format-report.json")
+          relatorio = json.load(open(caminho, encoding="utf-8-sig")) if os.path.exists(caminho) else None
+          linhas = ["### 6 · Formatação (QG-08)", ""]
+          if relatorio is None or codigo not in (0, 2):
+              linhas.append(f"❌ **QG-08 não avaliado:** o dotnet format terminou com o código {codigo} e sem relatório utilizável (ver o registo do passo anterior).")
+              falhou = True
+          else:
+              ficheiros = sorted({f.get("FilePath") or f.get("FileName") for f in relatorio})
+              alteracoes = sum(len(f.get("FileChanges") or []) for f in relatorio)
+              linhas += ["| Medida | Valor |", "|---|---|",
+                         f"| Ficheiros por formatar | **{len(ficheiros)}** |",
+                         f"| Alterações necessárias | {alteracoes} |",
+                         f"| Máximo permitido (`.github/quality-gates.json`) | {maximo} |", ""]
+              if ficheiros:
+                  linhas += ["<details><summary>Ficheiros por formatar (até 30)</summary>", ""]
+                  for f in relatorio[:30]:
+                      mudancas = f.get("FileChanges") or []
+                      primeira = mudancas[0] if mudancas else {}
+                      caminho_f = (f.get("FilePath") or f.get("FileName") or "?").split("/src/backend/")[-1]
+                      linhas.append(f"- `{caminho_f}` — {len(mudancas)} alteração(ões), por exemplo linha {primeira.get('LineNumber', '?')}: {primeira.get('FormatDescription', '')} ({primeira.get('DiagnosticId', '')})")
+                  linhas += ["", "</details>", ""]
+              falhou = len(ficheiros) > maximo
+              linhas.append(("❌ **QG-08 não cumprido:** há ficheiros por formatar. Corrigir com `dotnet format src/backend/ClinicaVeterinaria.sln`. O merge fica bloqueado."
+                             if falhou else "✅ **QG-08 cumprido:** nenhum ficheiro por formatar."))
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:
+              resumo.write("\n".join(linhas) + "\n")
+          print("\n".join(linhas))
+          if falhou:
+              print("::error title=QG-08 — formatação::Há ficheiros por formatar (dotnet format --verify-no-changes).")
+              sys.exit(1)
+          PYTHON
+
+      - name: Publicar o relatório da formatação como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: relatorio-formatacao
+          path: ${{ env.RESULTADOS }}/formatacao
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # 7. Collection Postman — execução completa com o Newman (I103, critério 3)
+  #    Arranca, no próprio runner, um SQL Server descartável (a mesma imagem do
+  #    workflow da I062), aplica as migrações (I062) e os dados de demonstração
+  #    (I061), arranca a API compilada nesta execução e corre a Collection
+  #    inteira. Qualquer pedido ou verificação falhada faz falhar a etapa.
+  #    Credenciais: geradas em cada execução e escondidas nos registos
+  #    (::add-mask::); as contas de demonstração recebem uma palavra-passe
+  #    descartável só nesta base de dados (scripts/preparar-newman.py).
+  # ---------------------------------------------------------------------------
+  newman:
+    name: 7 · Collection Postman (Newman)
+    needs: compilacao
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_DADOS: ClinicaVeterinaria_CI
+      API_URL: http://localhost:5159
+      CONTENTOR_SQL: sql-newman-ci
+      IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+      DOTNET_EF_VERSAO: "10.0.13"
+      PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+      PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+    steps:
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Restauro das dependências
+        run: dotnet restore "$SOLUCAO"
+
+      - name: Compilação da API
+        run: dotnet build "$PROJETO_API" --configuration "$CONFIGURACAO" --no-restore
+
+      - name: Instalar o dotnet-ef (migrações da I062)
+        run: dotnet tool install dotnet-ef --version "$DOTNET_EF_VERSAO" --tool-path .ferramentas
+
+      - name: Gerar as credenciais descartáveis desta execução (SQL Server e JWT)
+        run: |
+          SA="Sa-$(openssl rand -hex 16)-Aa1!"
+          JWT="$(openssl rand -base64 48 | tr -d '\n')"
+          echo "::add-mask::$SA"
+          echo "::add-mask::$JWT"
+          {
+            echo "SQL_SA_PASSWORD=$SA"
+            echo "SQLCMDPASSWORD=$SA"
+            echo "Jwt__Key=$JWT"
+          } >> "$GITHUB_ENV"
+          mkdir -p "$RESULTADOS/newman"
+
+      - name: Iniciar o SQL Server 2025 descartável
+        run: |
+          # O repositório e a pasta temporária do runner ficam visíveis no
+          # contentor (só leitura), nos mesmos caminhos, para o sqlcmd do
+          # contentor poder ler os scripts.
+          docker run -d --name "$CONTENTOR_SQL" \
+            -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$SQL_SA_PASSWORD" \
+            -p 1433:1433 \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE:ro" \
+            -v "$RUNNER_TEMP:$RUNNER_TEMP:ro" \
+            "$IMAGEM_SQL"
+          for i in $(seq 1 60); do
+            if docker logs "$CONTENTOR_SQL" 2>&1 | grep -q "SQL Server is now ready for client connections"; then
+              echo "SQL Server pronto ao fim de $((i * 2)) s."
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs "$CONTENTOR_SQL"
+          echo "::error title=Newman::O SQL Server não ficou disponível em 120 s."
+          exit 1
+
+      # Preferência pelo sqlcmd (mssql-tools18) do próprio contentor, o mesmo
+      # com que os scripts da I061 foram validados; o do runner é a alternativa.
+      - name: Disponibilizar o sqlcmd
+        run: |
+          NO_CONTENTOR="$(docker exec "$CONTENTOR_SQL" bash -c 'ls /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd 2>/dev/null | head -n 1' || true)"
+          if [ -n "$NO_CONTENTOR" ]; then
+            mkdir -p "$RUNNER_TEMP/bin"
+            printf '#!/usr/bin/env bash\nexec docker exec -i -e SQLCMDPASSWORD "%s" "%s" "$@"\n' "$CONTENTOR_SQL" "$NO_CONTENTOR" > "$RUNNER_TEMP/bin/sqlcmd"
+            chmod +x "$RUNNER_TEMP/bin/sqlcmd"
+            echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+            echo "A usar o sqlcmd do contentor: $NO_CONTENTOR"
+          elif [ -x /opt/mssql-tools18/bin/sqlcmd ]; then
+            echo "/opt/mssql-tools18/bin" >> "$GITHUB_PATH"
+            echo "A usar o sqlcmd do runner: /opt/mssql-tools18/bin/sqlcmd"
+          elif command -v sqlcmd >/dev/null 2>&1; then
+            echo "A usar o sqlcmd do runner: $(command -v sqlcmd)"
+          else
+            echo "::error title=Newman::Não há sqlcmd no contentor do SQL Server nem no runner."
+            exit 1
+          fi
+
+      - name: Criar a base de dados e aplicar as migrações (I062)
+        run: |
+          LIGACAO="Server=localhost,1433;Database=$BASE_DADOS;User Id=sa;Password=$SQL_SA_PASSWORD;TrustServerCertificate=True;Encrypt=True"
+          echo "ConnectionStrings__ClinicaDb=$LIGACAO" >> "$GITHUB_ENV"
+          ./.ferramentas/dotnet-ef database update \
+            --project "$PROJETO_INFRA" \
+            --startup-project "$PROJETO_API" \
+            --context ClinicaDbContext \
+            --configuration "$CONFIGURACAO" \
+            --no-build \
+            --connection "$LIGACAO"
+
+      - name: Carregar os dados de demonstração (I061)
+        run: |
+          DADOS="$(jq -r '.Newman.dadosDemonstracao' "$QUALITY_GATES")"
+          bash "$DADOS/executar-dados.sh" \
+            --base-dados "$BASE_DADOS" \
+            --confiar-certificado \
+            --pasta-registos "$GITHUB_WORKSPACE/$RESULTADOS/newman"
+
+      - name: Aplicar a palavra-passe descartável às contas de demonstração
+        run: |
+          AMBIENTE="$(jq -r '.Newman.ambiente' "$QUALITY_GATES")"
+          python3 .github/scripts/preparar-newman.py \
+            "$QUALITY_GATES" "$AMBIENTE" \
+            "$RUNNER_TEMP/newman-ambiente.json" "$RUNNER_TEMP/palavra-passe-demonstracao.sql" \
+            "$API_URL"
+          sqlcmd -S localhost -d "$BASE_DADOS" -U sa -C -b -h -1 -W -i "$RUNNER_TEMP/palavra-passe-demonstracao.sql"
+          rm -f "$RUNNER_TEMP/palavra-passe-demonstracao.sql"
+
+      - name: Arrancar a API compilada nesta execução
+        run: |
+          SAIDA="$(dirname "$PROJETO_API")/bin/$CONFIGURACAO/net10.0"
+          (
+            cd "$SAIDA"
+            ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS="$API_URL" \
+              nohup dotnet ClinicaVeterinaria.Api.dll > "$GITHUB_WORKSPACE/$RESULTADOS/newman/api.log" 2>&1 &
+            echo $! > "$RUNNER_TEMP/api.pid"
+          )
+          for i in $(seq 1 60); do
+            CODIGO="$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/clinica" || true)"
+            if [ "$CODIGO" != "000" ]; then
+              echo "API a responder ao fim de $((i * 2)) s (GET /clinica sem token: HTTP $CODIGO)."
+              exit 0
+            fi
+            if ! kill -0 "$(cat "$RUNNER_TEMP/api.pid")" 2>/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          tail -n 50 "$GITHUB_WORKSPACE/$RESULTADOS/newman/api.log"
+          echo "::error title=Newman::A API não arrancou (ver api.log no artefacto resultado-newman)."
+          exit 1
+
+      - name: Executar a Collection Postman com o Newman
+        id: newman
+        run: |
+          VERSAO="$(jq -r '.Newman.versaoNewman' "$QUALITY_GATES")"
+          COLLECTION="$(jq -r '.Newman.collection' "$QUALITY_GATES")"
+          set +e
+          npx --yes "newman@$VERSAO" run "$COLLECTION" \
+            -e "$RUNNER_TEMP/newman-ambiente.json" \
+            --reporters cli,junit \
+            --reporter-junit-export "$RESULTADOS/newman/newman-junit.xml" \
+            --timeout-request 30000 \
+            --color off --disable-unicode \
+            | tee "$RESULTADOS/newman/resultado-newman.txt"
+          echo "codigo=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Aplicar o critério da Collection Postman (nenhum pedido falhado)
+        env:
+          CODIGO_NEWMAN: ${{ steps.newman.outputs.codigo }}
+        run: |
+          # Defesa adicional: os resultados anexados não podem conter a
+          # palavra-passe descartável (já escondida nos registos).
+          SEGREDO="$(jq -r '.values[] | select(.key == "passwordAdmin") | .value' "$RUNNER_TEMP/newman-ambiente.json")"
+          if [ -n "$SEGREDO" ] && grep -rqF -- "$SEGREDO" "$RESULTADOS/newman"; then
+            echo "::error title=Newman::Um ficheiro de resultados contém a palavra-passe descartável; os resultados não são publicados."
+            rm -rf "$RESULTADOS/newman"
+            exit 1
+          fi
+          python3 - <<'PYTHON'
+          import json, os, sys
+          import xml.etree.ElementTree as ET
+          cfg = json.load(open(os.environ["QUALITY_GATES"], encoding="utf-8"))["Newman"]
+          maximo = int(cfg["maximoFalhas"])
+          codigo = int(os.environ.get("CODIGO_NEWMAN") or 1)
+          caminho = os.path.join(os.environ["RESULTADOS"], "newman", "newman-junit.xml")
+          linhas = ["### 7 · Collection Postman (Newman)", ""]
+          if not os.path.exists(caminho):
+              linhas.append(f"❌ **Collection não avaliada:** o Newman terminou com o código {codigo} sem relatório JUnit.")
+              falhou = True
+          else:
+              raiz = ET.parse(caminho).getroot()
+              suites = [raiz] if raiz.tag == "testsuite" else raiz.findall("testsuite")
+              pedidos = len(suites)
+              testes = sum(int(s.get("tests", 0)) for s in suites)
+              falhas = sum(int(s.get("failures", 0)) + int(s.get("errors", 0)) for s in suites)
+              pedidos_falhados = [s.get("name", "?") for s in suites if int(s.get("failures", 0)) + int(s.get("errors", 0)) > 0]
+              linhas += ["| Medida | Valor |", "|---|---|",
+                         f"| Pedidos executados | {pedidos} |",
+                         f"| Verificações (`pm.test`) | {testes} |",
+                         f"| **Verificações falhadas** | **{falhas}** |",
+                         f"| Máximo permitido (`.github/quality-gates.json`) | {maximo} |",
+                         f"| Código de saída do Newman | {codigo} |", ""]
+              if pedidos_falhados:
+                  linhas += ["Pedidos com falhas:", ""] + [f"- {p}" for p in pedidos_falhados[:30]] + [""]
+              falhou = falhas > maximo or (codigo != 0 and falhas == 0)
+              if codigo != 0 and falhas == 0:
+                  linhas.append("❌ O Newman terminou com erro sem verificações falhadas (pedido sem resposta ou collection inválida).")
+          linhas.append("❌ **A Collection Postman falhou: o merge fica bloqueado.**" if falhou else "✅ **Collection Postman executada sem falhas.**")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:
+              resumo.write("\n".join(linhas) + "\n")
+          print("\n".join(linhas))
+          if falhou:
+              print("::error title=Newman::A Collection Postman tem pedidos ou verificações falhadas.")
+              sys.exit(1)
+          PYTHON
+
+      - name: Publicar os resultados do Newman como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: resultado-newman
+          path: ${{ env.RESULTADOS }}/newman
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Parar a API e destruir a base de dados descartável
+        if: ${{ always() }}
+        run: |
+          if [ -f "$RUNNER_TEMP/api.pid" ]; then kill "$(cat "$RUNNER_TEMP/api.pid")" 2>/dev/null || true; fi
+          docker rm -f "$CONTENTOR_SQL" >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/newman-ambiente.json"
+          echo "API parada, contentor $CONTENTOR_SQL destruído e cópia do ambiente apagada."
+
+  # ---------------------------------------------------------------------------
   # Resultado da pipeline — verificação obrigatória na proteção de main e develop
   # (critério 5 da I102 e Regulamento do Grupo, 10.4). Termina sem sucesso se
-  # alguma etapa não terminar com sucesso, o que impede o merge.
+  # alguma etapa não terminar com sucesso, o que impede o merge. As etapas da
+  # I103 (4 a 7) entram aqui, por isso a regra de proteção não muda.
   # ---------------------------------------------------------------------------
   resultado:
     name: Resultado da pipeline
-    needs: [compilacao, testes-unitarios, testes-integracao, cobertura]
+    needs: [compilacao, testes-unitarios, testes-integracao, cobertura, analise-estatica, formatacao, newman]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -320,7 +754,10 @@ jobs:
               "compilacao": "1 · Restauro e compilação (QG-01)",
               "testes-unitarios": "2 · Testes unitários (QG-02)",
               "testes-integracao": "3 · Testes de integração (QG-02)",
-              "cobertura": "4 · Relatório de cobertura (artefacto)",
+              "cobertura": "4 · Cobertura (QG-03)",
+              "analise-estatica": "5 · Análise estática (QG-04)",
+              "formatacao": "6 · Formatação (QG-08)",
+              "newman": "7 · Collection Postman (Newman)",
           }
           etapas = json.loads(os.environ["RESULTADOS_ETAPAS"])
           linhas = ["### Resultado da pipeline", "", "| Etapa | Resultado |", "|---|---|"]

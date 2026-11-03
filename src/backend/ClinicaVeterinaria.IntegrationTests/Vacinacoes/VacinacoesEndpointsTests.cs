@@ -75,7 +75,7 @@ public sealed class VacinacoesEndpointsTests :
         Assert.Equal(proximas.Order(StringComparer.Ordinal), proximas);
     }
 
-    [Theory(DisplayName = "IT-EP042-02 e 03 — tipo=Vacina e tipo=Desparasitacao filtram o boletim")]
+    [Theory(DisplayName = "IT-EP042-02 e IT-EP042-03 — tipo=Vacina e tipo=Desparasitacao filtram o boletim")]
     [InlineData("Vacina", 2)]
     [InlineData("Desparasitacao", 1)]
     public async Task BoletimFiltradoPorTipo(string tipo, int esperadas)
@@ -132,7 +132,7 @@ public sealed class VacinacoesEndpointsTests :
 
     // ----- EP-043 — Registar vacinação ou desparasitação -----
 
-    [Fact(DisplayName = "IT-EP043-01 e 02 — dados válidos com 90 dias: 201, persistido e dataProximaPrevista = data + 90 (também na coluna calculada)")]
+    [Fact(DisplayName = "IT-EP043-01 e IT-EP043-02 — dados válidos com 90 dias: 201, persistido e dataProximaPrevista = data + 90 (também na coluna calculada)")]
     public async Task RegistaComIntervalo()
     {
         var mia = await ObterAnimalIdAsync("Mia");

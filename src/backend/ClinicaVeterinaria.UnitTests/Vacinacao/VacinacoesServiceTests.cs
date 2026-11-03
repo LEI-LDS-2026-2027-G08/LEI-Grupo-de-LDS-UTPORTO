@@ -135,7 +135,7 @@ public class VacinacoesServiceTests
         Assert.Equal(Hoje, administracao.DataAdministracao);
     }
 
-    [Theory(DisplayName = "UT-F006-013 e 015 — intervaloDias = 0 ou negativo devolve 400")]
+    [Theory(DisplayName = "UT-F006-013 e UT-F006-015 — intervaloDias = 0 ou negativo devolve 400")]
     [InlineData(0)]
     [InlineData(-30)]
     public async Task IntervaloNaoPositivoDevolve400(int intervaloDias)
@@ -304,6 +304,82 @@ public class VacinacoesServiceTests
             () => CriarServico(db).AtualizarAsync(d.AnimalA1, d.DesparasitacaoA1, Pedido(), d.VetA));
 
         Assert.Equal(VacinacoesService.MensagemAdministracaoDeOutroVeterinario, erro.Message);
+    }
+
+    // ----- I089 — casos além da I028 (critérios do Backlog de Projeto v03) -----
+
+    [Theory(DisplayName = "I089 — vacinação sem intervalo e desparasitação com intervalo: a próxima depende só do intervalo, não do tipo")]
+    [InlineData(TiposAdministracao.Vacina, null, null)]
+    [InlineData(TiposAdministracao.Desparasitacao, 90, "2027-01-12")]
+    public async Task ProximaDependeSoDoIntervalo(string tipo, int? intervaloDias, string? esperada)
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        DateOnly? proximaEsperada = esperada is null ? null : Data(esperada);
+
+        var administracao = await CriarServico(db).RegistarAsync(d.AnimalA1, Pedido(tipo: tipo, intervaloDias: intervaloDias), d.VetA);
+
+        Assert.Equal(tipo, administracao.Tipo);
+        Assert.Equal(proximaEsperada, administracao.DataProximaPrevista);
+    }
+
+    [Theory(DisplayName = "I089 — a atualização recalcula a próxima nos casos de calendário: fim de mês, fim de ano e 29 de fevereiro")]
+    [InlineData("2026-01-31", 1, "2026-02-01")]
+    [InlineData("2025-12-31", 1, "2026-01-01")]
+    [InlineData("2024-02-28", 1, "2024-02-29")]
+    [InlineData("2023-03-01", 365, "2024-02-29")]
+    public async Task AtualizacaoRecalculaNosCasosDeCalendario(string dataAdministracao, int intervaloDias, string esperada)
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+
+        var administracao = await CriarServico(db).AtualizarAsync(
+            d.AnimalA1, d.VacinaA1, Pedido(data: Data(dataAdministracao), intervaloDias: intervaloDias), d.VetA);
+
+        Assert.Equal(Data(esperada), administracao.DataProximaPrevista);
+
+        var gravado = await db.RegistosProfilaxias.AsNoTracking().SingleAsync(r => r.Id == d.VacinaA1);
+        Assert.Equal(Data(dataAdministracao), gravado.DataAdministracao);
+        Assert.Equal((short)intervaloDias, gravado.IntervaloDias);
+    }
+
+    [Fact(DisplayName = "I089 — dar intervalo a uma desparasitação sem próxima (2026-08-01 + 90) cria a próxima de 2026-10-30, que entra nas próximas do boletim")]
+    public async Task AtualizarDesparasitacaoComIntervaloCriaProxima()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var servico = CriarServico(db);
+        var pedido = Pedido(
+            tipo: TiposAdministracao.Desparasitacao,
+            produto: "Desparasitante externo Z",
+            lote: "DZ-101",
+            data: new DateOnly(2026, 8, 1),
+            intervaloDias: 90);
+
+        var administracao = await servico.AtualizarAsync(d.AnimalA1, d.DesparasitacaoA1, pedido, d.VetB);
+        var boletim = await servico.ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+
+        Assert.Equal(new DateOnly(2026, 10, 30), administracao.DataProximaPrevista);
+        Assert.Contains(
+            boletim.Proximas,
+            p => p.Tipo == TiposAdministracao.Desparasitacao && p.DataProximaPrevista == new DateOnly(2026, 10, 30));
+    }
+
+    [Fact(DisplayName = "I089 — o Veterinário que não fez o registo recebe 403 e o registo fica como estava")]
+    public async Task AtualizacaoDeOutroVeterinarioNaoAlteraORegisto()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+
+        await Assert.ThrowsAsync<ForbiddenException>(
+            () => CriarServico(db).AtualizarAsync(
+                d.AnimalA1, d.DesparasitacaoA1, Pedido(data: new DateOnly(2026, 9, 1), intervaloDias: 30), d.VetA));
+
+        var gravado = await db.RegistosProfilaxias.AsNoTracking().SingleAsync(r => r.Id == d.DesparasitacaoA1);
+        Assert.Equal(TiposAdministracao.Desparasitacao, gravado.Tipo);
+        Assert.Equal(new DateOnly(2026, 8, 1), gravado.DataAdministracao);
+        Assert.Null(gravado.IntervaloDias);
+        Assert.Equal(d.VetB, gravado.VeterinarioId);
     }
 
     // ----- EP-042 — Consultar boletim do paciente (web) -----
@@ -483,6 +559,8 @@ public class VacinacoesServiceTests
     // ----- Auxiliares -----
 
     private static VacinacoesService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
+
+    private static DateOnly Data(string texto) => DateOnly.Parse(texto, CultureInfo.InvariantCulture);
 
     /// <summary>O pedido do exemplo UT-F006-008, com os campos que cada caso altera.</summary>
     private static CreateAdministracaoDto Pedido(
