@@ -1,0 +1,451 @@
+﻿2026-11-03T15:47:03.1501029Z Current runner version: '2.338.2'
+2026-11-03T15:47:03.1555663Z ##[group]Runner Image Provisioner
+2026-11-03T15:47:03.1556615Z Hosted Compute Agent
+2026-11-03T15:47:03.1557231Z Version: 20261021.618
+2026-11-03T15:47:03.1557843Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-03T15:47:03.1558574Z Build Date: 2026-10-21T00:45:21Z
+2026-11-03T15:47:03.1559216Z Worker ID: {5db72109-173f-4f58-a843-dea00aeb3927}
+2026-11-03T15:47:03.1559947Z Region: southcentralus
+2026-11-03T15:47:03.1560738Z Cloud: Azure
+2026-11-03T15:47:03.1561281Z ##[endgroup]
+2026-11-03T15:47:03.1562656Z ##[group]Operating System
+2026-11-03T15:47:03.1563463Z Ubuntu
+2026-11-03T15:47:03.1563970Z 24.04.5
+2026-11-03T15:47:03.1564539Z LTS
+2026-11-03T15:47:03.1565046Z ##[endgroup]
+2026-11-03T15:47:03.1565587Z ##[group]Runner Image
+2026-11-03T15:47:03.1566197Z Image: ubuntu-24.04
+2026-11-03T15:47:03.1566755Z Version: 20261025.353.1
+2026-11-03T15:47:03.1568035Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-03T15:47:03.1569525Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-03T15:47:03.1570455Z ##[endgroup]
+2026-11-03T15:47:03.1571573Z ##[group]GITHUB_TOKEN Permissions
+2026-11-03T15:47:03.1573771Z Contents: read
+2026-11-03T15:47:03.1574358Z Metadata: read
+2026-11-03T15:47:03.1574945Z ##[endgroup]
+2026-11-03T15:47:03.1576967Z Secret source: Actions
+2026-11-03T15:47:03.1577895Z Cache mode: write
+2026-11-03T15:47:03.1578557Z Prepare workflow directory
+2026-11-03T15:47:03.1986179Z Prepare all required actions
+2026-11-03T15:47:03.2035354Z Getting action download info
+2026-11-03T15:47:03.4932943Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-11-03T15:47:03.6138281Z Download action repository 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-03T15:47:03.8250995Z Complete job name: 6 · Formatação (QG-08)
+2026-11-03T15:47:03.9205457Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-11-03T15:47:03.9206553Z with:
+2026-11-03T15:47:03.9207109Z   persist-credentials: false
+2026-11-03T15:47:03.9207824Z   repository: LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:03.9211750Z   token: ***
+2026-11-03T15:47:03.9212290Z   ssh-strict: true
+2026-11-03T15:47:03.9212998Z   ssh-user: git
+2026-11-03T15:47:03.9213580Z   clean: true
+2026-11-03T15:47:03.9214127Z   sparse-checkout-cone-mode: true
+2026-11-03T15:47:03.9214719Z   fetch-depth: 1
+2026-11-03T15:47:03.9215252Z   fetch-tags: false
+2026-11-03T15:47:03.9215800Z   show-progress: true
+2026-11-03T15:47:03.9216308Z   lfs: false
+2026-11-03T15:47:03.9216835Z   submodules: false
+2026-11-03T15:47:03.9217357Z   set-safe-directory: true
+2026-11-03T15:47:03.9217941Z   allow-unsafe-pr-checkout: false
+2026-11-03T15:47:03.9218759Z env:
+2026-11-03T15:47:03.9219265Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:03.9219955Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:03.9220581Z   CONFIGURACAO: Release
+2026-11-03T15:47:03.9221223Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:03.9222216Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:03.9223831Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:03.9224915Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:03.9225489Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:03.9226150Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:03.9226775Z ##[endgroup]
+2026-11-03T15:47:04.1986636Z Syncing repository: LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:04.1989649Z ##[group]Getting Git version info
+2026-11-03T15:47:04.1990997Z Working directory is '/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO'
+2026-11-03T15:47:04.1993497Z [command]/usr/bin/git version
+2026-11-03T15:47:04.2110182Z git version 2.56.0
+2026-11-03T15:47:04.2144118Z ##[endgroup]
+2026-11-03T15:47:04.2171208Z Temporarily overriding HOME='/home/runner/work/_temp/83438fa6-b3ec-4b83-91f9-db9e55e03915' before making global git config changes
+2026-11-03T15:47:04.2173415Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-03T15:47:04.2183304Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:04.2254646Z Deleting the contents of '/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO'
+2026-11-03T15:47:04.2265743Z ##[group]Determining repository object format
+2026-11-03T15:47:04.2267916Z ##[endgroup]
+2026-11-03T15:47:04.2269469Z ##[group]Initializing the repository
+2026-11-03T15:47:04.2271133Z [command]/usr/bin/git init /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:04.2378086Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-03T15:47:04.2381164Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-03T15:47:04.2382316Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-03T15:47:04.2383912Z hint: call:
+2026-11-03T15:47:04.2384622Z hint:
+2026-11-03T15:47:04.2385533Z hint: 	git config --global init.defaultBranch <name>
+2026-11-03T15:47:04.2386226Z hint:
+2026-11-03T15:47:04.2387286Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-03T15:47:04.2388425Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-03T15:47:04.2389290Z hint:
+2026-11-03T15:47:04.2389989Z hint: 	git branch -m <name>
+2026-11-03T15:47:04.2390698Z hint:
+2026-11-03T15:47:04.2391589Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-03T15:47:04.2395296Z Initialized empty Git repository in /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/
+2026-11-03T15:47:04.2424968Z [command]/usr/bin/git remote add origin https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:04.2467397Z ##[endgroup]
+2026-11-03T15:47:04.2468864Z ##[group]Disabling automatic garbage collection
+2026-11-03T15:47:04.2477987Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-03T15:47:04.2518058Z ##[endgroup]
+2026-11-03T15:47:04.2519696Z ##[group]Setting up auth
+2026-11-03T15:47:04.2520714Z Removing SSH command configuration
+2026-11-03T15:47:04.2523198Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-03T15:47:04.2558925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-03T15:47:04.2935273Z Removing HTTP extra header
+2026-11-03T15:47:04.2941175Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-03T15:47:04.2996209Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-03T15:47:04.3192457Z Removing includeIf entries pointing to credentials config files
+2026-11-03T15:47:04.3198594Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-03T15:47:04.3232495Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-03T15:47:04.3430531Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-03T15:47:04.3470177Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path /home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:04.3504740Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:04.3541057Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:04.3580354Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:04.3618438Z ##[endgroup]
+2026-11-03T15:47:04.3620543Z ##[group]Fetching the repository
+2026-11-03T15:47:04.3627148Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a5c3c75432f86c48538216ef6e2b529063dac887:refs/remotes/pull/225/merge
+2026-11-03T15:47:07.4776462Z From https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:07.4778267Z  * [new ref]         a5c3c75432f86c48538216ef6e2b529063dac887 -> pull/225/merge
+2026-11-03T15:47:07.4783734Z ##[endgroup]
+2026-11-03T15:47:07.4784683Z ##[group]Determining the checkout info
+2026-11-03T15:47:07.4785698Z ##[endgroup]
+2026-11-03T15:47:07.4787711Z [command]/usr/bin/git sparse-checkout disable
+2026-11-03T15:47:07.4863793Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-03T15:47:07.4901924Z ##[group]Checking out the ref
+2026-11-03T15:47:07.4905346Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/225/merge
+2026-11-03T15:47:07.7089044Z Note: switching to 'refs/remotes/pull/225/merge'.
+2026-11-03T15:47:07.7090782Z 
+2026-11-03T15:47:07.7092012Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-03T15:47:07.7095081Z changes and commit them, and you can discard any commits you make in this
+2026-11-03T15:47:07.7098408Z state without impacting any branches by switching back to a branch.
+2026-11-03T15:47:07.7100158Z 
+2026-11-03T15:47:07.7101290Z If you want to create a new branch to retain commits you create, you may
+2026-11-03T15:47:07.7104177Z do so (now or later) by using -c with the switch command. Example:
+2026-11-03T15:47:07.7105779Z 
+2026-11-03T15:47:07.7106461Z   git switch -c <new-branch-name>
+2026-11-03T15:47:07.7107461Z 
+2026-11-03T15:47:07.7108082Z Or undo this operation with:
+2026-11-03T15:47:07.7108777Z 
+2026-11-03T15:47:07.7109236Z   git switch -
+2026-11-03T15:47:07.7109778Z 
+2026-11-03T15:47:07.7110935Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-03T15:47:07.7112680Z 
+2026-11-03T15:47:07.7114463Z HEAD is now at a5c3c75 Merge ca9f3ae1f36e22ecf3aeeedae4454c31ba15c3c5 into 7227d4dbee450e2247e61a5fd21be2b1de5302e7
+2026-11-03T15:47:07.7119511Z ##[endgroup]
+2026-11-03T15:47:07.7157596Z [command]/usr/bin/git log -1 --format=%H
+2026-11-03T15:47:07.7184955Z a5c3c75432f86c48538216ef6e2b529063dac887
+2026-11-03T15:47:07.7193070Z ##[group]Removing auth
+2026-11-03T15:47:07.7194562Z Removing SSH command configuration
+2026-11-03T15:47:07.7196629Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-03T15:47:07.7230265Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-03T15:47:07.7425534Z Removing HTTP extra header
+2026-11-03T15:47:07.7429328Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-03T15:47:07.7463357Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-03T15:47:07.7651069Z Removing includeIf entries pointing to credentials config files
+2026-11-03T15:47:07.7654365Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-03T15:47:07.7681428Z includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path
+2026-11-03T15:47:07.7686885Z includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path
+2026-11-03T15:47:07.7691038Z includeif.gitdir:/github/workspace/.git.path
+2026-11-03T15:47:07.7693993Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-03T15:47:07.7700846Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path
+2026-11-03T15:47:07.7717138Z /home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:07.7736623Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-6e4dcd51\-3f8e\-41ed\-8054\-98c5dcb2d721\.config
+2026-11-03T15:47:07.7774403Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path
+2026-11-03T15:47:07.7796728Z /home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:07.7808465Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-6e4dcd51\-3f8e\-41ed\-8054\-98c5dcb2d721\.config
+2026-11-03T15:47:07.7855530Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-03T15:47:07.7872968Z /github/runner_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:07.7882554Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-6e4dcd51\-3f8e\-41ed\-8054\-98c5dcb2d721\.config
+2026-11-03T15:47:07.7917502Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-03T15:47:07.8006877Z /github/runner_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config
+2026-11-03T15:47:07.8018094Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-6e4dcd51\-3f8e\-41ed\-8054\-98c5dcb2d721\.config
+2026-11-03T15:47:07.8042443Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-03T15:47:07.8233806Z Removing credentials config '/home/runner/work/_temp/git-credentials-6e4dcd51-3f8e-41ed-8054-98c5dcb2d721.config'
+2026-11-03T15:47:07.8243485Z ##[endgroup]
+2026-11-03T15:47:07.8524254Z ##[group]Run FINAL="$(jq -r '."QG-08".finalDeLinha' "$QUALITY_GATES")"
+2026-11-03T15:47:07.8526550Z [36;1mFINAL="$(jq -r '."QG-08".finalDeLinha' "$QUALITY_GATES")"[0m
+2026-11-03T15:47:07.8528499Z [36;1mif [ "$FINAL" = "crlf" ]; then[0m
+2026-11-03T15:47:07.8529999Z [36;1m  git config core.autocrlf true[0m
+2026-11-03T15:47:07.8531447Z [36;1m  git rm -r -q --cached .[0m
+2026-11-03T15:47:07.8533081Z [36;1m  git reset -q --hard HEAD[0m
+2026-11-03T15:47:07.8535073Z [36;1m  echo "Cópia de trabalho convertida para CRLF, como num checkout em Windows."[0m
+2026-11-03T15:47:07.8537094Z [36;1melse[0m
+2026-11-03T15:47:07.8538501Z [36;1m  echo "Final de linha configurado: ${FINAL}; sem conversão."[0m
+2026-11-03T15:47:07.8540217Z [36;1mfi[0m
+2026-11-03T15:47:07.8560816Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T15:47:07.8562594Z env:
+2026-11-03T15:47:07.8563933Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:07.8565162Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:07.8567191Z   CONFIGURACAO: Release
+2026-11-03T15:47:07.8568497Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:07.8570866Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:07.8574668Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:07.8577269Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:07.8578551Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:07.8579941Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:07.8581329Z ##[endgroup]
+2026-11-03T15:47:09.0611873Z Cópia de trabalho convertida para CRLF, como num checkout em Windows.
+2026-11-03T15:47:09.0776564Z Prepare all required actions
+2026-11-03T15:47:09.0777891Z Getting action download info
+2026-11-03T15:47:09.1985912Z Download action repository 'actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68' (SHA:a98b56852c35b8e3190ac28c8c2271da59106c68)
+2026-11-03T15:47:09.7613742Z Download action repository 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+2026-11-03T15:47:09.9729356Z ##[group]Run ./.github/actions/preparar-dotnet
+2026-11-03T15:47:09.9729698Z env:
+2026-11-03T15:47:09.9729909Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:09.9730145Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:09.9730405Z   CONFIGURACAO: Release
+2026-11-03T15:47:09.9730665Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:09.9731163Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:09.9731906Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:09.9732418Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:09.9732678Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:09.9733245Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:09.9733535Z ##[endgroup]
+2026-11-03T15:47:09.9795703Z ##[start-action display=Instalar o SDK do .NET 10;id=__self.__actions_setup-dotnet]
+2026-11-03T15:47:09.9874417Z ##[group]Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+2026-11-03T15:47:09.9874824Z with:
+2026-11-03T15:47:09.9875071Z   dotnet-version: 10.0.x
+2026-11-03T15:47:09.9875320Z   cache: false
+2026-11-03T15:47:09.9875533Z env:
+2026-11-03T15:47:09.9875767Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:09.9876023Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:09.9876291Z   CONFIGURACAO: Release
+2026-11-03T15:47:09.9876551Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:09.9877041Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:09.9877737Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:09.9878260Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:09.9878552Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:09.9878834Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:09.9879112Z ##[endgroup]
+2026-11-03T15:47:10.1247514Z [command]/home/runner/work/_actions/actions/setup-dotnet/a98b56852c35b8e3190ac28c8c2271da59106c68/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+2026-11-03T15:47:10.5086135Z dotnet-install: .NET Core Runtime with version '10.0.14' is already installed.
+2026-11-03T15:47:10.5119634Z [command]/home/runner/work/_actions/actions/setup-dotnet/a98b56852c35b8e3190ac28c8c2271da59106c68/externals/install-dotnet.sh --skip-non-versioned-files --channel 10.0
+2026-11-03T15:47:10.7915178Z dotnet-install: .NET Core SDK with version '10.0.403' is already installed.
+2026-11-03T15:47:10.8028617Z ##[end-action id=__self.__actions_setup-dotnet;outcome=success;conclusion=success;duration_ms=823]
+2026-11-03T15:47:10.8031808Z ##[start-action display=Reutilizar a cache dos pacotes NuGet;id=__self.__actions_cache]
+2026-11-03T15:47:10.9532488Z ##[group]Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+2026-11-03T15:47:10.9533007Z with:
+2026-11-03T15:47:10.9533229Z   path: ~/.nuget/packages
+2026-11-03T15:47:10.9533630Z   key: nuget-Linux-982f5473a7b664edc8dda7ac54c6ba7a073dcf9562e1674c860b52ba3a176b02
+2026-11-03T15:47:10.9534228Z   restore-keys: nuget-Linux-
+
+2026-11-03T15:47:10.9534492Z   enableCrossOsArchive: false
+2026-11-03T15:47:10.9534738Z   fail-on-cache-miss: false
+2026-11-03T15:47:10.9534978Z   lookup-only: false
+2026-11-03T15:47:10.9535196Z   save-always: false
+2026-11-03T15:47:10.9535401Z env:
+2026-11-03T15:47:10.9535595Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:10.9535827Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:10.9536082Z   CONFIGURACAO: Release
+2026-11-03T15:47:10.9536507Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:10.9536990Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:10.9537674Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:10.9538182Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:10.9538436Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:10.9538713Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:10.9539006Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:10.9539250Z ##[endgroup]
+2026-11-03T15:47:11.2538163Z Cache hit for: nuget-Linux-982f5473a7b664edc8dda7ac54c6ba7a073dcf9562e1674c860b52ba3a176b02
+2026-11-03T15:47:12.4393552Z Received 130023424 of 283622054 (45.8%), 124.0 MBs/sec
+2026-11-03T15:47:13.3614973Z Received 283622054 of 283622054 (100.0%), 140.8 MBs/sec
+2026-11-03T15:47:13.3643754Z Cache Size: ~270 MB (283622054 B)
+2026-11-03T15:47:13.3717389Z [command]/usr/bin/tar -xf /home/runner/work/_temp/42ee1c50-66f7-4367-b484-e362eff8a954/cache.tzst -P -C /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO --use-compress-program unzstd
+2026-11-03T15:47:14.2120131Z Cache restored successfully
+2026-11-03T15:47:14.2388414Z Cache restored from key: nuget-Linux-982f5473a7b664edc8dda7ac54c6ba7a073dcf9562e1674c860b52ba3a176b02
+2026-11-03T15:47:14.2476121Z ##[end-action id=__self.__actions_cache;outcome=success;conclusion=success;duration_ms=3444]
+2026-11-03T15:47:14.2478771Z ##[start-action display=Registar o SDK utilizado;id=__self.__run]
+2026-11-03T15:47:14.2501945Z ##[group]Run echo "SDK do .NET: $(dotnet --version)"
+2026-11-03T15:47:14.2502344Z [36;1mecho "SDK do .NET: $(dotnet --version)"[0m
+2026-11-03T15:47:14.2502642Z [36;1m{[0m
+2026-11-03T15:47:14.2503067Z [36;1m  echo "### Ambiente .NET"[0m
+2026-11-03T15:47:14.2503349Z [36;1m  echo ""[0m
+2026-11-03T15:47:14.2503586Z [36;1m  echo "| Elemento | Valor |"[0m
+2026-11-03T15:47:14.2503880Z [36;1m  echo "|---|---|"[0m
+2026-11-03T15:47:14.2504180Z [36;1m  echo "| SDK do .NET | \`$(dotnet --version)\` |"[0m
+2026-11-03T15:47:14.2504609Z [36;1m  echo "| global.json | \`$(tr -d '\n\r ' < src/backend/global.json)\` |"[0m
+2026-11-03T15:47:14.2505062Z [36;1m  echo "| Runner | \`${RUNNER_OS} ${ImageOS:-} ${ImageVersion:-}\` |"[0m
+2026-11-03T15:47:14.2505404Z [36;1m  echo ""[0m
+2026-11-03T15:47:14.2505645Z [36;1m} >> "$GITHUB_STEP_SUMMARY"[0m
+2026-11-03T15:47:14.2520066Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T15:47:14.2520419Z env:
+2026-11-03T15:47:14.2520634Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:14.2520896Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:14.2521188Z   CONFIGURACAO: Release
+2026-11-03T15:47:14.2521461Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:14.2521960Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:14.2522684Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:14.2523507Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:14.2523775Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:14.2524065Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:14.2524383Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:14.2524636Z ##[endgroup]
+2026-11-03T15:47:17.1103889Z SDK do .NET: 10.0.403
+2026-11-03T15:47:17.2033788Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=2955]
+2026-11-03T15:47:17.2073816Z ##[group]Run dotnet restore "$SOLUCAO"
+2026-11-03T15:47:17.2074150Z [36;1mdotnet restore "$SOLUCAO"[0m
+2026-11-03T15:47:17.2088149Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T15:47:17.2088497Z env:
+2026-11-03T15:47:17.2088714Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:17.2088968Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:17.2089250Z   CONFIGURACAO: Release
+2026-11-03T15:47:17.2089524Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:17.2090013Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:17.2090757Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:17.2091283Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:17.2091549Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:17.2091832Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:17.2092138Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:17.2092458Z ##[endgroup]
+2026-11-03T15:47:21.6077281Z   Determining projects to restore...
+2026-11-03T15:47:23.4955211Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Domain/ClinicaVeterinaria.Domain.csproj (in 302 ms).
+2026-11-03T15:47:24.1618029Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj (in 1.05 sec).
+2026-11-03T15:47:24.1667025Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj (in 1.05 sec).
+2026-11-03T15:47:24.1705011Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj (in 646 ms).
+2026-11-03T15:47:24.1731550Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Application/ClinicaVeterinaria.Application.csproj (in 2 ms).
+2026-11-03T15:47:24.1826112Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj (in 1.09 sec).
+2026-11-03T15:47:24.2307905Z ##[group]Run mkdir -p "$RESULTADOS/formatacao"
+2026-11-03T15:47:24.2308307Z [36;1mmkdir -p "$RESULTADOS/formatacao"[0m
+2026-11-03T15:47:24.2308605Z [36;1mset +e[0m
+2026-11-03T15:47:24.2308980Z [36;1mdotnet format "$SOLUCAO" --verify-no-changes --no-restore --verbosity minimal \[0m
+2026-11-03T15:47:24.2309421Z [36;1m  --report "$RESULTADOS/formatacao"[0m
+2026-11-03T15:47:24.2309741Z [36;1mecho "codigo=$?" >> "$GITHUB_OUTPUT"[0m
+2026-11-03T15:47:24.2310025Z [36;1mexit 0[0m
+2026-11-03T15:47:24.2324075Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T15:47:24.2324427Z env:
+2026-11-03T15:47:24.2324649Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:24.2324909Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:24.2325200Z   CONFIGURACAO: Release
+2026-11-03T15:47:24.2325471Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:24.2325970Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:24.2326751Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:24.2327275Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:24.2327540Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:24.2327821Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:24.2328125Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:24.2328377Z ##[endgroup]
+2026-11-03T15:47:50.1524520Z ##[group]Run python3 - <<'PYTHON'
+2026-11-03T15:47:50.1524917Z [36;1mpython3 - <<'PYTHON'[0m
+2026-11-03T15:47:50.1525185Z [36;1mimport json, os, sys[0m
+2026-11-03T15:47:50.1525580Z [36;1mcfg = json.load(open(os.environ["QUALITY_GATES"], encoding="utf-8"))["QG-08"][0m
+2026-11-03T15:47:50.1526049Z [36;1mmaximo = int(cfg["maximoFicheirosPorFormatar"])[0m
+2026-11-03T15:47:50.1526615Z [36;1mcodigo = int(os.environ.get("CODIGO_FORMAT") or 1)[0m
+2026-11-03T15:47:50.1527089Z [36;1mcaminho = os.path.join(os.environ["RESULTADOS"], "formatacao", "format-report.json")[0m
+2026-11-03T15:47:50.1527695Z [36;1mrelatorio = json.load(open(caminho, encoding="utf-8-sig")) if os.path.exists(caminho) else None[0m
+2026-11-03T15:47:50.1528202Z [36;1mlinhas = ["### 6 · Formatação (QG-08)", ""][0m
+2026-11-03T15:47:50.1528550Z [36;1mif relatorio is None or codigo not in (0, 2):[0m
+2026-11-03T15:47:50.1529269Z [36;1m    linhas.append(f"❌ **QG-08 não avaliado:** o dotnet format terminou com o código {codigo} e sem relatório utilizável (ver o registo do passo anterior).")[0m
+2026-11-03T15:47:50.1529875Z [36;1m    falhou = True[0m
+2026-11-03T15:47:50.1530115Z [36;1melse:[0m
+2026-11-03T15:47:50.1530478Z [36;1m    ficheiros = sorted({f.get("FilePath") or f.get("FileName") for f in relatorio})[0m
+2026-11-03T15:47:50.1530996Z [36;1m    alteracoes = sum(len(f.get("FileChanges") or []) for f in relatorio)[0m
+2026-11-03T15:47:50.1531413Z [36;1m    linhas += ["| Medida | Valor |", "|---|---|",[0m
+2026-11-03T15:47:50.1531791Z [36;1m               f"| Ficheiros por formatar | **{len(ficheiros)}** |",[0m
+2026-11-03T15:47:50.1532201Z [36;1m               f"| Alterações necessárias | {alteracoes} |",[0m
+2026-11-03T15:47:50.1532649Z [36;1m               f"| Máximo permitido (`.github/quality-gates.json`) | {maximo} |", ""][0m
+2026-11-03T15:47:50.1533405Z [36;1m    if ficheiros:[0m
+2026-11-03T15:47:50.1533794Z [36;1m        linhas += ["<details><summary>Ficheiros por formatar (até 30)</summary>", ""][0m
+2026-11-03T15:47:50.1534200Z [36;1m        for f in relatorio[:30]:[0m
+2026-11-03T15:47:50.1534517Z [36;1m            mudancas = f.get("FileChanges") or [][0m
+2026-11-03T15:47:50.1534865Z [36;1m            primeira = mudancas[0] if mudancas else {}[0m
+2026-11-03T15:47:50.1535337Z [36;1m            caminho_f = (f.get("FilePath") or f.get("FileName") or "?").split("/src/backend/")[-1][0m
+2026-11-03T15:47:50.1536236Z [36;1m            linhas.append(f"- `{caminho_f}` — {len(mudancas)} alteração(ões), por exemplo linha {primeira.get('LineNumber', '?')}: {primeira.get('FormatDescription', '')} ({primeira.get('DiagnosticId', '')})")[0m
+2026-11-03T15:47:50.1536977Z [36;1m        linhas += ["", "</details>", ""][0m
+2026-11-03T15:47:50.1537296Z [36;1m    falhou = len(ficheiros) > maximo[0m
+2026-11-03T15:47:50.1537950Z [36;1m    linhas.append(("❌ **QG-08 não cumprido:** há ficheiros por formatar. Corrigir com `dotnet format src/backend/ClinicaVeterinaria.sln`. O merge fica bloqueado."[0m
+2026-11-03T15:47:50.1538700Z [36;1m                   if falhou else "✅ **QG-08 cumprido:** nenhum ficheiro por formatar."))[0m
+2026-11-03T15:47:50.1539219Z [36;1mwith open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:[0m
+2026-11-03T15:47:50.1539643Z [36;1m    resumo.write("\n".join(linhas) + "\n")[0m
+2026-11-03T15:47:50.1539957Z [36;1mprint("\n".join(linhas))[0m
+2026-11-03T15:47:50.1540220Z [36;1mif falhou:[0m
+2026-11-03T15:47:50.1540670Z [36;1m    print("::error title=QG-08 — formatação::Há ficheiros por formatar (dotnet format --verify-no-changes).")[0m
+2026-11-03T15:47:50.1541146Z [36;1m    sys.exit(1)[0m
+2026-11-03T15:47:50.1541387Z [36;1mPYTHON[0m
+2026-11-03T15:47:50.1554743Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T15:47:50.1555101Z env:
+2026-11-03T15:47:50.1555318Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:50.1555570Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:50.1555849Z   CONFIGURACAO: Release
+2026-11-03T15:47:50.1556280Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:50.1556776Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:50.1557489Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:50.1558117Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:50.1558392Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:50.1558676Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:50.1558971Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:50.1559221Z   CODIGO_FORMAT: 0
+2026-11-03T15:47:50.1559448Z ##[endgroup]
+2026-11-03T15:47:50.1798902Z ### 6 · Formatação (QG-08)
+2026-11-03T15:47:50.1799208Z 
+2026-11-03T15:47:50.1799396Z | Medida | Valor |
+2026-11-03T15:47:50.1799638Z |---|---|
+2026-11-03T15:47:50.1799925Z | Ficheiros por formatar | **0** |
+2026-11-03T15:47:50.1800279Z | Alterações necessárias | 0 |
+2026-11-03T15:47:50.1800757Z | Máximo permitido (`.github/quality-gates.json`) | 0 |
+2026-11-03T15:47:50.1801000Z 
+2026-11-03T15:47:50.1801233Z ✅ **QG-08 cumprido:** nenhum ficheiro por formatar.
+2026-11-03T15:47:50.1910400Z ##[group]Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+2026-11-03T15:47:50.1910825Z with:
+2026-11-03T15:47:50.1911061Z   name: relatorio-formatacao
+2026-11-03T15:47:50.1911366Z   path: resultados-ci/formatacao
+2026-11-03T15:47:50.1911642Z   if-no-files-found: warn
+2026-11-03T15:47:50.1911898Z   retention-days: 90
+2026-11-03T15:47:50.1912137Z   compression-level: 6
+2026-11-03T15:47:50.1912411Z   overwrite: false
+2026-11-03T15:47:50.1912709Z   include-hidden-files: false
+2026-11-03T15:47:50.1913184Z   archive: true
+2026-11-03T15:47:50.1913412Z env:
+2026-11-03T15:47:50.1913627Z   DOTNET_NOLOGO: true
+2026-11-03T15:47:50.1913879Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-03T15:47:50.1914167Z   CONFIGURACAO: Release
+2026-11-03T15:47:50.1914437Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-03T15:47:50.1914939Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-03T15:47:50.1915720Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-03T15:47:50.1916261Z   RESULTADOS: resultados-ci
+2026-11-03T15:47:50.1916529Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-03T15:47:50.1916831Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-03T15:47:50.1917139Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-03T15:47:50.1917397Z ##[endgroup]
+2026-11-03T15:47:50.3444717Z With the provided path, there will be 1 file uploaded
+2026-11-03T15:47:50.3451398Z Artifact name is valid!
+2026-11-03T15:47:50.3452267Z Root directory input is valid!
+2026-11-03T15:47:50.6732296Z Uploading artifact: relatorio-formatacao.zip
+2026-11-03T15:47:50.6769298Z Beginning upload of artifact content to blob storage
+2026-11-03T15:47:50.8899288Z Uploaded bytes 154
+2026-11-03T15:47:50.9347093Z Finished uploading artifact content to blob storage!
+2026-11-03T15:47:50.9347846Z SHA256 digest of uploaded artifact is 67d17c5faaa54b723254a6de0395b8ad13a995cba909906e88ed533a5676c8ec
+2026-11-03T15:47:50.9348398Z Finalizing artifact upload
+2026-11-03T15:47:51.7942195Z Artifact relatorio-formatacao successfully finalized. Artifact ID 13245788069
+2026-11-03T15:47:51.7943480Z Artifact relatorio-formatacao has been successfully uploaded! Final size is 154 bytes. Artifact ID is 13245788069
+2026-11-03T15:47:51.7947206Z Artifact download URL: https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41667292108/artifacts/13245788069
+2026-11-03T15:47:51.8116231Z Post job cleanup.
+2026-11-03T15:47:51.8121365Z ##[start-action display=Reutilizar a cache dos pacotes NuGet;id=__ba486df9-1a72-4bea-ba3b-24c289a92fa3.__actions_cache]
+2026-11-03T15:47:51.9568255Z Post job cleanup.
+2026-11-03T15:47:52.0817672Z Cache hit occurred on the primary key nuget-Linux-982f5473a7b664edc8dda7ac54c6ba7a073dcf9562e1674c860b52ba3a176b02, not saving cache.
+2026-11-03T15:47:52.0872476Z ##[end-action id=__ba486df9-1a72-4bea-ba3b-24c289a92fa3.__actions_cache;outcome=success;conclusion=success;duration_ms=275]
+2026-11-03T15:47:52.0875503Z ##[start-action display=Instalar o SDK do .NET 10;id=__ba486df9-1a72-4bea-ba3b-24c289a92fa3.__actions_setup-dotnet]
+2026-11-03T15:47:52.0917271Z Post job cleanup.
+2026-11-03T15:47:52.2204763Z ##[end-action id=__ba486df9-1a72-4bea-ba3b-24c289a92fa3.__actions_setup-dotnet;outcome=success;conclusion=success;duration_ms=132]
+2026-11-03T15:47:52.2331430Z Post job cleanup.
+2026-11-03T15:47:52.3193885Z [command]/usr/bin/git version
+2026-11-03T15:47:52.3236803Z git version 2.56.0
+2026-11-03T15:47:52.3270997Z Temporarily overriding HOME='/home/runner/work/_temp/de6a54e6-b83e-4c2c-84c0-7d15a03df697' before making global git config changes
+2026-11-03T15:47:52.3272300Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-03T15:47:52.3277945Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-03T15:47:52.3315961Z Removing SSH command configuration
+2026-11-03T15:47:52.3323726Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-03T15:47:52.3364558Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-03T15:47:52.3591635Z Removing HTTP extra header
+2026-11-03T15:47:52.3598858Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-03T15:47:52.3636052Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-03T15:47:52.3879466Z Removing includeIf entries pointing to credentials config files
+2026-11-03T15:47:52.3886701Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-03T15:47:52.3923600Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-03T15:47:52.4340465Z Cleaning up orphan processes
+2026-11-03T15:47:52.4625961Z Terminate orphan process: pid (2678) (dotnet)
+2026-11-03T15:47:52.4679399Z Terminate orphan process: pid (2679) (dotnet)
+2026-11-03T15:47:52.4723905Z Terminate orphan process: pid (2680) (dotnet)
