@@ -15,6 +15,9 @@ namespace ClinicaVeterinaria.UnitTests.RegistosClinicos;
 /// I077 — <see cref="RegistosClinicosService"/> (EP-031, EP-032) com o <c>ClinicaDbContext</c> em
 /// memória (I028, secção 4.2). Casos UT-F004-001 a UT-F004-021 da Especificação de Testes
 /// Unitários (I028, secção 7.4); os restantes são próprios desta tarefa.
+/// A I088 reforçou os casos UT-F004-009, 011 e 012 (mensagem do campo e nada gravado) e acrescentou
+/// a fronteira dos 1000 caracteres do diagnóstico e os casos dos critérios 3 e 4 do Backlog de
+/// Projeto v03 (atualização com dados válidos e inválidos e associação à consulta e ao paciente).
 /// </summary>
 /// <remarks>
 /// <c>RELOGIO</c> é 2026-10-14T08:00:00Z. A base em memória não tem o índice único
@@ -26,6 +29,13 @@ public class RegistosClinicosServiceTests
     private static readonly DateTimeOffset Relogio = new(2026, 10, 14, 8, 0, 0, TimeSpan.Zero);
 
     private static readonly DateOnly Hoje = new(2026, 10, 14);
+
+    // Mensagens das DataAnnotations dos DTOs (CreatePrescricaoDto, CreateTratamentoDto e
+    // UpdateRegistoClinicoDto): cada pedido destes casos tem um único erro.
+    private const string MensagemDuracaoInvalida = "A duração da prescrição, quando indicada, deve ser superior a 0 dias.";
+    private const string MensagemTratamentoSemDescricao = "A descrição do tratamento é obrigatória.";
+    private const string MensagemDiagnosticoLongo = "O diagnóstico não pode ter mais de 1000 caracteres.";
+    private const string MensagemPrescricaoSemDosagem = "A dosagem da prescrição é obrigatória.";
 
     // ----- EP-031 — Criar registo clínico -----
 
@@ -187,7 +197,10 @@ public class RegistosClinicosServiceTests
         prescricao.DuracaoDias = 0;
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+
+        Assert.Equal(MensagemDuracaoInvalida, erro.Message);
+        Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
     }
 
     [Fact(DisplayName = "UT-F004-010 — prescrição sem duracaoDias é aceite")]
@@ -213,7 +226,10 @@ public class RegistosClinicosServiceTests
         tratamento.Descricao = "";
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Tratamentos = [tratamento] };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+
+        Assert.Equal(MensagemTratamentoSemDescricao, erro.Message);
+        Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
     }
 
     [Fact(DisplayName = "UT-F004-012 — diagnóstico com 1001 caracteres devolve 400 (máximo 1000)")]
@@ -223,7 +239,23 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Diagnostico = new string('x', 1001) };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+
+        Assert.Equal(MensagemDiagnosticoLongo, erro.Message);
+        Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
+    }
+
+    [Fact(DisplayName = "I088 — diagnóstico com exatamente 1000 caracteres é aceite (fronteira de UT-F004-012)")]
+    public async Task DiagnosticoCom1000CaracteresEAceite()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var diagnostico = new string('x', 1000);
+        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Diagnostico = diagnostico };
+
+        var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
+
+        Assert.Equal(diagnostico, registo.Diagnostico);
     }
 
     [Fact(DisplayName = "UT-F004-013 — segundo registo para a mesma consulta devolve 409 e nada é gravado")]
@@ -457,6 +489,106 @@ public class RegistosClinicosServiceTests
         Assert.Equal("2 gotas", prescricao.Dosagem);
         Assert.Equal(10, prescricao.DuracaoDias);
         Assert.Empty(registo.Tratamentos);
+    }
+
+    // ----- I088 — critérios 3 e 4 do Backlog de Projeto v03 -----
+
+    [Fact(DisplayName = "I088 (critério 3) — a atualização grava as notas clínicas e o diagnóstico novos")]
+    public async Task AtualizacaoGravaNotasEDiagnostico()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var pedido = new UpdateRegistoClinicoDto
+        {
+            NotasClinicas = "Reavaliação: canal auditivo sem eritema.",
+            Diagnostico = "Otite externa resolvida"
+        };
+
+        await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
+
+        var gravado = await db.RegistosClinicos.AsNoTracking().SingleAsync(r => r.Id == d.RegistoA);
+        Assert.Equal("Reavaliação: canal auditivo sem eritema.", gravado.NotasClinicas);
+        Assert.Equal("Otite externa resolvida", gravado.Diagnostico);
+    }
+
+    [Fact(DisplayName = "I088 (critério 3) — atualização com um tratamento sem descrição devolve 400 e o registo fica como estava")]
+    public async Task AtualizacaoComTratamentoInvalidoDevolve400()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var pedido = new UpdateRegistoClinicoDto
+        {
+            Diagnostico = "Outro diagnóstico",
+            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = "", DataAplicacao = Hoje }]
+        };
+
+        var erro = await Assert.ThrowsAsync<ArgumentException>(
+            () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
+
+        Assert.Equal(MensagemTratamentoSemDescricao, erro.Message);
+        var gravado = await db.RegistosClinicos.AsNoTracking().SingleAsync(r => r.Id == d.RegistoA);
+        Assert.Equal("Otite externa", gravado.Diagnostico);
+        Assert.Equal(2, await db.Tratamentos.CountAsync(t => t.RegistoClinicoId == d.RegistoA));
+    }
+
+    [Fact(DisplayName = "I088 (critério 3) — atualização com uma prescrição sem dosagem devolve 400 e a prescrição fica como estava")]
+    public async Task AtualizacaoComPrescricaoInvalidaDevolve400()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var pedido = new UpdateRegistoClinicoDto
+        {
+            Prescricoes =
+            [
+                new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas X", Dosagem = "", Frequencia = "2 vezes por dia" }
+            ]
+        };
+
+        var erro = await Assert.ThrowsAsync<ArgumentException>(
+            () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
+
+        Assert.Equal(MensagemPrescricaoSemDosagem, erro.Message);
+        var prescricao = await db.Prescricoes.AsNoTracking().SingleAsync(p => p.Id == d.P1);
+        Assert.Equal("3 gotas", prescricao.Dosagem);
+        Assert.Equal((short)7, prescricao.DuracaoDias);
+    }
+
+    [Fact(DisplayName = "I088 (critério 4) — depois da atualização, o registo, os tratamentos e as prescrições continuam na mesma consulta e no mesmo paciente")]
+    public async Task AtualizacaoMantemAssociacoes()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+        var pedido = new UpdateRegistoClinicoDto
+        {
+            Tratamentos =
+            [
+                new CreateTratamentoDto { Id = d.T1, Descricao = "Limpeza auricular", DataAplicacao = Hoje },
+                new CreateTratamentoDto { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
+            ],
+            Prescricoes =
+            [
+                new CreatePrescricaoDto { Medicamento = "Pomada Y", Dosagem = "1 aplicação", Frequencia = "1 vez por dia", DuracaoDias = 5 }
+            ]
+        };
+
+        var registo = await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
+
+        Assert.Equal(d.ConsultaRealizada, registo.ConsultaId);
+        Assert.Equal(d.AnimalA1, registo.AnimalId);
+
+        var gravado = await db.RegistosClinicos.AsNoTracking().SingleAsync(r => r.Id == d.RegistoA);
+        var marcacao = await db.Marcacoes.AsNoTracking().SingleAsync(m => m.Id == gravado.MarcacaoId);
+        Assert.Equal(d.ConsultaRealizada, gravado.MarcacaoId);
+        Assert.Equal(d.AnimalA1, marcacao.PacienteId);
+        Assert.Equal(d.VetA, gravado.VeterinarioId);
+
+        var idsTratamentos = registo.Tratamentos.Select(t => t.Id).ToList();
+        var idsPrescricoes = registo.Prescricoes.Select(p => p.Id).ToList();
+        Assert.Equal(2, await db.Tratamentos.CountAsync(t => idsTratamentos.Contains(t.Id) && t.RegistoClinicoId == d.RegistoA));
+        Assert.Equal(1, await db.Prescricoes.CountAsync(p => idsPrescricoes.Contains(p.Id) && p.RegistoClinicoId == d.RegistoA));
+
+        // O tratamento T9, de outro registo, não é tocado.
+        Assert.NotEqual(d.RegistoA, (await db.Tratamentos.AsNoTracking().SingleAsync(t => t.Id == d.T9)).RegistoClinicoId);
     }
 
     // ----- Auxiliares -----
