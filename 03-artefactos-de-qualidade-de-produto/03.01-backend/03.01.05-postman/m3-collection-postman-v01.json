@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Clínica Veterinária G08 — API m3",
-    "description": "Collection Postman da API do backend. I098: identidade, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020). I100: registo clínico (EP-031 a EP-034) e boletim de vacinas e desparasitações (EP-042 a EP-044 e a atualização do RF056). A pasta 07 fica reservada à agenda e à área do Cliente (EP-021 a EP-030, I099).\n\nUsar com o ambiente m3-ambiente-postman-v01.json, com as palavras-passe das contas de demonstração preenchidas localmente (não estão no repositório). Executar a collection inteira e pela ordem: a pasta 00 guarda os tokens por perfil e as pastas seguintes guardam os identificadores que criam.\n\nConvenções: ver o README.md da pasta 03.01.05-postman.",
+    "description": "Collection Postman da API do backend. I098: identidade, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020). I099: agenda e área do Cliente (EP-021 a EP-030). I100: registo clínico (EP-031 a EP-034) e boletim de vacinas e desparasitações (EP-042 a EP-044 e a atualização do RF056).\n\nUsar com o ambiente m3-ambiente-postman-v01.json, com as palavras-passe das contas de demonstração preenchidas localmente (não estão no repositório). Executar a collection inteira e pela ordem: a pasta 00 guarda os tokens por perfil e as pastas seguintes guardam os identificadores que criam.\n\nConvenções: ver o README.md da pasta 03.01.05-postman.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "event": [
@@ -5659,6 +5659,3714 @@
                 "me",
                 "animais",
                 "{{animalClienteId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 · Agenda e Consultas (EP-021 a EP-030)",
+      "description": "I099. Identifica o Veterinário da sessão pela sua agenda (EP-023) e outro Veterinário (EP-021), procura três horários livres (EP-022) e encadeia, sobre uma marcação nova do animal do Cliente: criar (EP-025), consultar (EP-024), alterar com If-Match (EP-026), confirmar (EP-027), registar a chegada (EP-028), registar uma nota de preparação (EP-029), marcar como Realizada (EP-027) e ver o histórico do Cliente (EP-030). Uma segunda marcação é cancelada para os casos 422 de estados finais. Cada pedido de sucesso guarda os identificadores e o ETag no ambiente; a pasta pode ser executada várias vezes sem repor a base de dados.",
+      "item": [
+        {
+          "name": "EP-023 · 200 — agenda do Veterinário da sessão (só as suas marcações)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Resposta paginada (itens, pagina, tamanho, total)\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\").that.is.not.empty;",
+                  "        pm.expect(corpo.pagina).to.eql(1);",
+                  "        pm.expect(corpo.tamanho).to.eql(100);",
+                  "        pm.expect(corpo.total).to.be.at.least(corpo.itens.length);",
+                  "    });",
+                  "    pm.test(\"Só aparecem marcações do próprio Veterinário\", function () {",
+                  "        corpo.itens.forEach(function (m) { pm.expect(m.veterinario.id).to.eql(corpo.itens[0].veterinario.id); });",
+                  "    });",
+                  "    pm.test(\"Cada marcação tem data, estado, animal, cliente e Veterinário\", function () {",
+                  "        const m = corpo.itens[0];",
+                  "        pm.expect(m).to.include.all.keys(\"id\", \"dataHora\", \"duracaoMinutos\", \"estado\", \"animal\", \"cliente\", \"veterinario\", \"chegadaEm\");",
+                  "    });",
+                  "    if (pm.response.code === 200 && corpo.itens.length > 0) {",
+                  "        pm.environment.set(\"veterinarioId\", corpo.itens[0].veterinario.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-021 · 200 — listar Veterinários (Rececionista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Lista os Veterinários ativos com id e nome\", function () {",
+                  "        pm.expect(corpo).to.be.an(\"array\").with.length.at.least(2);",
+                  "        corpo.forEach(function (v) {",
+                  "            pm.expect(v.id).to.be.a(\"number\");",
+                  "            pm.expect(v.nome).to.be.a(\"string\").and.not.empty;",
+                  "        });",
+                  "    });",
+                  "    pm.test(\"Inclui o Veterinário da sessão\", function () {",
+                  "        pm.expect(corpo.map(function (v) { return v.id; })).to.include(pm.environment.get(\"veterinarioId\"));",
+                  "    });",
+                  "    const outro = corpo.find(function (v) { return v.id !== pm.environment.get(\"veterinarioId\"); });",
+                  "    if (outro) {",
+                  "        pm.environment.set(\"veterinarioOutroId\", outro.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-021 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-021 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 200 — o Veterinário só vê as suas, mesmo pedindo outro veterinarioId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"O filtro veterinarioId é ignorado para o Veterinário\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\").that.is.not.empty;",
+                  "        corpo.itens.forEach(function (m) { pm.expect(m.veterinario.id).to.eql(pm.environment.get(\"veterinarioId\")); });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100&veterinarioId={{veterinarioOutroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                },
+                {
+                  "key": "veterinarioId",
+                  "value": "{{veterinarioOutroId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 200 — agenda da Rececionista (todos os Veterinários)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    const outra = corpo.itens.find(function (m) { return m.veterinario.id !== pm.environment.get(\"veterinarioId\"); });",
+                  "    pm.test(\"A agenda tem marcações de mais do que um Veterinário\", function () {",
+                  "        pm.expect(outra).to.be.an(\"object\");",
+                  "    });",
+                  "    if (outra) {",
+                  "        pm.environment.set(\"consultaOutroVeterinarioId\", outra.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 200 — filtrar por Veterinário e estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Só marcações Confirmadas do Veterinário pedido\", function () {",
+                  "        pm.expect(corpo.itens).to.be.an(\"array\").that.is.not.empty;",
+                  "        corpo.itens.forEach(function (m) {",
+                  "            pm.expect(m.veterinario.id).to.eql(pm.environment.get(\"veterinarioId\"));",
+                  "            pm.expect(m.estado).to.eql(\"Confirmada\");",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100&veterinarioId={{veterinarioId}}&estado=Confirmada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                },
+                {
+                  "key": "veterinarioId",
+                  "value": "{{veterinarioId}}"
+                },
+                {
+                  "key": "estado",
+                  "value": "Confirmada"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 200 — agenda do Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    pm.test(\"O Auxiliar vê a agenda\", function () {",
+                  "        pm.expect(pm.response.json().itens).to.be.an(\"array\").that.is.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-10-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 400 — dataFim anterior a dataInicio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas?dataInicio=2026-12-02&dataFim=2026-12-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-12-02"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2026-12-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-023 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 200 — horários livres do Veterinário nos próximos 31 dias",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Hora de Lisboa (R-FUSO): +1 h entre o último domingo de março e o último domingo de outubro.",
+                  "function ultimoDomingo(ano, mes) {",
+                  "    const d = new Date(Date.UTC(ano, mes + 1, 0));",
+                  "    d.setUTCDate(d.getUTCDate() - d.getUTCDay());",
+                  "    return d;",
+                  "}",
+                  "function desvioLisboa(data) {",
+                  "    const d = new Date(data + \"T12:00:00Z\");",
+                  "    const ano = d.getUTCFullYear();",
+                  "    return d >= ultimoDomingo(ano, 2) && d < ultimoDomingo(ano, 9) ? 1 : 0;",
+                  "}",
+                  "function paraUtc(data, hora) {",
+                  "    const t = new Date(data + \"T\" + hora + \":00Z\").getTime() - desvioLisboa(data) * 3600000;",
+                  "    return new Date(t).toISOString().replace(\".000Z\", \"Z\");",
+                  "}",
+                  "// Do dia seguinte (em Lisboa) a 30 dias depois: 31 dias, o máximo de EP-022.",
+                  "const agora = new Date();",
+                  "const hojeUtc = agora.toISOString().slice(0, 10);",
+                  "const hoje = new Date(agora.getTime() + desvioLisboa(hojeUtc) * 3600000).toISOString().slice(0, 10);",
+                  "const inicio = new Date(hoje + \"T00:00:00Z\");",
+                  "inicio.setUTCDate(inicio.getUTCDate() + 1);",
+                  "const fim = new Date(inicio.getTime());",
+                  "fim.setUTCDate(fim.getUTCDate() + 30);",
+                  "pm.variables.set(\"dataInicioDisponibilidade\", inicio.toISOString().slice(0, 10));",
+                  "pm.variables.set(\"dataFimDisponibilidade\", fim.toISOString().slice(0, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    // Hora de Lisboa (R-FUSO): +1 h entre o último domingo de março e o último domingo de outubro.",
+                  "    function ultimoDomingo(ano, mes) {",
+                  "        const d = new Date(Date.UTC(ano, mes + 1, 0));",
+                  "        d.setUTCDate(d.getUTCDate() - d.getUTCDay());",
+                  "        return d;",
+                  "    }",
+                  "    function desvioLisboa(data) {",
+                  "        const d = new Date(data + \"T12:00:00Z\");",
+                  "        const ano = d.getUTCFullYear();",
+                  "        return d >= ultimoDomingo(ano, 2) && d < ultimoDomingo(ano, 9) ? 1 : 0;",
+                  "    }",
+                  "    function paraUtc(data, hora) {",
+                  "        const t = new Date(data + \"T\" + hora + \":00Z\").getTime() - desvioLisboa(data) * 3600000;",
+                  "        return new Date(t).toISOString().replace(\".000Z\", \"Z\");",
+                  "    }",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Identifica o Veterinário, a duração e os dias do período\", function () {",
+                  "        pm.expect(corpo.veterinarioId).to.eql(pm.environment.get(\"veterinarioId\"));",
+                  "        pm.expect(corpo.duracaoConsultaMinutos).to.be.above(0);",
+                  "        pm.expect(corpo.dias).to.be.an(\"array\").that.is.not.empty;",
+                  "        pm.expect(corpo.dias.length).to.be.at.most(31);",
+                  "    });",
+                  "    const vagas = [];",
+                  "    corpo.dias.forEach(function (dia) {",
+                  "        dia.horariosLivres.forEach(function (hora) { vagas.push({ data: dia.data, hora: hora }); });",
+                  "    });",
+                  "    pm.test(\"Há pelo menos três horários livres (HH:MM)\", function () {",
+                  "        pm.expect(vagas.length).to.be.at.least(3);",
+                  "        vagas.forEach(function (v) { pm.expect(v.hora).to.match(/^\\d{2}:\\d{2}$/); });",
+                  "    });",
+                  "    if (vagas.length >= 3) {",
+                  "        pm.environment.set(\"dataMarcacaoAgenda\", vagas[0].data);",
+                  "        pm.environment.set(\"horaMarcacaoAgenda\", vagas[0].hora);",
+                  "        pm.environment.set(\"dataHoraMarcacaoAgenda\", paraUtc(vagas[0].data, vagas[0].hora));",
+                  "        pm.environment.set(\"dataHoraAlteracaoAgenda\", paraUtc(vagas[1].data, vagas[1].hora));",
+                  "        pm.environment.set(\"dataHoraCancelamentoAgenda\", paraUtc(vagas[2].data, vagas[2].hora));",
+                  "        // 02:00 em Lisboa está sempre fora do horário de funcionamento.",
+                  "        pm.environment.set(\"dataHoraForaHorario\", paraUtc(vagas[0].data, \"02:00\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio={{dataInicioDisponibilidade}}&dataFim={{dataFimDisponibilidade}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataInicioDisponibilidade}}"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "{{dataFimDisponibilidade}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 400 — dataInicio em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 400 — período superior a 31 dias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio=2026-12-01&dataFim=2027-01-15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2026-12-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2027-01-15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 404 — Veterinário inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{idInexistente}}/disponibilidade?dataInicio={{dataMarcacaoAgenda}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{idInexistente}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataMarcacaoAgenda}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio={{dataMarcacaoAgenda}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataMarcacaoAgenda}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio={{dataMarcacaoAgenda}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataMarcacaoAgenda}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 201 — criar marcação (Pendente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Cabeçalho Location aponta para a marcação criada\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Location\")).to.match(new RegExp(\"/consultas/\" + corpo.id + \"$\"));",
+                  "    });",
+                  "    pm.test(\"Devolve o ETag da versão criada\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"ETag\")).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"Marcação Pendente com o animal, o Veterinário e a hora pedidos\", function () {",
+                  "        pm.expect(corpo.estado).to.eql(\"Pendente\");",
+                  "        pm.expect(corpo.animal.id).to.eql(pm.environment.get(\"animalClienteId\"));",
+                  "        pm.expect(corpo.veterinario.id).to.eql(pm.environment.get(\"veterinarioId\"));",
+                  "        pm.expect(corpo.dataHora).to.eql(pm.environment.get(\"dataHoraMarcacaoAgenda\"));",
+                  "        pm.expect(corpo.duracaoMinutos).to.be.above(0);",
+                  "        pm.expect(corpo.chegadaEm).to.eql(null);",
+                  "    });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"consultaAgendaId\", corpo.id);",
+                  "        pm.environment.set(\"etagConsultaAgenda\", pm.response.headers.get(\"ETag\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraMarcacaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-022 · 200 — o horário marcado deixa de estar livre",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const dia = pm.response.json().dias.find(function (d) { return d.data === pm.environment.get(\"dataMarcacaoAgenda\"); });",
+                  "    pm.test(\"A hora da marcação criada já não aparece nos horários livres\", function () {",
+                  "        pm.expect(dia).to.be.an(\"object\");",
+                  "        pm.expect(dia.horariosLivres).to.not.include(pm.environment.get(\"horaMarcacaoAgenda\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/veterinarios/{{veterinarioId}}/disponibilidade?dataInicio={{dataMarcacaoAgenda}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "veterinarios",
+                "{{veterinarioId}}",
+                "disponibilidade"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "{{dataMarcacaoAgenda}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 400 — campos em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 400 — data no passado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"2020-01-06T10:00:00Z\",\n  \"motivo\": \"Data no passado (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 404 — animal inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{idInexistente}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraCancelamentoAgenda}}\",\n  \"motivo\": \"Animal inexistente (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 404 — Veterinário inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{idInexistente}},\n  \"dataHora\": \"{{dataHoraCancelamentoAgenda}}\",\n  \"motivo\": \"Veterinário inexistente (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 422 — Veterinário ocupado nesse horário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalOutroClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraMarcacaoAgenda}}\",\n  \"motivo\": \"Sobreposição (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 422 — fora do horário de funcionamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraForaHorario}}\",\n  \"motivo\": \"Fora do horário (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraCancelamentoAgenda}}\",\n  \"motivo\": \"Sem token (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraCancelamentoAgenda}}\",\n  \"motivo\": \"Veterinário (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 200 — consultar a marcação (Rececionista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a marcação com animal, cliente, Veterinário e notas de preparação\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"consultaAgendaId\"));",
+                  "        pm.expect(corpo).to.include.all.keys(\"dataHora\", \"duracaoMinutos\", \"estado\", \"motivo\", \"animal\", \"cliente\", \"veterinario\", \"chegadaEm\", \"notasPreparacao\");",
+                  "        pm.expect(corpo.notasPreparacao).to.be.an(\"array\");",
+                  "    });",
+                  "    pm.test(\"O ETag é o da versão criada\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"ETag\")).to.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 200 — o Veterinário da marcação consulta-a",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    pm.test(\"É a marcação do próprio Veterinário\", function () {",
+                  "        pm.expect(pm.response.json().veterinario.id).to.eql(pm.environment.get(\"veterinarioId\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 403 — marcação não atribuída ao Veterinário autenticado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "    pm.test(\"Não devolve dados da marcação\", function () {",
+                  "        pm.expect(pm.response.json()).to.not.have.property(\"animal\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaOutroVeterinarioId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaOutroVeterinarioId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 404 — marcação inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 403 — Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 200 — alterar a data e o motivo com o ETag atual (If-Match)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"A marcação tem a nova data e o novo motivo e continua Pendente\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"consultaAgendaId\"));",
+                  "        pm.expect(corpo.dataHora).to.eql(pm.environment.get(\"dataHoraAlteracaoAgenda\"));",
+                  "        pm.expect(corpo.motivo).to.eql(\"Consulta de rotina, alterada (I099)\");",
+                  "        pm.expect(corpo.estado).to.eql(\"Pendente\");",
+                  "    });",
+                  "    const etag = pm.response.headers.get(\"ETag\");",
+                  "    pm.test(\"Devolve um ETag novo\", function () {",
+                  "        pm.expect(etag).to.be.a(\"string\").and.not.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"etagConsultaAgendaAnterior\", pm.environment.get(\"etagConsultaAgenda\"));",
+                  "        pm.environment.set(\"etagConsultaAgenda\", etag);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgenda}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina, alterada (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 412 — If-Match com uma versão desatualizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 412\", function () { pm.response.to.have.status(412); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgendaAnterior}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 400 — dataHora em falta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"motivo\": \"Sem data (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 404 — marcação inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{idInexistente}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{idInexistente}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 422 — novo horário fora do horário de funcionamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraForaHorario}}\",\n  \"motivo\": \"Fora do horário (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 400 — Pendente não pode ser escolhido manualmente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Pendente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 400 — estado inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Adiada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 422 — chegada numa marcação que não está Confirmada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 204 — confirmar a marcação (Pendente → Confirmada) com If-Match",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "    const etag = pm.response.headers.get(\"ETag\");",
+                  "    pm.test(\"Devolve um ETag novo\", function () {",
+                  "        pm.expect(etag).to.be.a(\"string\").and.not.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "    });",
+                  "    if (pm.response.code === 204) {",
+                  "        pm.environment.set(\"etagConsultaAgendaAnterior\", pm.environment.get(\"etagConsultaAgenda\"));",
+                  "        pm.environment.set(\"etagConsultaAgenda\", etag);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgenda}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 412 — If-Match com uma versão desatualizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 412\", function () { pm.response.to.have.status(412); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgendaAnterior}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Realizada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 412 — If-Match com uma versão desatualizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 412\", function () { pm.response.to.have.status(412); });",
+                  "    pm.test(\"Erro no formato da API (I058): code 412 e message preenchida\", function () {",
+                  "        const erro = pm.response.json();",
+                  "        pm.expect(erro.code).to.eql(412);",
+                  "        pm.expect(erro.message).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgendaAnterior}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 200 — registar a chegada com If-Match",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a marcação e a hora de chegada do servidor\", function () {",
+                  "        pm.expect(corpo.id).to.eql(pm.environment.get(\"consultaAgendaId\"));",
+                  "        pm.expect(Date.parse(corpo.chegadaEm)).to.be.a(\"number\").and.not.NaN;",
+                  "    });",
+                  "    pm.test(\"Devolve um ETag novo\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"ETag\")).to.be.a(\"string\").and.not.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"etagConsultaAgenda\", pm.response.headers.get(\"ETag\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgenda}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 422 — a chegada já foi registada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 404 — marcação inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{idInexistente}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{idInexistente}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 403 — Auxiliar Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 201 — registar nota de preparação (Auxiliar com apoio)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Devolve a nota com a marcação, o texto, o autor e a data\", function () {",
+                  "        pm.expect(corpo.id).to.be.a(\"number\");",
+                  "        pm.expect(corpo.consultaId).to.eql(pm.environment.get(\"consultaAgendaId\"));",
+                  "        pm.expect(corpo.texto).to.eql(\"Sala 2 preparada; tutor pediu corte de unhas (I099).\");",
+                  "        pm.expect(corpo.autor).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(Date.parse(corpo.criadaEm)).to.be.a(\"number\").and.not.NaN;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Sala 2 preparada; tutor pediu corte de unhas (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-024 · 200 — a marcação está Confirmada, com a chegada e a nota de preparação",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Estado Confirmada e chegada registada\", function () {",
+                  "        pm.expect(corpo.estado).to.eql(\"Confirmada\");",
+                  "        pm.expect(corpo.chegadaEm).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.test(\"A nota de preparação aparece na marcação\", function () {",
+                  "        pm.expect(corpo.notasPreparacao.map(function (n) { return n.texto; })).to.include(\"Sala 2 preparada; tutor pediu corte de unhas (I099).\");",
+                  "    });",
+                  "    pm.test(\"O registo da nota não mudou a versão da marcação (ETag)\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"ETag\")).to.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 400 — texto vazio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 400 — texto com mais de 1000 caracteres",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set(\"textoNotaLonga\", \"x\".repeat(1001));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"{{textoNotaLonga}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · preparação — sessão do Auxiliar sem autorização de apoio (EP-001 · 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"É uma conta de Auxiliar Veterinário\", function () {",
+                  "        pm.expect(corpo.utilizador.perfil).to.eql(\"AuxiliarVeterinario\");",
+                  "    });",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"tokenAuxiliarSemApoio\", corpo.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{emailAuxiliarSemApoio}}\",\n  \"password\": \"{{passwordAuxiliarSemApoio}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 403 — Auxiliar sem autorização de registo de apoio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliarSemApoio}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Nota sem autorização (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 404 — marcação inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Marcação inexistente (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{idInexistente}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{idInexistente}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Sem token (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 403 — Rececionista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Rececionista (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 204 — marcar como Realizada (Confirmada → Realizada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "    if (pm.response.code === 204) {",
+                  "        pm.environment.set(\"etagConsultaAgenda\", pm.response.headers.get(\"ETag\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Realizada\",\n  \"observacao\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 422 — transição inválida (Realizada → Confirmada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-026 · 422 — marcação Realizada não pode ser alterada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraAlteracaoAgenda}}\",\n  \"motivo\": \"Consulta de rotina (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-025 · preparação — marcação a cancelar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 201\", function () { pm.response.to.have.status(201); });",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.environment.set(\"consultaCanceladaId\", pm.response.json().id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animalId\": {{animalClienteId}},\n  \"veterinarioId\": {{veterinarioId}},\n  \"dataHora\": \"{{dataHoraCancelamentoAgenda}}\",\n  \"motivo\": \"Marcação a cancelar (I099)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 204 — cancelar com observação (Pendente → Cancelada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 204\", function () { pm.response.to.have.status(204); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Cancelada\",\n  \"observacao\": \"Pedido do tutor por telefone (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaCanceladaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaCanceladaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 422 — transição inválida (Cancelada → Confirmada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaCanceladaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaCanceladaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-028 · 422 — chegada numa marcação Cancelada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaCanceladaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaCanceladaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-029 · 422 — nota de preparação numa marcação Cancelada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 422\", function () { pm.response.to.have.status(422); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAuxiliar}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Marcação cancelada (I099).\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaCanceladaId}}/notas-preparacao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaCanceladaId}}",
+                "notas-preparacao"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 404 — marcação inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 404\", function () { pm.response.to.have.status(404); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{idInexistente}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{idInexistente}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-027 · 403 — Veterinário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenVeterinario}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Confirmada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "estado"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 200 — marcações futuras do Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    pm.test(\"Só marcações Pendentes ou Confirmadas a partir de agora, por ordem de data\", function () {",
+                  "        pm.expect(corpo).to.be.an(\"array\");",
+                  "        const agora = Date.now();",
+                  "        corpo.forEach(function (m, i) {",
+                  "            pm.expect([\"Pendente\", \"Confirmada\"]).to.include(m.estado);",
+                  "            pm.expect(Date.parse(m.dataHora)).to.be.at.least(agora - 60000);",
+                  "            if (i > 0) { pm.expect(Date.parse(m.dataHora)).to.be.at.least(Date.parse(corpo[i - 1].dataHora)); }",
+                  "        });",
+                  "    });",
+                  "    pm.test(\"Só informação administrativa: sem motivo nem dados clínicos\", function () {",
+                  "        corpo.forEach(function (m) {",
+                  "            pm.expect(m).to.have.all.keys(\"id\", \"dataHora\", \"estado\", \"animal\", \"veterinario\");",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 200 — histórico com a marcação Realizada e a Cancelada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    const corpo = pm.response.json();",
+                  "    const realizada = corpo.find(function (m) { return m.id === pm.environment.get(\"consultaAgendaId\"); });",
+                  "    const cancelada = corpo.find(function (m) { return m.id === pm.environment.get(\"consultaCanceladaId\"); });",
+                  "    pm.test(\"O histórico tem a marcação Realizada desta pasta\", function () {",
+                  "        pm.expect(realizada).to.be.an(\"object\");",
+                  "        pm.expect(realizada.estado).to.eql(\"Realizada\");",
+                  "    });",
+                  "    pm.test(\"O histórico tem a marcação Cancelada, mesmo sendo futura\", function () {",
+                  "        pm.expect(cancelada).to.be.an(\"object\");",
+                  "        pm.expect(cancelada.estado).to.eql(\"Cancelada\");",
+                  "    });",
+                  "    pm.test(\"Por ordem de data decrescente\", function () {",
+                  "        corpo.forEach(function (m, i) {",
+                  "            if (i > 0) { pm.expect(Date.parse(m.dataHora)).to.be.at.most(Date.parse(corpo[i - 1].dataHora)); }",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas?tipo=historico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "historico"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 200 — filtrar por um animal próprio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
+                  "    pm.test(\"Só marcações desse animal\", function () {",
+                  "        const corpo = pm.response.json();",
+                  "        pm.expect(corpo).to.be.an(\"array\").that.is.not.empty;",
+                  "        corpo.forEach(function (m) { pm.expect(m.animal.id).to.eql(pm.environment.get(\"animalClienteId\")); });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas?tipo=historico&animalId={{animalClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "historico"
+                },
+                {
+                  "key": "animalId",
+                  "value": "{{animalClienteId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 400 — tipo inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas?tipo=proximas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "proximas"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 400 — animalId inferior a 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 400\", function () { pm.response.to.have.status(400); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas?animalId=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "animalId",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 403 — animal de outro Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "    pm.test(\"Não devolve marcações\", function () {",
+                  "        pm.expect(pm.response.json()).to.not.be.an(\"array\");",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCliente}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas?animalId={{animalOutroClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ],
+              "query": [
+                {
+                  "key": "animalId",
+                  "value": "{{animalOutroClienteId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 401 — sem token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 401\", function () { pm.response.to.have.status(401); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "EP-030 · 403 — perfil interno (Rececionista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 403\", function () { pm.response.to.have.status(403); });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me/consultas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "consultas"
               ]
             }
           }

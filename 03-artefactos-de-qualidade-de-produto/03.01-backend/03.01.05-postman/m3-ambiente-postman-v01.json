@@ -44,6 +44,12 @@
       "enabled": true
     },
     {
+      "key": "emailAuxiliarSemApoio",
+      "value": "aux.diogo@clinica-g08.test",
+      "type": "default",
+      "enabled": true
+    },
+    {
       "key": "passwordAdmin",
       "value": "",
       "type": "secret",
@@ -75,6 +81,12 @@
     },
     {
       "key": "passwordBloqueada",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "passwordAuxiliarSemApoio",
       "value": "",
       "type": "secret",
       "enabled": true
@@ -141,6 +153,12 @@
     },
     {
       "key": "tokenClienteNovo",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "tokenAuxiliarSemApoio",
       "value": "",
       "type": "secret",
       "enabled": true
@@ -291,6 +309,72 @@
     },
     {
       "key": "administracaoDesparasitacaoId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "veterinarioOutroId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataMarcacaoAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "horaMarcacaoAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraMarcacaoAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraAlteracaoAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraCancelamentoAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "dataHoraForaHorario",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultaAgendaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultaCanceladaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "etagConsultaAgenda",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "etagConsultaAgendaAnterior",
       "value": "",
       "type": "default",
       "enabled": true
