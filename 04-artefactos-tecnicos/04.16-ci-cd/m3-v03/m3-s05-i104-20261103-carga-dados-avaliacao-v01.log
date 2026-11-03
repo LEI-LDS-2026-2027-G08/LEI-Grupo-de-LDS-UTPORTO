@@ -1,6 +1,5 @@
 Execução dos scripts de dados iniciais e de demonstração (I061)
 Data e hora      : 2026-11-03 22:50:05 +00:00
-Computador       : SKULL-PC
 Servidor         : sql-clinica-g08-us.database.windows.net
 Base de dados    : clinica-g08-avaliacao
 Autenticação     : SQL Server (login adminclinica)
@@ -85,5 +84,3 @@ RegistoProfilaxia              4
 Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas.
 Resultado: os dados de demonstração cobrem os critérios 2 e 3 da I061 e são coerentes.
 === verificar-dados-demonstracao.sql — fim 22:50:13 — código de saída 0
-
-Concluído sem erros. Registo: C:\DEV-do_not_del\ESTGF\LDS\GitHub-repository\04-artefactos-tecnicos\04.13-scripts-de-base-de-dados\m3-v02\dados-demonstracao\dados-execucao-20261103-225005.log

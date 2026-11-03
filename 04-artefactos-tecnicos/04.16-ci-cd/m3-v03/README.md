@@ -149,12 +149,16 @@ A reversão passa pela pipeline, para a versão entregue ter sempre passado os q
 
 ## 9. Evidências (Executor)
 
-| Evidência | Ligação |
-|---|---|
-| Endereço público | https://clinica-g08-api-ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net/swagger |
-| Base pública com os dados fictícios da I061 | `m3-s05-i104-20261103-carga-dados-avaliacao-v01.log` e `…-repeticao-v01.log` (nesta pasta) |
-| Execução da pipeline que fez a entrega | *A preencher depois da primeira entrega em `main`* |
-| Capturas: Swagger, login com uma conta de avaliação e uma consulta | *A preencher* |
+| Evidência | Estado | Ligação ou ficheiro |
+|---|---|---|
+| Endereço público | Disponível | https://clinica-g08-api-ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net/swagger |
+| Base pública com os dados fictícios da I061 | Feito (2026-11-03 22:50; 28 verificações, 28 OK) | `m3-s05-i104-20261103-carga-dados-avaliacao-v01.log` e `…-repeticao-v01.log` (nesta pasta) |
+| API publicada e a responder em HTTPS | Verificado a 2026-11-03, depois de uma publicação manual de teste (`az webapp deploy`, pacote Release do ramo da I104): `GET /swagger/v1/swagger.json` → 200 (título `ClinicaVeterinaria.Api`, 27 caminhos); `GET /clinica` sem token → 401 | — |
+| Captura do Swagger com o login de uma conta de avaliação (`POST /auth/login` → 200) | **Pendente** | `m3-s05-i104-AAAAMMDD-captura-swagger-login-v01.png` (nesta pasta) |
+| Captura de uma consulta com o token (`GET /clinica` → 200) | **Pendente** | `m3-s05-i104-AAAAMMDD-captura-swagger-consulta-v01.png` (nesta pasta) |
+| Execução da pipeline que fez a entrega (etapa 8 em `main`) | **Pendente**: só existe depois da promoção de `develop` para `main`, que o grupo ainda não marcou | *Ligação da execução a acrescentar nessa altura* |
+
+A publicação manual de teste não substitui a evidência do critério 2: serve para confirmar a configuração do ambiente público e permitir ao Revisor a verificação 1 antes da primeira entrega pela pipeline.
 
 ## 10. Divergências
 
