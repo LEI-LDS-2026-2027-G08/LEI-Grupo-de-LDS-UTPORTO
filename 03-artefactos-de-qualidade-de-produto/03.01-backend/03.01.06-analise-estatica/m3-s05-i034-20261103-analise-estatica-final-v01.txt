@@ -1,0 +1,138 @@
+﻿Commit analisado: 4d6d748 (ramo da I034 atualizado com develop 7227d4d, ja com a I103)
+
+== 1. dotnet build -warnaserror --no-incremental
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ClinicaVeterinaria.Domain -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Domain\bin\Debug\net10.0\ClinicaVeterinaria.Domain.dll
+  ClinicaVeterinaria.Application -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\bin\Debug\net10.0\ClinicaVeterinaria.Application.dll
+  ClinicaVeterinaria.Infrastructure -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\bin\Debug\net10.0\ClinicaVeterinaria.Infrastructure.dll
+  ClinicaVeterinaria.Api -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\bin\Debug\net10.0\ClinicaVeterinaria.Api.dll
+  ClinicaVeterinaria.UnitTests -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\bin\Debug\net10.0\ClinicaVeterinaria.UnitTests.dll
+  ClinicaVeterinaria.IntegrationTests -> C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\bin\Debug\net10.0\ClinicaVeterinaria.IntegrationTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:16.89
+codigo de saida: 0
+
+== 2. dotnet format --verify-no-changes (QG-08)
+codigo de saida: 0
+
+== 3. dotnet format analyzers --verify-no-changes --severity info
+dotnet : C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\MinhasVacinacoesController.cs(19,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+At line:12 char:1
++ dotnet format analyzers src/backend/ClinicaVeterinaria.sln --verify-n ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\HP\sou...ria.Api.csproj]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\VeterinariosController.cs(19,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\MinhasConsultasController.cs(19,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\MeusAnimaisController.cs(19,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\VacinacoesController.cs(29,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\RegistosClinicosController.cs(32,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\UtilizadoresController.cs(18,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\AnimaisController.cs(23,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Middleware\RequestLoggingMiddleware.cs(10,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\ClinicaController.cs(17,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\ConsultasController.cs(27,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\ClientesController.cs(20,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Controllers\AuthController.cs(16,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Middleware\ExceptionHandlingMiddleware.cs(12,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\Program.cs(107,1): info ASP0027: Using public partial class Program { } to make the generated Program class public is no longer required in ASP.NET Core apps. See 
+https://aka.ms/aspnetcore-warnings/ASP0027 for more details. [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\Exceptions\UnprocessableEntityException.cs(11,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\ClinicaVeterinaria.Application.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\Exceptions\ForbiddenException.cs(11,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Application\ClinicaVeterinaria.Application.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaService.cs(24,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\AuthService.cs(53,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClientesService.cs(30,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\VeterinariosService.cs(26,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\UtilizadoresService.cs(34,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\AnimaisService.cs(24,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaDbContext.cs(7,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Infrastructure\ClinicaVeterinaria.Infrastructure.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\Seguranca\AjudaSeguranca.cs(18,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\ClinicaVeterinaria.UnitTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\Seguranca\DuplosAutenticacao.cs(17,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\ClinicaVeterinaria.UnitTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\Middleware\ErrosERegistosTests.cs(43,9): info xUnit1004: Test methods should not be skipped. Remove the Skip property to start running the test again. 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.UnitTests\ClinicaVeterinaria.UnitTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\VisibilidadeAgendaEndpointsTests.cs(30,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Veterinarios\VeterinariosEndpointsTests.cs(26,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Animais\MeusAnimaisEndpointsTests.cs(25,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\TesteIntegracaoBase.cs(9,15): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Autenticacao\AutenticacaoEndpointsTests.cs(36,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\DadosClinica\ClinicaEndpointsTests.cs(25,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\AutenticacaoInfraestruturaTests.cs(10,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\AtualizarConsultaEndpointsTests.cs(27,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\InfraestruturaTests.cs(7,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\AtualizarEstadoConsultaEndpointsTests.cs(33,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\MinhasConsultasEndpointsTests.cs(33,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Vacinacoes\VacinacoesPersistenciaEndpointsTests.cs(37,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\ChegadaENotasPreparacaoEndpointsTests.cs(29,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Animais\AnimaisEndpointsTests.cs(27,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Clientes\ClientesEndpointsTests.cs(31,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\CriarConsultaEndpointsTests.cs(33,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\ConsultasEndpointsTests.cs(30,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Seguranca\MatrizSegurancaEndpointsTests.cs(44,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Seguranca\IsolamentoClientesEndpointsTests.cs(29,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\ConcorrenciaMarcacoesEndpointsTests.cs(47,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Utilizadores\UtilizadoresEndpointsTests.cs(30,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\RegistosClinicos\RegistosClinicosLeituraEndpointsTests.cs(42,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\RegistosClinicos\RegistosClinicosEndpointsTests.cs(36,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Vacinacoes\VacinacoesEndpointsTests.cs(38,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\RegistosClinicos\RegistoClinicoPersistenciaEndpointsTests.cs(34,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Utilizadores\FuncionariosEndpointsTests.cs(25,12): info IDE0290: Use primary constructor 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\IntegracaoFixture.cs(124,23): info SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time. 
+[C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+codigo de saida: 2
