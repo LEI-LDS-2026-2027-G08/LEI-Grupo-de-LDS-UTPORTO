@@ -7825,18 +7825,6 @@
                   "        pm.expect(erro.code).to.eql(412);",
                   "        pm.expect(erro.message).to.be.a(\"string\").and.not.empty;",
                   "    });",
-                  "    pm.sendRequest({",
-                  "        url: pm.environment.get(\"baseUrl\") + \"/consultas/\" + pm.environment.get(\"consultaAgendaId\"),",
-                  "        method: \"GET\",",
-                  "        header: { Authorization: \"Bearer \" + pm.environment.get(\"tokenRececionista\") }",
-                  "    }, function (falha, resposta) {",
-                  "        pm.test(\"A chegada não fica registada e o ETag atual mantém-se\", function () {",
-                  "            pm.expect(falha).to.eql(null);",
-                  "            pm.expect(resposta.code).to.eql(200);",
-                  "            pm.expect(resposta.json().chegadaEm).to.eql(null);",
-                  "            pm.expect(resposta.headers.get(\"ETag\")).to.eql(pm.environment.get(\"etagConsultaAgenda\"));",
-                  "        });",
-                  "    });",
                   "}"
                 ]
               }

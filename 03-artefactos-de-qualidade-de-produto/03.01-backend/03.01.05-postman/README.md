@@ -8,7 +8,7 @@ Collection Postman e ambiente de variáveis para testar a API do backend: autent
 | `m3-ambiente-postman-v01.json` | Ambiente: URL base, contas de demonstração, palavras-passe vazias e variáveis preenchidas pelos scripts |
 | `m3-s05-i098-20261030-resultado-newman-v01.txt` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
 | `m3-s05-i100-20261101-resultado-newman-v01.txt` | Evidência da execução de referência da I100 com o Newman, com as pastas 08 e 09: 190 pedidos e 611 verificações, sem falhas |
-| `m3-s05-i099-20261102-resultado-newman-v01.txt` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 269 pedidos e 863 verificações, sem falhas |
+| `m3-s05-i099-20261102-resultado-newman-v01.txt` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 269 pedidos e 862 verificações, sem falhas |
 
 Referências: Documentação de API v02 (I018), dados de demonstração da I061 (`04.13-scripts-de-base-de-dados/m3-v02`) e pedidos de verificação manual do backend (`src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http`).
 
@@ -114,7 +114,7 @@ Cada pasta depende das anteriores: a pasta 00 guarda os tokens e as pastas segui
 | EP-025 | 10 | 201 `Pendente` com `Location` e `ETag`, preparação da marcação a cancelar, 400 campos em falta, 400 data no passado, 404 animal, 404 Veterinário, 422 Veterinário ocupado, 422 fora do horário, 401, 403 Veterinário |
 | EP-026 | 8 | 200 com `If-Match` (novo `ETag`), 412 `If-Match` desatualizado, 400 `dataHora` em falta, 404, 422 fora do horário, 422 marcação `Realizada`, 401, 403 Veterinário |
 | EP-027 | 11 | 204 confirmar com `If-Match`, 204 `Realizada`, 204 cancelar com observação, 400 `Pendente`, 400 estado inexistente, 412 `If-Match` desatualizado, 422 `Realizada` → `Confirmada`, 422 `Cancelada` → `Confirmada`, 404, 401, 403 Veterinário |
-| EP-028 | 8 | 412 `If-Match` desatualizado (a chegada não fica registada), 200 com `If-Match`, 422 marcação `Pendente`, 422 chegada já registada, 422 marcação `Cancelada`, 404, 401, 403 Auxiliar |
+| EP-028 | 8 | 412 `If-Match` desatualizado, 200 com `If-Match` (a chegada continua por registar depois do 412), 422 marcação `Pendente`, 422 chegada já registada, 422 marcação `Cancelada`, 404, 401, 403 Auxiliar |
 | EP-029 | 9 | 201 Auxiliar com apoio, preparação (sessão do Auxiliar sem apoio), 400 texto vazio, 400 mais de 1000 caracteres, 403 Auxiliar sem apoio, 422 marcação `Cancelada`, 404, 401, 403 Rececionista |
 | EP-030 | 8 | 200 futuras (só administrativas, por data), 200 histórico com a `Realizada` e a `Cancelada`, 200 filtro por animal próprio, 400 tipo inválido, 400 `animalId` < 1, 403 animal de outro Cliente, 401, 403 Rececionista |
 | Preparação (pasta 08) | 7 | EP-023 Veterinário da sessão, EP-023 marcação de outro Veterinário, EP-022 horários livres, EP-025 marcação a confirmar, EP-027 confirmar, EP-025 marcação Pendente, EP-027 cancelar no fim |
@@ -144,12 +144,12 @@ Resultado completo: [`m3-s05-i099-20261102-resultado-newman-v01.txt`](m3-s05-i09
 
 | | Executados | Falhados |
 |---|---|---|
-| Pedidos | 270 | 0 |
+| Pedidos | 269 | 0 |
 | Scripts de teste | 538 | 0 |
 | Scripts de pré-pedido | 9 | 0 |
-| Verificações (`pm.test`) | 863 | 0 |
+| Verificações (`pm.test`) | 862 | 0 |
 
-O Newman conta 270 pedidos: os 269 da collection e o `GET` de EP-024 que o pedido `EP-028 · 412` faz no seu script para confirmar que a chegada não ficou registada. Duração total: 21 s. O ficheiro de resultado não contém palavras-passe nem tokens.
+Duração total: 20,5 s. O ficheiro de resultado não contém palavras-passe nem tokens.
 
 ### Execução de referência da I100 — 2026-11-01
 
