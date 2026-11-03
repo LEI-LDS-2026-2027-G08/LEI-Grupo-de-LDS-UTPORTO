@@ -255,34 +255,34 @@ public sealed class ConcorrenciaMarcacoesEndpointsTests :
         switch (operacao)
         {
             case AlterarMarcacao:
-            {
-                var id = await ObterMarcacaoAsync(EmailVetBruno, "Pendente");
-                var vetBruno = await ObterUtilizadorIdAsync(EmailVetBruno);
-                return new Cenario(
-                    operacao, id, HttpMethod.Put, $"/consultas/{id}",
-                    CorpoAlteracao(vetBruno, dez, "Primeiro pedido"),
-                    CorpoAlteracao(vetBruno, onze, "Segundo pedido"),
-                    HttpStatusCode.OK, dez, onze, "Pendente", "Pendente");
-            }
+                {
+                    var id = await ObterMarcacaoAsync(EmailVetBruno, "Pendente");
+                    var vetBruno = await ObterUtilizadorIdAsync(EmailVetBruno);
+                    return new Cenario(
+                        operacao, id, HttpMethod.Put, $"/consultas/{id}",
+                        CorpoAlteracao(vetBruno, dez, "Primeiro pedido"),
+                        CorpoAlteracao(vetBruno, onze, "Segundo pedido"),
+                        HttpStatusCode.OK, dez, onze, "Pendente", "Pendente");
+                }
 
             case AtualizarEstado:
-            {
-                var id = await ObterMarcacaoAsync(EmailVetBruno, "Pendente");
-                var estadoSegundo = mesmaAlteracao ? "Confirmada" : "Cancelada";
-                return new Cenario(
-                    operacao, id, HttpMethod.Patch, $"/consultas/{id}/estado",
-                    CorpoEstado("Confirmada"),
-                    CorpoEstado(estadoSegundo),
-                    HttpStatusCode.NoContent, dez, onze, "Confirmada", estadoSegundo);
-            }
+                {
+                    var id = await ObterMarcacaoAsync(EmailVetBruno, "Pendente");
+                    var estadoSegundo = mesmaAlteracao ? "Confirmada" : "Cancelada";
+                    return new Cenario(
+                        operacao, id, HttpMethod.Patch, $"/consultas/{id}/estado",
+                        CorpoEstado("Confirmada"),
+                        CorpoEstado(estadoSegundo),
+                        HttpStatusCode.NoContent, dez, onze, "Confirmada", estadoSegundo);
+                }
 
             case RegistarChegada:
-            {
-                var id = await ObterMarcacaoAsync(EmailVetAna, "Confirmada");
-                return new Cenario(
-                    operacao, id, HttpMethod.Patch, $"/consultas/{id}/chegada",
-                    null, null, HttpStatusCode.OK, dez, onze, "Confirmada", "Confirmada");
-            }
+                {
+                    var id = await ObterMarcacaoAsync(EmailVetAna, "Confirmada");
+                    return new Cenario(
+                        operacao, id, HttpMethod.Patch, $"/consultas/{id}/chegada",
+                        null, null, HttpStatusCode.OK, dez, onze, "Confirmada", "Confirmada");
+                }
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(operacao), operacao, "Operação desconhecida.");

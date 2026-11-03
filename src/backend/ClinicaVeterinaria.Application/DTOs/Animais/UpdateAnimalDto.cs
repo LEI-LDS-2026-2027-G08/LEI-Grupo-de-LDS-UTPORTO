@@ -23,9 +23,9 @@ public class UpdateAnimalDto
 
     public DateOnly? DataNascimento { get; set; }
 
-[Range(0.01, 9999.99,
-    ErrorMessage = "O peso deve ser superior a 0.")]
-public decimal? Peso { get; set; }
+    [Range(0.01, 9999.99,
+        ErrorMessage = "O peso deve ser superior a 0.")]
+    public decimal? Peso { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "O clienteId deve ser superior a 0.")]
     public int ClienteId { get; set; }
