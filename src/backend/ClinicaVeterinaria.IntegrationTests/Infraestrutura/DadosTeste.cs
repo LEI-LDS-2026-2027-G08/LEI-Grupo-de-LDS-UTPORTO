@@ -1,4 +1,4 @@
-﻿namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
+namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
 
 /// <summary>
 /// Utilitários para criar dados independentes entre testes.
