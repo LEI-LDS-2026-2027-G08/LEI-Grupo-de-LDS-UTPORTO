@@ -83,10 +83,21 @@ builder.Services.AddDbContext<ClinicaDbContext>(options =>
 
 var app = builder.Build();
 
+// Ambiente público de avaliação — I104: aplica as migrações da I062 no arranque
+// quando BaseDados:AplicarMigracoesNoArranque = true (só nas definições do Azure).
+// Nos restantes ambientes a base de dados continua a ser preparada à parte.
+if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.Migrate();
+}
+
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// O Swagger fica ativo em Development e, com Swagger:Ativo = true, no ambiente
+// público de avaliação (I104, critério 1: iniciar sessão pelo Swagger).
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Ativo"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
