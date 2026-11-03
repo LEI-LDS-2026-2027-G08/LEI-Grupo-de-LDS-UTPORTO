@@ -1,0 +1,86 @@
+{
+  "projeto": "Gestão de Clínica Veterinária — Grupo G08 — LDS 2026/2027",
+  "issue": "I103 — Integrar análise estática, cobertura e quality gates na pipeline",
+  "versao": "m3-v02",
+  "finalidade": "Limiares e âmbitos dos quality gates do backend, lidos pela pipeline .github/workflows/backend-ci.yml (critério 1 da I103: os limites vêm de configuração e não estão escritos no workflow). Uma alteração a estes valores altera o compromisso do grupo e exige nova versão do Regulamento Interno (secção 11.1).",
+  "fontes": [
+    "Regulamento Interno do Grupo v02, secções 11.4 (análise estática), 11.5 (cobertura) e 11.6 (QG-01 a QG-08)",
+    "Plano de Testes do Backend m3 v01 (I027), secções 7.2, 8.2 e 9 (LT-01, LT-02 e exclusões)",
+    "Relatório de Análise Estática do Backend v02 (I101), secções 6 e 11"
+  ],
+  "QG-03": {
+    "nome": "Cobertura de linhas do backend (Domínio e Serviços)",
+    "metrica": "linhas",
+    "limiarMinimoPercentagem": 70,
+    "testesConsiderados": "Testes unitários e de integração em conjunto (Coverlet), juntos com ReportGenerator",
+    "assembliesIncluidas": [
+      {
+        "assembly": "ClinicaVeterinaria.Domain",
+        "justificacao": "Camada de Domínio (entidades)."
+      },
+      {
+        "assembly": "ClinicaVeterinaria.Application",
+        "justificacao": "Regras de aplicação: agenda, validação, segurança, cálculo da próxima administração e exceções."
+      },
+      {
+        "assembly": "ClinicaVeterinaria.Infrastructure",
+        "justificacao": "Os serviços (classes *Service, que implementam as interfaces da Aplicação) estão neste projeto desde a I059; sem ele, a camada de Serviços ficava fora da medição. A configuração do EF Core e as migrações são excluídas abaixo."
+      }
+    ],
+    "classesExcluidas": [
+      {
+        "filtro": "ClinicaVeterinaria.Application.DTOs.*",
+        "justificacao": "DTOs sem lógica (Regulamento 11.5 e Plano de Testes, secção 9)."
+      },
+      {
+        "filtro": "ClinicaVeterinaria.Infrastructure.Migrations.*",
+        "justificacao": "Migrações geradas pelo EF Core (Regulamento 11.5)."
+      },
+      {
+        "filtro": "ClinicaVeterinaria.Infrastructure.ClinicaDbContext",
+        "justificacao": "Configuração do EF Core (mapeamento do modelo), excluída no Plano de Testes, secção 9 (LT-01)."
+      },
+      {
+        "filtro": "ClinicaVeterinaria.*.DependencyInjection",
+        "justificacao": "Registo de dependências (Plano de Testes, secção 9)."
+      }
+    ],
+    "ficheirosExcluidos": [
+      {
+        "filtro": "**/obj/**",
+        "justificacao": "Código gerado na compilação (geradores de origem), sem ficheiro no repositório."
+      }
+    ],
+    "foraDoAmbito": "ClinicaVeterinaria.Api (controladores finos e Program.cs) e os projetos de testes, como no Plano de Testes, secção 9.",
+    "informativo": {
+      "metrica": "ramos",
+      "referenciaPercentagem": 60,
+      "nota": "LT-02 do Plano de Testes: medido e mostrado no resumo, não bloqueia a pipeline."
+    }
+  },
+  "QG-04": {
+    "nome": "Análise estática do backend (Roslyn)",
+    "ferramenta": "Roslyn Analyzers do .NET SDK 10, perfil Recommended (Directory.Build.props e .editorconfig da I101)",
+    "relatorio": "SARIF 2.1 por projeto, produzido na compilação da etapa 1",
+    "niveisQueBloqueiam": ["error", "warning"],
+    "maximoOcorrencias": 0,
+    "nota": "Ocorrências suprimidas no código (com justificação, secção 10 do relatório da I101) não contam. O código gerado das migrações já está excluído no .editorconfig."
+  },
+  "QG-08": {
+    "nome": "Formatação do backend",
+    "comando": "dotnet format <solução> --verify-no-changes",
+    "maximoFicheirosPorFormatar": 0,
+    "finalDeLinha": "crlf",
+    "nota": "O .editorconfig fixa end_of_line = crlf e o repositório guarda os ficheiros com LF (convertidos para CRLF no checkout em Windows). A etapa converte a cópia de trabalho do runner para CRLF antes de verificar, como num checkout em Windows."
+  },
+  "Newman": {
+    "nome": "Collection Postman executada com o Newman contra a API arrancada na pipeline",
+    "versaoNewman": "6.2.1",
+    "collection": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m3-collection-postman-v01.json",
+    "ambiente": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m3-ambiente-postman-v01.json",
+    "maximoFalhas": 0,
+    "dadosDemonstracao": "04-artefactos-tecnicos/04.13-scripts-de-base-de-dados/m3-v02/dados-demonstracao",
+    "dominioContasDemonstracao": "@clinica-g08.test",
+    "nota": "As palavras-passe reais das contas de demonstração não estão no repositório. Em cada execução é gerada uma palavra-passe descartável, aplicada só na base de dados temporária do runner e escondida nos registos."
+  }
+}

@@ -127,6 +127,25 @@ São executados os projetos:
 - `ClinicaVeterinaria.UnitTests`
 - `ClinicaVeterinaria.IntegrationTests`
 
+## Quality gates — verificar antes de abrir um Pull Request (I103)
+
+A pipeline `.github/workflows/backend-ci.yml` bloqueia o merge se algum quality gate falhar. Os limiares estão em `.github/quality-gates.json` (cobertura ≥ 70% em Domínio e Serviços, zero avisos na análise estática, zero ficheiros por formatar, zero falhas na Collection Postman). Para verificar localmente, na raiz da solução (`src/backend`):
+
+```bash
+# QG-01 e QG-04 — compilação sem erros nem avisos (análise Roslyn da I101)
+dotnet build ./ClinicaVeterinaria.sln --configuration Release
+
+# QG-08 — formatação; sem --verify-no-changes, corrige os ficheiros
+dotnet format ./ClinicaVeterinaria.sln --verify-no-changes
+
+# QG-02 e QG-03 — testes com cobertura (os de integração precisam do Docker)
+dotnet test ./ClinicaVeterinaria.sln --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.5.11
+reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./TestResults/qg-03" -reporttypes:"Html;TextSummary" -assemblyfilters:"+ClinicaVeterinaria.Domain;+ClinicaVeterinaria.Application;+ClinicaVeterinaria.Infrastructure" -classfilters:"-ClinicaVeterinaria.Application.DTOs.*;-ClinicaVeterinaria.Infrastructure.Migrations.*;-ClinicaVeterinaria.Infrastructure.ClinicaDbContext;-ClinicaVeterinaria.*.DependencyInjection" -filefilters:"-**/obj/**"
+```
+
+Os filtros do `reportgenerator` são os do QG-03 em `.github/quality-gates.json`; a «Line coverage» do `TestResults/qg-03/Summary.txt` é o valor comparado com o limiar. A Collection Postman executa-se com o Newman como descrito no README da pasta `03.01.05-postman`. Pormenores de cada etapa: `/projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v02/README.md`.
+
 ## Executar a API
 
 Na raiz da solução:

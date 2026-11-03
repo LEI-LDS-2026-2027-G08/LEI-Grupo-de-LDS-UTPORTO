@@ -11,51 +11,51 @@ namespace ClinicaVeterinaria.UnitTests.Middleware;
 /// </summary>
 public class ExceptionHandlingMiddlewareTests
 {
-  [Fact(DisplayName = "I074 — PreconditionFailedException é convertida em HTTP 412")]
-  public async Task PreconditionFailedDevolve412()
-  {
-    const string detalhe =
-        "A versão indicada em If-Match não corresponde à versão atual da marcação.";
+    [Fact(DisplayName = "I074 — PreconditionFailedException é convertida em HTTP 412")]
+    public async Task PreconditionFailedDevolve412()
+    {
+        const string detalhe =
+            "A versão indicada em If-Match não corresponde à versão atual da marcação.";
 
-    RequestDelegate next =
-        _ => throw new PreconditionFailedException(detalhe);
+        RequestDelegate next =
+            _ => throw new PreconditionFailedException(detalhe);
 
-    var middleware = new ExceptionHandlingMiddleware(
-        next,
-        NullLogger<ExceptionHandlingMiddleware>.Instance);
+        var middleware = new ExceptionHandlingMiddleware(
+            next,
+            NullLogger<ExceptionHandlingMiddleware>.Instance);
 
-    var contexto = new DefaultHttpContext();
+        var contexto = new DefaultHttpContext();
 
-    contexto.Response.Body = new MemoryStream();
+        contexto.Response.Body = new MemoryStream();
 
-    await middleware.InvokeAsync(contexto);
+        await middleware.InvokeAsync(contexto);
 
-    Assert.Equal(
-        StatusCodes.Status412PreconditionFailed,
-        contexto.Response.StatusCode);
+        Assert.Equal(
+            StatusCodes.Status412PreconditionFailed,
+            contexto.Response.StatusCode);
 
-    Assert.Equal(
-        "application/json",
-        contexto.Response.ContentType);
+        Assert.Equal(
+            "application/json",
+            contexto.Response.ContentType);
 
-    contexto.Response.Body.Position = 0;
+        contexto.Response.Body.Position = 0;
 
-    using var documento =
-        await JsonDocument.ParseAsync(
-            contexto.Response.Body);
+        using var documento =
+            await JsonDocument.ParseAsync(
+                contexto.Response.Body);
 
-    var raiz = documento.RootElement;
+        var raiz = documento.RootElement;
 
-    Assert.Equal(
-        StatusCodes.Status412PreconditionFailed,
-        raiz.GetProperty("code").GetInt32());
+        Assert.Equal(
+            StatusCodes.Status412PreconditionFailed,
+            raiz.GetProperty("code").GetInt32());
 
-    Assert.Equal(
-        "A pré-condição indicada não corresponde à versão atual do recurso.",
-        raiz.GetProperty("message").GetString());
+        Assert.Equal(
+            "A pré-condição indicada não corresponde à versão atual do recurso.",
+            raiz.GetProperty("message").GetString());
 
-    Assert.Equal(
-        detalhe,
-        raiz.GetProperty("detail").GetString());
-  }
+        Assert.Equal(
+            detalhe,
+            raiz.GetProperty("detail").GetString());
+    }
 }

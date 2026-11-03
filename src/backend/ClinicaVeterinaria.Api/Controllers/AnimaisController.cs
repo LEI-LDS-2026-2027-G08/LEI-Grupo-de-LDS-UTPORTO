@@ -50,35 +50,35 @@ public sealed class AnimaisController : ControllerBase
         return Ok(await _animaisService.ObterAsync(id));
     }
     /// <summary>EP-017 — Registar paciente.</summary>
-[HttpPost]
-[Authorize(Roles = PerfisPesquisa)]
-[ProducesResponseType<AnimalDto>(StatusCodes.Status201Created)]
-[ProducesResponseType(StatusCodes.Status400BadRequest)]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-[ProducesResponseType(StatusCodes.Status403Forbidden)]
-[ProducesResponseType(StatusCodes.Status404NotFound)]
-public async Task<ActionResult<AnimalDto>> Criar(CreateAnimalDto pedido)
-{
-    var animal = await _animaisService.CriarAsync(pedido);
+    [HttpPost]
+    [Authorize(Roles = PerfisPesquisa)]
+    [ProducesResponseType<AnimalDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AnimalDto>> Criar(CreateAnimalDto pedido)
+    {
+        var animal = await _animaisService.CriarAsync(pedido);
 
-    return CreatedAtAction(
-        nameof(Obter),
-        new { id = animal.Id },
-        animal);
-}
+        return CreatedAtAction(
+            nameof(Obter),
+            new { id = animal.Id },
+            animal);
+    }
 
-/// <summary>EP-018 — Atualizar dados administrativos do paciente.</summary>
-[HttpPut("{id:int}")]
-[Authorize(Roles = PerfisPesquisa)]
-[ProducesResponseType<AnimalDto>(StatusCodes.Status200OK)]
-[ProducesResponseType(StatusCodes.Status400BadRequest)]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-[ProducesResponseType(StatusCodes.Status403Forbidden)]
-[ProducesResponseType(StatusCodes.Status404NotFound)]
-public async Task<ActionResult<AnimalDto>> Atualizar(
-    int id,
-    UpdateAnimalDto pedido)
-{
-    return Ok(await _animaisService.AtualizarAsync(id, pedido));
-}
+    /// <summary>EP-018 — Atualizar dados administrativos do paciente.</summary>
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = PerfisPesquisa)]
+    [ProducesResponseType<AnimalDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AnimalDto>> Atualizar(
+        int id,
+        UpdateAnimalDto pedido)
+    {
+        return Ok(await _animaisService.AtualizarAsync(id, pedido));
+    }
 }
