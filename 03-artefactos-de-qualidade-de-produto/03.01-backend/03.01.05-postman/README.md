@@ -4,11 +4,11 @@ Collection Postman e ambiente de variáveis para testar a API do backend: autent
 
 | Ficheiro | Conteúdo |
 |---|---|
-| `m3-collection-postman-v01.json` | Collection (formato Postman v2.1), com 268 pedidos e os respetivos testes |
+| `m3-collection-postman-v01.json` | Collection (formato Postman v2.1), com 269 pedidos e os respetivos testes |
 | `m3-ambiente-postman-v01.json` | Ambiente: URL base, contas de demonstração, palavras-passe vazias e variáveis preenchidas pelos scripts |
 | `m3-s05-i098-20261030-resultado-newman-v01.txt` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
 | `m3-s05-i100-20261101-resultado-newman-v01.txt` | Evidência da execução de referência da I100 com o Newman, com as pastas 08 e 09: 190 pedidos e 611 verificações, sem falhas |
-| `m3-s05-i099-20261102-resultado-newman-v01.txt` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 268 pedidos e 858 verificações, sem falhas |
+| `m3-s05-i099-20261102-resultado-newman-v01.txt` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 269 pedidos e 863 verificações, sem falhas |
 
 Referências: Documentação de API v02 (I018), dados de demonstração da I061 (`04.13-scripts-de-base-de-dados/m3-v02`) e pedidos de verificação manual do backend (`src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http`).
 
@@ -58,7 +58,7 @@ As pastas seguem as funcionalidades e são executadas por esta ordem:
 | `04 · Clientes (EP-011 a EP-014)` | EP-011 a EP-014 | 22 |
 | `05 · Pacientes (EP-015 a EP-018)` | EP-015 a EP-018 | 24 |
 | `06 · Animais do Cliente — aplicação móvel (EP-019, EP-020)` | EP-019, EP-020 | 10 |
-| `07 · Agenda e Consultas (EP-021 a EP-030)` | EP-023, EP-021, EP-022, EP-025, EP-024, EP-026, EP-027, EP-028, EP-029, EP-030 | 78 |
+| `07 · Agenda e Consultas (EP-021 a EP-030)` | EP-023, EP-021, EP-022, EP-025, EP-024, EP-026, EP-027, EP-028, EP-029, EP-030 | 79 |
 | `08 · Registo clínico (EP-031 a EP-034)` | EP-023, EP-022, EP-025 e EP-027 (preparação), EP-031 a EP-034 | 35 |
 | `09 · Boletim de vacinas e desparasitações (EP-042 a EP-044)` | EP-043, EP-042, atualização (RF056), EP-044 | 30 |
 
@@ -114,7 +114,7 @@ Cada pasta depende das anteriores: a pasta 00 guarda os tokens e as pastas segui
 | EP-025 | 10 | 201 `Pendente` com `Location` e `ETag`, preparação da marcação a cancelar, 400 campos em falta, 400 data no passado, 404 animal, 404 Veterinário, 422 Veterinário ocupado, 422 fora do horário, 401, 403 Veterinário |
 | EP-026 | 8 | 200 com `If-Match` (novo `ETag`), 412 `If-Match` desatualizado, 400 `dataHora` em falta, 404, 422 fora do horário, 422 marcação `Realizada`, 401, 403 Veterinário |
 | EP-027 | 11 | 204 confirmar com `If-Match`, 204 `Realizada`, 204 cancelar com observação, 400 `Pendente`, 400 estado inexistente, 412 `If-Match` desatualizado, 422 `Realizada` → `Confirmada`, 422 `Cancelada` → `Confirmada`, 404, 401, 403 Veterinário |
-| EP-028 | 7 | 200 com `If-Match`, 422 marcação `Pendente`, 422 chegada já registada, 422 marcação `Cancelada`, 404, 401, 403 Auxiliar |
+| EP-028 | 8 | 412 `If-Match` desatualizado (a chegada não fica registada), 200 com `If-Match`, 422 marcação `Pendente`, 422 chegada já registada, 422 marcação `Cancelada`, 404, 401, 403 Auxiliar |
 | EP-029 | 9 | 201 Auxiliar com apoio, preparação (sessão do Auxiliar sem apoio), 400 texto vazio, 400 mais de 1000 caracteres, 403 Auxiliar sem apoio, 422 marcação `Cancelada`, 404, 401, 403 Rececionista |
 | EP-030 | 8 | 200 futuras (só administrativas, por data), 200 histórico com a `Realizada` e a `Cancelada`, 200 filtro por animal próprio, 400 tipo inválido, 400 `animalId` < 1, 403 animal de outro Cliente, 401, 403 Rececionista |
 | Preparação (pasta 08) | 7 | EP-023 Veterinário da sessão, EP-023 marcação de outro Veterinário, EP-022 horários livres, EP-025 marcação a confirmar, EP-027 confirmar, EP-025 marcação Pendente, EP-027 cancelar no fim |
@@ -126,7 +126,9 @@ Cada pasta depende das anteriores: a pasta 00 guarda os tokens e as pastas segui
 | EP-042 | 7 | 200 boletim (ordem das administrações e das próximas), 200 filtro `tipo`, 400 tipo inválido, 404, 401, 403 Auxiliar, 403 Cliente |
 | RF056 (atualização) | 7 | 200 recálculo da próxima, 200 intervalo acrescentado, 400 data futura, 404 administração inexistente, 404 administração de outro animal, 401, 403 Auxiliar |
 | EP-044 | 7 | 200 dono (sem lote nem Veterinário), 200 outro Cliente com o boletim vazio, 403 animal de outro Cliente (×2, sem dados), 404, 401, 403 Veterinário |
-| **Total** | **268** | |
+| **Total** | **269** | |
+
+O `409` de EP-026, EP-027 e EP-028 (conflito de gravação) não tem pedido: só se obtém com dois pedidos simultâneos sobre a mesma versão, o que a collection, que executa um pedido de cada vez, não consegue provocar. Nesses casos a implementação devolve `412` (divergência D1 da I093), e esse comportamento é verificado pelos testes de integração `IT-CONC-01` a `IT-CONC-05`.
 
 ### Divergência — atualização de uma administração (RF056)
 
@@ -134,20 +136,20 @@ A I100 inclui «a atualização do registo profilático», mas a Documentação 
 
 ## Validação da collection
 
-### Execução de referência da I099 — 2026-11-02
+### Execução de referência da I099 — 2026-11-03
 
-Execução com o Newman 6.2.1 a 2026-11-02, contra a API do ramo `develop` (commit `189df4c`, com a I096 integrada) e uma base de dados nova numa instância descartável do SQL Server 2025, criada com as migrações da I062 e com os dados de demonstração da I061 (`m3-v02/dados-demonstracao/02-dados-demonstracao.sql`). Nessa base, e só nela, as palavras-passe das contas de demonstração foram substituídas por uma palavra-passe de teste, como na primeira validação da I098, porque as verdadeiras não estão no repositório. Antes desta execução, a collection completa passou também em duas execuções seguidas sobre uma base já usada, sem a repor.
+Execução com o Newman 6.2.1 a 2026-11-03, depois de acrescentado o pedido `EP-028 · 412` (revisão da I099, D1), contra a API do ramo `develop` (commit `189df4c`, com a I096 integrada) e uma base de dados nova numa instância descartável do SQL Server 2025, criada com as migrações da I062 e com os dados de demonstração da I061 (`m3-v02/dados-demonstracao/02-dados-demonstracao.sql`). Nessa base, e só nela, as palavras-passe das contas de demonstração foram substituídas por uma palavra-passe de teste, como na primeira validação da I098, porque as verdadeiras não estão no repositório. Logo a seguir, uma segunda execução sobre a mesma base, sem a repor, deu o mesmo resultado. O ficheiro mantém o nome da primeira execução de referência (2026-11-02), que substitui.
 
 Resultado completo: [`m3-s05-i099-20261102-resultado-newman-v01.txt`](m3-s05-i099-20261102-resultado-newman-v01.txt).
 
 | | Executados | Falhados |
 |---|---|---|
-| Pedidos | 268 | 0 |
-| Scripts de teste | 536 | 0 |
+| Pedidos | 270 | 0 |
+| Scripts de teste | 538 | 0 |
 | Scripts de pré-pedido | 9 | 0 |
-| Verificações (`pm.test`) | 858 | 0 |
+| Verificações (`pm.test`) | 863 | 0 |
 
-Duração total: 20,3 s. O ficheiro de resultado não contém palavras-passe nem tokens.
+O Newman conta 270 pedidos: os 269 da collection e o `GET` de EP-024 que o pedido `EP-028 · 412` faz no seu script para confirmar que a chegada não ficou registada. Duração total: 21 s. O ficheiro de resultado não contém palavras-passe nem tokens.
 
 ### Execução de referência da I100 — 2026-11-01
 

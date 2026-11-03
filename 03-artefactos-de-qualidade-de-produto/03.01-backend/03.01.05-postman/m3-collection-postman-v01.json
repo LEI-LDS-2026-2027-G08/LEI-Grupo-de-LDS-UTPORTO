@@ -7811,6 +7811,63 @@
           }
         },
         {
+          "name": "EP-028 · 412 — If-Match com uma versão desatualizada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "{",
+                  "    pm.test(\"Devolve 412\", function () { pm.response.to.have.status(412); });",
+                  "    pm.test(\"Erro no formato da API (I058): code 412 e message preenchida\", function () {",
+                  "        const erro = pm.response.json();",
+                  "        pm.expect(erro.code).to.eql(412);",
+                  "        pm.expect(erro.message).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "        url: pm.environment.get(\"baseUrl\") + \"/consultas/\" + pm.environment.get(\"consultaAgendaId\"),",
+                  "        method: \"GET\",",
+                  "        header: { Authorization: \"Bearer \" + pm.environment.get(\"tokenRececionista\") }",
+                  "    }, function (falha, resposta) {",
+                  "        pm.test(\"A chegada não fica registada e o ETag atual mantém-se\", function () {",
+                  "            pm.expect(falha).to.eql(null);",
+                  "            pm.expect(resposta.code).to.eql(200);",
+                  "            pm.expect(resposta.json().chegadaEm).to.eql(null);",
+                  "            pm.expect(resposta.headers.get(\"ETag\")).to.eql(pm.environment.get(\"etagConsultaAgenda\"));",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRececionista}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etagConsultaAgendaAnterior}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/consultas/{{consultaAgendaId}}/chegada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "consultas",
+                "{{consultaAgendaId}}",
+                "chegada"
+              ]
+            }
+          }
+        },
+        {
           "name": "EP-028 · 200 — registar a chegada com If-Match",
           "event": [
             {
