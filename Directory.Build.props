@@ -9,4 +9,14 @@
     <!-- Quality Gate: qualquer warning faz o build falhar -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <!--
+    I103 — relatório da análise estática (QG-04). Só é produzido quando a
+    compilação recebe -p:PastaRelatoriosAnalise=<pasta> (etapa 1 da pipeline):
+    um ficheiro SARIF 2.1 por projeto, com todas as ocorrências do compilador e
+    dos analisadores. Sem esta propriedade, a compilação local não muda.
+  -->
+  <PropertyGroup Condition="'$(PastaRelatoriosAnalise)' != ''">
+    <ErrorLog>$(PastaRelatoriosAnalise)/$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+  </PropertyGroup>
 </Project>
