@@ -19,7 +19,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-04 | Ivan Cristiano Silva Mendes | Notas de release do backend da m3 sobre `develop` no commit `df5b5f2` (execução #184), depois de integradas todas as dependências (I090, I097, I032 e I034) e a I104: versão, operações incluídas e excluídas, limitações, resultados de testes e qualidade, compatibilidade, instalação e atualização. |
+| v01 | 2026-11-04 | Ivan Cristiano Silva Mendes | Notas de release do backend da m3 sobre `develop` no commit `df5b5f2` (execução #184), depois de integradas todas as dependências (I090, I097, I032 e I034) e a I104: versão, operações incluídas e excluídas, limitações, resultados de testes e qualidade, compatibilidade, instalação e atualização. Correções da revisão: cadeia de ligação obrigatória na instalação (D1) e melhorias M1 a M5. |
 
 ---
 
@@ -32,8 +32,8 @@
 | Código | `src/backend/ClinicaVeterinaria.sln` — projetos `Api`, `Application`, `Domain`, `Infrastructure`, `UnitTests` e `IntegrationTests` |
 | Execução da pipeline | Backend CI #184 — https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41748757482 (etapas 1 a 7 e «Resultado da pipeline» com sucesso; a etapa 8, de entrega, só corre em `main`) |
 | Ambiente público de avaliação | https://clinica-g08-api-ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net/swagger (I104) |
-| Contrato da API | Documentação da API v02 (`04.11-documentacao-de-api/m3-documentacao-api-v02.md`) |
-| Âmbito | Declaração de Âmbito v05 (`04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf`) |
+| Contrato da API | Documentação da API v02 (`04.11-documentacao-de-api/m3-documentacao-api-v02.md`), no ramo `main`; o cabeçalho ainda indica «Rascunho para revisão e auditoria», mas é a versão que o grupo usa como contrato |
+| Âmbito | Declaração de Âmbito v05 (`04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf`), no ramo `main` |
 
 Estas notas descrevem o código em `develop` no commit indicado. A versão entregue na m3 é a que o grupo promover de `develop` para `main`, à qual se aplica a etiqueta `m3` (como `m1` e `m2`); a promoção dispara também a primeira entrega automática no ambiente público (etapa 8 da pipeline, I104). Se, entretanto, forem integradas em `develop` alterações ao código do backend, a secção 1 é atualizada com o commit promovido.
 
@@ -50,8 +50,8 @@ Estas notas descrevem o código em `develop` no commit indicado. A versão entre
 
 | Funcionalidade | Operações | Requisitos |
 |---|---|---|
-| F001 — Autenticação e Controlos de Acesso | EP-001 a EP-014 (14) | RF001–RF013, RF019 |
-| F002 — Gestão de pacientes | EP-015 a EP-020 (6) | RF014–RF018 |
+| F001 — Autenticação e Controlos de Acesso | EP-001 a EP-014 (14) | RF001–RF013, RF017, RF019 |
+| F002 — Gestão de pacientes | EP-015 a EP-020 (6) | RF014–RF018, RF026 |
 | F003 — Agendamento de consultas | EP-021 a EP-030 (10) | RF019–RF029 |
 | F004 — Registo clínico e tratamentos | EP-031 a EP-034 (4) | RF030–RF036 |
 | F006 — Boletim de vacinas e desparasitações | EP-042 a EP-044 (3) e atualização de uma administração (RF056) | RF043–RF047, RF056 |
@@ -134,7 +134,7 @@ Por ser a primeira versão do backend, não há alterações face a uma versão 
 |---|---|---|
 | Testes unitários | 718 testes: 717 aprovados, 0 falhados, 1 ignorado com justificação (`UT-TRV-007`, defeito D-01); os 306 casos da Especificação dos Testes Unitários têm teste | Relatório da I090 (`03.01.02-testes-unitarios`); job «2 · Testes unitários» com sucesso na execução #184 |
 | Testes de integração | 463 testes: 463 aprovados, 0 falhados, 0 ignorados | Relatório da I097 (`03.01.03-testes-de-integracao`); job «3 · Testes de integração» com sucesso na execução #184 |
-| Collection Postman (Newman) | 269 pedidos e 862 verificações, sem falhas, cobrindo os 37 endpoints | README de `03.01.05-postman` (execução de referência da I099); job «7 · Collection Postman» com sucesso na execução #184 |
+| Collection Postman (Newman) | 269 pedidos e 862 verificações, sem falhas, cobrindo os 37 endpoints e a atualização do boletim (RF056, pasta 09) | README de `03.01.05-postman` (execução de referência da I099); job «7 · Collection Postman» com sucesso na execução #184 |
 | Cobertura (QG-03) | 98,5% das linhas (2118 de 2150) e 92,8% dos ramos (596 de 642) em Domínio e Serviços, com os testes unitários e de integração (limiar: 70%); só os unitários: 96,2% | Relatório de cobertura da I032 (`03.01.04-cobertura-de-testes`), medido na execução #184 |
 | Análise estática (QG-04) | 0 avisos e 0 erros; 54 sugestões `info` justificadas | Relatório da I034 (`03.01.06-analise-estatica`); job «5 · Análise estática» com sucesso na execução #184 |
 | Formatação (QG-08) | 0 ficheiros por formatar | Execução #184, job 6 |
@@ -151,7 +151,7 @@ Não há defeitos de severidade Crítica ou Alta em aberto.
 | D-02 | Validação do e-mail (detetado nos testes unitários da I086) | Média | Sem Issue de defeito |
 | N1 | Palavra-passe inicial do Cliente (detetado na I086) | Média | Sem Issue de defeito |
 | Relógio real | Testes de integração do boletim dependem da data real e falham a partir de 2027-01-13; não afeta a API | Média (testes) | Proposta de Issue de defeito para a infraestrutura de testes (I091) |
-| D1 (formato de erro) | A API v02 indica Problem Details (RFC 9457); a implementação usa o formato único `code`/`message`/`detail` da I058 | Baixa (documentação) | Alinhar a API v03 |
+| Formato de erro (D1 da I092, D2 da I093) | A API v02 indica Problem Details (RFC 9457); a implementação usa o formato único `code`/`message`/`detail` da I058 | Baixa (documentação) | Alinhar a API v03 |
 | 409 em alterações simultâneas | Em EP-026 a EP-028, duas gravações simultâneas sem `If-Match` devolvem 412 e não o 409 da API v02 (secção 5.1); só uma é gravada, como previsto | Baixa (documentação) | Registado para a API v03 (D1 da I093) |
 | RF056 | A atualização de uma administração do boletim está implementada mas ainda não tem número de EP na API v02 | Baixa (documentação) | Ponto em aberto 2 da API v02, previsto para a v03 |
 | Ambiente público em plano gratuito | O App Service (plano F1) adormece sem pedidos e a base Azure SQL gratuita entra em pausa: o primeiro pedido depois de um período sem uso pode demorar cerca de 1 minuto; ao atingir o limite gratuito mensal, a base fica em pausa até ao mês seguinte | Baixa (avaliação) | Documentado no README da `04.16-ci-cd/m3-v03` (I104) |
@@ -174,7 +174,7 @@ Configuração necessária (por `appsettings`, *user secrets* ou variáveis de a
 
 | Definição | Obrigatória | Descrição |
 |---|---|---|
-| `ConnectionStrings:ClinicaDb` | Sim | Cadeia de ligação ao SQL Server |
+| `ConnectionStrings:ClinicaDb` | Sim | Cadeia de ligação ao SQL Server; em Development é obrigatório defini-la (por exemplo nos *user secrets*), porque o `appsettings.Development.json` a deixa vazia |
 | `Jwt:Key` | Sim | Chave de assinatura em Base64, com pelo menos 32 bytes; a API não arranca sem ela |
 | `Jwt:Issuer`, `Jwt:Audience`, `Jwt:ExpirationHours` | Já definidas em `appsettings.json` | Emissor, audiência e validade (8 h) |
 | `Cors:AllowedOrigins` | Não | Origens autorizadas; vazio permite qualquer origem |
@@ -186,7 +186,7 @@ O ambiente público de avaliação (Azure App Service e Azure SQL Database), as 
 
 ## 8. Instalação
 
-A partir de um clone do repositório, na pasta `src/backend`:
+O procedimento completo, validado num ambiente limpo, com as duas opções de SQL Server (instalado ou em Docker), a verificação final e os problemas frequentes, está no **Manual de Instalação e Configuração do backend** (I038, `04-artefactos-tecnicos/04.17-manual-de-instalacao-e-configuracao/m3-manual-instalacao-configuracao-v01.pdf`). Em resumo, a partir de um clone do repositório, na pasta `src/backend`:
 
 1. **Compilar:**
 
@@ -195,13 +195,14 @@ A partir de um clone do repositório, na pasta `src/backend`:
    dotnet build ClinicaVeterinaria.sln --configuration Release
    ```
 
-2. **Configurar a chave JWT** (em desenvolvimento, com *user secrets*; ver `src/backend/README.md`, secção «Configurar a chave JWT em desenvolvimento»):
+2. **Configurar a chave JWT e a cadeia de ligação** nos *user secrets* (ficam no perfil do utilizador, fora do repositório; ver `src/backend/README.md`, secção «Configurar a chave JWT em desenvolvimento», e o passo 4.2 do Manual de Instalação):
 
    ```
    dotnet user-secrets set "Jwt:Key" "<chave Base64 de pelo menos 32 bytes>" --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+   dotnet user-secrets set "ConnectionStrings:ClinicaDb" "<cadeia de ligação>" --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
    ```
 
-   e, se a base de dados não for a local por omissão, a cadeia de ligação `ConnectionStrings:ClinicaDb`.
+   **As duas são obrigatórias**, também com o SQL Server local: o passo 5 arranca a API com o perfil `http`, ou seja, em Development, e o `appsettings.Development.json` deixa `Jwt:Key` e `ConnectionStrings:ClinicaDb` vazias, sobrepondo-se ao `appsettings.json`. Sem a cadeia de ligação, a API arranca mas o login devolve erro 500. Com o SQL Server instalado no computador e a base por omissão, a cadeia é `Server=localhost;Database=ClinicaVeterinaria;Trusted_Connection=True;TrustServerCertificate=True`.
 
 3. **Criar a base de dados** com as migrações da I062 (apaga e recria a base indicada):
 
@@ -244,8 +245,9 @@ Esta é a primeira versão do backend; não há instalações anteriores a atual
 
 ## 10. Referências
 
-- Documentação da API v02 — `04-artefactos-tecnicos/04.11-documentacao-de-api/m3-documentacao-api-v02.md`
-- Declaração de Âmbito v05 — `04-artefactos-tecnicos/04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf`
+- Documentação da API v02 — `04-artefactos-tecnicos/04.11-documentacao-de-api/m3-documentacao-api-v02.md` (ramo `main`)
+- Declaração de Âmbito v05 — `04-artefactos-tecnicos/04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf` (ramo `main`)
+- Manual de Instalação e Configuração do backend (I038) — `04-artefactos-tecnicos/04.17-manual-de-instalacao-e-configuracao/m3-manual-instalacao-configuracao-v01.pdf`
 - README do backend — `src/backend/README.md`
 - Relatório de resultados dos testes unitários (I090) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.02-testes-unitarios/m3-resultados-testes-unitarios-backend-v01.pdf`
 - Relatório de cobertura do backend (I032) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.04-cobertura-de-testes/m3-relatorio-cobertura-testes-backend-v01.pdf`
