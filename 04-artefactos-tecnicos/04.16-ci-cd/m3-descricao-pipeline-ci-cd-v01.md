@@ -390,4 +390,4 @@ Também se pode correr a pipeline sem commits: *Actions → Backend CI → Run w
 | 2. Quality gates e limites iguais aos da pipeline | Secção 6, conferida com `.github/quality-gates.json`, `Directory.Build.props` e o workflow no commit `df5b5f2` |
 | 3. Onde estão os segredos e que nunca constam do repositório | Secção 8 |
 | 4. Diagrama de etapas em Mermaid | Secção 2 (fonte textual neste ficheiro) |
-| 5. Um terceiro elemento seguiu o documento e executou a pipeline num ramo novo | Secção 12; registo em `m3-s05-i036-AAAAMMDD-registo-verificacao-v01.md`, nesta pasta |
+| 5. Um terceiro elemento seguiu o documento e executou a pipeline num ramo novo | Secção 12; verificação feita por Gonçalo Magalhães Ribeiro a 2026-11-04 (execução #201 com sucesso, Pull Request *draft* #245 e falha provocada #205; desvio 1 corrigido em `63e041b`), com o registo em `m3-s05-i036-20261104-registo-verificacao-v01.md`, nesta pasta |
