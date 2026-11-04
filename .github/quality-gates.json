@@ -11,7 +11,7 @@
   "QG-03": {
     "nome": "Cobertura de linhas do backend (Domínio e Serviços)",
     "metrica": "linhas",
-    "limiarMinimoPercentagem": 70,
+    "limiarMinimoPercentagem": 99,
     "testesConsiderados": "Testes unitários e de integração em conjunto (Coverlet), juntos com ReportGenerator",
     "assembliesIncluidas": [
       {
