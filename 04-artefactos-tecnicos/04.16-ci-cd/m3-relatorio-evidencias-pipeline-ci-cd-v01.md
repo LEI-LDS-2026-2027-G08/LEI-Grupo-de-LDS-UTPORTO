@@ -50,7 +50,7 @@ Demonstrar, com execuções reais e identificáveis por commit, que a pipeline d
    | `i037-falha-compilacao` | `79f1c47` | Novo ficheiro `FalhaProvocadaI037.cs` no Domínio com `int Valor = "texto";` | Etapa de compilação (etapa 1, QG-01) |
    | `i037-falha-qg03` | `6852c44` | `.github/quality-gates.json`: `limiarMinimoPercentagem` de 70 para 99 | Limite de qualidade (etapa 4, QG-03) |
 
-3. **Recolha:** para cada execução, captura da página da execução (etapas, duração e resultado), captura das linhas do registo que mostram o resultado, e o arquivo de registos descarregado do GitHub (*Download log archive*), do qual se guardou o registo completo de cada job (um ficheiro de texto por job). Para E2 a E4, captura da página do Pull Request com o merge bloqueado.
+3. **Recolha:** para cada execução, captura da página da execução (etapas, duração e resultado), captura das linhas do registo que mostram o resultado, e o arquivo de registos descarregado do GitHub (*Download log archive*), extraído para uma pasta por execução, com o registo completo de cada job (um ficheiro de texto por job). Para E2 a E4, captura da página do Pull Request com o merge bloqueado.
 4. **Verificação dos anexos:** os registos foram percorridos à procura de palavras-passe, cadeias de ligação com palavra-passe, tokens JWT, nomes de computador e caminhos pessoais. Só aparecem nomes de variáveis (por exemplo, `SQLCMDPASSWORD=$SA`); os valores gerados em cada execução estão escondidos pelo GitHub (`***`). Os caminhos são os do runner (`/home/runner/work/...`).
 
 Nas execuções de Pull Request, o GitHub testa o *merge commit* do ramo com `develop` (por exemplo, `1e0181f` = `a94b715` sobre `89d6b31`). As horas são em UTC.
@@ -88,13 +88,13 @@ Todas as etapas 1 a 7 e o «Resultado da pipeline» terminaram com sucesso; a et
 
 | Quality gate / verificação | Limite (`.github/quality-gates.json` e Plano de Testes) | Valor medido | Resultado | Evidência |
 |---|---|---|---|---|
-| QG-01 — compilação | 0 erros, avisos tratados como erros | Solução compilada em Release sem erros nem avisos | ✅ | `…-e1-sucesso-resumo-qg01.png`; job 1 em `…-e1-sucesso-logs.zip` |
+| QG-01 — compilação | 0 erros, avisos tratados como erros | Solução compilada em Release sem erros nem avisos | ✅ | `…-e1-sucesso-resumo-qg01.png`; job 1 em `…-e1-sucesso-logs/` |
 | QG-02 — testes unitários | 100% a passar | 718 testes: 717 aprovados, 0 falhados, 1 ignorado (UT-TRV-007, justificado na I090) | ✅ | `…-e1-sucesso-resumo-qg02.png`; job 2 |
-| QG-02 — testes de integração | 100% a passar | 463 testes: 463 aprovados | ✅ | Job 3 em `…-e1-sucesso-logs.zip` |
+| QG-02 — testes de integração | 100% a passar | 463 testes: 463 aprovados | ✅ | Job 3 em `…-e1-sucesso-logs/` |
 | **QG-03 — cobertura de linhas** (Domínio e Serviços) | ≥ 70% | **98,51%** (2118 de 2150 linhas); ramos 92,83% (referência 60%) | ✅ «QG-03 cumprido: 98.51% ≥ 70%» | `…-e1-sucesso-resumo-qg03.png`; job 4 |
 | **QG-04 — análise estática** (Roslyn) | 0 ocorrências com nível error ou warning | **0** ocorrências que bloqueiam; 3161 de nível note; 0 suprimidas; 6 relatórios SARIF | ✅ «QG-04 cumprido» | `…-e1-sucesso-resumo-qg04.png`; job 5 |
 | QG-08 — formatação | 0 ficheiros por formatar | 0 ficheiros, 0 alterações | ✅ «QG-08 cumprido» | `…-e1-sucesso-resumo-qg08.png`; job 6 |
-| Collection Postman (Newman) | 0 falhas | 269 pedidos e 862 verificações, 0 falhas | ✅ | Job 7 em `…-e1-sucesso-logs.zip` |
+| Collection Postman (Newman) | 0 falhas | 269 pedidos e 862 verificações, 0 falhas | ✅ | Job 7 em `…-e1-sucesso-logs/` |
 
 Os números coincidem com os relatórios da I090 (718 / 717 / 0 / 1), da I097 (463 / 463), da I032 (98,5% das linhas, 2118 de 2150) e da I099 (269 pedidos, 862 verificações).
 
@@ -107,7 +107,7 @@ Captura da execução: `m3-s05-i037-evidencias/m3-s05-i037-20261104-e1-sucesso-e
 - **Restantes etapas:** 1, 3, 4, 5, 6 e 7 com sucesso; o «Resultado da pipeline» falha porque a etapa 2 não terminou com sucesso.
 - **Merge:** bloqueado (secção 9).
 
-Evidências: `…-e2-teste-execucao.png`, `…-e2-teste-log-falha.png`, `…-e2-teste-log-totais.png`, `…-e2-teste-pr247-bloqueado.png` e `…-e2-teste-logs.zip`.
+Evidências: `…-e2-teste-execucao.png`, `…-e2-teste-log-falha.png`, `…-e2-teste-log-totais.png`, `…-e2-teste-pr247-bloqueado.png` e `…-e2-teste-logs/`.
 
 ## 7. E3 — falha provocada numa etapa: compilação (#226, Pull Request #248)
 
@@ -120,7 +120,7 @@ Evidências: `…-e2-teste-execucao.png`, `…-e2-teste-log-falha.png`, `…-e2-
 - **Outro workflow:** no Pull Request, o workflow `integration-tests.yml` (I062) também falha, porque também compila a solução; não é a verificação obrigatória da proteção do ramo.
 - **Merge:** bloqueado (secção 9).
 
-Evidências: `…-e3-compilacao-execucao.png`, `…-e3-compilacao-log.png`, `…-e3-compilacao-pr248-bloqueado.png` e `…-e3-compilacao-logs.zip`.
+Evidências: `…-e3-compilacao-execucao.png`, `…-e3-compilacao-log.png`, `…-e3-compilacao-pr248-bloqueado.png` e `…-e3-compilacao-logs/`.
 
 ## 8. E4 — falha provocada num limite de qualidade: QG-03 (#227, Pull Request #249)
 
@@ -129,7 +129,7 @@ Evidências: `…-e3-compilacao-execucao.png`, `…-e3-compilacao-log.png`, `…
 - **Restantes etapas:** 1, 2, 3, 5, 6 e 7 com sucesso (a cobertura medida é a mesma de E1, 98,51%); o «Resultado da pipeline» falha.
 - Esta execução demonstra também que o limiar é lido da configuração e não está escrito no workflow (critério 1 da I103).
 
-Evidências: `…-e4-qg03-execucao.png`, `…-e4-qg03-log.png`, `…-e4-qg03-pr249-bloqueado.png` e `…-e4-qg03-logs.zip`.
+Evidências: `…-e4-qg03-execucao.png`, `…-e4-qg03-log.png`, `…-e4-qg03-pr249-bloqueado.png` e `…-e4-qg03-logs/`.
 
 ## 9. Bloqueio da integração
 
@@ -155,20 +155,20 @@ Todos os ficheiros estão no repositório e no ZIP da entrega; as ligações às
 | `m3-s05-i037-20261104-e1-sucesso-resumo-qg03.png` | E1: resumo da etapa 4 (QG-03, cobertura) |
 | `m3-s05-i037-20261104-e1-sucesso-resumo-qg04.png` | E1: resumo da etapa 5 (QG-04, análise estática) |
 | `m3-s05-i037-20261104-e1-sucesso-resumo-qg08.png` | E1: resumo da etapa 6 (QG-08, formatação) |
-| `m3-s05-i037-20261104-e1-sucesso-logs.zip` | E1: registos completos dos 8 jobs |
+| `m3-s05-i037-20261104-e1-sucesso-logs/` | E1: pasta com os registos completos dos 8 jobs |
 | `m3-s05-i037-20261104-e2-teste-execucao.png` | E2: página da execução #225 |
 | `m3-s05-i037-20261104-e2-teste-log-falha.png` | E2: linha do teste falhado no registo da etapa 2 |
 | `m3-s05-i037-20261104-e2-teste-log-totais.png` | E2: totais da etapa 2 (719 / 717 / 1 / 1) |
 | `m3-s05-i037-20261104-e2-teste-pr247-bloqueado.png` | E2: Pull Request #247 com o merge bloqueado |
-| `m3-s05-i037-20261104-e2-teste-logs.zip` | E2: registos completos dos 8 jobs |
+| `m3-s05-i037-20261104-e2-teste-logs/` | E2: pasta com os registos completos dos 8 jobs |
 | `m3-s05-i037-20261104-e3-compilacao-execucao.png` | E3: página da execução #226 |
 | `m3-s05-i037-20261104-e3-compilacao-log.png` | E3: erro CS0029 no registo da etapa 1 |
 | `m3-s05-i037-20261104-e3-compilacao-pr248-bloqueado.png` | E3: Pull Request #248 com o merge bloqueado |
-| `m3-s05-i037-20261104-e3-compilacao-logs.zip` | E3: registos dos 4 jobs executados |
+| `m3-s05-i037-20261104-e3-compilacao-logs/` | E3: pasta com os registos dos 4 jobs executados |
 | `m3-s05-i037-20261104-e4-qg03-execucao.png` | E4: página da execução #227 |
 | `m3-s05-i037-20261104-e4-qg03-log.png` | E4: «QG-03 não cumprido» no registo da etapa 4 |
 | `m3-s05-i037-20261104-e4-qg03-pr249-bloqueado.png` | E4: Pull Request #249 com o merge bloqueado |
-| `m3-s05-i037-20261104-e4-qg03-logs.zip` | E4: registos completos dos 8 jobs |
+| `m3-s05-i037-20261104-e4-qg03-logs/` | E4: pasta com os registos completos dos 8 jobs |
 
 ## 11. Ligações aos commits e às execuções
 
@@ -186,9 +186,9 @@ Os commits de E2 a E4 ficam acessíveis pelos Pull Requests fechados, mesmo depo
 | Critério (Backlog v03) | Como é cumprido | Secções |
 |---|---|---|
 | 1. Pelo menos uma execução completa com sucesso e três com falha provocada (teste, etapa e limite de qualidade), identificadas por commit | E1 com sucesso; E2 (teste), E3 (etapa de compilação) e E4 (limite do QG-03), cada uma com commit e execução | 3, 4, 11 |
-| 2. Cada execução mostra etapas, duração e resultado e liga ao registo ou captura arquivados | Tabelas da secção 4 e uma captura da página e um ZIP de registos por execução | 4 a 8, 10 |
+| 2. Cada execução mostra etapas, duração e resultado e liga ao registo ou captura arquivados | Tabelas da secção 4 e uma captura da página e uma pasta de registos por execução | 4 a 8, 10 |
 | 3. Resultados dos quality gates (cobertura e análise estática) na execução com sucesso | QG-03 98,51% ≥ 70% e QG-04 com 0 ocorrências que bloqueiam, além de QG-01, QG-02, QG-08 e Newman | 5 |
-| 4. Capturas e registos dentro do ZIP, sem depender de ligações externas | 16 capturas e 4 ZIP de registos na pasta `m3-s05-i037-evidencias/` | 10 |
+| 4. Capturas e registos dentro do ZIP, sem depender de ligações externas | 16 capturas e 4 pastas de registos (um ficheiro de texto por job) na pasta `m3-s05-i037-evidencias/` | 10 |
 | Descrição: uma falha obrigatória impede a integração | «Resultado da pipeline» obrigatório a falhar e «Merging is blocked» nos três Pull Requests | 9 |
 
 ## 13. Observações
