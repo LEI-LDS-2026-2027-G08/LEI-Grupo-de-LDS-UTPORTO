@@ -20,7 +20,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-03 | Ivan Cristiano Silva Mendes | Execução da suite completa de testes unitários sobre `39040cd` (pipeline e duas reexecuções locais), correspondência com a Especificação dos Testes Unitários (I028), análise do teste ignorado e verificação dos critérios de saída do Plano de Testes. |
+| v01 | 2026-11-03 | Ivan Cristiano Silva Mendes | Execução da suite completa de testes unitários sobre `39040cd` (pipeline e duas reexecuções locais), correspondência com a Especificação dos Testes Unitários (I028), análise do teste ignorado e verificação dos critérios de saída do Plano de Testes. Nota sobre a versão do Plano de Testes usada (secções 2 e 8), pedida na revisão. |
 
 ## Resumo
 
@@ -40,11 +40,13 @@ Segue a definição da I090 aprovada no Backlog Refinement do Sprint 05 (Backlog
 |---|---|---|
 | Backlog de Projeto (I090) | v03, aprovada como Ready a 2026-10-27 | Critérios de aceitação, evidências e verificações |
 | Sprint Backlog do Sprint 05 | v02 (2026-10-30) | Papéis, pontos e prazo |
-| Plano de Testes do Backend | `m3-plano-testes-backend-v02.md` | Comandos (secção 7), critérios de saída (secção 8.2), limiares de cobertura (secção 9), defeitos (secção 12) |
+| Plano de Testes do Backend | `m3-plano-testes-backend-v01.md` (versão aprovada, I027, em `develop`) e `m3-plano-testes-backend-v02.md` (rascunho, em `main`) | Comandos (secção 7), critérios de saída (secção 8.2), limiares de cobertura (secção 9), defeitos (secção 12); ver a nota abaixo |
 | Especificação dos Testes Unitários do Backend (I028) | `m3-especificacao-testes-unitarios-backend-v01.md` | Casos UT-F001 a UT-F006 e UT-TRV; identificadores no nome dos testes (secção 4.3) |
 | Documentos das tarefas de testes unitários | I086, I087, I088 e I089 (`04.12-backend/m3-v01`) | Origem de cada teste e casos parametrizados |
 | Pipeline do backend (I102, I103) | `.github/workflows/backend-ci.yml` no commit `39040cd` | Comando e ambiente da execução oficial |
 | Regulamento de Funcionamento da UC | v19, secções 17 e 19 | Evidências e pasta 03.01.02 |
+
+**Nota sobre a versão do Plano de Testes.** A versão aprovada do Plano de Testes do Backend é a v01 (I027, Sprint 03), em `develop`, escrita para o âmbito anterior: 51 endpoints (EP-001 a EP-051) e os requisitos RF001–RF052. A v02 (`main`) é um **rascunho ainda não revisto nem aprovado** («Issue e papéis: Por atribuir»), que adapta o plano à Declaração de Âmbito v05: 37 endpoints e RF001–RF036 e RF043–RF047, sem F005 e F007. Este relatório avalia os critérios de saída com a v02, porque é a que corresponde ao âmbito em vigor; a secção 8 indica também o resultado face à v01 aprovada. Os critérios dos testes unitários, da compilação, da análise estática, da cobertura, dos defeitos, da matriz de permissões e da pipeline são iguais nas duas versões; a v01 não tem o critério da formatação (QG-08).
 
 ## 3. Versão testada e âmbito
 
@@ -166,7 +168,9 @@ Não há defeitos de severidade Crítica ou Alta em aberto.
 
 ## 8. Critérios de saída do Plano de Testes (secção 8.2)
 
-| Critério | Limiar | Resultado | Evidência |
+Os limiares da tabela são os da v02 (rascunho), que corresponde ao âmbito em vigor (secção 2, nota sobre a versão do Plano de Testes). **Face à v01 aprovada**, o resultado é o mesmo em todos os critérios exceto dois, que ficariam **por cumprir** porque a v01 ainda inclui F005 e F007, retirados do âmbito pela Declaração de Âmbito v05: a cobertura dos endpoints (a v01 pede os 51 endpoints; os 14 de F005 e F007, EP-035 a EP-041 e EP-045 a EP-051, deixaram de existir na API v02) e a cobertura dos requisitos (a v01 pede RF001–RF052; RF037–RF042 e RF048–RF052 são de F005 e F007). A formatação (QG-08) não é critério da v01. A diferença resolve-se com a revisão e aprovação da v02 do Plano de Testes.
+
+| Critério | Limiar (v02) | Resultado | Evidência |
 |---|---|---|---|
 | Testes unitários | 100% a passar; zero ignorados sem justificação | **Cumprido**: 717/717 executados aprovados na pipeline e nas duas execuções locais; 1 ignorado com justificação (D-01) | Secções 5.1 e 6.2; TRX |
 | Testes de integração | 100% a passar; zero ignorados sem justificação | **Cumprido**: job «3 · Testes de integração» com sucesso na execução #170; números no relatório da I097 | Pipeline, job 3; I097 |
@@ -184,9 +188,9 @@ Não há defeitos de severidade Crítica ou Alta em aberto.
 
 A suite de testes unitários do backend, no commit `39040cd` de `develop`, **executou 718 testes: 717 aprovados, 0 falhados e 1 ignorado com justificação**, na pipeline e em duas execuções locais seguidas, com o mesmo conjunto de testes e o mesmo resultado. Os 306 casos da I028 têm teste. Os resultados não contêm tokens nem palavras-passe (JWT completos encontrados: 0; cadeias com palavra-passe (`Password=`/`Pwd=`) encontradas: 0).
 
-**Critérios de saída do Plano de Testes (secção 8):** os critérios dos testes unitários estão cumpridos — 100% dos testes obrigatórios aprovados, um único teste ignorado e justificado, e cobertura muito acima do limiar de 70% (96,2% só com os testes unitários). Ficam por cumprir, por dependerem de outras tarefas: a cobertura dos requisitos (I024) e o registo em Issue dos defeitos Médios D-01, D-02 e N1.
+**Critérios de saída do Plano de Testes (secção 8):** os critérios dos testes unitários estão cumpridos — 100% dos testes obrigatórios aprovados, um único teste ignorado e justificado, e cobertura muito acima do limiar de 70% (96,2% só com os testes unitários). Ficam por cumprir, por dependerem de outras tarefas: a cobertura dos requisitos (I024) e o registo em Issue dos defeitos Médios D-01, D-02 e N1. Esta avaliação usa a v02 do Plano de Testes (rascunho, alinhado com a Declaração de Âmbito v05); face à v01 aprovada, a cobertura dos endpoints e a dos requisitos ficariam por cumprir apenas por causa de F005 e F007, retirados do âmbito (secção 8).
 
-**Recomendações:** (1) abrir a Issue de defeito do D-01 e, depois da correção, retirar o `Skip` do `UT-TRV-007`; (2) abrir as Issues de defeito do D-02 e do N1.
+**Recomendações:** (1) abrir a Issue de defeito do D-01 e, depois da correção, retirar o `Skip` do `UT-TRV-007`; (2) abrir as Issues de defeito do D-02 e do N1; (3) rever e aprovar a v02 do Plano de Testes, para os critérios de saída corresponderem ao âmbito em vigor.
 
 ## 10. Critérios de aceitação da I090
 
