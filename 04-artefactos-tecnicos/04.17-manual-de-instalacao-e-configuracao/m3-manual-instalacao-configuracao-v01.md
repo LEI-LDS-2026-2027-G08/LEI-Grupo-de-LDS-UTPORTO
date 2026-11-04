@@ -20,7 +20,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: pré-requisitos, obtenção do código, base de dados (SQL Server 2025 local ou em Docker), migrações, dados de demonstração, configuração por ambiente, arranque, verificação, reposição e problemas frequentes. |
+| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: pré-requisitos, obtenção do código, base de dados (SQL Server 2025 local ou em Docker), migrações, dados de demonstração, configuração por ambiente, arranque, verificação, reposição e problemas frequentes. Inclui as correções dos desvios D1 (leitura de palavras-passe no Windows PowerShell 5.1) e D2 (mudança de pasta antes dos passos 3.2 e 4.1) encontrados na validação num ambiente limpo (critério 4 da I038). |
 
 ---
 
@@ -42,7 +42,7 @@ O manual foi escrito para **Windows 10/11**, a plataforma de desenvolvimento do 
 | SQL Server | **SQL Server 2025** (17.x), edição Developer ou Express, **ou** a imagem Docker `mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04` | `SELECT @@VERSION;` | A imagem Docker é a mesma da pipeline e dos testes de integração |
 | `sqlcmd` | SQL Server Command Line Utilities (`sqlcmd` ODBC 18) ou `go-sqlcmd` | `sqlcmd -?` | Usado pelos scripts de dados de demonstração (I061) |
 | Git | 2.40 ou superior | `git --version` | |
-| PowerShell | Windows PowerShell 5.1 ou PowerShell 7 | `$PSVersionTable.PSVersion` | |
+| PowerShell | Windows PowerShell 5.1 ou PowerShell 7 | `$PSVersionTable.PSVersion` | Os comandos deste manual funcionam nos dois. Não use `Read-Host -MaskInput`: no 5.1 não dá erro, mas mostra a palavra-passe no ecrã |
 
 ### 2.2. Opcionais
 
@@ -126,11 +126,13 @@ Com uma instância com nome (por exemplo, `SQLEXPRESS`), use `Server=localhost\S
 **Passo 2.B.1 —** Com o Docker Desktop a correr, crie o contentor (a palavra-passe tem de ter pelo menos 8 caracteres, com maiúsculas, minúsculas, algarismos e símbolos):
 
 ```powershell
-$env:SQL_SA = Read-Host -MaskInput "Palavra-passe para o login sa"
+$sec = Read-Host -AsSecureString "Palavra-passe para o login sa"
+$env:SQL_SA = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
+Remove-Variable sec
 docker run --name sql-clinica -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=$env:SQL_SA" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
 ```
 
-(`Read-Host -MaskInput` exige o PowerShell 7; no Windows PowerShell 5.1 use `-AsSecureString` ou escreva a palavra-passe diretamente.) A variável `$env:SQL_SA` só existe nesta janela do PowerShell: use a mesma janela até ao passo 4.2.
+A palavra-passe não aparece no ecrã ao ser escrita (`-AsSecureString` funciona no Windows PowerShell 5.1 e no PowerShell 7). A variável `$env:SQL_SA` só existe nesta janela do PowerShell: use a mesma janela até ao passo 4.2.
 
 **Passo 2.B.2 —** Aguarde cerca de 20 segundos e confirme:
 
@@ -148,7 +150,7 @@ Server=localhost,1433;Database=ClinicaVeterinaria;User Id=sa;Password=<palavra-p
 
 ## 5. Criar a base de dados, aplicar as migrações e carregar os dados
 
-**Passo 3.1 — Criar a base e aplicar as migrações da I062.** Na pasta `src/backend`, o script de reposição compila a solução, apaga a base indicada se existir, cria-a com as migrações e confirma que não há alterações ao modelo por migrar:
+**Passo 3.1 — Criar a base e aplicar as migrações da I062.** Na pasta `src\backend` (onde ficou no passo 1.2), o script de reposição compila a solução, apaga a base indicada se existir, cria-a com as migrações e confirma que não há alterações ao modelo por migrar:
 
 *Opção A:*
 
@@ -164,7 +166,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\reposicao-base-dados.ps1 -Con
 
 Resultado esperado: `[1/4]` a `[4/4]` sem erros e `Reposicao concluida com sucesso.` (numa instalação nova, o passo `[2/4]` indica que a base ainda não existe, o que é normal). A base `ClinicaVeterinaria` tem as 16 tabelas do modelo, mais a `__EFMigrationsHistory`, e os dados de referência das migrações: a clínica «Clínica Veterinária G08», as espécies, as raças e a duração da consulta.
 
-**Passo 3.2 — Carregar os dados fictícios de demonstração da I061.** Na pasta `04-artefactos-tecnicos\04.13-scripts-de-base-de-dados\m3-v02\dados-demonstracao` (a partir da raiz do repositório):
+**Passo 3.2 — Carregar os dados fictícios de demonstração da I061.** Primeiro, mude da pasta `src\backend` para a pasta dos dados de demonstração:
+
+```powershell
+cd ..\..\04-artefactos-tecnicos\04.13-scripts-de-base-de-dados\m3-v02\dados-demonstracao
+```
+
+Resultado esperado: `dir` mostra o `executar-dados.ps1`. Depois, execute:
 
 *Opção A:*
 
@@ -205,9 +213,10 @@ O ficheiro `src/backend/ClinicaVeterinaria.Api/appsettings.Example.json` mostra 
 
 ### 6.2. Segredos — nunca no repositório
 
-**Passo 4.1 — Gerar e guardar a chave JWT** nos *user secrets* (ficam no seu perfil do Windows, fora da pasta do projeto). Na pasta `src/backend`:
+**Passo 4.1 — Gerar e guardar a chave JWT** nos *user secrets* (ficam no seu perfil do Windows, fora da pasta do projeto). Primeiro, volte da pasta dos dados de demonstração para a pasta `src\backend`; depois, gere e guarde a chave:
 
 ```powershell
+cd ..\..\..\..\src\backend
 $bytes = New-Object byte[] 32
 [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
 $chave = [Convert]::ToBase64String($bytes)
@@ -266,9 +275,10 @@ Resultado esperado: `HTTP/1.1 401 Unauthorized` e o corpo `{"code":401,"message"
 **Passo 6.3 — Iniciar sessão (EP-001)** com a conta do Administrador de demonstração (`admin@clinica-g08.test`; palavra-passe no ficheiro de credenciais, secção 2.3):
 
 ```powershell
-$pw = Read-Host -MaskInput "Palavra-passe do admin@clinica-g08.test"
+$sec = Read-Host -AsSecureString "Palavra-passe do admin@clinica-g08.test"
+$pw = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
 $login = Invoke-RestMethod -Method Post -Uri http://localhost:5159/auth/login -ContentType "application/json" -Body (@{ email = "admin@clinica-g08.test"; password = $pw } | ConvertTo-Json)
-Remove-Variable pw
+Remove-Variable pw, sec
 $login.utilizador
 ```
 
@@ -286,7 +296,7 @@ Em alternativa aos passos 6.3 e 6.4, no Swagger: «POST /auth/login» → *Try i
 
 ### 7.3. Verificações adicionais (opcionais)
 
-| Verificação | Comando, na pasta `src/backend` | Resultado esperado |
+| Verificação | Comando, na pasta `src\backend` (`cd <raiz do repositório>\src\backend`) | Resultado esperado |
 |---|---|---|
 | Testes unitários | `dotnet test .\ClinicaVeterinaria.UnitTests\ClinicaVeterinaria.UnitTests.csproj` | 718 testes: 717 aprovados, 1 ignorado (`UT-TRV-007`, justificado) |
 | Testes de integração (Docker Desktop ativo) | `dotnet test .\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj` | 463 aprovados (3 a 5 minutos; cada classe cria o seu SQL Server em Docker) |
@@ -296,7 +306,7 @@ Em alternativa aos passos 6.3 e 6.4, no Swagger: «POST /auth/login» → *Try i
 
 Para voltar ao estado inicial (base com o esquema e os dados de demonstração), com a API parada:
 
-1. Repetir o **passo 3.1** (o script apaga e recria a base) e o **passo 3.2**.
+1. Repetir o **passo 3.1** na pasta `src\backend` (o script apaga e recria a base) e o **passo 3.2**, mudando de pasta como nesse passo. Voltar depois à pasta `src\backend` (`cd ..\..\..\..\src\backend`).
 2. Arrancar a API (passo 5.1) e repetir a verificação (secção 7.2).
 
 Os *user secrets* mantêm-se. Para os apagar: `dotnet user-secrets clear --project .\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj`. Na opção B, para remover o contentor: `docker rm -f sql-clinica`.
