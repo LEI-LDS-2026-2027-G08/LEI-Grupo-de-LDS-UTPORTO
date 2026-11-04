@@ -19,7 +19,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-04 | Ivan Cristiano Silva Mendes | Notas de release do backend da m3 sobre `develop` no commit `39040cd`: versão, operações incluídas e excluídas, limitações, resultados de testes e qualidade, compatibilidade, instalação e atualização. |
+| v01 | 2026-11-04 | Ivan Cristiano Silva Mendes | Notas de release do backend da m3 sobre `develop` no commit `df5b5f2` (execução #184), depois de integradas todas as dependências (I090, I097, I032 e I034) e a I104: versão, operações incluídas e excluídas, limitações, resultados de testes e qualidade, compatibilidade, instalação e atualização. |
 
 ---
 
@@ -28,24 +28,23 @@
 | Elemento | Valor |
 |---|---|
 | Versão | Backend **m3** — primeira versão do backend (as milestones m1 e m2 não incluíam código do backend) |
-| Commit | `39040cdc1c6e6c018182c674169037670e90fdf0` em `develop` (2026-11-03 18:41 UTC) |
+| Commit | `df5b5f24abb194ddec5db6e15504e6e9439585b0` em `develop` (2026-11-04 00:41 UTC); as integrações seguintes em `develop` (I032, I039) só acrescentam documentação |
 | Código | `src/backend/ClinicaVeterinaria.sln` — projetos `Api`, `Application`, `Domain`, `Infrastructure`, `UnitTests` e `IntegrationTests` |
-| Execução da pipeline | Backend CI #170 — https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41696169008 (todas as etapas com sucesso) |
+| Execução da pipeline | Backend CI #184 — https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41748757482 (etapas 1 a 7 e «Resultado da pipeline» com sucesso; a etapa 8, de entrega, só corre em `main`) |
+| Ambiente público de avaliação | https://clinica-g08-api-ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net/swagger (I104) |
 | Contrato da API | Documentação da API v02 (`04.11-documentacao-de-api/m3-documentacao-api-v02.md`) |
 | Âmbito | Declaração de Âmbito v05 (`04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf`) |
 
-Estas notas descrevem o código em `develop` no commit indicado. A versão entregue na m3 é a que o grupo promover de `develop` para `main`, à qual se aplica a etiqueta `m3` (como `m1` e `m2`). Se, entretanto, forem integradas em `develop` alterações ao código do backend, a secção 1 é atualizada com o commit promovido.
+Estas notas descrevem o código em `develop` no commit indicado. A versão entregue na m3 é a que o grupo promover de `develop` para `main`, à qual se aplica a etiqueta `m3` (como `m1` e `m2`); a promoção dispara também a primeira entrega automática no ambiente público (etapa 8 da pipeline, I104). Se, entretanto, forem integradas em `develop` alterações ao código do backend, a secção 1 é atualizada com o commit promovido.
 
-**Estado das dependências (Backlog de Projeto v03)** à data destas notas:
+**Estado das dependências (Backlog de Projeto v03):** todas integradas em `develop`.
 
-| Dependência | Estado | Uso nestas notas |
-|---|---|---|
-| I097 — Resultados dos testes de integração | Integrada em `develop` | Secção 5 |
-| I034 — Análise estática do backend | Integrada em `develop` | Secção 5 |
-| I090 — Resultados dos testes unitários | Entregue (PR #241), em auditoria; ainda não integrada em `develop` | Secção 5: números da execução #170, que a I090 documenta |
-| I032 — Relatório de cobertura do backend | **Ainda não iniciada** | Secção 5: a cobertura indicada é a medida pela pipeline (quality gate QG-03); o relatório formal de cobertura **é produzido na I032** |
-
-Quando a I090 e a I032 forem integradas, a secção 5 é atualizada com as referências finais.
+| Dependência | Uso nestas notas |
+|---|---|
+| I090 — Resultados dos testes unitários | Secção 5 |
+| I097 — Resultados dos testes de integração | Secção 5 |
+| I032 — Relatório de cobertura do backend | Secção 5 |
+| I034 — Análise estática do backend | Secção 5 |
 
 ## 2. Funcionalidades e operações incluídas
 
@@ -124,21 +123,23 @@ Por ser a primeira versão do backend, não há alterações face a uma versão 
 | Concorrência | Versão da marcação no cabeçalho `ETag` (EP-024 a EP-028); `If-Match` opcional nas alterações de EP-026, EP-027 e EP-028, com 412 se a versão enviada estiver desatualizada; a política de CORS expõe o `ETag` |
 | Erros | Formato único `code`, `message` e `detail` em todas as respostas de erro (middleware da I058) |
 | Listas | Envelope de paginação comum (`itens`, `pagina`, `tamanho`, `total`) |
-| Documentação | Swagger/OpenAPI (Swashbuckle 6.6.2) com autenticação Bearer, ativo em Development |
+| Documentação | Swagger/OpenAPI (Swashbuckle 6.6.2) com autenticação Bearer, ativo em Development e, com `Swagger:Ativo = true`, no ambiente público (I104) |
+| Arranque | Com `BaseDados:AplicarMigracoesNoArranque = true` (só no ambiente público), a API aplica as migrações ao arrancar e volta a tentar enquanto a base de dados serverless acorda (I104) |
 | Qualidade | Pipeline GitHub Actions «Backend CI» com os quality gates QG-01 a QG-04, QG-08 e a Collection Postman (I102, I103) |
+| Entrega contínua | Etapa 8 da pipeline: entrega no Azure App Service só num push para `main` com todas as etapas com sucesso (I104) |
 
 ## 5. Resultados dos testes e das verificações de qualidade
 
 | Verificação | Resultado | Fonte |
 |---|---|---|
-| Testes unitários | 718 testes: 717 aprovados, 0 falhados, 1 ignorado com justificação (`UT-TRV-007`, defeito D-01); os 306 casos da Especificação dos Testes Unitários têm teste | Execução #170; relatório da I090 (PR #241, em auditoria; ainda não integrado) |
-| Testes de integração | 463 testes: 463 aprovados, 0 falhados, 0 ignorados (relatório sobre `69e70c7`); job «3 · Testes de integração» com sucesso em `39040cd` | Relatório da I097 (`03.01.03-testes-de-integracao`), execução #170 |
-| Collection Postman (Newman) | 269 pedidos e 862 verificações, sem falhas, cobrindo os 37 endpoints; job «7 · Collection Postman» com sucesso em `39040cd` | README de `03.01.05-postman` (execução de referência da I099), execução #170 |
-| Cobertura (QG-03) | 98,5% das linhas e 92,8% dos ramos em Domínio e Serviços, com os testes unitários e de integração (limiar: 70%); só os unitários: 96,2% | Medida pela pipeline (QG-03) na revisão da I103 e no relatório da I090; o relatório formal de cobertura é produzido na I032, ainda não iniciada |
-| Análise estática (QG-04) | 0 avisos e 0 erros; 54 sugestões `info` justificadas | Relatório da I034 (`03.01.06-analise-estatica`) |
-| Formatação (QG-08) | 0 ficheiros por formatar | Execução #170, job 6 |
+| Testes unitários | 718 testes: 717 aprovados, 0 falhados, 1 ignorado com justificação (`UT-TRV-007`, defeito D-01); os 306 casos da Especificação dos Testes Unitários têm teste | Relatório da I090 (`03.01.02-testes-unitarios`); job «2 · Testes unitários» com sucesso na execução #184 |
+| Testes de integração | 463 testes: 463 aprovados, 0 falhados, 0 ignorados | Relatório da I097 (`03.01.03-testes-de-integracao`); job «3 · Testes de integração» com sucesso na execução #184 |
+| Collection Postman (Newman) | 269 pedidos e 862 verificações, sem falhas, cobrindo os 37 endpoints | README de `03.01.05-postman` (execução de referência da I099); job «7 · Collection Postman» com sucesso na execução #184 |
+| Cobertura (QG-03) | 98,5% das linhas (2118 de 2150) e 92,8% dos ramos (596 de 642) em Domínio e Serviços, com os testes unitários e de integração (limiar: 70%); só os unitários: 96,2% | Relatório de cobertura da I032 (`03.01.04-cobertura-de-testes`), medido na execução #184 |
+| Análise estática (QG-04) | 0 avisos e 0 erros; 54 sugestões `info` justificadas | Relatório da I034 (`03.01.06-analise-estatica`); job «5 · Análise estática» com sucesso na execução #184 |
+| Formatação (QG-08) | 0 ficheiros por formatar | Execução #184, job 6 |
 | Matriz de permissões | 228 verificações endpoint × perfil (incluindo o anónimo), todas aprovadas | I096, relatório da I097 |
-| Pipeline | Execução #170 completa e com sucesso; bloqueio do merge por falha demonstrado em cada quality gate | Execução #170; I103 |
+| Pipeline | Execução #184 completa e com sucesso; bloqueio do merge por falha demonstrado em cada quality gate | Execução #184; I103 |
 
 Não há defeitos de severidade Crítica ou Alta em aberto.
 
@@ -153,7 +154,8 @@ Não há defeitos de severidade Crítica ou Alta em aberto.
 | D1 (formato de erro) | A API v02 indica Problem Details (RFC 9457); a implementação usa o formato único `code`/`message`/`detail` da I058 | Baixa (documentação) | Alinhar a API v03 |
 | 409 em alterações simultâneas | Em EP-026 a EP-028, duas gravações simultâneas sem `If-Match` devolvem 412 e não o 409 da API v02 (secção 5.1); só uma é gravada, como previsto | Baixa (documentação) | Registado para a API v03 (D1 da I093) |
 | RF056 | A atualização de uma administração do boletim está implementada mas ainda não tem número de EP na API v02 | Baixa (documentação) | Ponto em aberto 2 da API v02, previsto para a v03 |
-| Swagger | O Swagger só está ativo em Development | Baixa | Ativação por configuração no ambiente público, na I104 (em revisão) |
+| Ambiente público em plano gratuito | O App Service (plano F1) adormece sem pedidos e a base Azure SQL gratuita entra em pausa: o primeiro pedido depois de um período sem uso pode demorar cerca de 1 minuto; ao atingir o limite gratuito mensal, a base fica em pausa até ao mês seguinte | Baixa (avaliação) | Documentado no README da `04.16-ci-cd/m3-v03` (I104) |
+| Entrega em `main` | A primeira entrega automática no ambiente público só acontece quando o grupo promover `develop` para `main`; até lá, a versão publicada é a da publicação manual de teste da I104 | Baixa | Promoção de `develop` para `main` pelo grupo |
 
 ## 7. Compatibilidade e pré-requisitos
 
@@ -177,6 +179,10 @@ Configuração necessária (por `appsettings`, *user secrets* ou variáveis de a
 | `Jwt:Issuer`, `Jwt:Audience`, `Jwt:ExpirationHours` | Já definidas em `appsettings.json` | Emissor, audiência e validade (8 h) |
 | `Cors:AllowedOrigins` | Não | Origens autorizadas; vazio permite qualquer origem |
 | `LimpezaTokensRevogados:IntervaloMinutos` | Já definida (60) | Intervalo da limpeza das revogações |
+| `Swagger:Ativo` | Não (`false` por omissão) | Ativa o Swagger fora de Development; `true` só no ambiente público |
+| `BaseDados:AplicarMigracoesNoArranque` | Não (`false` por omissão) | Aplica as migrações ao arrancar; `true` só no ambiente público, onde a base é preparada pela própria API |
+
+O ambiente público de avaliação (Azure App Service e Azure SQL Database), as suas definições, a rotação dos segredos e os procedimentos de reposição da base e de reversão estão no README da `04-artefactos-tecnicos/04.16-ci-cd/m3-v03` (I104).
 
 ## 8. Instalação
 
@@ -241,9 +247,9 @@ Esta é a primeira versão do backend; não há instalações anteriores a atual
 - Documentação da API v02 — `04-artefactos-tecnicos/04.11-documentacao-de-api/m3-documentacao-api-v02.md`
 - Declaração de Âmbito v05 — `04-artefactos-tecnicos/04.01-proposta-de-sistema-e-declaracao-de-ambito/m3-declaracao-ambito-v05.pdf`
 - README do backend — `src/backend/README.md`
-- Relatório de resultados dos testes unitários (I090) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.02-testes-unitarios` (PR #241, ainda não integrado)
-- Relatório de cobertura do backend (I032) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.04-cobertura-de-testes` (a produzir)
+- Relatório de resultados dos testes unitários (I090) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.02-testes-unitarios/m3-resultados-testes-unitarios-backend-v01.pdf`
+- Relatório de cobertura do backend (I032) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.04-cobertura-de-testes/m3-relatorio-cobertura-testes-backend-v01.pdf`
 - Relatório de resultados dos testes de integração (I097) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.03-testes-de-integracao`
 - Relatório de análise estática (I034) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.06-analise-estatica`
 - Collection Postman (I098 a I100) — `03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman`
-- Pipeline do backend (I102, I103) — `04-artefactos-tecnicos/04.16-ci-cd`
+- Pipeline do backend e ambiente público de avaliação (I102, I103, I104) — `04-artefactos-tecnicos/04.16-ci-cd` (versão em uso: `m3-v03`)
