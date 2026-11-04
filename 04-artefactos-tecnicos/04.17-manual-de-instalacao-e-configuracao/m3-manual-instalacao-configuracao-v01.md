@@ -20,7 +20,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: pré-requisitos, obtenção do código, base de dados (SQL Server 2025 local ou em Docker), migrações, dados de demonstração, configuração por ambiente, arranque, verificação, reposição e problemas frequentes. Inclui as correções dos desvios D1 (leitura de palavras-passe no Windows PowerShell 5.1) e D2 (mudança de pasta antes dos passos 3.2 e 4.1) encontrados na validação num ambiente limpo (critério 4 da I038). |
+| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: pré-requisitos, obtenção do código, base de dados (SQL Server 2025 local ou em Docker), migrações, dados de demonstração, configuração por ambiente, arranque, verificação, reposição e problemas frequentes. Inclui as correções dos desvios D1 (leitura de palavras-passe no Windows PowerShell 5.1) e D2 (mudança de pasta antes dos passos 3.2 e 4.1) encontrados na validação num ambiente limpo (critério 4 da I038) e o resultado dessa validação na secção 11. |
 
 ---
 
@@ -347,4 +347,4 @@ A instalação, a configuração e a reposição do ambiente público estão no 
 
 ## 11. Validação do manual
 
-O manual é validado passo a passo, num ambiente limpo, por um elemento do grupo diferente do autor (critério 4 da I038). O registo da validação (quem, quando, máquina e versões, resultado de cada passo e desvios encontrados) fica no ficheiro `m3-s05-i038-AAAAMMDD-registo-validacao-v01.md`, nesta pasta, e os desvios encontrados são corrigidos neste manual antes da versão final em PDF.
+O manual foi validado passo a passo, num ambiente limpo, por Gonçalo Dinis Magalhães Teixeira, elemento do grupo diferente do autor, do Revisor e do Auditor (critério 4 da I038), a 2026-11-04, com a opção A (SQL Server 2025 local), no Windows 11 com o Windows PowerShell 5.1 e o .NET SDK 10.0.403. Foram encontrados dois desvios: D1, a leitura de palavras-passe no Windows PowerShell 5.1 (passos 2.B.1 e 6.3), e D2, a mudança de pasta antes dos passos 3.2 e 4.1. Os dois estão corrigidos nesta versão e foram confirmados numa segunda passagem (o D1 só no passo 6.3). A opção B (SQL Server em Docker) não foi validada pelo validador. O registo completo da validação (máquina, versões, resultado de cada passo e desvios) está no ficheiro `m3-s05-i038-20261104-registo-validacao-v01.md`, nesta pasta.
