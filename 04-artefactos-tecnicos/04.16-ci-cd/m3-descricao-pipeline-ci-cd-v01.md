@@ -20,7 +20,7 @@
 
 | Versão | Data | Autor | Descrição |
 |---|---|---|---|
-| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: gatilhos, ambientes, etapas (finalidade, entradas, saídas e condição de falha), quality gates, artefactos, bloqueio do merge, tratamento de falhas, gestão de credenciais, diagrama em Mermaid, execução num ramo novo e replicação noutro repositório. |
+| v01 | 2026-11-04 | André Filipe Moreira Mesquita | Versão inicial: gatilhos, ambientes, etapas (finalidade, entradas, saídas e condição de falha), quality gates, artefactos, bloqueio do merge, tratamento de falhas, gestão de credenciais, diagrama em Mermaid, execução num ramo novo e replicação noutro repositório. Inclui a correção do desvio 1 da verificação do critério 5 (secção 12: os comandos são de PowerShell) e a precisão do passo 5 sugerida na mesma verificação. |
 
 ---
 
@@ -326,7 +326,9 @@ Consequência: um Pull Request só pode ser integrado com a aprovação do Revis
 
 ## 12. Executar a pipeline num ramo novo
 
-Procedimento para confirmar que a pipeline corre num ramo novo (critério 5), sem alterar `develop`:
+Procedimento para confirmar que a pipeline corre num ramo novo (critério 5), sem alterar `develop`.
+
+Os comandos são de **PowerShell**. Abra o Windows PowerShell (ou o terminal do VS Code, que usa o PowerShell por omissão) na pasta do repositório. Não use a Linha de Comandos (`cmd`), que é a que o GitHub Desktop abre em *Repository → Open in Command Prompt*: aí o `Add-Content` do passo 2 não é reconhecido e o commit fica vazio.
 
 1. Atualizar o `develop` local e criar um ramo de teste:
 
@@ -352,7 +354,7 @@ Procedimento para confirmar que a pipeline corre num ramo novo (critério 5), se
    - etapa 8 *skipped*;
    - os 7 artefactos da secção 7.
 4. Opcional, para ver o bloqueio: abrir um Pull Request *draft* do ramo para `develop`. Em *Checks* aparece «Resultado da pipeline» como verificação obrigatória. **Não fazer merge.** Fechar o Pull Request no fim.
-5. Opcional, para ver uma falha: num segundo commit, acrescentar espaços no fim de uma linha de um ficheiro `.cs` e fazer push. Resultado esperado: a etapa 6 fica vermelha, com o ficheiro indicado no resumo, e o «Resultado da pipeline» fica vermelho.
+5. Opcional, para ver uma falha: num segundo commit, acrescentar espaços no fim de **uma linha de código já existente** num ficheiro `.cs` (por exemplo, no fim de uma linha do `src/backend/ClinicaVeterinaria.Api/Program.cs`) e fazer push. Uma linha nova acrescentada no fim do ficheiro pode não ser detetada. Resultado esperado: a etapa 6 fica vermelha, com o ficheiro indicado no resumo, e o «Resultado da pipeline» fica vermelho.
 6. Limpar: apagar o ramo remoto (`git push origin --delete teste-pipeline-<nome>`) e o local (`git checkout develop`, depois `git branch -D teste-pipeline-<nome>`).
 
 Também se pode correr a pipeline sem commits: *Actions → Backend CI → Run workflow*, escolhendo o ramo.
