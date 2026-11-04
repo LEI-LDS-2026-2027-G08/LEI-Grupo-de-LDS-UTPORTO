@@ -1,0 +1,52 @@
+# =============================================================================
+# Projeto        : Gestão de Clínica Veterinária — Grupo G08 — LDS 2026/2027
+# Issue          : I102 — Criar a pipeline de compilação e testes do backend
+# Ficheiro       : .github/actions/preparar-dotnet/action.yml
+# Versão         : m3-v01 (cópia arquivada em
+#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v01)
+# Finalidade     : Passos comuns a todas as etapas .NET da pipeline: instalar o
+#                  SDK do .NET 10 e reutilizar a cache dos pacotes NuGet.
+#                  O restauro, a compilação e os testes ficam nos jobs, como
+#                  passos próprios e visíveis (critério 2 da I102).
+# Utilização     : depois de actions/checkout, com
+#                    - uses: ./.github/actions/preparar-dotnet
+# =============================================================================
+name: Preparar o .NET do backend
+description: Instala o SDK do .NET 10 e restaura a cache dos pacotes NuGet.
+
+runs:
+  using: composite
+  steps:
+    # A mesma versão do workflow da I062 (integration-tests.yml): a última versão
+    # 10.0, que o src/backend/global.json aceita («10.0.100» com rollForward
+    # latestFeature) e que inclui o runtime exigido pelos pacotes 10.0.13.
+    - name: Instalar o SDK do .NET 10
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        dotnet-version: "10.0.x"
+
+    # No Linux os nomes distinguem maiúsculas: as duas grafias do NuGet.config
+    # entram na chave. Os dois jobs de testes podem tentar gravar a mesma chave
+    # em paralelo; o segundo só regista o aviso «unable to reserve cache».
+    - name: Reutilizar a cache dos pacotes NuGet
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('src/backend/**/*.csproj', 'src/backend/global.json', '**/Directory.Build.props', '**/Directory.Packages.props', '**/NuGet.config', '**/nuget.config') }}
+        restore-keys: |
+          nuget-${{ runner.os }}-
+
+    - name: Registar o SDK utilizado
+      shell: bash
+      run: |
+        echo "SDK do .NET: $(dotnet --version)"
+        {
+          echo "### Ambiente .NET"
+          echo ""
+          echo "| Elemento | Valor |"
+          echo "|---|---|"
+          echo "| SDK do .NET | \`$(dotnet --version)\` |"
+          echo "| global.json | \`$(tr -d '\n\r ' < src/backend/global.json)\` |"
+          echo "| Runner | \`${RUNNER_OS} ${ImageOS:-} ${ImageVersion:-}\` |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"

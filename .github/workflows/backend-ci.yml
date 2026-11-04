@@ -2,11 +2,13 @@
 # Projeto        : Gestão de Clínica Veterinária — Grupo G08 — LDS 2026/2027
 # Issues         : I102 — Criar a pipeline de compilação e testes do backend
 #                  I103 — Integrar análise estática, cobertura e quality gates
+#                  I104 — Disponibilizar o backend em ambiente público de
+#                         avaliação com entrega contínua
 # Ficheiro       : .github/workflows/backend-ci.yml
 #                  (nome fixado no Regulamento Interno do Grupo v02, secção 11.6)
-# Versão         : m3-v02 (cópia arquivada em
-#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v02; a m3-v01,
-#                  da I102, mantém-se sem alterações)
+# Versão         : m3-v03 (cópia arquivada em
+#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v03; a m3-v01
+#                  e a m3-v02, da I102 e da I103, mantêm-se sem alterações)
 # Plataforma     : GitHub Actions, runner ubuntu-latest (Regulamento do Grupo, 11.6)
 # Finalidade     : Em cada push e em cada Pull Request para develop e main:
 #                  restaurar as dependências, compilar a solução com o quality
@@ -21,13 +23,20 @@
 #                  «Resultado da pipeline» na proteção dos ramos.
 # Limiares       : Lidos de .github/quality-gates.json (critério 1 da I103);
 #                  nenhum limiar está escrito neste ficheiro.
-# Fora do âmbito : Entrega contínua — Issue I104.
-# Segredos       : Nenhum no repositório nem nos secrets do GitHub. A base de
-#                  dados dos testes de integração e a chave JWT são criadas pela
-#                  infraestrutura de testes (I091). Na etapa 7, a palavra-passe
-#                  do SQL Server, a chave JWT e a palavra-passe das contas de
-#                  demonstração são geradas em cada execução, escondidas nos
-#                  registos e destruídas com o runner.
+# Entrega (I104) : Etapa 8, só num push para main e só se o «Resultado da
+#                  pipeline» terminar com sucesso: publica a API no Azure App
+#                  Service do ambiente público de avaliação e confirma que
+#                  responde em HTTPS.
+# Segredos       : Nenhum no repositório. A base de dados dos testes de
+#                  integração e a chave JWT são criadas pela infraestrutura de
+#                  testes (I091). Na etapa 7, a palavra-passe do SQL Server, a
+#                  chave JWT e a palavra-passe das contas de demonstração são
+#                  geradas em cada execução, escondidas nos registos e
+#                  destruídas com o runner. A etapa 8 usa o perfil de
+#                  publicação do App Service, guardado no secret
+#                  AZURE_WEBAPP_PUBLISH_PROFILE do ambiente «avaliacao»; a
+#                  cadeia de ligação e a chave JWT do ambiente público só
+#                  existem nas definições do App Service.
 # =============================================================================
 name: Backend CI
 
@@ -780,3 +789,93 @@ jobs:
                   print(f"::error title=Resultado da pipeline::A etapa «{nome}» não terminou com sucesso.")
               sys.exit(1)
           PYTHON
+
+  # ---------------------------------------------------------------------------
+  # 8. Entrega no ambiente público de avaliação — I104
+  #    Só num push para main (critério 2 da I104: «a entrega só ocorre quando
+  #    todas as etapas e quality gates da pipeline passam no ramo principal») e
+  #    só se o «Resultado da pipeline» terminar com sucesso; num Pull Request, num
+  #    push para outro ramo ou com uma etapa falhada, a etapa fica «skipped».
+  #    Publica a API compilada nesta execução no Azure App Service e confirma que
+  #    o Swagger e a API respondem em HTTPS. O perfil de publicação, o nome e o
+  #    endereço da aplicação estão no ambiente «avaliacao» do GitHub; a
+  #    cadeia de ligação e a chave JWT só existem nas definições do App Service.
+  # ---------------------------------------------------------------------------
+  entrega:
+    name: 8 · Entrega no ambiente público (I104)
+    needs: resultado
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.resultado.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: avaliacao
+      url: ${{ steps.verificar.outputs.url }}
+    # Uma entrega de cada vez, sem cancelar uma que já esteja a decorrer.
+    concurrency:
+      group: entrega-avaliacao
+      cancel-in-progress: false
+    steps:
+      - name: Confirmar a configuração do ambiente «avaliacao»
+        env:
+          NOME_APLICACAO: ${{ vars.AZURE_WEBAPP_NAME }}
+          URL_APLICACAO: ${{ vars.AZURE_WEBAPP_URL }}
+          TEM_PERFIL: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE != '' }}
+        run: |
+          if [ -z "$NOME_APLICACAO" ] || [ -z "$URL_APLICACAO" ] || [ "$TEM_PERFIL" != "true" ]; then
+            echo "::error title=Entrega::Falta a variável AZURE_WEBAPP_NAME ou AZURE_WEBAPP_URL, ou o secret AZURE_WEBAPP_PUBLISH_PROFILE, no ambiente «avaliacao» (ver 04.16-ci-cd/m3-v03/README.md, secção 3)."
+            exit 1
+          fi
+
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Publicar a API (Release)
+        run: |
+          dotnet publish src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj \
+            --configuration "$CONFIGURACAO" \
+            --output "$RUNNER_TEMP/publicacao"
+
+      - name: Entregar no Azure App Service
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3.0.8
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ runner.temp }}/publicacao
+
+      # O primeiro pedido depois da entrega pode demorar: a aplicação arranca,
+      # aplica as migrações e a base de dados serverless pode estar em pausa.
+      - name: Confirmar que a API responde em HTTPS
+        id: verificar
+        env:
+          URL_APLICACAO: ${{ vars.AZURE_WEBAPP_URL }}
+        run: |
+          URL="${URL_APLICACAO%/}"
+          echo "url=$URL/swagger" >> "$GITHUB_OUTPUT"
+          for tentativa in $(seq 1 30); do
+            SWAGGER=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL/swagger/v1/swagger.json" || true)
+            API=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL/clinica" || true)
+            echo "Tentativa $tentativa: swagger.json → $SWAGGER; GET /clinica sem token → $API"
+            if [ "$SWAGGER" = "200" ] && [ "$API" = "401" ]; then
+              {
+                echo "### 8 · Entrega no ambiente público (I104)"
+                echo ""
+                echo "| Elemento | Valor |"
+                echo "|---|---|"
+                echo "| Commit entregue | \`${GITHUB_SHA}\` |"
+                echo "| Endereço | $URL |"
+                echo "| Swagger | $URL/swagger |"
+                echo "| \`GET /swagger/v1/swagger.json\` | 200 |"
+                echo "| \`GET /clinica\` sem token | 401 (API e autenticação ativas) |"
+                echo ""
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "::error title=Entrega::A API não respondeu como esperado em $URL depois da entrega."
+          exit 1
