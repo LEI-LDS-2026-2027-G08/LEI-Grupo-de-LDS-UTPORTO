@@ -2,6 +2,7 @@ using ClinicaVeterinaria.Api.Middleware;
 using ClinicaVeterinaria.Api.Seguranca;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -83,10 +84,40 @@ builder.Services.AddDbContext<ClinicaDbContext>(options =>
 
 var app = builder.Build();
 
+// Ambiente público de avaliação — I104: aplica as migrações da I062 no arranque
+// quando BaseDados:AplicarMigracoesNoArranque = true (só nas definições do Azure).
+// Nos restantes ambientes a base de dados continua a ser preparada à parte.
+// A base serverless em pausa demora cerca de 1 minuto a acordar e recusa as ligações
+// entretanto (erro transitório 40613): tenta de novo durante até 3 minutos.
+if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
+{
+    var avisoBaseIndisponivel = LoggerMessage.Define<int>(
+        LogLevel.Warning,
+        new EventId(1, "BaseDadosIndisponivel"),
+        "Base de dados indisponível ao aplicar as migrações (tentativa {Tentativa}); nova tentativa em 15 s.");
+
+    for (var tentativa = 1; ; tentativa++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.Migrate();
+            break;
+        }
+        catch (Exception ex) when (tentativa < 12 && (ex is SqlException || ex.InnerException is SqlException))
+        {
+            avisoBaseIndisponivel(app.Logger, tentativa, ex);
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+        }
+    }
+}
+
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// O Swagger fica ativo em Development e, com Swagger:Ativo = true, no ambiente
+// público de avaliação (I104, critério 1: iniciar sessão pelo Swagger).
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Ativo"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
