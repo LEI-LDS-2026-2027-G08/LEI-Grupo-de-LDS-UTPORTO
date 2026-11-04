@@ -308,7 +308,7 @@ Consequência: um Pull Request só pode ser integrado com a aprovação do Revis
 | 4 | Cobertura abaixo de 70% | Acrescentar testes às classes indicadas no resumo |
 | 5 | Ocorrência Roslyn | Corrigir; suprimir só com justificação, como na secção 10 do relatório da I101 |
 | 6 | Ficheiro por formatar | `dotnet format src/backend/ClinicaVeterinaria.sln` e commit |
-| 7 | Pedido falhado depois de uma alteração à API; datas da collection já ultrapassadas; dados da I061 alterados | Ver o pedido no resumo e no `resultado-newman.txt`; atualizar a API ou a collection (a pasta 08 usa a data da marcação M4 da I061 e os horários seguintes, por isso uma data no passado faz falhar a etapa) |
+| 7 | Pedido falhado depois de uma alteração à API ou aos dados da I061; falta de horários livres do Veterinário nos 31 dias seguintes à execução | Ver o pedido no resumo e no `resultado-newman.txt`; atualizar a API, os dados ou a collection. A pasta 08 procura a marcação M4 da I061 (2026-11-04) por data fixa e calcula os horários das marcações novas a partir do dia da execução, por isso não depende da data em que a pipeline corre |
 | 8 | Configuração do ambiente `avaliacao` em falta; App Service parado ou sem quota | Ver o `m3-v03/README.md`, secções 3 e 7 |
 
 **Falhas transitórias.** Uma falha a descarregar pacotes, imagens ou o Newman resolve-se com *Re-run failed jobs*. Uma falha que se repete depois de duas tentativas não é transitória e trata-se como defeito.
