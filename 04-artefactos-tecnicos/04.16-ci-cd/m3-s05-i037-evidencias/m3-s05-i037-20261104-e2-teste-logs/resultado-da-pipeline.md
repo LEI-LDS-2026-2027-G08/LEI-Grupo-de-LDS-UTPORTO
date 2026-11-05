@@ -1,0 +1,123 @@
+``````text
+﻿2026-11-04T18:59:54.4991359Z Current runner version: '2.338.2'
+2026-11-04T18:59:54.5011111Z ##[group]Runner Image Provisioner
+2026-11-04T18:59:54.5011789Z Hosted Compute Agent
+2026-11-04T18:59:54.5012233Z Version: 20261028.624
+2026-11-04T18:59:54.5012699Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-04T18:59:54.5013212Z Build Date: 2026-10-28T21:51:42Z
+2026-11-04T18:59:54.5013718Z Worker ID: {ee09d847-0aa8-4e27-b97a-7bf093c1cd48}
+2026-11-04T18:59:54.5014213Z Region: us-west-2
+2026-11-04T18:59:54.5014582Z Cloud: AWS
+2026-11-04T18:59:54.5014988Z ##[endgroup]
+2026-11-04T18:59:54.5015869Z ##[group]Operating System
+2026-11-04T18:59:54.5016333Z Ubuntu
+2026-11-04T18:59:54.5016693Z 24.04.5
+2026-11-04T18:59:54.5017043Z LTS
+2026-11-04T18:59:54.5017763Z ##[endgroup]
+2026-11-04T18:59:54.5018155Z ##[group]Runner Image
+2026-11-04T18:59:54.5018577Z Image: ubuntu-24.04
+2026-11-04T18:59:54.5019028Z Version: 20261101.114.1
+2026-11-04T18:59:54.5019959Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.114/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-04T18:59:54.5021058Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.114
+2026-11-04T18:59:54.5021725Z ##[endgroup]
+2026-11-04T18:59:54.5022528Z ##[group]GITHUB_TOKEN Permissions
+2026-11-04T18:59:54.5024133Z Contents: read
+2026-11-04T18:59:54.5024555Z Metadata: read
+2026-11-04T18:59:54.5024942Z ##[endgroup]
+2026-11-04T18:59:54.5026426Z Secret source: Actions
+2026-11-04T18:59:54.5027078Z Cache mode: write
+2026-11-04T18:59:54.5027852Z Prepare workflow directory
+2026-11-04T18:59:54.5310163Z Prepare all required actions
+2026-11-04T18:59:54.5356099Z Complete job name: Resultado da pipeline
+2026-11-04T18:59:54.6091274Z ##[group]Run python3 - <<'PYTHON'
+2026-11-04T18:59:54.6091902Z [36;1mpython3 - <<'PYTHON'[0m
+2026-11-04T18:59:54.6092348Z [36;1mimport json, os, sys[0m
+2026-11-04T18:59:54.6092920Z [36;1mnomes = {[0m
+2026-11-04T18:59:54.6093656Z [36;1m    "compilacao": "1 · Restauro e compilação (QG-01)",[0m
+2026-11-04T18:59:54.6094312Z [36;1m    "testes-unitarios": "2 · Testes unitários (QG-02)",[0m
+2026-11-04T18:59:54.6094955Z [36;1m    "testes-integracao": "3 · Testes de integração (QG-02)",[0m
+2026-11-04T18:59:54.6095564Z [36;1m    "cobertura": "4 · Cobertura (QG-03)",[0m
+2026-11-04T18:59:54.6096172Z [36;1m    "analise-estatica": "5 · Análise estática (QG-04)",[0m
+2026-11-04T18:59:54.6096746Z [36;1m    "formatacao": "6 · Formatação (QG-08)",[0m
+2026-11-04T18:59:54.6097522Z [36;1m    "newman": "7 · Collection Postman (Newman)",[0m
+2026-11-04T18:59:54.6098067Z [36;1m}[0m
+2026-11-04T18:59:54.6098519Z [36;1metapas = json.loads(os.environ["RESULTADOS_ETAPAS"])[0m
+2026-11-04T18:59:54.6099336Z [36;1mlinhas = ["### Resultado da pipeline", "", "| Etapa | Resultado |", "|---|---|"][0m
+2026-11-04T18:59:54.6099952Z [36;1mfalhas = [][0m
+2026-11-04T18:59:54.6100379Z [36;1mfor chave, nome in nomes.items():[0m
+2026-11-04T18:59:54.6101006Z [36;1m    resultado = etapas.get(chave, {}).get("result", "desconhecido")[0m
+2026-11-04T18:59:54.6101777Z [36;1m    linhas.append(f"| {nome} | {'✅' if resultado == 'success' else '❌'} {resultado} |")[0m
+2026-11-04T18:59:54.6102500Z [36;1m    if resultado != "success":[0m
+2026-11-04T18:59:54.6102964Z [36;1m        falhas.append(nome)[0m
+2026-11-04T18:59:54.6103429Z [36;1mlinhas.append("")[0m
+2026-11-04T18:59:54.6103843Z [36;1mif falhas:[0m
+2026-11-04T18:59:54.6104532Z [36;1m    linhas.append("**❌ A pipeline falhou: o merge fica bloqueado até todas as etapas terminarem com sucesso.**")[0m
+2026-11-04T18:59:54.6105345Z [36;1melse:[0m
+2026-11-04T18:59:54.6105852Z [36;1m    linhas.append("**✅ Todas as etapas terminaram com sucesso.**")[0m
+2026-11-04T18:59:54.6106610Z [36;1mwith open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:[0m
+2026-11-04T18:59:54.6107476Z [36;1m    resumo.write("\n".join(linhas) + "\n")[0m
+2026-11-04T18:59:54.6107981Z [36;1mprint("\n".join(linhas))[0m
+2026-11-04T18:59:54.6108444Z [36;1mif falhas:[0m
+2026-11-04T18:59:54.6108829Z [36;1m    for nome in falhas:[0m
+2026-11-04T18:59:54.6109653Z [36;1m        print(f"::error title=Resultado da pipeline::A etapa «{nome}» não terminou com sucesso.")[0m
+2026-11-04T18:59:54.6110363Z [36;1m    sys.exit(1)[0m
+2026-11-04T18:59:54.6110745Z [36;1mPYTHON[0m
+2026-11-04T18:59:57.1351857Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:59:57.1352474Z env:
+2026-11-04T18:59:57.1352896Z   DOTNET_NOLOGO: true
+2026-11-04T18:59:57.1353211Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:59:57.1353534Z   CONFIGURACAO: Release
+2026-11-04T18:59:57.1353864Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:59:57.1354396Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:59:57.1355125Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:59:57.1355648Z   RESULTADOS: resultados-ci
+2026-11-04T18:59:57.1355967Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:59:57.1356303Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:59:57.1357657Z   RESULTADOS_ETAPAS: {
+  "compilacao": {
+    "result": "success",
+    "outputs": {}
+  },
+  "testes-unitarios": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "testes-integracao": {
+    "result": "success",
+    "outputs": {}
+  },
+  "cobertura": {
+    "result": "success",
+    "outputs": {}
+  },
+  "analise-estatica": {
+    "result": "success",
+    "outputs": {}
+  },
+  "formatacao": {
+    "result": "success",
+    "outputs": {}
+  },
+  "newman": {
+    "result": "success",
+    "outputs": {}
+  }
+}
+2026-11-04T18:59:57.1358915Z ##[endgroup]
+2026-11-04T18:59:57.1648070Z ### Resultado da pipeline
+2026-11-04T18:59:57.1648590Z 
+2026-11-04T18:59:57.1648783Z | Etapa | Resultado |
+2026-11-04T18:59:57.1649192Z |---|---|
+2026-11-04T18:59:57.3016206Z | 1 · Restauro e compilação (QG-01) | ✅ success |
+2026-11-04T18:59:57.3016951Z | 2 · Testes unitários (QG-02) | ❌ failure |
+2026-11-04T18:59:57.3017623Z | 3 · Testes de integração (QG-02) | ✅ success |
+2026-11-04T18:59:57.3018129Z | 4 · Cobertura (QG-03) | ✅ success |
+2026-11-04T18:59:57.3018488Z | 5 · Análise estática (QG-04) | ✅ success |
+2026-11-04T18:59:57.3018833Z | 6 · Formatação (QG-08) | ✅ success |
+2026-11-04T18:59:57.3019198Z | 7 · Collection Postman (Newman) | ✅ success |
+2026-11-04T18:59:57.3019409Z 
+2026-11-04T18:59:57.3019718Z **❌ A pipeline falhou: o merge fica bloqueado até todas as etapas terminarem com sucesso.**
+2026-11-04T18:59:57.3045728Z ##[error]A etapa «2 · Testes unitários (QG-02)» não terminou com sucesso.
+2026-11-04T18:59:57.3058518Z ##[error]Process completed with exit code 1.
+2026-11-04T18:59:57.3190392Z Cleaning up orphan processes
+``````

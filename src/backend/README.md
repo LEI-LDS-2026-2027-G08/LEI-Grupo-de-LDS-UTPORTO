@@ -1,12 +1,12 @@
 # Clínica Veterinária - Backend
 
-Backend da aplicação de Gestão de Clínica Veterinária desenvolvido em .NET 8 com ASP.NET Core Web API.
+Backend da aplicação de Gestão de Clínica Veterinária desenvolvido em .NET 10 com ASP.NET Core Web API.
 
 ## Pré-requisitos
 
-- .NET SDK 8
-- A solução inclui um ficheiro `global.json` que garante a utilização do SDK .NET 8 compatível.
-- Visual Studio ou outro IDE compatível com .NET 8
+- .NET SDK 10
+- A solução inclui um ficheiro `global.json` que garante a utilização do SDK .NET 10 compatível.
+- Visual Studio ou outro IDE compatível com .NET 10
 
 Para verificar a versão instalada:
 
@@ -45,11 +45,12 @@ O ficheiro `appsettings.Example.json` apresenta a estrutura de configuração ne
 ### Configurações utilizadas
 
 ```text
-ConnectionStrings:DefaultConnection
+ConnectionStrings:ClinicaDb
 Jwt:Key
 Jwt:Issuer
 Jwt:Audience
 Jwt:ExpirationHours
+LimpezaTokensRevogados:IntervaloMinutos
 Cors:AllowedOrigins
 ```
 
@@ -62,11 +63,12 @@ As configurações podem ser substituídas através de variáveis de ambiente.
 Exemplos:
 
 ```text
-ConnectionStrings__DefaultConnection
+ConnectionStrings__ClinicaDb
 Jwt__Key
 Jwt__Issuer
 Jwt__Audience
 Jwt__ExpirationHours
+LimpezaTokensRevogados__IntervaloMinutos
 Cors__AllowedOrigins__0
 Cors__AllowedOrigins__1
 ```
@@ -77,11 +79,22 @@ No ASP.NET Core, `__` corresponde ao separador `:` da configuração.
 
 A chave JWT não deve ser armazenada nos ficheiros versionados.
 
+A chave tem de estar em Base64 e ter pelo menos 32 bytes (256 bits). Para gerar uma chave nova em PowerShell (funciona no Windows PowerShell 5.1 e no PowerShell 7):
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+$chave = [Convert]::ToBase64String($bytes)
+dotnet user-secrets set "Jwt:Key" $chave --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+```
+
 Pode ser configurada através de User Secrets:
 
 ```bash
 dotnet user-secrets set "Jwt:Key" "<CHAVE_JWT>" --project ./ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
 ```
+
+Se a secção `Jwt` estiver incompleta ou a chave for inválida, a API não arranca e indica o problema na consola. O `dotnet ef` continua a funcionar sem a chave.
 
 Para consultar os User Secrets configurados:
 
@@ -114,6 +127,25 @@ São executados os projetos:
 - `ClinicaVeterinaria.UnitTests`
 - `ClinicaVeterinaria.IntegrationTests`
 
+## Quality gates — verificar antes de abrir um Pull Request (I103)
+
+A pipeline `.github/workflows/backend-ci.yml` bloqueia o merge se algum quality gate falhar. Os limiares estão em `.github/quality-gates.json` (cobertura ≥ 70% em Domínio e Serviços, zero avisos na análise estática, zero ficheiros por formatar, zero falhas na Collection Postman). Para verificar localmente, na raiz da solução (`src/backend`):
+
+```bash
+# QG-01 e QG-04 — compilação sem erros nem avisos (análise Roslyn da I101)
+dotnet build ./ClinicaVeterinaria.sln --configuration Release
+
+# QG-08 — formatação; sem --verify-no-changes, corrige os ficheiros
+dotnet format ./ClinicaVeterinaria.sln --verify-no-changes
+
+# QG-02 e QG-03 — testes com cobertura (os de integração precisam do Docker)
+dotnet test ./ClinicaVeterinaria.sln --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.5.11
+reportgenerator -reports:"./TestResults/**/coverage.cobertura.xml" -targetdir:"./TestResults/qg-03" -reporttypes:"Html;TextSummary" -assemblyfilters:"+ClinicaVeterinaria.Domain;+ClinicaVeterinaria.Application;+ClinicaVeterinaria.Infrastructure" -classfilters:"-ClinicaVeterinaria.Application.DTOs.*;-ClinicaVeterinaria.Infrastructure.Migrations.*;-ClinicaVeterinaria.Infrastructure.ClinicaDbContext;-ClinicaVeterinaria.*.DependencyInjection" -filefilters:"-**/obj/**"
+```
+
+Os filtros do `reportgenerator` são os do QG-03 em `.github/quality-gates.json`; a «Line coverage» do `TestResults/qg-03/Summary.txt` é o valor comparado com o limiar. A Collection Postman executa-se com o Newman como descrito no README da pasta `03.01.05-postman`. Pormenores de cada etapa: `/projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v02/README.md`.
+
 ## Executar a API
 
 Na raiz da solução:
@@ -134,6 +166,86 @@ http://localhost:<PORTA>/swagger
 
 O Swagger possui suporte para autenticação Bearer JWT através do botão `Authorize`.
 
+## Autenticação e autorização
+
+O início de sessão é feito em `POST /auth/login` (EP-001) e devolve um JWT assinado com HS256, válido durante 8 horas, sem refresh token. `GET /auth/me` (EP-003) devolve o utilizador do token com o perfil atual na base de dados.
+
+O token contém as claims `sub`, `email`, `role`, `jti` e, conforme o perfil, `clienteId` ou `veterinarioId`.
+
+Em cada pedido autenticado, a API confirma ainda que a conta continua ativa, que o perfil não mudou desde a emissão do token e que o `jti` não foi revogado. Uma conta bloqueada ou com perfil alterado perde o acesso de imediato.
+
+### Fim de sessão
+
+`POST /auth/logout` (EP-002) termina a sessão do token usado no pedido e responde `204` sem corpo. O `jti` do token fica guardado na tabela `TokenRevogado` até à expiração original do token (claim `exp`). A partir daí, qualquer pedido com esse token recebe `401`, em qualquer endpoint protegido, porque a verificação é feita na autenticação e não em cada controlador. Como a revogação está na base de dados, continua válida depois de a API reiniciar. Os outros tokens do mesmo utilizador (por exemplo, noutro dispositivo) não são afetados.
+
+Um token sem `jti` ou sem `exp` válido não é aceite. Repetir o fim de sessão com o mesmo token devolve `401`, porque o token já está revogado; dois pedidos simultâneos com o mesmo token não criam linhas repetidas.
+
+### Limpeza das revogações expiradas
+
+O serviço `LimpezaTokensRevogadosService` apaga as linhas de `TokenRevogado` cuja `DataExpiracao` já passou. Corre uma vez no arranque da API e depois a cada `LimpezaTokensRevogados:IntervaloMinutos` minutos (por omissão 60; aceita de 1 a 1440). Um valor fora desse intervalo impede a API de arrancar.
+
+Só são apagadas as revogações de tokens que já expiraram (`DataExpiracao` anterior ao instante atual). Um token é aceite até ao próprio instante da expiração, por isso a revogação mantém-se até lá e a limpeza nunca devolve o acesso a um token terminado por logout. Uma falha da limpeza (por exemplo, base de dados indisponível) fica no log (evento 3005) e não pára a API; o número de registos apagados fica no evento 3004.
+
+### Regras para novos endpoints
+
+Todos os endpoints exigem autenticação por omissão. Um endpoint público tem de ser marcado com `[AllowAnonymous]`.
+
+Um único perfil — usar a política correspondente:
+
+```csharp
+[Authorize(Policy = PoliticasAutorizacao.Administrador)]
+```
+
+Políticas disponíveis em `PoliticasAutorizacao`: `Administrador`, `Rececionista`, `Veterinario`, `AuxiliarVeterinario`, `Cliente`, `Funcionario` (qualquer um dos quatro perfis internos) e `ClienteProprietario`.
+
+Vários perfis — usar as constantes de `Perfis` (os perfis são alternativos):
+
+```csharp
+[Authorize(Roles = Perfis.Administrador + "," + Perfis.Rececionista + "," + Perfis.Veterinario)]
+```
+
+Rotas `/me/*` da aplicação móvel — herdar de `ClienteAutenticadoControllerBase`, que aplica a política de propriedade e expõe `ClienteIdAutenticado`. O identificador do Cliente vem sempre do token e nunca do pedido (RNF002):
+
+```csharp
+[Route("me/animais")]
+public sealed class MeusAnimaisController : ClienteAutenticadoControllerBase
+{
+    // usar ClienteIdAutenticado para filtrar os dados
+}
+```
+
+Para ler o utilizador autenticado num controlador: `User.ObterUtilizadorId()`, `User.ObterPerfil()`, `User.ObterClienteId()`, `User.ObterVeterinarioId()`, `User.ObterJti()` e `User.ObterExpiracao()`.
+
+Um pedido sem token válido recebe `401`; um perfil sem permissão recebe `403`. Ambos seguem o formato de erro descrito abaixo.
+
+### Política de palavra-passe
+
+As contas de funcionário criadas em `POST /utilizadores` (EP-006) exigem uma palavra-passe com 8 a 128 caracteres e com pelo menos uma letra minúscula, uma letra maiúscula, um algarismo e um símbolo (o espaço não conta como símbolo). Uma palavra-passe fraca devolve `400`.
+
+O e-mail das contas de funcionário segue a regra R-EMAIL da Especificação de Testes Unitários (I028): até 256 caracteres, sem espaços, com um único `@`, parte local não vazia e domínio com pelo menos um ponto e sem partes vazias. A regra está em `EmailValidoAttribute`; um e-mail inválido devolve `400`.
+
+A regra está em `PalavraPasseForteAttribute` (`ClinicaVeterinaria.Application/Validacao`) e aplica-se a um DTO com `[PalavraPasseForte]`. As palavras-passe são guardadas apenas como hash (`PasswordHasher` v3) e nenhuma resposta da API devolve o hash.
+
+### Atualização e bloqueio de contas de funcionário
+
+`PUT /utilizadores/{id}` (EP-007) atualiza o nome, o e-mail, o telefone, o perfil e a autorização `podeRegistarApoio` de uma conta de funcionário e devolve a conta no formato de EP-005. `PATCH /utilizadores/{id}/estado` (EP-008) bloqueia a conta e responde `204`. Ambos são só do Administrador, que é sempre identificado pelo token e nunca pelo pedido.
+
+Regras verificadas em cada pedido:
+
+- Em EP-007 o perfil `Cliente` dá `400` (em EP-006 dá `422`, como prevê o contrato de cada operação) e uma conta de Cliente dá `404`, porque não é uma conta de funcionário.
+- `podeRegistarApoio = true` só é aceite no perfil `AuxiliarVeterinario` (`422`). A regra é verificada em cada atualização, por isso um Auxiliar com apoio que muda de perfil tem de enviar `podeRegistarApoio = false`.
+- O Administrador não pode remover o próprio perfil de Administrador (`422`), mas pode alterar os seus outros dados e o perfil de outro Administrador.
+- O e-mail é guardado em minúsculas; um e-mail usado por outra conta, de funcionário ou de Cliente, dá `409` sem alterar dados. O próprio e-mail da conta não conta como conflito.
+- EP-008 só aceita o estado `Bloqueado` (sem distinguir maiúsculas); outro valor dá `400`. Bloquear uma conta já bloqueada, a própria conta do Administrador ou uma conta de Cliente dá `422`. O desbloqueio não faz parte do contrato.
+
+**Decisão sobre os tokens já emitidos (I066, critério 4):** o bloqueio e a mudança de perfil têm efeito imediato. Uma conta bloqueada deixa de iniciar sessão (EP-001 devolve `403`) e os tokens emitidos antes do bloqueio ou da mudança de perfil são rejeitados com `401` no pedido seguinte, porque cada pedido autenticado confirma o estado e o perfil atuais da conta (ver acima). Não é preciso revogar os tokens um a um na tabela `TokenRevogado`.
+
+**Divergência registada:** o campo `motivo` de EP-008 é aceite (até 500 caracteres), mas não é guardado, porque o Modelo de Dados (I016) não tem uma coluna para ele.
+
+### Verificação manual
+
+O ficheiro `ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http` tem um pedido válido e um pedido por cada erro previsto de EP-001 a EP-008 (os de EP-007 e EP-008 criam a sua própria conta para não alterar os dados de demonstração). Os pedidos de EP-002 devem ser executados pela ordem do ficheiro. As palavras-passe das contas de demonstração ficam num ficheiro local `http-client.env.json.user` (ignorado pelo Git), como explicado no topo desse ficheiro.
+
 ## CORS
 
 As origens permitidas pelo frontend são configuradas através de:
@@ -149,6 +261,8 @@ Cors__AllowedOrigins__0
 Cors__AllowedOrigins__1
 ```
 
+A política expõe o cabeçalho `ETag` (`Access-Control-Expose-Headers`), para o frontend web poder ler a versão da marcação devolvida por EP-024 (Documentação de API v02, secção 5.1). O cabeçalho `If-Match`, utilizado em EP-026 e EP-027, é aceite por `AllowAnyHeader`.
+
 ## Tratamento de erros
 
 A API possui tratamento transversal de erros com formato JSON uniforme:
@@ -161,6 +275,8 @@ A API possui tratamento transversal de erros com formato JSON uniforme:
 }
 ```
 
+As respostas `400` da validação automática dos modelos e as respostas `401` e `403` da autenticação seguem o mesmo formato.
+
 São tratados os códigos:
 
 - `400` - Bad Request
@@ -168,6 +284,7 @@ São tratados os códigos:
 - `403` - Forbidden
 - `404` - Not Found
 - `409` - Conflict
+- `412` - Precondition Failed (concorrência otimista nas marcações)
 - `422` - Unprocessable Entity
 
 ## Logging
@@ -182,8 +299,250 @@ A infraestrutura transversal regista:
 
 Os logs não registam corpos dos pedidos, palavras-passe, tokens JWT ou o header `Authorization`.
 
+## Agenda e consulta de marcações (EP-023, EP-024)
+
+`GET /consultas` (EP-023) devolve a agenda paginada (`PagedResultDto<ConsultaListItemDto>`) e `GET /consultas/{id}` (EP-024) devolve uma marcação com as notas de preparação (`ConsultaDto`). Os dois são da Rececionista, do Veterinário e do Auxiliar Veterinário; o Administrador e o Cliente recebem `403`.
+
+**Quem vê o quê.** A Rececionista e o Auxiliar Veterinário veem as marcações de todos os Veterinários e podem filtrar por `veterinarioId`. O Veterinário só vê as que lhe estão atribuídas: o servidor ignora o `veterinarioId` do pedido e usa a claim `veterinarioId` do token (RNF002). Em EP-024, uma marcação de outro Veterinário dá `403` e uma marcação inexistente dá `404` (para qualquer perfil). A regra está em `AcessoConsultas` (`ClinicaVeterinaria.Application/Seguranca`), que lê o perfil e o Veterinário do token.
+
+**Filtros de EP-023** (todos opcionais):
+
+- `dataInicio` e `dataFim` são dias em hora de Lisboa (`AAAA-MM-DD`) e incluem os dois extremos. Conta o início da marcação: de `dataInicio` 00:00 a `dataFim` 24:00, hora local, convertidos para UTC (regra R-FUSO). Só com `dataInicio`, vêm as marcações dessa data em diante; só com `dataFim`, até ao fim desse dia. Ao contrário de EP-022, não há um limite de dias, porque a resposta é paginada.
+- `dataFim` anterior a `dataInicio`, ou datas fora de 2000-01-01 a 9998-12-31, dão `400`. Uma data com formato inválido (por exemplo, `2026-13-40`) também dá `400`, com a mensagem do ASP.NET Core.
+- `estado` aceita `Pendente`, `Confirmada`, `Realizada` ou `Cancelada`, sem distinguir maiúsculas; outro valor dá `400`. Sem `estado`, a agenda inclui todos os estados, também as marcações canceladas.
+- `veterinarioId` e `animalId`, quando indicados, têm de ser superiores a 0 (`400`).
+- `pagina` (1 por omissão) e `tamanho` (20 por omissão, de 1 a 100), como nas outras listas. As marcações vêm por data e hora e, em caso de empate, por identificador.
+
+| Pedido                          | Marcação às 23:30 UTC de 24/10 (00:30 de 25/10 em Lisboa) | Marcação às 23:30 UTC de 25/10 (23:30 de 25/10 em Lisboa) |
+| ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| `dataInicio=dataFim=2026-10-24` | não                                                       | não                                                       |
+| `dataInicio=dataFim=2026-10-25` | sim                                                       | sim                                                       |
+| `dataInicio=dataFim=2026-10-26` | não                                                       | não                                                       |
+
+**Sem dados clínicos (critério 5).** `ConsultaListItemDto`, `ConsultaDto` e `NotaPreparacaoDto` só têm dados administrativos (data e hora, duração, estado, motivo, chegada, animal, proprietário e Veterinário) e as notas de preparação. O `ConsultasService` não lê o registo clínico, os tratamentos nem as prescrições. A resposta é a mesma para os três perfis, por isso o Auxiliar Veterinário, com ou sem autorização de apoio, recebe as notas e nenhum dado clínico. O telefone do proprietário (`cliente.telefone`) vem a `null`: só é devolvido na ficha do animal (EP-016).
+
+**Versão da marcação.** EP-024 devolve o cabeçalho `ETag` com a versão atual (`Marcacao.RowVersion` em Base64, entre aspas, por exemplo `"AAAAAAAAB9E="`), calculado em `VersaoMarcacao` (`ClinicaVeterinaria.Application/Agenda`). A comparação com `If-Match` e a resposta `412` são utilizadas em EP-026 e EP-027 (I074).
+
+As datas e horas da resposta (`dataHora`, `chegadaEm`, `criadaEm`) estão em UTC, com o sufixo `Z`.
+
+## Criar marcação (EP-025)
+
+`POST /consultas` (EP-025) cria uma marcação no estado `Pendente` e devolve `201` com a marcação no formato de EP-024 (`ConsultaDto`) e os cabeçalhos `Location` (`/consultas/{id}`) e `ETag`. Só a Rececionista pode criar: o controlador aceita os três perfis da agenda e a ação acrescenta a política `Rececionista`, por isso o Veterinário e o Auxiliar Veterinário recebem `403`, tal como o Administrador e o Cliente.
+
+```json
+{
+  "animalId": 1,
+  "veterinarioId": 4,
+  "dataHora": "2026-11-25T10:00:00Z",
+  "motivo": "Consulta de rotina"
+}
+```
+
+Regras, pela ordem em que são verificadas:
+
+- **400:** `animalId`, `veterinarioId` ou `dataHora` em falta, identificadores inferiores a 1, `motivo` com mais de 250 caracteres, ou `dataHora` que não é estritamente futura (a hora atual já não serve). `dataHora` é em UTC; uma data sem fuso é lida como UTC e os segundos fracionários são retirados (a coluna é `datetime2(0)`).
+- **404:** animal inexistente, ou `veterinarioId` que não é de um Veterinário com conta ativa (inexistente, de outro perfil ou bloqueado), como em EP-021 e EP-022.
+- **422 — fora do horário:** a consulta, com a duração configurada em EP-010 (30 minutos por omissão), tem de começar e acabar dentro de um período do horário de funcionamento desse dia, em hora de Lisboa (regra R-FUSO). Não tem de coincidir com a grelha de EP-022: 10:10 é aceite se estiver livre.
+- **422 — Veterinário indisponível:** o intervalo `[dataHora, dataHora + duração)` não se pode sobrepor a outra marcação não cancelada do mesmo Veterinário. Intervalos que só se tocam são aceites e as marcações `Cancelada` não ocupam horário.
+
+As duas verificações de `422` usam `CalculadoraDisponibilidade.IntervaloDisponivel` (I071): primeiro sem marcações, para distinguir «fora do horário» de «indisponível», e depois com as marcações do Veterinário.
+
+**Pedidos simultâneos para a mesma vaga.** A leitura da agenda e a gravação são feitas numa transação, com a agenda do Veterinário bloqueada por `sp_getapplock` (`BloqueioAgendaVeterinario`, em `ClinicaVeterinaria.Infrastructure`). O segundo pedido espera que o primeiro termine, volta a ler a agenda e recebe `422`; só uma marcação é gravada. O `RowVersion` não chega para isto, porque só protege alterações a uma linha que já existe. Se o bloqueio não for obtido em 15 segundos, a resposta é `409`. A alteração de marcações (EP-026, I074) reutiliza o mesmo bloqueio quando muda a data, a hora ou o Veterinário.
+
+Exemplos com o horário dos dados da I061 e consultas de 30 minutos (horas de Lisboa):
+
+| Situação                                       | Resultado                |
+| ---------------------------------------------- | ------------------------ |
+| Quarta-feira às 10:00, Veterinário livre       | `201`, estado `Pendente` |
+| Às 12:30                                       | `201` (acaba às 13:00)   |
+| Às 12:45 ou às 13:00                           | `422` (fora do horário)  |
+| Domingo                                        | `422` (fora do horário)  |
+| Já existe uma marcação às 10:00; nova às 10:15 | `422` (indisponível)     |
+| Já existe uma marcação às 10:00; nova às 10:30 | `201` (só se tocam)      |
+| Marcação cancelada às 10:00; nova às 10:00     | `201`                    |
+| Oito pedidos simultâneos para a mesma vaga     | um `201` e sete `422`    |
+
+Os casos estão nos testes unitários `CriarConsultaServiceTests` (UT-F003-019 a UT-F003-032 da Especificação de Testes Unitários, mais casos próprios) e `ConsultasControllerTests`. Com a API e o SQL Server, `CriarConsultaEndpointsTests` cobre IT-EP025-01 a IT-EP025-08, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I073 de `ClinicaVeterinaria.Api.http`.
+
+## Alteração de marcações e mudança de estado (EP-026, EP-027)
+
+`PUT /consultas/{id}` (EP-026) permite à Rececionista alterar o Veterinário, a data/hora e o motivo de uma marcação `Pendente` ou `Confirmada`. A disponibilidade é novamente validada e a própria marcação é excluída da pesquisa de conflitos. A alteração reutiliza `BloqueioAgendaVeterinario`, tal como EP-025, para impedir sobreposições concorrentes. Marcações `Realizada` ou `Cancelada` devolvem `422`.
+
+`PATCH /consultas/{id}/estado` (EP-027) permite as transições:
+
+- `Pendente → Confirmada`;
+- `Pendente → Cancelada`;
+- `Confirmada → Realizada`;
+- `Confirmada → Cancelada`.
+
+O estado `Pendente` não pode ser escolhido manualmente. Estados inexistentes devolvem `400` e transições não permitidas devolvem `422`.
+
+EP-026 e EP-027 suportam concorrência otimista através de `ETag`/`If-Match`. Um `If-Match` desatualizado devolve `412 Precondition Failed` sem alterar a marcação. Em caso de sucesso é emitido um novo `ETag`.
+
+### Divergência conhecida — `observacao` de EP-027
+
+O corpo de EP-027 inclui o campo opcional `observacao`, representado por `UpdateEstadoConsultaDto.Observacao`.
+
+O Modelo de Dados atualmente integrado e a entidade `Marcacao` não possuem, contudo, qualquer coluna ou propriedade destinada a persistir essa observação. Por esse motivo, a implementação atual aceita `observacao` no pedido para manter compatibilidade com o contrato de EP-027, mas o valor não é persistido nem devolvido posteriormente.
+
+Nesta Issue não foi criada qualquer alteração ao esquema nem migration para este campo. Caso a observação de mudança de estado deva ser persistente, essa decisão exige uma alteração explícita ao Modelo de Dados e respetiva tarefa de implementação/migração.
+
+Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
+
+## Marcações do Cliente na aplicação móvel (EP-030)
+
+`GET /me/consultas` (EP-030) devolve ao Cliente autenticado as marcações dos seus animais (RF028, RF029). O controlador (`MinhasConsultasController`) herda de `ClienteAutenticadoControllerBase`: só o perfil Cliente entra e o Cliente vem sempre do token (`clienteId`), nunca do pedido (RNF002). Não há operações de criação, alteração, confirmação ou cancelamento.
+
+Parâmetros:
+
+- `tipo` = `futuras` (por omissão) ou `historico`, sem distinguir maiúsculas; outro valor dá `400`.
+- `animalId` (opcional) filtra por um animal do Cliente; inferior a 1 dá `400`.
+
+| Vista | Marcações | Ordem |
+|---|---|---|
+| `futuras` | `Pendente` ou `Confirmada` que começam agora ou depois | Data crescente |
+| `historico` | Todas as outras: passadas, e as `Cancelada` ou `Realizada` mesmo com data futura | Data decrescente |
+
+Cada marcação aparece numa só das duas vistas. A regra está em `TiposMinhasConsultas` (`ClinicaVeterinaria.Application/Agenda`) e na consulta de `MinhasConsultasService`.
+
+A resposta (`MinhaConsultaDto`) só tem dados administrativos: `id`, `dataHora` (UTC), `estado`, `animal` (`id`, `nome`, `especie`) e `veterinario` (nome). Não inclui o motivo, as notas de preparação nem nada do registo clínico.
+
+```json
+[
+  { "id": 5, "dataHora": "2026-11-05T11:00:00Z", "estado": "Pendente", "animal": { "id": 1, "nome": "Bobi", "especie": "Cão" }, "veterinario": "Dra. Ana Veterinária (demonstração)" }
+]
+```
+
+Erros: `400` (tipo inválido ou `animalId` inferior a 1), `401` (sem token válido) e `403` (perfil diferente de Cliente, ou `animalId` que não é de um animal do Cliente).
+
+### Decisões e divergências (I076)
+
+- **Marcação futura cancelada vai para o histórico.** A Especificação de Testes Unitários (I028, UT-F003-056 a UT-F003-058) separava as vistas só pela data (`dataHora ≥ agora`). Na I076 decidiu-se que as futuras são só as marcações `Pendente` ou `Confirmada`: uma marcação cancelada (ou realizada) já não está por acontecer e fica no histórico, como prevê o RF029 («marcações passadas e consultas realizadas»). Os testes UT-F003-056 a 061 seguem esta regra.
+- **`animalId` inexistente dá `403`.** O contrato de EP-030 só prevê `403` para o `animalId` de outro Cliente e não prevê `404`. Um `animalId` que não é de um animal do Cliente autenticado, exista ou não, dá `403`, para a resposta não revelar se o animal existe.
+- **`animal` inclui a espécie.** O exemplo de EP-030 na Documentação de API v02 mostra só `id` e `nome`; o Modelo de Classes v02 usa `AnimalRefDto`, que também tem `especie`, como nos restantes endpoints.
+- **Sem paginação.** O contrato devolve `List<MinhaConsultaDto>`.
+
+Testes: `MinhasConsultasServiceTests` (UT-F003-056 a UT-F003-061 e casos próprios), `MinhasConsultasControllerTests` e, com a API e o SQL Server, `MinhasConsultasEndpointsTests` (IT-EP030-01 a IT-EP030-06, `401` e `403`). Os pedidos de verificação manual estão na secção I076 de `ClinicaVeterinaria.Api.http`.
+
+## Registo clínico (EP-031 a EP-034)
+
+`POST /registos-clinicos` (EP-031) cria o registo clínico de uma consulta e devolve `201` com o registo (`RegistoClinicoDto`) e o cabeçalho `Location: /registos-clinicos/{id}`. `PUT /registos-clinicos/{id}` (EP-032) altera-o e devolve `200`. As duas operações são só do perfil Veterinário (política `Veterinario`): o Auxiliar Veterinário, a Rececionista, o Administrador e o Cliente recebem `403`. Dentro do perfil, só o Veterinário a quem a consulta está atribuída cria o registo, e só quem o criou o altera (`403` para os outros). O Veterinário vem sempre da claim `veterinarioId` do token.
+
+```json
+{
+  "consultaId": 3,
+  "notasClinicas": "Animal ativo; ligeira inflamação no ouvido esquerdo.",
+  "diagnostico": "Otite externa",
+  "tratamentos": [
+    { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" }
+  ],
+  "prescricoes": [
+    {
+      "medicamento": "Gotas auriculares X",
+      "dosagem": "3 gotas",
+      "frequencia": "2 vezes por dia",
+      "duracaoDias": 7
+    }
+  ]
+}
+```
+
+Regras de EP-031, pela ordem em que são verificadas:
+
+- **400:** `consultaId` em falta ou inferior a 1; nenhum elemento clínico (notas, diagnóstico, um tratamento ou uma prescrição; texto só com espaços não conta); tratamento sem descrição ou sem data; prescrição sem medicamento, dosagem ou frequência; `duracaoDias` indicada e não superior a 0; textos acima do tamanho das colunas (notas 4000, diagnóstico 1000, descrição 1000, medicamento 150, dosagem e frequência 100).
+- **404:** consulta inexistente.
+- **403:** consulta atribuída a outro Veterinário.
+- **422:** consulta `Pendente` ou `Cancelada` (só `Confirmada` e `Realizada` admitem registo).
+- **409:** a consulta já tem registo clínico. Dois pedidos simultâneos para a mesma consulta: um é aceite e o outro recebe `409`, pelo índice único `UQ_RegistoClinico_Marcacao`.
+
+O registo, os tratamentos e as prescrições são gravados numa só transação: um pedido recusado não deixa nada gravado. O registo não altera o estado da marcação. Os textos são aparados e as notas ou o diagnóstico só com espaços ficam nulos.
+
+**EP-032** aceita o mesmo corpo sem `consultaId` (um `consultaId` enviado é ignorado: a consulta e o paciente não mudam). É uma substituição completa, como em qualquer `PUT`: notas e diagnóstico ficam como vierem, e as listas substituem as anteriores. Um tratamento ou prescrição que já existe mantém-se e é atualizado indicando o seu `id`; sem `id`, é acrescentado; os que não vierem (ou uma lista omitida) são removidos. Um `id` que não é deste registo, ou repetido no pedido, dá `400`. O registo não pode ficar sem elemento clínico (`400`). Ficam registados `atualizadoEm` (UTC) e `atualizadoPor` (nome do Veterinário). Registo inexistente: `404`.
+
+Os casos estão nos testes unitários `RegistosClinicosServiceTests` (UT-F004-001 a UT-F004-021 da Especificação de Testes Unitários, mais casos próprios) e `RegistosClinicosControllerTests`. Com a API e o SQL Server, `RegistosClinicosEndpointsTests` cobre IT-EP031-01 a 09 e IT-EP032-01 a 05, os `401` e `403` e os pedidos simultâneos. Os pedidos de verificação manual estão na secção I077 de `ClinicaVeterinaria.Api.http`.
+
+### Consultar o registo e o histórico clínico (EP-033, EP-034)
+
+`GET /registos-clinicos/{id}` (EP-033) devolve o registo completo, no mesmo formato da resposta de EP-031 (`RegistoClinicoDto`). `GET /animais/{id}/historico-clinico` (EP-034) devolve o animal (`AnimalRefDto`) e os resumos dos seus registos (`RegistoClinicoResumoDto`: `id`, `consultaId`, `data`, `veterinario`, `diagnostico`, `numeroTratamentos` e `numeroPrescricoes`), do mais recente para o mais antigo. Um animal sem registos devolve `registos: []`.
+
+```json
+{
+  "animal": { "id": 1, "nome": "Bobi", "especie": "Cão" },
+  "registos": [
+    { "id": 1, "consultaId": 1, "data": "2026-10-14", "veterinario": "Dra. Ana Veterinária (demonstração)", "diagnostico": "Otite externa", "numeroTratamentos": 1, "numeroPrescricoes": 1 }
+  ]
+}
+```
+
+- **Perfis:** Veterinário e Auxiliar Veterinário (`[Authorize(Roles = Veterinario,AuxiliarVeterinario)]` no controlador). A Rececionista, o Administrador e o Cliente recebem `403`; sem token, `401`. EP-031 e EP-032 acrescentam a política `Veterinario`, por isso o Auxiliar só tem operações de leitura (`403` ao criar ou alterar).
+- **O que o Auxiliar vê:** o mesmo registo completo que o Veterinário, como prevê a Documentação de API v02 (EP-033, ponto em aberto 4) e o UC13. Se o grupo decidir uma projeção reduzida, muda o DTO de resposta para este perfil.
+- **Registos de outros Veterinários:** qualquer Veterinário lê o registo e o histórico de qualquer paciente, incluindo os registos feitos por colegas (RF035: «os registos clínicos anteriormente armazenados e associados a esse paciente»). A restrição ao Veterinário da consulta aplica-se só à criação e à alteração.
+- **Datas:** `data` é o dia da consulta em hora de Lisboa. `dataInicio` e `dataFim` são opcionais, no formato `AAAA-MM-DD`, com os dois dias incluídos e as mesmas regras da agenda (EP-023): `dataFim` anterior a `dataInicio`, data mal formada ou fora de 2000-01-01 a 9998-12-31 dá `400`.
+- **Inexistentes:** registo (EP-033) ou animal (EP-034) que não existe dá `404`.
+
+Os casos estão nos testes unitários `RegistosClinicosLeituraServiceTests` (UT-F004-022 a UT-F004-027, mais casos próprios) e `RegistosClinicosControllerTests`. Com a API e o SQL Server, `RegistosClinicosLeituraEndpointsTests` cobre IT-EP033-01 a 03, IT-EP034-01 a 05 e a matriz de perfis (`401` e `403`). Os pedidos de verificação manual estão na secção I078 de `ClinicaVeterinaria.Api.http`.
+
 ## Segurança
 
 Segredos não devem ser adicionados ao controlo de versões.
 
 Em desenvolvimento devem ser utilizados User Secrets. Nos restantes ambientes devem ser utilizadas variáveis de ambiente ou outro mecanismo seguro de gestão de segredos.
+
+## Disponibilidade dos Veterinários (EP-021, EP-022)
+
+`GET /veterinarios` (EP-021) lista os Veterinários com conta ativa, por nome. `GET /veterinarios/{id}/disponibilidade?dataInicio=AAAA-MM-DD&dataFim=AAAA-MM-DD` (EP-022) devolve, para cada dia do período, os horários livres do Veterinário. As duas operações são só para o perfil Rececionista.
+
+O cálculo está em `CalculadoraDisponibilidade` (`ClinicaVeterinaria.Application/Agenda`), uma função sem acesso à base de dados: recebe o horário de funcionamento, a duração das consultas, as marcações do Veterinário e o instante atual. O `VeterinariosService` só lê esses dados e prepara a resposta. `CalculadoraDisponibilidade.IntervaloDisponivel` aplica as mesmas regras a um intervalo qualquer, para ser usada na criação e alteração de marcações (EP-025, EP-026).
+
+Regras:
+
+- **Grelha:** os horários de cada período começam na abertura e repetem-se a cada `duracaoConsultaMinutos` (configuração de EP-010; 30 por omissão). Um horário só aparece se a consulta acabar até ao fecho do período.
+- **Marcações:** cada marcação não cancelada ocupa `[início, início + a sua duração)`. Um horário que se sobreponha a uma marcação não aparece; intervalos que só se tocam não se sobrepõem. As marcações `Cancelada` não ocupam horário.
+- **Hora local:** as marcações estão guardadas em UTC e o horário de funcionamento em hora de Lisboa (`Europe/Lisbon`). Os horários livres são devolvidos em hora de Lisboa (`HH:mm`), já com a hora de verão ou de inverno de cada dia. No dia da mudança para a hora de verão, uma hora que não existe (por exemplo, 01:00) não é um horário.
+- **Passado:** os horários que começam antes do instante atual não são devolvidos; um dia já passado aparece com a lista vazia.
+- **Período:** `dataInicio` é obrigatória; sem `dataFim`, o período é um só dia. `dataFim` não pode ser anterior a `dataInicio` e o período tem no máximo 31 dias, contando os dois extremos. As datas têm de estar entre 2000-01-01 e 9998-12-31. Caso contrário: `400`.
+- **Veterinário:** um id que não é de um Veterinário com conta ativa (inexistente, de outro perfil ou bloqueado) dá `404`.
+
+Exemplos com o horário dos dados da I061 (segunda a sexta 09:00–13:00 e 14:00–19:00; sábado 09:00–13:00) e consultas de 30 minutos:
+
+| Situação                                   | Resultado                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| Dia útil sem marcações                     | 18 horários: `09:00` a `12:30` e `14:00` a `18:30`                  |
+| Fecho do período                           | `12:30` aparece (acaba às 13:00); `13:00` e `19:00` não             |
+| Marcação às 10:00 (30 minutos)             | `10:00` não aparece; `09:30` e `10:30` aparecem                     |
+| Marcação às 10:15 com 60 minutos           | `10:00`, `10:30` e `11:00` não aparecem; `09:30` e `11:30` aparecem |
+| Marcação cancelada às 10:00                | `10:00` aparece                                                     |
+| Sábado                                     | `09:00` a `12:30`                                                   |
+| Domingo                                    | dia devolvido com a lista vazia                                     |
+| Consultas de 45 minutos                    | manhã: `09:00`, `09:45`, `10:30`, `11:15`, `12:00`                  |
+| Hoje às 09:10                              | o primeiro horário é `09:30`                                        |
+| `dataInicio=2026-10-01&dataFim=2026-10-31` | aceite (31 dias)                                                    |
+| `dataInicio=2026-10-01&dataFim=2026-11-01` | `400` (32 dias)                                                     |
+
+Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `ValidadorPeriodoDisponibilidadeTests` e `VeterinariosServiceTests` (UT-F003-001 a UT-F003-018 da Especificação de Testes Unitários). Com a API e o SQL Server, `VeterinariosEndpointsTests` verifica um pedido válido e cada código de erro (200, 400, 401, 403 e 404). Os pedidos de verificação manual estão na secção I071 de `ClinicaVeterinaria.Api.http`.
+
+## Boletim de vacinas e desparasitações (EP-042 a EP-044)
+
+`POST /animais/{id}/vacinacoes` (EP-043) regista uma vacinação ou desparasitação e devolve `201` com a administração (`AdministracaoDto`) e o cabeçalho `Location: /animais/{id}/vacinacoes/{administracaoId}`. `GET /animais/{id}/vacinacoes` (EP-042) devolve o boletim do animal (`BoletimDto`). `PUT /animais/{id}/vacinacoes/{administracaoId}` atualiza uma administração (RF056; ver «Divergência» abaixo). As três operações são só do perfil Veterinário (política `Veterinario`): a Rececionista, o Auxiliar Veterinário, o Administrador e o Cliente recebem `403`. O Veterinário vem sempre da claim `veterinarioId` do token.
+
+```json
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+```
+
+- **400:** `tipo` em falta ou diferente de `Vacina`/`Desparasitacao`; `produto` ou `lote` em falta (texto só com espaços não conta) ou acima do tamanho das colunas (produto 150, lote 50); `dataAdministracao` em falta ou futura (hoje é aceite, em hora de Lisboa); `intervaloDias` indicado e fora de 1 a 32767.
+- **404:** animal inexistente.
+- **Próxima administração (RF045):** com `intervaloDias`, `dataProximaPrevista = dataAdministracao + intervaloDias` (dias de calendário, `CalculadoraProximaAdministracao`); sem intervalo, `null`. Nunca vem do pedido. É a mesma regra da coluna calculada `RegistoProfilaxia.DataProximaAdministracao`, que o SQL Server mantém.
+
+**EP-042** devolve `animal`, `administracoes` (todas, da data de administração mais recente para a mais antiga, com `lote`, `intervaloDias`, `dataProximaPrevista` e o nome do Veterinário) e `proximas` (as datas previstas iguais ou posteriores a hoje, da mais próxima para a mais distante; as que já passaram não aparecem, PA-11 da I028). `tipo` (opcional) filtra as duas listas; um valor inválido dá `400`. Animal inexistente: `404`. Sem registos, as listas vêm vazias.
+
+**Atualização (RF056):** aceita o mesmo corpo de EP-043 e substitui todos os campos; `dataProximaPrevista` é recalculada (sem intervalo, fica `null`). O registo mantém o animal e o Veterinário. Mesmas regras de `400`; animal inexistente, ou administração inexistente nesse animal: `404`; administração registada por outro Veterinário: `403` (como em EP-032).
+
+### Boletim do Cliente (EP-044)
+
+`GET /me/animais/{id}/vacinacoes` é só do perfil Cliente (`ClienteAutenticadoControllerBase`, política `ClienteProprietario`) e devolve `MeuBoletimDto`: `historico` (tipo, produto e data de administração, da mais recente para a mais antiga) e `proximas` (as mesmas regras de EP-042). O Cliente vem sempre do token (RNF002): um animal de outro Cliente dá `403`, sem nenhum dado desse animal na resposta; um animal inexistente dá `404`.
+
+### Divergência — atualização de uma administração (RF056)
+
+A Issue I082 (critério 4, aprovado no Backlog Refinement do Sprint 05) pede a atualização de um registo com recálculo da próxima administração, mas a Documentação de API v02 ainda não tem essa operação (ponto em aberto 2: prevista para a v03, «uma operação de atualização em EP-043») e o RF056 ainda não consta da Especificação de Requisitos v02. Foi implementada como `PUT /animais/{id}/vacinacoes/{administracaoId}`, com o DTO `UpdateAdministracaoDto` previsto no Modelo de Classes do Backend v02 (ponto em aberto 4). Fica para registar na API v03 e na Especificação de Requisitos.
+
+Os casos estão nos testes unitários `CalculadoraProximaAdministracaoTests` (UT-F006-001 a 007), `VacinacoesServiceTests` (UT-F006-008 a 024 e a atualização), `AdministracaoDtoValidacaoTests` e `VacinacoesControllerTests`. Com a API e o SQL Server, `VacinacoesEndpointsTests` cobre IT-EP042-01 a 05, IT-EP043-01 a 07, IT-EP044-01 a 04, IT-TRV-15, a atualização (incluindo a coluna calculada) e a matriz de perfis (`401` e `403`). Os pedidos de verificação manual estão na secção I082 de `ClinicaVeterinaria.Api.http`.

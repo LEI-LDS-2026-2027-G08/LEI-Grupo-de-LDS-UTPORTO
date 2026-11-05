@@ -1,0 +1,2063 @@
+# =============================================================================
+# Pedidos de verificação manual — I063 (EP-001 e EP-003) e I064 (EP-002)
+#
+# Antes de executar:
+#   1. Base de dados reposta (scripts/reposicao-base-dados.ps1) e com os dados
+#      de demonstração da I061 (04.13-scripts-de-base-de-dados/m3-v02).
+#   2. Chave JWT nos User Secrets (ver README do backend).
+#   3. Palavras-passe das contas de demonstração num ficheiro LOCAL
+#      http-client.env.json.user, nesta pasta (o *.user está no .gitignore):
+#
+#      {
+#        "dev": {
+#          "passwordAdmin": "...",
+#          "passwordBloqueada": "...",
+#          "passwordCliente": "..."
+#        }
+#      }
+#
+#   4. No Visual Studio, escolher o ambiente "dev" no canto superior do editor.
+# =============================================================================
+
+@host = http://localhost:5159
+@emailAdmin = admin@clinica-g08.test
+@emailBloqueada = rececao.bloqueada@clinica-g08.test
+@emailCliente = cliente.joao@clinica-g08.test
+
+### EP-001 · 200 — credenciais válidas (Administrador)
+# @name loginAdmin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "{{passwordAdmin}}" }
+
+### EP-001 · 200 — credenciais válidas (Cliente: a resposta inclui clienteId)
+# @name loginCliente
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailCliente}}", "password": "{{passwordCliente}}" }
+
+### EP-001 · 400 — e-mail em falta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "password": "qualquer" }
+
+### EP-001 · 400 — palavra-passe em falta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "" }
+
+### EP-001 · 400 — corpo em falta / JSON inválido
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}",
+
+### EP-001 · 401 — palavra-passe incorreta
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "Errada#0000" }
+
+### EP-001 · 401 — e-mail inexistente (mesma resposta que o pedido anterior)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "nao.existe@clinica-g08.test", "password": "Errada#0000" }
+
+### EP-001 · 403 — conta bloqueada (palavra-passe correta)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailBloqueada}}", "password": "{{passwordBloqueada}}" }
+
+### EP-003 · 200 — utilizador autenticado (Administrador)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-003 · 200 — utilizador autenticado (Cliente, com clienteId)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-003 · 401 — token ausente
+GET {{host}}/auth/me
+
+### EP-003 · 401 — token adulterado (assinatura alterada)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.$.token}}x
+
+### EP-003 · 401 — token assinado com outra chave
+GET {{host}}/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.BAa2k5tgdKPMS594lDkv6hXJssVjeE9xAEHYr4b3xN8
+
+### EP-003 · 401 — token sem assinatura (alg "none")
+GET {{host}}/auth/me
+Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.
+
+# -----------------------------------------------------------------------------
+# I064 — EP-002 (fim de sessão). Executar por esta ordem, de cima para baixo.
+# Os pedidos usam uma sessão própria (loginFimSessao), para não invalidar o
+# token do Administrador usado nos pedidos de EP-003 acima.
+# -----------------------------------------------------------------------------
+
+### EP-002 · preparação — iniciar a sessão que vai ser terminada (Administrador)
+# @name loginFimSessao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAdmin}}", "password": "{{passwordAdmin}}" }
+
+### EP-002 · preparação — antes do fim de sessão o token é aceite (EP-003 · 200)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 204 — terminar sessão (sem corpo na resposta)
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — o mesmo token depois do fim de sessão (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — terminar sessão outra vez com o token já revogado
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token revogado num endpoint de cada perfil (critério 3)
+# Até existirem endpoints próprios de cada perfil (I065 a I085), GET /auth/me é
+# o endpoint protegido comum aos cinco perfis. Repetir os três pedidos anteriores
+# com o Cliente: iniciar sessão, terminar sessão e voltar a usar o token.
+# @name loginClienteFimSessao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailCliente}}", "password": "{{passwordCliente}}" }
+
+### EP-002 · 204 — terminar sessão do Cliente
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginClienteFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token do Cliente depois do fim de sessão
+GET {{host}}/auth/me
+Authorization: Bearer {{loginClienteFimSessao.response.body.$.token}}
+
+### EP-002 · 401 — token ausente
+POST {{host}}/auth/logout
+
+### EP-002 · 401 — token adulterado
+POST {{host}}/auth/logout
+Authorization: Bearer {{loginAdmin.response.body.$.token}}x
+
+### EP-002 · 401 — token assinado com outra chave
+POST {{host}}/auth/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJhZG1pbkBjbGluaWNhLWcwOC50ZXN0Iiwicm9sZSI6IkFkbWluaXN0cmFkb3IiLCJqdGkiOiJvdXRyYWNoYXZlMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJpc3MiOiJDbGluaWNhVmV0ZXJpbmFyaWEuQXBpIiwiYXVkIjoiQ2xpbmljYVZldGVyaW5hcmlhLkNsaWVudHMiLCJpYXQiOjE3OTMxNDU2MDAsIm5iZiI6MTc5MzE0NTYwMCwiZXhwIjoyMjA4OTg4ODAwfQ.BAa2k5tgdKPMS594lDkv6hXJssVjeE9xAEHYr4b3xN8
+
+###
+
+# =============================================================================
+# I068 — Contas de Cliente (EP-011 a EP-014)
+#
+# Acrescentar ao http-client.env.json.user: "passwordRececao" e "passwordVet"
+# (contas rececao@ e vet.ana@ dos dados de demonstração da I061).
+# Os pedidos de criação usam um e-mail novo em cada execução ({{$random.uuid}}).
+# =============================================================================
+
+@emailRececao = rececao@clinica-g08.test
+@emailVet = vet.ana@clinica-g08.test
+
+### Login Rececionista
+# @name loginRececao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailRececao}}", "password": "{{passwordRececao}}" }
+
+### Login Veterinário
+# @name loginVet
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailVet}}", "password": "{{passwordVet}}" }
+
+### EP-011 · 200 — pesquisa parcial (nome, NIF, telefone ou e-mail)
+GET {{host}}/clientes?pesquisa=silva
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-011 · 200 — paginação
+GET {{host}}/clientes?pagina=2&tamanho=2
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-011 · 400 — página inválida
+GET {{host}}/clientes?pagina=0
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-011 · 401 — sem token
+GET {{host}}/clientes
+
+### EP-011 · 403 — perfil Cliente
+GET {{host}}/clientes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-012 · 200 — ficha com os animais
+GET {{host}}/clientes/1
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-012 · 404 — cliente inexistente
+GET {{host}}/clientes/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-013 · 201 — criar conta de Cliente (Location na resposta)
+# @name criarCliente
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Cliente de Teste",
+  "telefone": "912345678",
+  "email": "teste.{{$random.uuid}}@mail.test",
+  "morada": "Rua de Teste, 1",
+  "passwordInicial": "Teste#2026x"
+}
+
+### EP-013 · login com a conta criada (critério 7) — 200 com clienteId
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{criarCliente.response.body.$.email}}", "password": "Teste#2026x" }
+
+### EP-013 · 400 — campos em falta, NIF e e-mail inválidos
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nif": "123456780", "email": "invalido", "passwordInicial": "curta" }
+
+### EP-013 · 409 — NIF já registado (João Costa)
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Duplicado", "nif": "210000015", "telefone": "912345678", "email": "dup.{{$random.uuid}}@mail.test", "passwordInicial": "Teste#2026x" }
+
+### EP-013 · 409 — e-mail já registado (também conta de funcionário)
+POST {{host}}/clientes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Duplicado", "telefone": "912345678", "email": "{{emailAdmin}}", "passwordInicial": "Teste#2026x" }
+
+### EP-013 · 403 — Veterinário não cria clientes
+POST {{host}}/clientes
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x.{{$random.uuid}}@mail.test", "passwordInicial": "Teste#2026x" }
+
+### EP-014 · 200 — atualizar (o e-mail da conta muda na mesma operação)
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Cliente de Teste Alterado", "telefone": "912000000", "email": "alterado.{{$random.uuid}}@mail.test", "morada": "Rua de Teste, 2" }
+
+### EP-014 · 400 — campos inválidos
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "", "telefone": "12", "email": "invalido" }
+
+### EP-014 · 404 — cliente inexistente
+PUT {{host}}/clientes/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x@mail.test" }
+
+### EP-014 · 409 — NIF de outro cliente
+PUT {{host}}/clientes/{{criarCliente.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "nif": "210000023", "telefone": "912345678", "email": "{{criarCliente.response.body.$.email}}" }
+
+### EP-014 · 403 — Veterinário não altera clientes
+PUT {{host}}/clientes/1
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "telefone": "912345678", "email": "x@mail.test" }
+
+###
+
+# =============================================================================
+# I072 — Agenda e consulta de marcações (EP-023, EP-024)
+#
+# Usa "passwordRececao", "passwordVet" (vet.ana) e "passwordAux" (aux.carla) do
+# http-client.env.json.user.
+# Marcações da I061 (horas em UTC; em outubro, Lisboa = UTC+1 até dia 25):
+#   M1 Bobi/vet.ana 2026-10-14 09:30 Realizada (nota de preparação e registo clínico)
+#   M2 Mia/vet.bruno 2026-10-20 10:00 Cancelada
+#   M3 Kiko/vet.ana 2026-11-03 09:00 Confirmada
+#   M4 Luna/vet.bruno 2026-11-04 14:30 Pendente
+#   M5 Bobi/vet.ana 2026-11-05 11:00 Pendente
+# Os ids abaixo são os de uma base reposta com os dados da I061: confirmar na
+# resposta do primeiro pedido (a agenda vem por data, por isso M1 é o primeiro).
+# =============================================================================
+
+@idConsultaM1 = 1
+@idConsultaM4 = 4
+@idVeterinarioBruno = 5
+
+### Login Rececionista (I072)
+# @name loginRececaoConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### Login Veterinário vet.ana (I072)
+# @name loginVetConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### Login Auxiliar Veterinário aux.carla (I072)
+# @name loginAuxConsultas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "aux.carla@clinica-g08.test", "password": "{{passwordAux}}" }
+
+### EP-023 · 200 — Rececionista: agenda do período (M1 a M5, por data)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Rececionista: filtro por Veterinário e estado (só M4)
+GET {{host}}/consultas?veterinarioId={{idVeterinarioBruno}}&estado=Pendente
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Veterinário: só as suas (M1, M3 e M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Veterinário com o veterinarioId de vet.bruno: ignorado (M1, M3 e M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05&veterinarioId={{idVeterinarioBruno}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-023 · 200 — Auxiliar Veterinário: agenda de todos (M1 a M5)
+GET {{host}}/consultas?dataInicio=2026-10-14&dataFim=2026-11-05
+Authorization: Bearer {{loginAuxConsultas.response.body.$.token}}
+
+### EP-023 · 400 — dataFim anterior a dataInicio
+GET {{host}}/consultas?dataInicio=2026-10-15&dataFim=2026-10-14
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 400 — estado inválido
+GET {{host}}/consultas?estado=Faturada
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-023 · 401 — sem token
+GET {{host}}/consultas
+
+### EP-023 · 403 — Administrador
+GET {{host}}/consultas
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-024 · 200 — Rececionista: M1 com a nota de preparação (ver o cabeçalho ETag)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-024 · 200 — Auxiliar: M1 com a nota e sem dados clínicos (sem diagnóstico, tratamentos ou prescrições)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginAuxConsultas.response.body.$.token}}
+
+### EP-024 · 200 — Veterinário atribuído (vet.ana lê M1)
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-024 · 403 — marcação de outro Veterinário (vet.ana lê M4, de vet.bruno)
+GET {{host}}/consultas/{{idConsultaM4}}
+Authorization: Bearer {{loginVetConsultas.response.body.$.token}}
+
+### EP-024 · 404 — marcação inexistente
+GET {{host}}/consultas/999999
+Authorization: Bearer {{loginRececaoConsultas.response.body.$.token}}
+
+### EP-024 · 401 — sem token
+GET {{host}}/consultas/{{idConsultaM1}}
+
+### EP-024 · 403 — Administrador
+GET {{host}}/consultas/{{idConsultaM1}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+###
+
+# =============================================================================
+# I067 — Dados gerais e horário de funcionamento da clínica (EP-009, EP-010)
+#
+# Acrescentar ao http-client.env.json.user: "passwordRececao" (conta rececao@).
+# =============================================================================
+
+### Login Rececionista (para o 403)
+# @name loginRececaoClinica
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### EP-009 · 200 — dados, duração das consultas e horário ordenado
+GET {{host}}/clinica
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-009 · 401 — sem token
+GET {{host}}/clinica
+
+### EP-009 · 403 — Rececionista
+GET {{host}}/clinica
+Authorization: Bearer {{loginRececaoClinica.response.body.$.token}}
+
+### EP-010 · 200 — vários períodos por dia, enviados fora de ordem; Domingo sem períodos (fechado)
+PUT {{host}}/clinica
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Clínica Veterinária G08",
+  "nif": "501234560",
+  "morada": "Rua do Exemplo, 100, 4470-000 Maia",
+  "telefone": "229000000",
+  "email": "geral@clinica-g08.test",
+  "duracaoConsultaMinutos": 30,
+  "horarioFuncionamento": [
+    { "diaSemana": "Sabado", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Segunda", "abertura": "14:00", "fecho": "19:00" },
+    { "diaSemana": "Segunda", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Terca", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Terca", "abertura": "14:00", "fecho": "19:00" },
+    { "diaSemana": "Quarta", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Quarta", "abertura": "14:00", "fecho": "19:00" },
+    { "diaSemana": "Quinta", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Quinta", "abertura": "14:00", "fecho": "19:00" },
+    { "diaSemana": "Sexta", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Sexta", "abertura": "14:00", "fecho": "19:00" }
+  ]
+}
+
+### EP-010 · 400 — períodos sobrepostos no mesmo dia (nada é gravado; repetir o GET)
+PUT {{host}}/clinica
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Clínica Veterinária G08", "nif": "501234560", "morada": "Rua do Exemplo, 100, 4470-000 Maia",
+  "telefone": "229000000", "email": "geral@clinica-g08.test", "duracaoConsultaMinutos": 45,
+  "horarioFuncionamento": [
+    { "diaSemana": "Segunda", "abertura": "09:00", "fecho": "13:00" },
+    { "diaSemana": "Segunda", "abertura": "12:00", "fecho": "15:00" }
+  ]
+}
+
+### EP-010 · 400 — hora de fecho igual à de abertura
+PUT {{host}}/clinica
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Clínica Veterinária G08", "nif": "501234560", "morada": "Rua do Exemplo, 100, 4470-000 Maia",
+  "telefone": "229000000", "email": "geral@clinica-g08.test", "duracaoConsultaMinutos": 30,
+  "horarioFuncionamento": [ { "diaSemana": "Segunda", "abertura": "13:00", "fecho": "13:00" } ]
+}
+
+### EP-010 · 400 — campos inválidos
+PUT {{host}}/clinica
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "", "nif": "123", "email": "x", "telefone": "1", "duracaoConsultaMinutos": 0 }
+
+### EP-010 · 403 — Rececionista
+PUT {{host}}/clinica
+Authorization: Bearer {{loginRececaoClinica.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "nif": "501234560", "morada": "X", "telefone": "229000000", "email": "x@x.pt", "duracaoConsultaMinutos": 30, "horarioFuncionamento": [] }
+
+###
+
+###
+
+# =============================================================================
+# I071 — Veterinários e disponibilidade (EP-021, EP-022)
+#
+# Só a Rececionista tem acesso: usa "passwordRececao" do http-client.env.json.user.
+# Dados da I061: Veterinários ativos vet.ana e vet.bruno; horário padrão (segunda
+# a sexta 09:00–13:00 e 14:00–19:00; sábado 09:00–13:00; domingo fechado);
+# marcações M3 (vet.ana, 2026-11-03 09:00), M4 (vet.bruno, 2026-11-04 14:30) e
+# M5 (vet.ana, 2026-11-05 11:00), em hora de Lisboa.
+# Os ids abaixo são os de uma base reposta com os dados da I061: confirmar na
+# resposta de EP-021 (o id da Rececionista vem do login).
+# Os horários são devolvidos em hora de Lisboa e os que já começaram não aparecem.
+# =============================================================================
+
+@idVetAna = 4
+@idVetBruno = 5
+
+### Login Rececionista (I071)
+# @name loginRececaoAgenda
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### EP-021 · 200 — Veterinários ativos, por nome
+GET {{host}}/veterinarios
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-021 · 401 — sem token
+GET {{host}}/veterinarios
+
+### EP-021 · 403 — Administrador
+GET {{host}}/veterinarios
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-022 · 200 — vet.ana, três dias: 09:00 ocupado a 03/11 (M3) e 11:00 a 05/11 (M5)
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-03&dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — sem dataFim (um só dia): vet.bruno a 04/11, 14:30 ocupado (M4)
+GET {{host}}/veterinarios/{{idVetBruno}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — sábado só de manhã e domingo com a lista vazia
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-07&dataFim=2026-11-08
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 200 — 31 dias (limite)
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-01&dataFim=2026-12-01
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — dataInicio em falta
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataFim=2026-11-05
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — data inválida
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-13-40
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — período de 32 dias
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-01&dataFim=2026-12-02
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 400 — dataFim anterior a dataInicio
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-05&dataFim=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 404 — Veterinário inexistente
+GET {{host}}/veterinarios/999999/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 404 — conta que não é de Veterinário (a própria Rececionista)
+GET {{host}}/veterinarios/{{loginRececaoAgenda.response.body.$.utilizador.id}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginRececaoAgenda.response.body.$.token}}
+
+### EP-022 · 401 — sem token
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-04
+
+### EP-022 · 403 — Administrador
+GET {{host}}/veterinarios/{{idVetAna}}/disponibilidade?dataInicio=2026-11-04
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+###
+
+# =============================================================================
+# I069 — Gestão de pacientes (EP-015 a EP-018)
+#
+# Acrescentar ao http-client.env.json.user:
+#   "passwordAux": "..."
+#
+# Conta usada:
+#   aux.carla@clinica-g08.test
+# =============================================================================
+
+@emailAux = aux.carla@clinica-g08.test
+
+### Login Auxiliar Veterinário
+# @name loginAux
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailAux}}", "password": "{{passwordAux}}" }
+
+### EP-015 · 200 — listar/pesquisar pacientes por proprietário
+GET {{host}}/animais?clienteId=1
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-015 · 200 — pesquisa por nome do animal/proprietário
+GET {{host}}/animais?pesquisa=Bobi
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-015 · 200 — filtro por espécie e paginação máxima
+GET {{host}}/animais?especie=Cão&pagina=1&tamanho=100
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+### EP-015 · 400 — paginação inválida
+GET {{host}}/animais?pagina=0&tamanho=101
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-015 · 401 — sem token
+GET {{host}}/animais
+
+### EP-015 · 403 — perfil Cliente
+GET {{host}}/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-016 · 200 — Auxiliar consulta apenas ficha administrativa
+GET {{host}}/animais/1
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-016 · 404 — animal inexistente
+GET {{host}}/animais/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-016 · 401 — sem token
+GET {{host}}/animais/1
+
+### EP-016 · 403 — perfil Cliente
+GET {{host}}/animais/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-017 · 201 — criar paciente
+# @name criarAnimal
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "raca": "Labrador Retriever",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 25.40,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — peso zero
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Peso Zero",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 0,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — data de nascimento futura
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Animal Futuro",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2030-01-01",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-017 · 400 — clienteId em falta
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Sem Cliente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10
+}
+
+### EP-017 · 404 — Cliente inexistente
+POST {{host}}/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Cliente Inexistente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 999999
+}
+
+### EP-017 · 401 — sem token
+POST {{host}}/animais
+Content-Type: application/json
+
+{
+  "nome": "Sem Token",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-017 · 403 — perfil Cliente
+POST {{host}}/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Sem Permissão",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 200 — atualizar paciente criado
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069 Atualizado",
+  "especie": "Cão",
+  "raca": "Labrador Retriever",
+  "sexo": "Macho",
+  "dataNascimento": "2022-05-10",
+  "peso": 26.10,
+  "clienteId": 1
+}
+
+### EP-018 · 400 — peso inválido
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 0,
+  "clienteId": 1
+}
+
+### EP-018 · 400 — data futura
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "dataNascimento": "2030-01-01",
+  "peso": 26.10,
+  "clienteId": 1
+}
+
+### EP-018 · 404 — animal inexistente
+PUT {{host}}/animais/999999
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Inexistente",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 404 — novo Cliente inexistente
+PUT {{host}}/animais/{{criarAnimal.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Thor I069",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 26.10,
+  "clienteId": 999999
+}
+
+### EP-018 · 401 — sem token
+PUT {{host}}/animais/1
+Content-Type: application/json
+
+{
+  "nome": "X",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+### EP-018 · 403 — perfil Cliente
+PUT {{host}}/animais/1
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "X",
+  "especie": "Cão",
+  "sexo": "Macho",
+  "peso": 10,
+  "clienteId": 1
+}
+
+###
+
+# =============================================================================
+# I065 — Contas de funcionário (EP-004 a EP-006)
+#
+# Usa os logins das secções anteriores (loginAdmin e loginRececao).
+# Os pedidos de criação usam um e-mail novo em cada execução ({{$random.uuid}}).
+# =============================================================================
+
+### EP-004 · 200 — todas as contas de funcionários (ordenadas por nome e id)
+GET {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — filtros por perfil e estado
+GET {{host}}/utilizadores?perfil=Veterinario&estado=Ativo
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — filtro só por estado (sem distinguir maiúsculas)
+GET {{host}}/utilizadores?estado=bloqueado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 200 — pesquisa por nome ou e-mail
+GET {{host}}/utilizadores?pesquisa=ana
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 400 — perfil fora da enumeração
+GET {{host}}/utilizadores?perfil=Gerente
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 400 — estado fora da enumeração
+GET {{host}}/utilizadores?estado=Suspenso
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-004 · 401 — sem token
+GET {{host}}/utilizadores
+
+### EP-004 · 403 — Rececionista
+GET {{host}}/utilizadores
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-005 · 200 — conta de funcionário (sem hash da palavra-passe)
+GET {{host}}/utilizadores/4
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 404 — conta de Cliente (não é conta de funcionário)
+GET {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 404 — utilizador inexistente
+GET {{host}}/utilizadores/999999
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-005 · 401 — sem token
+GET {{host}}/utilizadores/4
+
+### EP-005 · 403 — Rececionista
+GET {{host}}/utilizadores/4
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-006 · 201 — criar Auxiliar Veterinário com apoio (Location na resposta)
+# @name criarFuncionario
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Funcionário de Teste",
+  "email": "func.{{$random.uuid}}@clinica.test",
+  "telefone": "934567890",
+  "perfil": "AuxiliarVeterinario",
+  "podeRegistarApoio": true,
+  "passwordInicial": "Temp#2026"
+}
+
+### EP-006 · login com a conta criada (critério 6) — 200
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{criarFuncionario.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-005 · 200 — conta criada: ativa e com o perfil indicado (critério 6)
+GET {{host}}/utilizadores/{{criarFuncionario.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-006 · 400 — campos em falta e e-mail inválido
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "email": "invalido", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 400 — palavra-passe fraca
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "fraca.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "12345678" }
+
+### EP-006 · 400 — perfil fora da enumeração
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "perfil.{{$random.uuid}}@clinica.test", "perfil": "Gerente", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 409 — e-mail já registado
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "{{emailRececao}}", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 422 — perfil Cliente não permitido
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "cli.{{$random.uuid}}@clinica.test", "perfil": "Cliente", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 422 — podeRegistarApoio para um perfil diferente de AuxiliarVeterinario
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "vet.{{$random.uuid}}@clinica.test", "perfil": "Veterinario", "podeRegistarApoio": true, "passwordInicial": "Temp#2026" }
+
+### EP-006 · 401 — sem token
+POST {{host}}/utilizadores
+Content-Type: application/json
+
+{ "nome": "X", "email": "s.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+### EP-006 · 403 — Rececionista
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "X", "email": "r.{{$random.uuid}}@clinica.test", "perfil": "Rececionista", "passwordInicial": "Temp#2026" }
+
+# =============================================================================
+# I066 — Atualizar e bloquear contas de funcionário (EP-007, EP-008)
+#
+# Usa os logins das secções anteriores (loginAdmin, loginRececao e loginCliente).
+# Para não alterar as contas de demonstração, os pedidos trabalham sobre uma conta
+# nova, criada no primeiro pedido. Executar pela ordem do ficheiro.
+# =============================================================================
+
+### I066 · preparação — criar a conta usada nos pedidos seguintes (EP-006 · 201)
+# @name contaI066
+POST {{host}}/utilizadores
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Conta I066",
+  "email": "i066.{{$random.uuid}}@clinica.test",
+  "telefone": "934567890",
+  "perfil": "Rececionista",
+  "podeRegistarApoio": false,
+  "passwordInicial": "Temp#2026"
+}
+
+### I066 · preparação — login com a conta criada (o token é usado depois do bloqueio)
+# @name loginContaI066
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-007 · 200 — mudar para Auxiliar Veterinário com apoio (formato de EP-005)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nome": "Conta I066 (atualizada)",
+  "email": "{{contaI066.response.body.$.email}}",
+  "telefone": "934 567 891",
+  "perfil": "AuxiliarVeterinario",
+  "podeRegistarApoio": true
+}
+
+### EP-007 · 401 — o token emitido com o perfil antigo deixa de ser aceite (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066.response.body.$.token}}
+
+### EP-007 · 200 — novo login com o perfil atual (necessário para os pedidos de EP-008)
+# @name loginContaI066Atualizada
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-007 · 200 — o Administrador altera os próprios dados mantendo o perfil
+PUT {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Administração (demonstração)", "email": "{{emailAdmin}}", "telefone": "910000001", "perfil": "Administrador", "podeRegistarApoio": false }
+
+### EP-007 · 400 — dados inválidos (nome vazio e e-mail inválido)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "", "email": "rec", "perfil": "Rececionista" }
+
+### EP-007 · 400 — perfil Cliente (em EP-006 é 422)
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Cliente" }
+
+### EP-007 · 401 — sem token
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Rececionista" }
+
+### EP-007 · 403 — Rececionista
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Rececionista" }
+
+### EP-007 · 404 — conta inexistente
+PUT {{host}}/utilizadores/999999
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "nao.existe@clinica.test", "perfil": "Rececionista" }
+
+### EP-007 · 404 — conta de Cliente (não é conta de funcionário)
+PUT {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "João Costa", "email": "{{emailCliente}}", "perfil": "Rececionista" }
+
+### EP-007 · 409 — e-mail já usado por outra conta
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{emailRececao}}", "perfil": "Rececionista" }
+
+### EP-007 · 422 — o Administrador não pode remover o próprio perfil de Administrador
+PUT {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Administração (demonstração)", "email": "{{emailAdmin}}", "perfil": "Rececionista" }
+
+### EP-007 · 422 — podeRegistarApoio para um perfil diferente de AuxiliarVeterinario
+PUT {{host}}/utilizadores/{{contaI066.response.body.$.id}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "nome": "Conta I066", "email": "{{contaI066.response.body.$.email}}", "perfil": "Veterinario", "podeRegistarApoio": true }
+
+### EP-008 · 400 — estado diferente de Bloqueado
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Ativo" }
+
+### EP-008 · 401 — sem token
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 403 — Rececionista
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 404 — conta inexistente
+PATCH {{host}}/utilizadores/999999/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 422 — o Administrador não pode bloquear a própria conta
+PATCH {{host}}/utilizadores/{{loginAdmin.response.body.$.utilizador.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · 422 — conta de Cliente
+PATCH {{host}}/utilizadores/{{loginCliente.response.body.$.utilizador.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+### EP-008 · preparação — antes do bloqueio o token da conta é aceite (EP-003 · 200)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066Atualizada.response.body.$.token}}
+
+### EP-008 · 204 — bloquear a conta (sem corpo)
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado", "motivo": "Funcionário deixou a clínica." }
+
+### EP-008 · 401 — o token emitido antes do bloqueio deixa de ser aceite (EP-003)
+GET {{host}}/auth/me
+Authorization: Bearer {{loginContaI066Atualizada.response.body.$.token}}
+
+### EP-008 · 403 — a conta bloqueada já não inicia sessão (EP-001)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{contaI066.response.body.$.email}}", "password": "Temp#2026" }
+
+### EP-008 · 422 — a conta já está bloqueada
+PATCH {{host}}/utilizadores/{{contaI066.response.body.$.id}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Bloqueado" }
+
+###
+
+# =============================================================================
+# I070 — Animais do Cliente na aplicação móvel (EP-019, EP-020)
+#
+# Dados da I061: João (loginCliente) tem Bobi e Mia; Maria tem Kiko.
+# Acrescentar ao http-client.env.json.user: "passwordClienteMaria".
+# Os ids dos animais vêm do GET /me/animais de cada Cliente.
+# =============================================================================
+
+@emailClienteMaria = cliente.maria@clinica-g08.test
+
+### Login Cliente Maria (para o acesso cruzado)
+# @name loginClienteMaria
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{emailClienteMaria}}", "password": "{{passwordClienteMaria}}" }
+
+### EP-019 · 200 — João vê só Bobi e Mia, por ordem de nome
+# @name meusAnimaisJoao
+GET {{host}}/me/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-019 · 200 — Maria vê só o Kiko
+# @name meusAnimaisMaria
+GET {{host}}/me/animais
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-019 · 401 — sem token
+GET {{host}}/me/animais
+
+### EP-019 · 403 — perfil interno (Rececionista)
+GET {{host}}/me/animais
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-020 · 200 — João consulta o primeiro animal da sua lista
+GET {{host}}/me/animais/{{meusAnimaisJoao.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 403 — João pede o animal da Maria (nenhum dado do Kiko na resposta)
+GET {{host}}/me/animais/{{meusAnimaisMaria.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 404 — animal inexistente
+GET {{host}}/me/animais/999999
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-020 · 401 — sem token
+GET {{host}}/me/animais/1
+
+### EP-020 · 403 — perfil interno (Veterinário)
+GET {{host}}/me/animais/{{meusAnimaisJoao.response.body.$[0].id}}
+Authorization: Bearer {{loginVet.response.body.$.token}}
+
+###
+
+# =============================================================================
+# I082 — Boletim de vacinas e desparasitações (EP-042 a EP-044 e RF056)
+#
+# EP-042, EP-043 e a atualização (RF056): só Veterinário. EP-044: só Cliente, e
+# só dos seus animais. Usa "passwordVet" (vet.ana), "passwordCliente" (João),
+# "passwordClienteMaria" (Maria), "passwordRececao", "passwordAux" e
+# "passwordAdmin" do http-client.env.json.user.
+# Numa base acabada de repor com os dados da I061: Bobi = 1 (João; vacinas de
+# 2025-10-14 e 2026-10-14 e desparasitante de 2026-10-14 com 90 dias), Kiko = 2
+# (Maria; desparasitante de 2026-08-01, sem intervalo) e Mia = 3 (João, sem
+# registos). Confirmar em EP-015 se os ids forem outros.
+# Executar os logins primeiro (Rececionista: secção I068; Auxiliar: secção
+# I069; Maria: secção I070; Administrador e João: início do ficheiro) e os
+# pedidos pela ordem: a atualização usa a administração criada no 201.
+# =============================================================================
+
+@vacBobi = 1
+@vacKiko = 2
+@vacMia = 3
+
+### Login Veterinária (I082)
+# @name loginVetVacinas
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-042 · 200 — boletim do Bobi (administrações e próximas a partir de hoje)
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — só vacinas
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Vacina
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — só desparasitações
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Desparasitacao
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 200 — animal sem registos (Mia): listas vazias
+GET {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 400 — tipo inválido
+GET {{host}}/animais/{{vacBobi}}/vacinacoes?tipo=Vacinas
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-042 · 404 — animal inexistente
+GET {{host}}/animais/999999/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-043 · 201 — desparasitação da Mia com 90 dias (dataProximaPrevista = 2027-01-12)
+# @name registarDesparasitacao
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+
+### EP-043 · 201 — vacina da Mia sem intervalo (dataProximaPrevista = null)
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina felina (fictícia)", "lote": "VF-0001", "dataAdministracao": "2026-10-20" }
+
+### EP-043 · 400 — lote em falta
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "dataAdministracao": "2026-10-14" }
+
+### EP-043 · 400 — data de administração futura
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2099-01-01" }
+
+### EP-043 · 400 — intervaloDias = 0
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14", "intervaloDias": 0 }
+
+### EP-043 · 404 — animal inexistente
+POST {{host}}/animais/999999/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+
+### RF056 · 200 — atualizar a desparasitação criada: nova data e 30 dias (próxima 2026-11-19)
+PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+
+### RF056 · 400 — intervaloDias negativo
+PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": -30 }
+
+### RF056 · 404 — a administração não é deste animal (pedida pelo Bobi)
+PUT {{host}}/animais/{{vacBobi}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+
+### EP-042 · 403 — Rececionista
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-043 · 403 — Auxiliar Veterinário
+POST {{host}}/animais/{{vacMia}}/vacinacoes
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+
+### EP-042 · 403 — Administrador
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-042 · 403 — Cliente (usa EP-044)
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-042 · 401 — sem token
+GET {{host}}/animais/{{vacBobi}}/vacinacoes
+
+### EP-044 · 200 — João: boletim do Bobi (histórico e próximas)
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 200 — Maria: boletim do Kiko (só o Kiko, sem próximas)
+GET {{host}}/me/animais/{{vacKiko}}/vacinacoes
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-044 · 403 — João pede o Kiko (da Maria): nenhum dado do Kiko
+GET {{host}}/me/animais/{{vacKiko}}/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 404 — animal inexistente
+GET {{host}}/me/animais/999999/vacinacoes
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-044 · 403 — Veterinário (só Cliente)
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
+
+### EP-044 · 401 — sem token
+GET {{host}}/me/animais/{{vacBobi}}/vacinacoes
+
+###
+
+# =============================================================================
+# I073 — Criar marcação (EP-025)
+#
+# Só a Rececionista cria marcações: usa "passwordRececao" do http-client.env.json.user.
+# dataHora é em UTC. 2026-11-25 é uma quarta-feira em hora de inverno, por isso a hora
+# UTC é igual à de Lisboa (horário: 09:00–13:00 e 14:00–19:00; domingo fechado).
+# Os ids abaixo são os de uma base reposta com os dados da I061 (animais Bobi = 1,
+# Mia = 3; vet.ana = 4, vet.bruno = 5): confirmar em EP-015 e EP-021.
+# Executar os pedidos pela ordem: o 422 «indisponível» usa a marcação criada no 201.
+# Para repetir a sequência, repor a base de dados.
+# =============================================================================
+
+@idBobi = 1
+@idMia = 3
+@idVetAnaMarcacao = 4
+
+### Login Rececionista (I073)
+# @name loginRececaoMarcacao
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "rececao@clinica-g08.test", "password": "{{passwordRececao}}" }
+
+### EP-025 · 201 — Bobi com vet.ana, 25/11 às 10:00 (Location e ETag no cabeçalho)
+# @name criarMarcacao
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:00:00Z", "motivo": "Consulta de rotina" }
+
+### EP-024 · 200 — a marcação criada (mesmo ETag do 201)
+GET {{host}}/consultas/{{criarMarcacao.response.body.$.id}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### EP-025 · 201 — às 10:30 é aceite: só toca na marcação das 10:00
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idMia}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:30:00Z" }
+
+### EP-025 · 400 — campos em falta (animalId e dataHora)
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "veterinarioId": {{idVetAnaMarcacao}} }
+
+### EP-025 · 400 — data no passado
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-01-14T10:00:00Z" }
+
+### EP-025 · 401 — sem token
+POST {{host}}/consultas
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 403 — Veterinário (vê a agenda, mas não cria marcações)
+POST {{host}}/consultas
+Authorization: Bearer {{loginVet.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 403 — Administrador
+POST {{host}}/consultas
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 404 — animal inexistente
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": 999999, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 404 — conta que não é de Veterinário (a própria Rececionista)
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{loginRececaoMarcacao.response.body.$.utilizador.id}}, "dataHora": "2026-11-25T11:00:00Z" }
+
+### EP-025 · 422 — fora do horário: 12:45 acaba às 13:15
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T12:45:00Z" }
+
+### EP-025 · 422 — fora do horário: domingo
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idBobi}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-29T10:00:00Z" }
+
+### EP-025 · 422 — vet.ana indisponível: 10:15 sobrepõe-se à marcação das 10:00
+POST {{host}}/consultas
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{ "animalId": {{idMia}}, "veterinarioId": {{idVetAnaMarcacao}}, "dataHora": "2026-11-25T10:15:00Z" }
+
+###
+
+# =============================================================================
+# I074 — Alteração de marcações e mudança de estado (EP-026, EP-027)
+#
+# Só a Rececionista pode executar EP-026 e EP-027.
+# Usa "passwordRececao" do http-client.env.json.user.
+#
+# Dados da I061 numa base reposta:
+#   M1 = 1 — Realizada
+#   M2 = 2 — Cancelada
+#   M3 = 3 — Confirmada (vet.ana)
+#   M4 = 4 — Pendente (vet.bruno)
+#   M5 = 5 — Pendente (vet.ana)
+#
+# Executar primeiro os dois pedidos auxiliares de leitura para guardar os ETags.
+# Depois executar os 21 cenários pela ordem apresentada.
+# Para repetir toda a sequência, repor a base de dados.
+# =============================================================================
+
+@idConsultaRealizadaI074 = 1
+@idConsultaCanceladaI074 = 2
+@idConsultaConfirmadaI074 = 3
+@idConsultaPendenteI074 = 4
+@idConsultaPendente2I074 = 5
+@idVetAnaI074 = 4
+@idVetBrunoI074 = 5
+
+### Preparação — obter ETag original da M4
+# @name obterM4I074
+GET {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### Preparação — obter ETag original da M5
+# @name obterM5I074
+GET {{host}}/consultas/{{idConsultaPendente2I074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+
+### EP-026 · 200 — alterar marcação Pendente para horário disponível
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM4I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T15:00:00Z",
+  "motivo": "Consulta reagendada"
+}
+
+### EP-026 · 200 — alterar marcação Confirmada para horário disponível
+PUT {{host}}/consultas/{{idConsultaConfirmadaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-03T10:00:00Z",
+  "motivo": "Consulta reagendada"
+}
+
+### EP-026 · 400 — data no passado
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-01-14T10:00:00Z",
+  "motivo": "Data inválida"
+}
+
+### EP-026 · 401 — sem token
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 403 — Administrador
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 404 — marcação inexistente
+PUT {{host}}/consultas/999999
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 412 — If-Match desatualizado
+# O ETag de obterM4I074 ficou antigo depois do primeiro PUT.
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM4I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetBrunoI074}},
+  "dataHora": "2026-11-04T16:00:00Z"
+}
+
+### EP-026 · 422 — marcação Realizada
+PUT {{host}}/consultas/{{idConsultaRealizadaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-25T10:00:00Z"
+}
+
+### EP-026 · 422 — marcação Cancelada
+PUT {{host}}/consultas/{{idConsultaCanceladaI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-25T10:00:00Z"
+}
+
+### EP-026 · 422 — novo horário indisponível
+# M3 ocupa vet.ana no período das 10:00 após o segundo pedido desta secção.
+PUT {{host}}/consultas/{{idConsultaPendenteI074}}
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "veterinarioId": {{idVetAnaI074}},
+  "dataHora": "2026-11-03T10:15:00Z"
+}
+
+### EP-027 · 400 — Pendente não pode ser escolhido manualmente
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Pendente"
+}
+
+### EP-027 · 422 — transição inválida Pendente → Realizada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Realizada"
+}
+
+### EP-027 · 204 — Pendente → Confirmada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada",
+  "observacao": "Confirmação manual da marcação"
+}
+
+### EP-027 · 204 — Confirmada → Cancelada
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Cancelada",
+  "observacao": "Cancelamento manual da marcação"
+}
+
+### EP-027 · 204 — Pendente → Cancelada
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM5I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "estado": "Cancelada"
+}
+
+### EP-027 · 204 — Confirmada → Realizada
+PATCH {{host}}/consultas/{{idConsultaConfirmadaI074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Realizada"
+}
+
+### EP-027 · 401 — sem token
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 403 — Administrador
+PATCH {{host}}/consultas/{{idConsultaPendenteI074}}/estado
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 404 — marcação inexistente
+PATCH {{host}}/consultas/999999/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 412 — If-Match desatualizado
+# O ETag de obterM5I074 ficou antigo após Pendente → Cancelada.
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+If-Match: {{obterM5I074.response.headers.ETag}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+### EP-027 · 422 — estado final Cancelada não permite nova transição
+PATCH {{host}}/consultas/{{idConsultaPendente2I074}}/estado
+Authorization: Bearer {{loginRececaoMarcacao.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "estado": "Confirmada"
+}
+
+###
+
+# =============================================================================
+# I077 — Registo clínico (EP-031, EP-032)
+#
+# Só o perfil Veterinário, e só o Veterinário da consulta. Usa "passwordVet"
+# (vet.ana), "passwordAux" (aux.carla) e "passwordRececao" do
+# http-client.env.json.user.
+# Marcações da I061 numa base acabada de repor: M1 = 1 (Bobi, vet.ana, Realizada,
+# já com registo clínico 1), M3 = 3 (Kiko, vet.ana, Confirmada, sem registo) e
+# M5 = 5 (Bobi, vet.ana, Pendente). Confirmar em EP-023 se os ids forem outros.
+# Executar os pedidos pela ordem: o 409 e o EP-032 usam o registo criado no 201.
+# EP-032 substitui as listas: tratamentos ou prescrições que não vierem no pedido
+# (ou listas omitidas) são removidos; um elemento existente mantém-se com o seu id.
+# =============================================================================
+
+@consultaM1 = 1
+@consultaM3 = 3
+@consultaM5 = 5
+
+### Login Veterinária (I077)
+# @name loginVetRegisto
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-031 · 201 — registo clínico da M3 (Location no cabeçalho)
+# @name criarRegisto
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "consultaId": {{consultaM3}},
+  "notasClinicas": "Animal ativo; ligeira inflamação no ouvido esquerdo.",
+  "diagnostico": "Otite externa",
+  "tratamentos": [ { "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" } ],
+  "prescricoes": [ { "medicamento": "Gotas auriculares X", "dosagem": "3 gotas", "frequencia": "2 vezes por dia", "duracaoDias": 7 } ]
+}
+
+### EP-031 · 409 — a M3 já tem registo (o criado acima)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Segundo registo" }
+
+### EP-031 · 400 — consultaId em falta
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-031 · 400 — nenhum elemento clínico
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "notasClinicas": "   ", "tratamentos": [], "prescricoes": [] }
+
+### EP-031 · 400 — prescrição incompleta (sem dosagem)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "prescricoes": [ { "medicamento": "Gotas X", "frequencia": "2 vezes por dia" } ] }
+
+### EP-031 · 404 — consulta inexistente
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": 999999, "diagnostico": "Otite externa" }
+
+### EP-031 · 422 — consulta Pendente (M5)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
+
+### EP-031 · 401 — sem token
+POST {{host}}/registos-clinicos
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Otite externa" }
+
+### EP-031 · 403 — Auxiliar Veterinário (só consulta; não regista)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM3}}, "diagnostico": "Otite externa" }
+
+### EP-032 · 200 — mantém o tratamento (id), acrescenta outro e remove a prescrição
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "notasClinicas": "Reavaliação: melhoria evidente.",
+  "diagnostico": "Otite externa (em resolução)",
+  "tratamentos": [
+    { "id": {{criarRegisto.response.body.$.tratamentos[0].id}}, "descricao": "Limpeza auricular", "dataAplicacao": "2026-11-03" },
+    { "descricao": "Aplicação de pomada", "dataAplicacao": "2026-11-04" }
+  ],
+  "prescricoes": []
+}
+
+### EP-032 · 400 — o registo não pode ficar sem elemento clínico
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "notasClinicas": "", "tratamentos": [], "prescricoes": [] }
+
+### EP-032 · 404 — registo inexistente
+PUT {{host}}/registos-clinicos/999999
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-032 · 401 — sem token
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### EP-032 · 403 — Rececionista
+PUT {{host}}/registos-clinicos/{{criarRegisto.response.body.$.id}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Otite externa" }
+
+### (opcional) EP-027 — cancelar a M5 como Rececionista, para o 422 «Cancelada» abaixo
+PATCH {{host}}/consultas/{{consultaM5}}/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Cancelada" }
+
+### (opcional) EP-031 · 422 — consulta Cancelada (M5, depois do pedido anterior)
+POST {{host}}/registos-clinicos
+Authorization: Bearer {{loginVetRegisto.response.body.$.token}}
+Content-Type: application/json
+
+{ "consultaId": {{consultaM5}}, "diagnostico": "Otite externa" }
+
+###
+
+# =============================================================================
+
+@registoM1 = 1
+@animalBobi = 1
+
+### Login Veterinária (I078)
+# @name loginVetHistorico
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "email": "vet.ana@clinica-g08.test", "password": "{{passwordVet}}" }
+
+### EP-015 · 200 — id do Kiko (usado no histórico vazio)
+# @name pesquisaKiko
+GET {{host}}/animais?pesquisa=Kiko
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 200 — Veterinário: registo completo da M1
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 200 — Auxiliar Veterinário: o mesmo registo, só de leitura
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-033 · 404 — registo inexistente
+GET {{host}}/registos-clinicos/999999
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-033 · 401 — sem token
+GET {{host}}/registos-clinicos/{{registoM1}}
+
+### EP-033 · 403 — Rececionista
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-033 · 403 — Administrador
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-033 · 403 — Cliente
+GET {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-032 · 403 — o Auxiliar não altera o registo que acabou de ler
+PUT {{host}}/registos-clinicos/{{registoM1}}
+Authorization: Bearer {{loginAux.response.body.$.token}}
+Content-Type: application/json
+
+{ "diagnostico": "Alterado pelo Auxiliar" }
+
+### EP-034 · 200 — Veterinário: histórico do Bobi, do mais recente para o mais antigo
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — Auxiliar Veterinário: o mesmo histórico
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginAux.response.body.$.token}}
+
+### EP-034 · 200 — intervalo com a M1 (dataInicio = dataFim = 2026-10-14)
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-10-14&dataFim=2026-10-14
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — intervalo sem registos (setembro): lista vazia
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-09-01&dataFim=2026-09-30
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 200 — animal sem histórico (Kiko): lista vazia
+GET {{host}}/animais/{{pesquisaKiko.response.body.$.itens[0].id}}/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 400 — dataFim anterior a dataInicio
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-10-14&dataFim=2026-09-01
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 400 — data mal formada
+GET {{host}}/animais/{{animalBobi}}/historico-clinico?dataInicio=2026-13-40
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 404 — animal inexistente
+GET {{host}}/animais/999999/historico-clinico
+Authorization: Bearer {{loginVetHistorico.response.body.$.token}}
+
+### EP-034 · 401 — sem token
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+
+### EP-034 · 403 — Rececionista
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-034 · 403 — Administrador
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginAdmin.response.body.$.token}}
+
+### EP-034 · 403 — Cliente
+GET {{host}}/animais/{{animalBobi}}/historico-clinico
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+=======
+# I076 — Marcações do Cliente na aplicação móvel (EP-030)
+#
+# Usa "passwordCliente" (João) e "passwordClienteMaria" do http-client.env.json.user
+# (logins loginCliente, no topo, e loginClienteMaria, na secção I070) e
+# "passwordRececao" (loginRececao) para o 403.
+# Dados da I061 numa base reposta (horas em UTC):
+#   João: Bobi — M1 2026-10-14 Realizada, M5 2026-11-05 Pendente; Mia — M2 2026-10-20 Cancelada
+#   Maria: Kiko — M3 2026-11-03 Confirmada
+# Futuras: Pendentes ou Confirmadas que ainda não começaram, por data crescente.
+# Histórico: passadas e Canceladas ou Realizadas (mesmo com data futura), por data decrescente.
+# Executar numa base reposta: outras secções (I074, I077) mudam o estado de M3 e M5.
+# =============================================================================
+
+### Preparação — animais do João (Bobi e Mia, por nome)
+# @name meusAnimaisJoaoI076
+GET {{host}}/me/animais
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### Preparação — animais da Maria (Kiko)
+# @name meusAnimaisMariaI076
+GET {{host}}/me/animais
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-030 · 200 — João: futuras (M5)
+GET {{host}}/me/consultas?tipo=futuras
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — João: sem tipo é igual a futuras
+GET {{host}}/me/consultas
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — João: histórico (M2 e M1, por data decrescente; sem dados clínicos)
+GET {{host}}/me/consultas?tipo=historico
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 200 — Maria: futuras (só M3; nada do João)
+GET {{host}}/me/consultas?tipo=futuras
+Authorization: Bearer {{loginClienteMaria.response.body.$.token}}
+
+### EP-030 · 200 — João: histórico só da Mia (M2)
+GET {{host}}/me/consultas?tipo=historico&animalId={{meusAnimaisJoaoI076.response.body.$[1].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 400 — tipo inválido
+GET {{host}}/me/consultas?tipo=todas
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### EP-030 · 401 — sem token
+GET {{host}}/me/consultas
+
+### EP-030 · 403 — perfil interno (Rececionista)
+GET {{host}}/me/consultas
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+
+### EP-030 · 403 — João com o animalId do Kiko (animal da Maria)
+GET {{host}}/me/consultas?animalId={{meusAnimaisMariaI076.response.body.$[0].id}}
+Authorization: Bearer {{loginCliente.response.body.$.token}}
+
+### (opcional) EP-027 — cancelar a M5 como Rececionista: passa das futuras para o histórico do João
+# Repetir depois os dois primeiros pedidos de EP-030 do João.
+PATCH {{host}}/consultas/5/estado
+Authorization: Bearer {{loginRececao.response.body.$.token}}
+Content-Type: application/json
+
+{ "estado": "Cancelada" }
+
+###
+
+# =============================================================================
+# I078 — Consultar o registo e o histórico clínico (EP-033, EP-034)
+#
+# Veterinário e Auxiliar Veterinário, só de leitura. Usa "passwordVet" (vet.ana),
+# "passwordAux" (aux.carla), "passwordRececao", "passwordAdmin" e
+# "passwordCliente" do http-client.env.json.user.
+# Numa base acabada de repor com os dados da I061: o registo clínico 1 é o da M1
+# (Bobi = 1, vet.ana, 2026-10-14, um tratamento e uma prescrição) e o Kiko não tem
+# registos (o id do Kiko vem da pesquisa EP-015 abaixo). Se a secção I077 já foi
+# executada, o Kiko passa a ter o registo criado no 201 dessa secção.
+# Executar primeiro os logins (vet.ana: secção I077; aux.carla: secção I069;
+# Rececionista: secção I068; Administrador e Cliente: início do ficheiro).
+# ======================================================================
+###

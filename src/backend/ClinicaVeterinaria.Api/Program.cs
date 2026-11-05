@@ -1,91 +1,32 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using ClinicaVeterinaria.Api.Middleware;
+using ClinicaVeterinaria.Api.Seguranca;
 using ClinicaVeterinaria.Application;
 using ClinicaVeterinaria.Infrastructure;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("A chave JWT não está configurada.");
-
-var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException("O Issuer JWT não está configurado.");
-
-var jwtAudience = builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException("O Audience JWT não está configurado.");
 var allowedOrigins =
     builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-var jwtExpirationHours =
-    builder.Configuration.GetValue<int>("Jwt:ExpirationHours");
 
-if (jwtExpirationHours <= 0)
-{
-    throw new InvalidOperationException(
-        "A validade do token JWT não está corretamente configurada.");
-}
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+        options.InvalidModelStateResponseFactory = RespostaValidacaoModelo.Criar);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
 
-        options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
+// JWT (HS256, 8 horas) e políticas de autorização por perfil — I063.
+// Falha no arranque se a secção Jwt estiver incompleta.
+builder.Services.AddAutenticacaoJwt(builder.Configuration);
 
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
+// Fim de sessão (EP-002) — I064: apaga periodicamente as revogações de tokens expirados.
+builder.Services.AddLimpezaTokensRevogados(builder.Configuration);
 
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Convert.FromBase64String(jwtKey)),
-
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnChallenge = async context =>
-            {
-                context.HandleResponse();
-
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    code = StatusCodes.Status401Unauthorized,
-                    message = "Autenticação necessária.",
-                    detail = "É necessário apresentar um token JWT válido."
-                });
-            },
-
-            OnForbidden = async context =>
-            {
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                context.Response.ContentType = "application/json";
-
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    code = StatusCodes.Status403Forbidden,
-                    message = "Não tem permissão para executar esta operação.",
-                    detail = "O utilizador autenticado não possui permissões suficientes."
-                });
-            }
-        };
-    });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -95,14 +36,16 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .WithExposedHeaders(HeaderNames.ETag);
         }
         else
         {
             policy
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .WithExposedHeaders(HeaderNames.ETag);
         }
     });
 });
@@ -136,12 +79,45 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddDbContext<ClinicaDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClinicaDb")));
+
 var app = builder.Build();
+
+// Ambiente público de avaliação — I104: aplica as migrações da I062 no arranque
+// quando BaseDados:AplicarMigracoesNoArranque = true (só nas definições do Azure).
+// Nos restantes ambientes a base de dados continua a ser preparada à parte.
+// A base serverless em pausa demora cerca de 1 minuto a acordar e recusa as ligações
+// entretanto (erro transitório 40613): tenta de novo durante até 3 minutos.
+if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
+{
+    var avisoBaseIndisponivel = LoggerMessage.Define<int>(
+        LogLevel.Warning,
+        new EventId(1, "BaseDadosIndisponivel"),
+        "Base de dados indisponível ao aplicar as migrações (tentativa {Tentativa}); nova tentativa em 15 s.");
+
+    for (var tentativa = 1; ; tentativa++)
+    {
+        try
+        {
+            using var scope = app.Services.CreateScope();
+            scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.Migrate();
+            break;
+        }
+        catch (Exception ex) when (tentativa < 12 && (ex is SqlException || ex.InnerException is SqlException))
+        {
+            avisoBaseIndisponivel(app.Logger, tentativa, ex);
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+        }
+    }
+}
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// O Swagger fica ativo em Development e, com Swagger:Ativo = true, no ambiente
+// público de avaliação (I104, critério 1: iniciar sessão pelo Swagger).
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Ativo"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -158,3 +134,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
