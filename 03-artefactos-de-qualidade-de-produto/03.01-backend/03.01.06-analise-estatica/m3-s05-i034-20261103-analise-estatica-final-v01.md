@@ -1,3 +1,4 @@
+``````text
 ﻿Commit analisado: 4d6d748 (ramo da I034 atualizado com develop 7227d4d, ja com a I103)
 
 == 1. dotnet build -warnaserror --no-incremental
@@ -136,3 +137,4 @@ C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Integ
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\IntegracaoFixture.cs(124,23): info SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time. 
 [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
 codigo de saida: 2
+``````

@@ -1,3 +1,4 @@
+``````xml
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TestRun id="53f42920-85a0-47b8-8225-6a2f24fd3ba5" name="@runnervm48cm3 2026-11-02 23:17:30" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Times creation="2026-11-02T23:17:30.9679897+00:00" queuing="2026-11-02T23:17:30.9679898+00:00" start="2026-11-02T23:17:00.8279407+00:00" finish="2026-11-02T23:20:52.7066798+00:00" />
@@ -58251,3 +58252,4 @@ info: Microsoft.Hosting.Lifetime[0]
     </CollectorDataEntries>
   </ResultSummary>
 </TestRun>
+``````

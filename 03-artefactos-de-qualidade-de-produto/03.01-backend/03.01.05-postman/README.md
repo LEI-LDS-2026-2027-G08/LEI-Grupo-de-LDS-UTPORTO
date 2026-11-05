@@ -6,9 +6,9 @@ Collection Postman e ambiente de variáveis para testar a API do backend: autent
 |---|---|
 | `m3-collection-postman-v01.json` | Collection (formato Postman v2.1), com 269 pedidos e os respetivos testes |
 | `m3-ambiente-postman-v01.json` | Ambiente: URL base, contas de demonstração, palavras-passe vazias e variáveis preenchidas pelos scripts |
-| `m3-s05-i098-20261030-resultado-newman-v01.txt` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
-| `m3-s05-i100-20261101-resultado-newman-v01.txt` | Evidência da execução de referência da I100 com o Newman, com as pastas 08 e 09: 190 pedidos e 611 verificações, sem falhas |
-| `m3-s05-i099-20261102-resultado-newman-v01.txt` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 269 pedidos e 862 verificações, sem falhas |
+| `m3-s05-i098-20261030-resultado-newman-v01.md` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
+| `m3-s05-i100-20261101-resultado-newman-v01.md` | Evidência da execução de referência da I100 com o Newman, com as pastas 08 e 09: 190 pedidos e 611 verificações, sem falhas |
+| `m3-s05-i099-20261102-resultado-newman-v01.md` | Evidência da execução de referência da I099 com o Newman, com a pasta 07: 269 pedidos e 862 verificações, sem falhas |
 
 Referências: Documentação de API v02 (I018), dados de demonstração da I061 (`04.13-scripts-de-base-de-dados/m3-v02`) e pedidos de verificação manual do backend (`src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http`).
 
@@ -140,7 +140,7 @@ A I100 inclui «a atualização do registo profilático», mas a Documentação 
 
 Execução com o Newman 6.2.1 a 2026-11-03, depois de acrescentado o pedido `EP-028 · 412` (revisão da I099, D1), contra a API do ramo `develop` (commit `189df4c`, com a I096 integrada) e uma base de dados nova numa instância descartável do SQL Server 2025, criada com as migrações da I062 e com os dados de demonstração da I061 (`m3-v02/dados-demonstracao/02-dados-demonstracao.sql`). Nessa base, e só nela, as palavras-passe das contas de demonstração foram substituídas por uma palavra-passe de teste, como na primeira validação da I098, porque as verdadeiras não estão no repositório. Logo a seguir, uma segunda execução sobre a mesma base, sem a repor, deu o mesmo resultado. O ficheiro mantém o nome da primeira execução de referência (2026-11-02), que substitui.
 
-Resultado completo: [`m3-s05-i099-20261102-resultado-newman-v01.txt`](m3-s05-i099-20261102-resultado-newman-v01.txt).
+Resultado completo: [`m3-s05-i099-20261102-resultado-newman-v01.md`](m3-s05-i099-20261102-resultado-newman-v01.md).
 
 | | Executados | Falhados |
 |---|---|---|
@@ -155,7 +155,7 @@ Duração total: 20,5 s. O ficheiro de resultado não contém palavras-passe nem
 
 Execução com o Newman 6.2.1 a 2026-11-01, contra a API do ramo `develop` (commit `16c4bbb`, já com a I078 e a I082 integradas) e uma base de dados nova, criada com `src/backend/scripts/reposicao-base-dados.ps1` (migrações da I062) e com os dados de demonstração da I061 (`executar-dados.ps1`: 28 verificações, 28 OK), com as palavras-passe originais do seed.
 
-Resultado completo: [`m3-s05-i100-20261101-resultado-newman-v01.txt`](m3-s05-i100-20261101-resultado-newman-v01.txt).
+Resultado completo: [`m3-s05-i100-20261101-resultado-newman-v01.md`](m3-s05-i100-20261101-resultado-newman-v01.md).
 
 | | Executados | Falhados |
 |---|---|---|
@@ -170,7 +170,7 @@ Duração total: 21,2 s. O ficheiro de resultado não contém palavras-passe nem
 
 Execução com o Newman 6.2.1 a 2026-10-30, contra a API do ramo `develop` (commit `265cedf`) e uma base de dados nova, criada com `src/backend/scripts/reposicao-base-dados.ps1` (migrações da I062) e com os dados de demonstração da I061 (`executar-dados.ps1`: 28 verificações, 28 OK). As contas de demonstração usaram as palavras-passe originais do seed, as do ficheiro de credenciais da submissão.
 
-Resultado completo: [`m3-s05-i098-20261030-resultado-newman-v01.txt`](m3-s05-i098-20261030-resultado-newman-v01.txt).
+Resultado completo: [`m3-s05-i098-20261030-resultado-newman-v01.md`](m3-s05-i098-20261030-resultado-newman-v01.md).
 
 | | Executados | Falhados |
 |---|---|---|

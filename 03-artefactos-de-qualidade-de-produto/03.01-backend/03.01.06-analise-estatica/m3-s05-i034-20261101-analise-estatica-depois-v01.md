@@ -1,3 +1,4 @@
+``````text
 Commit analisado: d98e1ff (ramo da I034 atualizado com develop 16c4bbb)
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -61,3 +62,4 @@ C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Integ
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\ChegadaENotasPreparacaoEndpointsTests.cs(29,12): info IDE0290: Use primary constructor [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Consultas\AtualizarEstadoConsultaEndpointsTests.cs(30,12): info IDE0290: Use primary constructor [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\IntegracaoFixture.cs(124,23): info SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time. [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+``````

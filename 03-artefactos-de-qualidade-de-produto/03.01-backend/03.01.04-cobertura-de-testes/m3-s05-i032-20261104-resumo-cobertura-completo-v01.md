@@ -1,3 +1,4 @@
+``````text
 Summary - Backend — Gestão de Clínica Veterinária (G08)
   Generated on: 11/04/2026 - 00:46:38
   Coverage date: 11/04/2026 - 00:43:24 - 11/04/2026 - 00:46:18
@@ -171,3 +172,4 @@ ClinicaVeterinaria.Infrastructure                                               
   ClinicaVeterinaria.Infrastructure.UtilizadoresService                          97.3%
   ClinicaVeterinaria.Infrastructure.VacinacoesService                             100%
   ClinicaVeterinaria.Infrastructure.VeterinariosService                           100%
+``````

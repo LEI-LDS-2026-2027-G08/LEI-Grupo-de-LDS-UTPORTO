@@ -1,3 +1,4 @@
+``````text
 Commit analisado: 7f85c75 (2026-11-01 15:58:10 +0000)
 SDK .NET: 10.0.402
 
@@ -2162,3 +2163,4 @@ C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.Integ
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\RegistosClinicos\RegistosClinicosEndpointsTests.cs(36,12): info IDE0290: Use primary constructor [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Animais\AnimaisEndpointsTests.cs(27,12): info IDE0290: Use primary constructor [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
 C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\Infraestrutura\IntegracaoFixture.cs(124,23): info SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time. [C:\Users\HP\source\LEI-Grupo-de-LDS-UTPORTO\src\backend\ClinicaVeterinaria.IntegrationTests\ClinicaVeterinaria.IntegrationTests.csproj]
+``````

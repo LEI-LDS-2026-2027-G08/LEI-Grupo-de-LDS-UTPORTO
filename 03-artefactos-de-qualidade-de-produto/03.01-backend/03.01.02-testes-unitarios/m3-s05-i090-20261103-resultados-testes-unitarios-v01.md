@@ -1,3 +1,4 @@
+``````xml
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TestRun id="6cf3ecfc-fae7-4796-9833-6e134270281e" name="@runnervm48cm3 2026-11-03 18:43:17" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Times creation="2026-11-03T18:43:17.7622442+00:00" queuing="2026-11-03T18:43:17.7622443+00:00" start="2026-11-03T18:43:15.4945513+00:00" finish="2026-11-03T18:43:23.5833363+00:00" />
@@ -4359,3 +4360,4 @@ Test 'UT-TRV-007 — Uma exceção inesperada dá 500 com mensagem genérica, se
     </CollectorDataEntries>
   </ResultSummary>
 </TestRun>
+``````

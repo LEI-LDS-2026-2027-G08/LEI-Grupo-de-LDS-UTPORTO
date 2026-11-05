@@ -73,7 +73,7 @@ O primeiro comando aplica os analisadores com o quality gate; o segundo verifica
 
 Não existem ocorrências de severidade alta ou crítica (`Error` ou `Warning`) nem antes nem depois: o código já cumpria o quality gate dos analisadores. As ocorrências a tratar eram de formatação; as de nível `info` estão justificadas na secção 6. O `IDE0290` a mais no depois vem da classe nova `RegistosClinicosLeituraEndpointsTests` (I078), integrada no `develop` entre as duas análises; o código da I078 não trouxe ocorrências de formatação. Os 6 `IDE0290` a mais no final vêm das classes de testes de integração novas da I093 (`ConcorrenciaMarcacoesEndpointsTests`, `VisibilidadeAgendaEndpointsTests`), da I094 (`RegistoClinicoPersistenciaEndpointsTests`), da I095 (`VacinacoesPersistenciaEndpointsTests`) e da I096 (`MatrizSegurancaEndpointsTests`, `IsolamentoClientesEndpointsTests`); nenhuma tarefa integrada entretanto trouxe `Warning`, `Error` ou ocorrências de formatação.
 
-Registos completos: `m3-s05-i034-20261101-analise-estatica-antes-v01.txt`, `m3-s05-i034-20261101-analise-estatica-depois-v01.txt` e `m3-s05-i034-20261103-analise-estatica-final-v01.txt`, nesta pasta. Cada um começa com o commit analisado. No registo final, o terceiro comando termina com o código 2 porque lista as 54 sugestões `info`; não é uma falha do quality gate.
+Registos completos: `m3-s05-i034-20261101-analise-estatica-antes-v01.md`, `m3-s05-i034-20261101-analise-estatica-depois-v01.md` e `m3-s05-i034-20261103-analise-estatica-final-v01.md`, nesta pasta. Cada um começa com o commit analisado. No registo final, o terceiro comando termina com o código 2 porque lista as 54 sugestões `info`; não é uma falha do quality gate.
 
 ## 4. Origem das ocorrências de formatação
 
@@ -121,13 +121,13 @@ Com a I103 integrada, a pipeline Backend CI aplica três quality gates relaciona
 
 | Quality gate | Job | Resultado na execução 41667292108 | Log arquivado nesta pasta |
 | --- | --- | --- | --- |
-| QG-01 — compilação com os avisos como erros | «1 · Restauro e compilação (QG-01)» | `Build succeeded.`, `0 Warning(s)`, `0 Error(s)`; 6 relatórios SARIF publicados | `m3-s05-i034-20261103-log-pipeline-qg01-v01.txt` |
-| QG-04 — análise estática (Roslyn, SARIF) | «5 · Análise estática (QG-04)» | 6 relatórios SARIF; **0 ocorrências que bloqueiam** (`error`, `warning`), máximo 0; 3158 ocorrências de nível `note`; 0 suprimidas no código | `m3-s05-i034-20261103-log-pipeline-qg04-v01.txt` |
-| QG-08 — formatação | «6 · Formatação (QG-08)» | `dotnet format --verify-no-changes` com o código 0; **0 ficheiros por formatar**, 0 alterações, máximo 0 | `m3-s05-i034-20261103-log-pipeline-qg08-v01.txt` |
+| QG-01 — compilação com os avisos como erros | «1 · Restauro e compilação (QG-01)» | `Build succeeded.`, `0 Warning(s)`, `0 Error(s)`; 6 relatórios SARIF publicados | `m3-s05-i034-20261103-log-pipeline-qg01-v01.md` |
+| QG-04 — análise estática (Roslyn, SARIF) | «5 · Análise estática (QG-04)» | 6 relatórios SARIF; **0 ocorrências que bloqueiam** (`error`, `warning`), máximo 0; 3158 ocorrências de nível `note`; 0 suprimidas no código | `m3-s05-i034-20261103-log-pipeline-qg04-v01.md` |
+| QG-08 — formatação | «6 · Formatação (QG-08)» | `dotnet format --verify-no-changes` com o código 0; **0 ficheiros por formatar**, 0 alterações, máximo 0 | `m3-s05-i034-20261103-log-pipeline-qg08-v01.md` |
 
 As 3158 ocorrências `note` do QG-04 são as sugestões e os diagnósticos silenciosos que o Roslyn escreve nos SARIF dos seis projetos (incluindo regras de estilo com severidade `silent`). Não bloqueiam, segundo `niveisQueBloqueiam` da configuração, e incluem as 54 sugestões `info` da secção 6. Os relatórios completos estão nos artefactos `relatorio-analise-estatica`, `relatorio-analise-estatica-sarif` e `relatorio-formatacao` da execução (retenção de 90 dias).
 
-Histórico: antes da I103, só o QG-01 corria na pipeline; o log dessa execução (41336627718, sobre `0e277f7`) está em `m3-s05-i034-20261101-log-pipeline-qg01-v01.txt`. Os logs não têm segredos: o GitHub mascara o `GITHUB_TOKEN` (`***`).
+Histórico: antes da I103, só o QG-01 corria na pipeline; o log dessa execução (41336627718, sobre `0e277f7`) está em `m3-s05-i034-20261101-log-pipeline-qg01-v01.md`. Os logs não têm segredos: o GitHub mascara o `GITHUB_TOKEN` (`***`).
 
 ## 8. Resultado
 

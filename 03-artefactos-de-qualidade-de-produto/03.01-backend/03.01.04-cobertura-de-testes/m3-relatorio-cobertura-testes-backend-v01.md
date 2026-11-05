@@ -167,8 +167,8 @@ Os números deste relatório são os do relatório do ReportGenerator gerado na 
 | Ficheiro | Conteúdo |
 |---|---|
 | `m3-s05-i032-20261104-relatorio-cobertura-html-v01.zip` | Artefacto `relatorio-cobertura` da execução #184, tal como publicado: relatório HTML completo (`index.htm`), `Cobertura.xml`, `Summary.txt` e `SummaryGithub.md`; na subpasta `qg-03`, o relatório HTML e os resumos do âmbito do QG-03 |
-| `m3-s05-i032-20261104-resumo-cobertura-qg03-v01.txt` | `qg-03/Summary.txt`: resumo do âmbito do QG-03, por assembly e classe |
-| `m3-s05-i032-20261104-resumo-cobertura-completo-v01.txt` | `Summary.txt`: resumo do relatório completo |
+| `m3-s05-i032-20261104-resumo-cobertura-qg03-v01.md` | `qg-03/Summary.txt`: resumo do âmbito do QG-03, por assembly e classe |
+| `m3-s05-i032-20261104-resumo-cobertura-completo-v01.md` | `Summary.txt`: resumo do relatório completo |
 
 As tabelas das secções 5 a 7 foram calculadas a partir de `qg-03/Cobertura.xml` e `Cobertura.xml` desse artefacto; os totais coincidem com os resumos do ReportGenerator e com a linha «QG-03 cumprido: 98.51% ≥ 70%» do job 4. O artefacto fica também disponível na página da execução durante 90 dias.
 

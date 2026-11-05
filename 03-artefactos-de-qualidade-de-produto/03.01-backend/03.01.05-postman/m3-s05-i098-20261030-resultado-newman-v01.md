@@ -1,3 +1,4 @@
+``````text
 newman
 
 Clínica Veterinária G08 — API m3 (EP-001 a EP-020)
@@ -806,3 +807,4 @@ Sub-folder EP-020 · 403 — perfil interno (Veterinário)
 ------------------------------------------------------------------
 | average response time: 17ms [min: 1ms, max: 118ms, s.d.: 23ms] |
 ------------------------------------------------------------------
+``````

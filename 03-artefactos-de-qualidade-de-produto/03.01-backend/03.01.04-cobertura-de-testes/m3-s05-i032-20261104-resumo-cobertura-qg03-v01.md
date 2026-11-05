@@ -1,3 +1,4 @@
+``````text
 Summary - Backend — âmbito do QG-03 (Domínio e Serviços)
   Generated on: 11/04/2026 - 00:46:39
   Coverage date: 11/04/2026 - 00:43:24 - 11/04/2026 - 00:46:18
@@ -76,3 +77,4 @@ ClinicaVeterinaria.Infrastructure                                            98.
   ClinicaVeterinaria.Infrastructure.UtilizadoresService                      97.3%
   ClinicaVeterinaria.Infrastructure.VacinacoesService                         100%
   ClinicaVeterinaria.Infrastructure.VeterinariosService                       100%
+``````

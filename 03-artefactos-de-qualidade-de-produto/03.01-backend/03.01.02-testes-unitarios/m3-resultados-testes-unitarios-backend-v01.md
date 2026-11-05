@@ -67,7 +67,7 @@ Segue a definição da I090 aprovada no Backlog Refinement do Sprint 05 (Backlog
 | Runner | GitHub Actions `ubuntu-latest` (máquina `runnervm48cm3`) |
 | SDK do .NET | 10.0.x instalado pelo `setup-dotnet` (`global.json`: 10.0.100, `rollForward: latestFeature`) |
 | Início e fim dos testes (TRX) | 2026-11-03 18:43:15 — 18:43:23 (UTC) |
-| Resultados | Artefacto `resultados-testes-unitarios` (TRX e cobertura), arquivado como `m3-s05-i090-20261103-resultados-testes-unitarios-v01.trx` |
+| Resultados | Artefacto `resultados-testes-unitarios` (TRX e cobertura), arquivado como `m3-s05-i090-20261103-resultados-testes-unitarios-v01.md` |
 
 Comando executado pela pipeline (a partir da raiz do repositório, depois de `dotnet restore` e `dotnet build` do projeto em Release):
 
@@ -201,7 +201,7 @@ A suite de testes unitários do backend, no commit `39040cd` de `develop`, **exe
 | 3. Cada falha tem descrição, causa, ação e estado; não há falhas não explicadas | Secção 6: sem falhas; o teste ignorado tem descrição, causa, ação e estado | Cumprido |
 | 4. Conclusão sobre o cumprimento dos critérios de saída do plano de testes | Secções 8 e 9 | Cumprido |
 
-**Evidências da Issue:** (1) este relatório em PDF; (2) `m3-s05-i090-20261103-resultados-testes-unitarios-v01.trx`, o TRX gerado pela pipeline; (3) a ligação à execução da pipeline (secção 4.1).
+**Evidências da Issue:** (1) este relatório em PDF; (2) `m3-s05-i090-20261103-resultados-testes-unitarios-v01.md`, o TRX gerado pela pipeline; (3) a ligação à execução da pipeline (secção 4.1).
 
 ## Anexo A — Como repetir a execução
 

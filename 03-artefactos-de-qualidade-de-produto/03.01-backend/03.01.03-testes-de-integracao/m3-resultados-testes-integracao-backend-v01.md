@@ -67,7 +67,7 @@ Segue a definição da I097 aprovada no Backlog Refinement do Sprint 05 (Backlog
 | SDK do .NET | runtime .NET 10.0.14 (SDK 10.0.x instalado pelo setup-dotnet); Ubuntu 24.04.5 LTS; Docker 28.0.4 (`global.json`: 10.0.100, `rollForward: latestFeature`) |
 | Base de dados | SQL Server 2025 (`mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04`) no Docker do runner, criado pelo Testcontainers |
 | Início e fim dos testes (TRX) | 2026-11-02 23:17:00 — 2026-11-02 23:20:52 (UTC) |
-| Resultados | Artefacto `resultados-testes-integracao` (TRX), arquivado como `m3-s05-i097-20261102-resultados-testes-integracao-v01.trx` |
+| Resultados | Artefacto `resultados-testes-integracao` (TRX), arquivado como `m3-s05-i097-20261102-resultados-testes-integracao-v01.md` |
 | Execução complementar | Workflow «Testes de integracao» #92 no mesmo commit (`integration-tests.yml`, configuração Debug): success, 5 min 16 s. Não é a verificação obrigatória e não publica TRX |
 
 Comando executado pela pipeline (a partir da raiz do repositório, depois de `dotnet restore` e `dotnet build` do projeto em Release):
@@ -240,7 +240,7 @@ A suite de testes de integração do backend, no commit `69e70c7` de `develop`, 
 | 3. Cada falha com descrição, causa, ação e estado; testes de concorrência repetidos e resultado registado | Secção 6 (sem falhas nas execuções; instabilidades do Sprint e risco do relógio analisados) e secção 7 | Cumprido |
 | 4. A conclusão refere o cumprimento dos critérios de saída do plano de testes | Secções 9 e 10 | Cumprido |
 
-**Evidências da Issue:** (1) este relatório em PDF; (2) `m3-s05-i097-20261102-resultados-testes-integracao-v01.trx`, o TRX gerado pela pipeline; (3) a ligação à execução da pipeline (secção 4.1).
+**Evidências da Issue:** (1) este relatório em PDF; (2) `m3-s05-i097-20261102-resultados-testes-integracao-v01.md`, o TRX gerado pela pipeline; (3) a ligação à execução da pipeline (secção 4.1).
 
 ## Anexo A — Como repetir a execução
 
