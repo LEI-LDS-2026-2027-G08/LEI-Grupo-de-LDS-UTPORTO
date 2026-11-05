@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:55:11.0324868Z Current runner version: '2.338.2'
 2026-11-04T18:55:11.0348358Z ##[group]Runner Image Provisioner
 2026-11-04T18:55:11.0349302Z Hosted Compute Agent
@@ -56361,3 +56362,4 @@
 2026-11-04T18:59:32.0114994Z Terminate orphan process: pid (2651) (dotnet)
 2026-11-04T18:59:32.0138850Z Terminate orphan process: pid (2652) (dotnet)
 2026-11-04T18:59:32.0163807Z Terminate orphan process: pid (2766) (VBCSCompiler)
+``````

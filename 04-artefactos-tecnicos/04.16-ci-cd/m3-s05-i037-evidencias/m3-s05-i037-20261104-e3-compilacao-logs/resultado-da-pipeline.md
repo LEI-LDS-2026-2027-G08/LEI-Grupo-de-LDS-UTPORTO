@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:55:43.5358964Z Current runner version: '2.338.2'
 2026-11-04T18:55:43.5385530Z ##[group]Runner Image Provisioner
 2026-11-04T18:55:43.5386455Z Hosted Compute Agent
@@ -124,3 +125,4 @@
 2026-11-04T18:55:43.8779078Z ##[error]A etapa «7 · Collection Postman (Newman)» não terminou com sucesso.
 2026-11-04T18:55:43.8790860Z ##[error]Process completed with exit code 1.
 2026-11-04T18:55:43.8977954Z Cleaning up orphan processes
+``````

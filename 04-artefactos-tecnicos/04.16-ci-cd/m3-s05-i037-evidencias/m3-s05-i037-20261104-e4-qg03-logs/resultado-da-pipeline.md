@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:59:44.3774298Z Current runner version: '2.338.2'
 2026-11-04T18:59:44.3793099Z ##[group]Runner Image Provisioner
 2026-11-04T18:59:44.3793712Z Hosted Compute Agent
@@ -119,3 +120,4 @@
 2026-11-04T18:59:44.8111845Z ##[error]A etapa «4 · Cobertura (QG-03)» não terminou com sucesso.
 2026-11-04T18:59:44.8121790Z ##[error]Process completed with exit code 1.
 2026-11-04T18:59:44.8229043Z Cleaning up orphan processes
+``````

@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:59:54.4991359Z Current runner version: '2.338.2'
 2026-11-04T18:59:54.5011111Z ##[group]Runner Image Provisioner
 2026-11-04T18:59:54.5011789Z Hosted Compute Agent
@@ -119,3 +120,4 @@
 2026-11-04T18:59:57.3045728Z ##[error]A etapa «2 · Testes unitários (QG-02)» não terminou com sucesso.
 2026-11-04T18:59:57.3058518Z ##[error]Process completed with exit code 1.
 2026-11-04T18:59:57.3190392Z Cleaning up orphan processes
+``````

@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:59:38.0076887Z Current runner version: '2.338.2'
 2026-11-04T18:59:38.0103077Z ##[group]Runner Image Provisioner
 2026-11-04T18:59:38.0104099Z Hosted Compute Agent
@@ -459,3 +460,4 @@
 2026-11-04T18:59:48.3747603Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
 2026-11-04T18:59:48.3802714Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
 2026-11-04T18:59:48.4198294Z Cleaning up orphan processes
+``````

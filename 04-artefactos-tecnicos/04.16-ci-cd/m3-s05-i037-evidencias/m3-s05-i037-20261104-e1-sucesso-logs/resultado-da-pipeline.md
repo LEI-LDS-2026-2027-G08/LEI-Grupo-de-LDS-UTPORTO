@@ -1,3 +1,4 @@
+``````text
 ﻿2026-11-04T18:43:56.7979145Z Current runner version: '2.338.2'
 2026-11-04T18:43:56.8005100Z ##[group]Runner Image Provisioner
 2026-11-04T18:43:56.8006157Z Hosted Compute Agent
@@ -117,3 +118,4 @@
 2026-11-04T18:43:57.1860040Z 
 2026-11-04T18:43:57.1860517Z **✅ Todas as etapas terminaram com sucesso.**
 2026-11-04T18:43:57.2044301Z Cleaning up orphan processes
+``````
