@@ -1,6 +1,6 @@
 Execução dos scripts de dados iniciais e de demonstração (I061)
 Data e hora      : 2026-10-25 20:33:20 +00:00
-Computador       : LAPTOP-I1J1GO6R
+Computador       : <computador>
 Servidor         : localhost,14333
 Base de dados    : ClinicaVeterinaria_I062_Container
 Autenticação     : SQL Server (login sa)
@@ -86,4 +86,4 @@ Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas.
 Resultado: os dados de demonstração cobrem os critérios 2 e 3 da I061 e são coerentes.
 === verificar-dados-demonstracao.sql — fim 20:33:21 — código de saída 0
 
-Concluído sem erros. Registo: C:\Users\HP\AppData\Local\Temp\I062-I061-Final\dados-execucao-20261025-203320.log
+Concluído sem erros. Registo: C:\Users\<utilizador>\AppData\Local\Temp\I062-I061-Final\dados-execucao-20261025-203320.log
