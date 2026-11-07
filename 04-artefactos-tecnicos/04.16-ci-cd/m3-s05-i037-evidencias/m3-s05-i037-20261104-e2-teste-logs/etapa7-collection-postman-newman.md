@@ -1,0 +1,3066 @@
+``````text
+﻿2026-11-04T18:55:11.2200538Z Current runner version: '2.338.2'
+2026-11-04T18:55:11.2225531Z ##[group]Runner Image Provisioner
+2026-11-04T18:55:11.2226537Z Hosted Compute Agent
+2026-11-04T18:55:11.2227188Z Version: 20261028.624
+2026-11-04T18:55:11.2227871Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-04T18:55:11.2228639Z Build Date: 2026-10-28T21:51:42Z
+2026-11-04T18:55:11.2229300Z Worker ID: {67f1ff16-52ca-4c51-ac24-21829ca779e9}
+2026-11-04T18:55:11.2229993Z Region: westus3
+2026-11-04T18:55:11.2230578Z Cloud: Azure
+2026-11-04T18:55:11.2231120Z ##[endgroup]
+2026-11-04T18:55:11.2232550Z ##[group]Operating System
+2026-11-04T18:55:11.2233213Z Ubuntu
+2026-11-04T18:55:11.2233728Z 24.04.5
+2026-11-04T18:55:11.2234281Z LTS
+2026-11-04T18:55:11.2234986Z ##[endgroup]
+2026-11-04T18:55:11.2235553Z ##[group]Runner Image
+2026-11-04T18:55:11.2236159Z Image: ubuntu-24.04
+2026-11-04T18:55:11.2236721Z Version: 20261101.360.1
+2026-11-04T18:55:11.2237990Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-04T18:55:11.2239533Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-04T18:55:11.2240490Z ##[endgroup]
+2026-11-04T18:55:11.2241603Z ##[group]GITHUB_TOKEN Permissions
+2026-11-04T18:55:11.2243941Z Contents: read
+2026-11-04T18:55:11.2244729Z Metadata: read
+2026-11-04T18:55:11.2245346Z ##[endgroup]
+2026-11-04T18:55:11.2247429Z Secret source: Actions
+2026-11-04T18:55:11.2248356Z Cache mode: write
+2026-11-04T18:55:11.2249385Z Prepare workflow directory
+2026-11-04T18:55:11.2635458Z Prepare all required actions
+2026-11-04T18:55:11.2688275Z Getting action download info
+2026-11-04T18:55:11.6232855Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-11-04T18:55:11.7752206Z Download action repository 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-11-04T18:55:11.9747704Z Complete job name: 7 · Collection Postman (Newman)
+2026-11-04T18:55:12.0603191Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-11-04T18:55:12.0604259Z with:
+2026-11-04T18:55:12.0605038Z   persist-credentials: false
+2026-11-04T18:55:12.0605766Z   repository: LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:12.0610176Z   token: ***
+2026-11-04T18:55:12.0610733Z   ssh-strict: true
+2026-11-04T18:55:12.0611272Z   ssh-user: git
+2026-11-04T18:55:12.0611804Z   clean: true
+2026-11-04T18:55:12.0612344Z   sparse-checkout-cone-mode: true
+2026-11-04T18:55:12.0612969Z   fetch-depth: 1
+2026-11-04T18:55:12.0613518Z   fetch-tags: false
+2026-11-04T18:55:12.0614033Z   show-progress: true
+2026-11-04T18:55:12.0614726Z   lfs: false
+2026-11-04T18:55:12.0615271Z   submodules: false
+2026-11-04T18:55:12.0615866Z   set-safe-directory: true
+2026-11-04T18:55:12.0616480Z   allow-unsafe-pr-checkout: false
+2026-11-04T18:55:12.0617233Z env:
+2026-11-04T18:55:12.0617760Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:12.0618446Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:12.0619119Z   CONFIGURACAO: Release
+2026-11-04T18:55:12.0619713Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:12.0621050Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:12.0622487Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:12.0623567Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:12.0624253Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:12.0625004Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:12.0625681Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:12.0626327Z   API_URL: http://localhost:5159
+2026-11-04T18:55:12.0626934Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:12.0627689Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:12.0628451Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:12.0629231Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:12.0630784Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:12.0631937Z ##[endgroup]
+2026-11-04T18:55:12.3621099Z Syncing repository: LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:12.3624251Z ##[group]Getting Git version info
+2026-11-04T18:55:12.3626088Z Working directory is '/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO'
+2026-11-04T18:55:12.3628034Z [command]/usr/bin/git version
+2026-11-04T18:55:12.3719152Z git version 2.56.0
+2026-11-04T18:55:12.3739226Z ##[endgroup]
+2026-11-04T18:55:12.3750917Z Temporarily overriding HOME='/home/runner/work/_temp/ad9dce51-2a55-4591-87fc-6bfa6b9777c4' before making global git config changes
+2026-11-04T18:55:12.3752382Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T18:55:12.3758064Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:12.3810668Z Deleting the contents of '/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO'
+2026-11-04T18:55:12.3815843Z ##[group]Determining repository object format
+2026-11-04T18:55:12.3818017Z ##[endgroup]
+2026-11-04T18:55:12.3819100Z ##[group]Initializing the repository
+2026-11-04T18:55:12.3823327Z [command]/usr/bin/git init /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:12.3953206Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-04T18:55:12.3955964Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-04T18:55:12.3957192Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-04T18:55:12.3958397Z hint: call:
+2026-11-04T18:55:12.3958971Z hint:
+2026-11-04T18:55:12.3959619Z hint: 	git config --global init.defaultBranch <name>
+2026-11-04T18:55:12.3960287Z hint:
+2026-11-04T18:55:12.3961621Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-04T18:55:12.3962627Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-04T18:55:12.3963486Z hint:
+2026-11-04T18:55:12.3964195Z hint: 	git branch -m <name>
+2026-11-04T18:55:12.3965220Z hint:
+2026-11-04T18:55:12.3966284Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-04T18:55:12.3967914Z Initialized empty Git repository in /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/
+2026-11-04T18:55:12.3981666Z [command]/usr/bin/git remote add origin https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:12.4034930Z ##[endgroup]
+2026-11-04T18:55:12.4036333Z ##[group]Disabling automatic garbage collection
+2026-11-04T18:55:12.4039955Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-04T18:55:12.4078312Z ##[endgroup]
+2026-11-04T18:55:12.4079762Z ##[group]Setting up auth
+2026-11-04T18:55:12.4080421Z Removing SSH command configuration
+2026-11-04T18:55:12.4085964Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:55:12.4127999Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:55:12.4529013Z Removing HTTP extra header
+2026-11-04T18:55:12.4533446Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:55:12.4570090Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:55:12.4780913Z Removing includeIf entries pointing to credentials config files
+2026-11-04T18:55:12.4787313Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:55:12.4821611Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:55:12.5028330Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-04T18:55:12.5071380Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path /home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:12.5108792Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:12.5147769Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:12.5190477Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:12.5237269Z ##[endgroup]
+2026-11-04T18:55:12.5238266Z ##[group]Fetching the repository
+2026-11-04T18:55:12.5245099Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1e0181f1ad52288323bc89cefd5d2641a3f2655a:refs/remotes/pull/247/merge
+2026-11-04T18:55:14.4732815Z From https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:55:14.4735212Z  * [new ref]         1e0181f1ad52288323bc89cefd5d2641a3f2655a -> pull/247/merge
+2026-11-04T18:55:14.4738806Z ##[endgroup]
+2026-11-04T18:55:14.4740311Z ##[group]Determining the checkout info
+2026-11-04T18:55:14.4743261Z ##[endgroup]
+2026-11-04T18:55:14.4744272Z [command]/usr/bin/git sparse-checkout disable
+2026-11-04T18:55:14.4806336Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-04T18:55:14.4842830Z ##[group]Checking out the ref
+2026-11-04T18:55:14.4847952Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/247/merge
+2026-11-04T18:55:14.7117231Z Note: switching to 'refs/remotes/pull/247/merge'.
+2026-11-04T18:55:14.7118654Z 
+2026-11-04T18:55:14.7119787Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-04T18:55:14.7122656Z changes and commit them, and you can discard any commits you make in this
+2026-11-04T18:55:14.7125560Z state without impacting any branches by switching back to a branch.
+2026-11-04T18:55:14.7127118Z 
+2026-11-04T18:55:14.7128157Z If you want to create a new branch to retain commits you create, you may
+2026-11-04T18:55:14.7130403Z do so (now or later) by using -c with the switch command. Example:
+2026-11-04T18:55:14.7131536Z 
+2026-11-04T18:55:14.7132093Z   git switch -c <new-branch-name>
+2026-11-04T18:55:14.7132857Z 
+2026-11-04T18:55:14.7133485Z Or undo this operation with:
+2026-11-04T18:55:14.7134452Z 
+2026-11-04T18:55:14.7135188Z   git switch -
+2026-11-04T18:55:14.7135927Z 
+2026-11-04T18:55:14.7136877Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-04T18:55:14.7138365Z 
+2026-11-04T18:55:14.7139987Z HEAD is now at 1e0181f Merge a94b7155edcdf8d0c0779b09a41573ebfadc26d4 into 89d6b31c5e788b4e8e5cfc7178d991ef65856c06
+2026-11-04T18:55:14.7144948Z ##[endgroup]
+2026-11-04T18:55:14.7188312Z [command]/usr/bin/git log -1 --format=%H
+2026-11-04T18:55:14.7216597Z 1e0181f1ad52288323bc89cefd5d2641a3f2655a
+2026-11-04T18:55:14.7224074Z ##[group]Removing auth
+2026-11-04T18:55:14.7225491Z Removing SSH command configuration
+2026-11-04T18:55:14.7228939Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:55:14.7262199Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:55:14.7466124Z Removing HTTP extra header
+2026-11-04T18:55:14.7469332Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:55:14.7502459Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:55:14.7702935Z Removing includeIf entries pointing to credentials config files
+2026-11-04T18:55:14.7706217Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:55:14.7736207Z includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path
+2026-11-04T18:55:14.7739935Z includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path
+2026-11-04T18:55:14.7742816Z includeif.gitdir:/github/workspace/.git.path
+2026-11-04T18:55:14.7745065Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-04T18:55:14.7750684Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path
+2026-11-04T18:55:14.7768390Z /home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:14.7781857Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-24d50c6f\-a310\-4b9f\-867d\-8c8943933280\.config
+2026-11-04T18:55:14.7845920Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path
+2026-11-04T18:55:14.7871417Z /home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:14.7882305Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-24d50c6f\-a310\-4b9f\-867d\-8c8943933280\.config
+2026-11-04T18:55:14.7916766Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-04T18:55:14.7939303Z /github/runner_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:14.7947464Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-24d50c6f\-a310\-4b9f\-867d\-8c8943933280\.config
+2026-11-04T18:55:14.7985085Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-04T18:55:14.8009554Z /github/runner_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config
+2026-11-04T18:55:14.8021869Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-24d50c6f\-a310\-4b9f\-867d\-8c8943933280\.config
+2026-11-04T18:55:14.8058580Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:55:14.8260187Z Removing credentials config '/home/runner/work/_temp/git-credentials-24d50c6f-a310-4b9f-867d-8c8943933280.config'
+2026-11-04T18:55:14.8275837Z ##[endgroup]
+2026-11-04T18:55:14.8625549Z Prepare all required actions
+2026-11-04T18:55:14.8627617Z Getting action download info
+2026-11-04T18:55:15.0091338Z Download action repository 'actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68' (SHA:a98b56852c35b8e3190ac28c8c2271da59106c68)
+2026-11-04T18:55:15.7017622Z Download action repository 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+2026-11-04T18:55:15.9672424Z ##[group]Run ./.github/actions/preparar-dotnet
+2026-11-04T18:55:15.9672814Z env:
+2026-11-04T18:55:15.9673101Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:15.9673406Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:15.9673883Z   CONFIGURACAO: Release
+2026-11-04T18:55:15.9674210Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:15.9674970Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:15.9675849Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:15.9676451Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:15.9676772Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:15.9677111Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:15.9677469Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:15.9677848Z   API_URL: http://localhost:5159
+2026-11-04T18:55:15.9678207Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:15.9678625Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:15.9679041Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:15.9679484Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:15.9680193Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:15.9680746Z ##[endgroup]
+2026-11-04T18:55:15.9743245Z ##[start-action display=Instalar o SDK do .NET 10;id=__self.__actions_setup-dotnet]
+2026-11-04T18:55:15.9828030Z ##[group]Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+2026-11-04T18:55:15.9828595Z with:
+2026-11-04T18:55:15.9828980Z   dotnet-version: 10.0.x
+2026-11-04T18:55:15.9829402Z   cache: false
+2026-11-04T18:55:15.9829772Z env:
+2026-11-04T18:55:15.9830113Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:15.9830511Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:15.9830923Z   CONFIGURACAO: Release
+2026-11-04T18:55:15.9831379Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:15.9832063Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:15.9832967Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:15.9833666Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:15.9834075Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:15.9834621Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:15.9835111Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:15.9835554Z   API_URL: http://localhost:5159
+2026-11-04T18:55:15.9836003Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:15.9836476Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:15.9836967Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:15.9837559Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:15.9838303Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:15.9838965Z ##[endgroup]
+2026-11-04T18:55:16.1317220Z [command]/home/runner/work/_actions/actions/setup-dotnet/a98b56852c35b8e3190ac28c8c2271da59106c68/externals/install-dotnet.sh --skip-non-versioned-files --runtime dotnet --channel LTS
+2026-11-04T18:55:16.4605698Z dotnet-install: .NET Core Runtime with version '10.0.14' is already installed.
+2026-11-04T18:55:16.4640666Z [command]/home/runner/work/_actions/actions/setup-dotnet/a98b56852c35b8e3190ac28c8c2271da59106c68/externals/install-dotnet.sh --skip-non-versioned-files --channel 10.0
+2026-11-04T18:55:16.7498980Z dotnet-install: .NET Core SDK with version '10.0.403' is already installed.
+2026-11-04T18:55:16.7614233Z ##[end-action id=__self.__actions_setup-dotnet;outcome=success;conclusion=success;duration_ms=786]
+2026-11-04T18:55:16.7618954Z ##[start-action display=Reutilizar a cache dos pacotes NuGet;id=__self.__actions_cache]
+2026-11-04T18:55:16.9222699Z ##[group]Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+2026-11-04T18:55:16.9223053Z with:
+2026-11-04T18:55:16.9223264Z   path: ~/.nuget/packages
+2026-11-04T18:55:16.9223673Z   key: nuget-Linux-c8252acdcad9b687c3131c725ee3c1b10105ceb23478247a43e8389c12c19830
+2026-11-04T18:55:16.9224267Z   restore-keys: nuget-Linux-
+
+2026-11-04T18:55:16.9224697Z   enableCrossOsArchive: false
+2026-11-04T18:55:16.9224965Z   fail-on-cache-miss: false
+2026-11-04T18:55:16.9225212Z   lookup-only: false
+2026-11-04T18:55:16.9225431Z   save-always: false
+2026-11-04T18:55:16.9225648Z env:
+2026-11-04T18:55:16.9225842Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:16.9226091Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:16.9226350Z   CONFIGURACAO: Release
+2026-11-04T18:55:16.9226604Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:16.9227081Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:16.9227780Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:16.9228289Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:16.9228542Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:16.9228823Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:16.9229114Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:16.9229401Z   API_URL: http://localhost:5159
+2026-11-04T18:55:16.9229682Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:16.9230020Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:16.9230365Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:16.9230736Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:16.9231341Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:16.9231833Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:16.9232083Z ##[endgroup]
+2026-11-04T18:55:17.2753495Z Cache hit for: nuget-Linux-c8252acdcad9b687c3131c725ee3c1b10105ceb23478247a43e8389c12c19830
+2026-11-04T18:55:18.5472061Z Received 37748736 of 283633656 (13.3%), 36.0 MBs/sec
+2026-11-04T18:55:19.5515138Z Received 176160768 of 283633656 (62.1%), 83.8 MBs/sec
+2026-11-04T18:55:20.3910180Z Received 283633656 of 283633656 (100.0%), 95.1 MBs/sec
+2026-11-04T18:55:20.3912012Z Cache Size: ~270 MB (283633656 B)
+2026-11-04T18:55:20.4039986Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a1da3ac3-dc88-4059-befc-cb7e3d8e686c/cache.tzst -P -C /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO --use-compress-program unzstd
+2026-11-04T18:55:21.2925203Z Cache restored successfully
+2026-11-04T18:55:21.3211509Z Cache restored from key: nuget-Linux-c8252acdcad9b687c3131c725ee3c1b10105ceb23478247a43e8389c12c19830
+2026-11-04T18:55:21.3298536Z ##[end-action id=__self.__actions_cache;outcome=success;conclusion=success;duration_ms=4567]
+2026-11-04T18:55:21.3301624Z ##[start-action display=Registar o SDK utilizado;id=__self.__run]
+2026-11-04T18:55:21.3339822Z ##[group]Run echo "SDK do .NET: $(dotnet --version)"
+2026-11-04T18:55:21.3340300Z [36;1mecho "SDK do .NET: $(dotnet --version)"[0m
+2026-11-04T18:55:21.3340600Z [36;1m{[0m
+2026-11-04T18:55:21.3340830Z [36;1m  echo "### Ambiente .NET"[0m
+2026-11-04T18:55:21.3341088Z [36;1m  echo ""[0m
+2026-11-04T18:55:21.3341356Z [36;1m  echo "| Elemento | Valor |"[0m
+2026-11-04T18:55:21.3341620Z [36;1m  echo "|---|---|"[0m
+2026-11-04T18:55:21.3341925Z [36;1m  echo "| SDK do .NET | \`$(dotnet --version)\` |"[0m
+2026-11-04T18:55:21.3342342Z [36;1m  echo "| global.json | \`$(tr -d '\n\r ' < src/backend/global.json)\` |"[0m
+2026-11-04T18:55:21.3343021Z [36;1m  echo "| Runner | \`${RUNNER_OS} ${ImageOS:-} ${ImageVersion:-}\` |"[0m
+2026-11-04T18:55:21.3343388Z [36;1m  echo ""[0m
+2026-11-04T18:55:21.3343626Z [36;1m} >> "$GITHUB_STEP_SUMMARY"[0m
+2026-11-04T18:55:21.3363160Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:21.3363519Z env:
+2026-11-04T18:55:21.3363741Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:21.3363988Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:21.3364265Z   CONFIGURACAO: Release
+2026-11-04T18:55:21.3364741Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:21.3365268Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:21.3366168Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:21.3366695Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:21.3366960Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:21.3367269Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:21.3367573Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:21.3367870Z   API_URL: http://localhost:5159
+2026-11-04T18:55:21.3368146Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:21.3368482Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:21.3368822Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:21.3369193Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:21.3369808Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:21.3370305Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:21.3370561Z ##[endgroup]
+2026-11-04T18:55:23.4389067Z SDK do .NET: 10.0.403
+2026-11-04T18:55:23.5284319Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=2198]
+2026-11-04T18:55:23.5321597Z ##[group]Run dotnet restore "$SOLUCAO"
+2026-11-04T18:55:23.5321930Z [36;1mdotnet restore "$SOLUCAO"[0m
+2026-11-04T18:55:23.5336294Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:23.5336646Z env:
+2026-11-04T18:55:23.5336858Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:23.5337107Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:23.5337391Z   CONFIGURACAO: Release
+2026-11-04T18:55:23.5337657Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:23.5338162Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:23.5338884Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:23.5339420Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:23.5339703Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:23.5339983Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:23.5340281Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:23.5340606Z   API_URL: http://localhost:5159
+2026-11-04T18:55:23.5340880Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:23.5341207Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:23.5341587Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:23.5341963Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:23.5342582Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:23.5343069Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:23.5343324Z ##[endgroup]
+2026-11-04T18:55:26.8437396Z   Determining projects to restore...
+2026-11-04T18:55:29.3200602Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj (in 1.16 sec).
+2026-11-04T18:55:29.3202515Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Application/ClinicaVeterinaria.Application.csproj (in 1.11 sec).
+2026-11-04T18:55:29.3233594Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj (in 1.13 sec).
+2026-11-04T18:55:29.3297689Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj (in 1.14 sec).
+2026-11-04T18:55:29.3347168Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Domain/ClinicaVeterinaria.Domain.csproj (in 2 ms).
+2026-11-04T18:55:29.3868179Z   Restored /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj (in 41 ms).
+2026-11-04T18:55:29.4445253Z ##[group]Run dotnet build "$PROJETO_API" --configuration "$CONFIGURACAO" --no-restore
+2026-11-04T18:55:29.4445907Z [36;1mdotnet build "$PROJETO_API" --configuration "$CONFIGURACAO" --no-restore[0m
+2026-11-04T18:55:29.4459953Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:29.4460301Z env:
+2026-11-04T18:55:29.4460514Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:29.4460761Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:29.4461050Z   CONFIGURACAO: Release
+2026-11-04T18:55:29.4461311Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:29.4462059Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:29.4463155Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:29.4463974Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:29.4464352Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:29.4465021Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:29.4465457Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:29.4465761Z   API_URL: http://localhost:5159
+2026-11-04T18:55:29.4466025Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:29.4466359Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:29.4466709Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:29.4467180Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:29.4467802Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:29.4468287Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:29.4468540Z ##[endgroup]
+2026-11-04T18:55:35.7720594Z   ClinicaVeterinaria.Domain -> /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Domain/bin/Release/net10.0/ClinicaVeterinaria.Domain.dll
+2026-11-04T18:55:37.5291148Z   ClinicaVeterinaria.Application -> /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Application/bin/Release/net10.0/ClinicaVeterinaria.Application.dll
+2026-11-04T18:55:39.7413330Z   ClinicaVeterinaria.Infrastructure -> /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Infrastructure/bin/Release/net10.0/ClinicaVeterinaria.Infrastructure.dll
+2026-11-04T18:55:42.6576872Z   ClinicaVeterinaria.Api -> /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/src/backend/ClinicaVeterinaria.Api/bin/Release/net10.0/ClinicaVeterinaria.Api.dll
+2026-11-04T18:55:42.7653731Z 
+2026-11-04T18:55:42.7661253Z Build succeeded.
+2026-11-04T18:55:42.7661678Z     0 Warning(s)
+2026-11-04T18:55:42.7661974Z     0 Error(s)
+2026-11-04T18:55:42.7663819Z 
+2026-11-04T18:55:42.7664609Z Time Elapsed 00:00:13.09
+2026-11-04T18:55:42.7919236Z ##[group]Run dotnet tool install dotnet-ef --version "$DOTNET_EF_VERSAO" --tool-path .ferramentas
+2026-11-04T18:55:42.7919923Z [36;1mdotnet tool install dotnet-ef --version "$DOTNET_EF_VERSAO" --tool-path .ferramentas[0m
+2026-11-04T18:55:42.7933680Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:42.7934022Z env:
+2026-11-04T18:55:42.7934230Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:42.7934666Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:42.7934961Z   CONFIGURACAO: Release
+2026-11-04T18:55:42.7935226Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:42.7935721Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:42.7936440Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:42.7936961Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:42.7937221Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:42.7937547Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:42.7937849Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:42.7938292Z   API_URL: http://localhost:5159
+2026-11-04T18:55:42.7938559Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:42.7938896Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:42.7939241Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:42.7939616Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:42.7940394Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:42.7940899Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:42.7941151Z ##[endgroup]
+2026-11-04T18:55:44.7555704Z You can invoke the tool using the following command: dotnet-ef
+2026-11-04T18:55:44.7556361Z Tool 'dotnet-ef' (version '10.0.13') was successfully installed.
+2026-11-04T18:55:44.7681363Z ##[group]Run SA="Sa-$(openssl rand -hex 16)-Aa1!"
+2026-11-04T18:55:44.7681983Z [36;1mSA="Sa-$(openssl rand -hex 16)-Aa1!"[0m
+2026-11-04T18:55:44.7682503Z [36;1mJWT="$(openssl rand -base64 48 | tr -d '\n')"[0m
+2026-11-04T18:55:44.7682982Z [36;1mecho "::add-mask::$SA"[0m
+2026-11-04T18:55:44.7683383Z [36;1mecho "::add-mask::$JWT"[0m
+2026-11-04T18:55:44.7683766Z [36;1m{[0m
+2026-11-04T18:55:44.7684063Z [36;1m  echo "SQL_SA_PASSWORD=$SA"[0m
+2026-11-04T18:55:44.7685323Z [36;1m  echo "SQLCMDPASSWORD=$SA"[0m
+2026-11-04T18:55:44.7685763Z [36;1m  echo "Jwt__Key=$JWT"[0m
+2026-11-04T18:55:44.7686102Z [36;1m} >> "$GITHUB_ENV"[0m
+2026-11-04T18:55:44.7686462Z [36;1mmkdir -p "$RESULTADOS/newman"[0m
+2026-11-04T18:55:44.7707033Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:44.7707583Z env:
+2026-11-04T18:55:44.7707879Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:44.7708236Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:44.7708682Z   CONFIGURACAO: Release
+2026-11-04T18:55:44.7709076Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:44.7709814Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:44.7710850Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:44.7711696Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:44.7712075Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:44.7712487Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:44.7712964Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:44.7713380Z   API_URL: http://localhost:5159
+2026-11-04T18:55:44.7713783Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:44.7714288Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:44.7715094Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:44.7715704Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:44.7716701Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:44.7717453Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:44.7717843Z ##[endgroup]
+2026-11-04T18:55:44.7905353Z ##[group]Run # O repositório e a pasta temporária do runner ficam visíveis no
+2026-11-04T18:55:44.7905962Z [36;1m# O repositório e a pasta temporária do runner ficam visíveis no[0m
+2026-11-04T18:55:44.7906434Z [36;1m# contentor (só leitura), nos mesmos caminhos, para o sqlcmd do[0m
+2026-11-04T18:55:44.7906829Z [36;1m# contentor poder ler os scripts.[0m
+2026-11-04T18:55:44.7907174Z [36;1mdocker run -d --name "$CONTENTOR_SQL" \[0m
+2026-11-04T18:55:44.7907563Z [36;1m  -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="$SQL_SA_PASSWORD" \[0m
+2026-11-04T18:55:44.7907974Z [36;1m  -p 1433:1433 \[0m
+2026-11-04T18:55:44.7908277Z [36;1m  -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE:ro" \[0m
+2026-11-04T18:55:44.7908628Z [36;1m  -v "$RUNNER_TEMP:$RUNNER_TEMP:ro" \[0m
+2026-11-04T18:55:44.7908925Z [36;1m  "$IMAGEM_SQL"[0m
+2026-11-04T18:55:44.7909171Z [36;1mfor i in $(seq 1 60); do[0m
+2026-11-04T18:55:44.7909669Z [36;1m  if docker logs "$CONTENTOR_SQL" 2>&1 | grep -q "SQL Server is now ready for client connections"; then[0m
+2026-11-04T18:55:44.7910304Z [36;1m    echo "SQL Server pronto ao fim de $((i * 2)) s."[0m
+2026-11-04T18:55:44.7910622Z [36;1m    exit 0[0m
+2026-11-04T18:55:44.7910859Z [36;1m  fi[0m
+2026-11-04T18:55:44.7911079Z [36;1m  sleep 2[0m
+2026-11-04T18:55:44.7911316Z [36;1mdone[0m
+2026-11-04T18:55:44.7911690Z [36;1mdocker logs "$CONTENTOR_SQL"[0m
+2026-11-04T18:55:44.7912115Z [36;1mecho "::error title=Newman::O SQL Server não ficou disponível em 120 s."[0m
+2026-11-04T18:55:44.7912609Z [36;1mexit 1[0m
+2026-11-04T18:55:44.7927098Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:55:44.7927465Z env:
+2026-11-04T18:55:44.7927688Z   DOTNET_NOLOGO: true
+2026-11-04T18:55:44.7927946Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:55:44.7928243Z   CONFIGURACAO: Release
+2026-11-04T18:55:44.7928526Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:55:44.7929040Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:55:44.7929771Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:55:44.7930333Z   RESULTADOS: resultados-ci
+2026-11-04T18:55:44.7930600Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:55:44.7930935Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:55:44.7931249Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:55:44.7931598Z   API_URL: http://localhost:5159
+2026-11-04T18:55:44.7931993Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:55:44.7932337Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:55:44.7932701Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:55:44.7933081Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:55:44.7933703Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:55:44.7934208Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:55:44.7935207Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:55:44.7935549Z   SQLCMDPASSWORD: ***
+2026-11-04T18:55:44.7935951Z   Jwt__Key: ***
+2026-11-04T18:55:44.7936172Z ##[endgroup]
+2026-11-04T18:55:44.8908097Z Unable to find image 'mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04' locally
+2026-11-04T18:55:45.2164429Z 2025-CU9-ubuntu-22.04: Pulling from mssql/server
+2026-11-04T18:55:45.2165528Z cb5e374be662: Pulling fs layer
+2026-11-04T18:55:45.2165949Z 97ae914ba1ec: Pulling fs layer
+2026-11-04T18:55:45.2166380Z 66b18d851f2f: Pulling fs layer
+2026-11-04T18:55:45.5908229Z cb5e374be662: Verifying Checksum
+2026-11-04T18:55:45.5909780Z cb5e374be662: Download complete
+2026-11-04T18:55:45.7387311Z 66b18d851f2f: Verifying Checksum
+2026-11-04T18:55:45.7388611Z 66b18d851f2f: Download complete
+2026-11-04T18:55:46.8143099Z cb5e374be662: Pull complete
+2026-11-04T18:55:47.2766307Z 97ae914ba1ec: Verifying Checksum
+2026-11-04T18:55:47.2767033Z 97ae914ba1ec: Download complete
+2026-11-04T18:55:54.8615476Z 97ae914ba1ec: Pull complete
+2026-11-04T18:56:01.6420880Z 66b18d851f2f: Pull complete
+2026-11-04T18:56:01.6488061Z Digest: sha256:b61a2ce00b3b23307efeff8e16af07c964ef64270c3fa0109cb5802403cf9e98
+2026-11-04T18:56:01.6522240Z Status: Downloaded newer image for mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:01.6685795Z e87c03f14beaf5b4eccc55a2788d6c287962c6f4ce54e460a396553ecfa285f4
+2026-11-04T18:56:20.0642456Z SQL Server pronto ao fim de 20 s.
+2026-11-04T18:56:20.0677866Z ##[group]Run NO_CONTENTOR="$(docker exec "$CONTENTOR_SQL" bash -c 'ls /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd 2>/dev/null | head -n 1' || true)"
+2026-11-04T18:56:20.0678894Z [36;1mNO_CONTENTOR="$(docker exec "$CONTENTOR_SQL" bash -c 'ls /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd 2>/dev/null | head -n 1' || true)"[0m
+2026-11-04T18:56:20.0679511Z [36;1mif [ -n "$NO_CONTENTOR" ]; then[0m
+2026-11-04T18:56:20.0679826Z [36;1m  mkdir -p "$RUNNER_TEMP/bin"[0m
+2026-11-04T18:56:20.0680414Z [36;1m  printf '#!/usr/bin/env bash\nexec docker exec -i -e SQLCMDPASSWORD "%s" "%s" "$@"\n' "$CONTENTOR_SQL" "$NO_CONTENTOR" > "$RUNNER_TEMP/bin/sqlcmd"[0m
+2026-11-04T18:56:20.0681154Z [36;1m  chmod +x "$RUNNER_TEMP/bin/sqlcmd"[0m
+2026-11-04T18:56:20.0681493Z [36;1m  echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"[0m
+2026-11-04T18:56:20.0681862Z [36;1m  echo "A usar o sqlcmd do contentor: $NO_CONTENTOR"[0m
+2026-11-04T18:56:20.0682314Z [36;1melif [ -x /opt/mssql-tools18/bin/sqlcmd ]; then[0m
+2026-11-04T18:56:20.0682689Z [36;1m  echo "/opt/mssql-tools18/bin" >> "$GITHUB_PATH"[0m
+2026-11-04T18:56:20.0683107Z [36;1m  echo "A usar o sqlcmd do runner: /opt/mssql-tools18/bin/sqlcmd"[0m
+2026-11-04T18:56:20.0683513Z [36;1melif command -v sqlcmd >/dev/null 2>&1; then[0m
+2026-11-04T18:56:20.0683928Z [36;1m  echo "A usar o sqlcmd do runner: $(command -v sqlcmd)"[0m
+2026-11-04T18:56:20.0684270Z [36;1melse[0m
+2026-11-04T18:56:20.0684947Z [36;1m  echo "::error title=Newman::Não há sqlcmd no contentor do SQL Server nem no runner."[0m
+2026-11-04T18:56:20.0685500Z [36;1m  exit 1[0m
+2026-11-04T18:56:20.0685741Z [36;1mfi[0m
+2026-11-04T18:56:20.0699742Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:20.0700093Z env:
+2026-11-04T18:56:20.0700315Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:20.0700579Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:20.0700857Z   CONFIGURACAO: Release
+2026-11-04T18:56:20.0701142Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:20.0701651Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:20.0702372Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:20.0702911Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:20.0703180Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:20.0703472Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:20.0703771Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:20.0704072Z   API_URL: http://localhost:5159
+2026-11-04T18:56:20.0704356Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:20.0704968Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:20.0705335Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:20.0705714Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:20.0706346Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:20.0706844Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:20.0707508Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:20.0707833Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:20.0708216Z   Jwt__Key: ***
+2026-11-04T18:56:20.0708450Z ##[endgroup]
+2026-11-04T18:56:20.1352427Z A usar o sqlcmd do contentor: /opt/mssql-tools18/bin/sqlcmd
+2026-11-04T18:56:20.1388192Z ##[group]Run LIGACAO="Server=localhost,1433;Database=$BASE_DADOS;User Id=sa;***;TrustServerCertificate=True;Encrypt=True"
+2026-11-04T18:56:20.1389117Z [36;1mLIGACAO="Server=localhost,1433;Database=$BASE_DADOS;User Id=sa;***;TrustServerCertificate=True;Encrypt=True"[0m
+2026-11-04T18:56:20.1389744Z [36;1mecho "ConnectionStrings__ClinicaDb=$LIGACAO" >> "$GITHUB_ENV"[0m
+2026-11-04T18:56:20.1390189Z [36;1m./.ferramentas/dotnet-ef database update \[0m
+2026-11-04T18:56:20.1390547Z [36;1m  --project "$PROJETO_INFRA" \[0m
+2026-11-04T18:56:20.1390902Z [36;1m  --startup-project "$PROJETO_API" \[0m
+2026-11-04T18:56:20.1391233Z [36;1m  --context ClinicaDbContext \[0m
+2026-11-04T18:56:20.1391552Z [36;1m  --configuration "$CONFIGURACAO" \[0m
+2026-11-04T18:56:20.1391883Z [36;1m  --no-build \[0m
+2026-11-04T18:56:20.1392158Z [36;1m  --connection "$LIGACAO"[0m
+2026-11-04T18:56:20.1406115Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:20.1406475Z env:
+2026-11-04T18:56:20.1406753Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:20.1407011Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:20.1407286Z   CONFIGURACAO: Release
+2026-11-04T18:56:20.1407567Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:20.1408212Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:20.1408941Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:20.1409468Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:20.1409734Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:20.1410031Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:20.1410338Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:20.1410639Z   API_URL: http://localhost:5159
+2026-11-04T18:56:20.1410915Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:20.1411246Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:20.1411610Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:20.1411984Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:20.1412603Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:20.1413112Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:20.1413516Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:20.1413824Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:20.1414225Z   Jwt__Key: ***
+2026-11-04T18:56:20.1414444Z ##[endgroup]
+2026-11-04T18:56:26.4393718Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.4395104Z       Executed DbCommand (279ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+2026-11-04T18:56:26.4396189Z       CREATE DATABASE [ClinicaVeterinaria_CI]
+2026-11-04T18:56:26.4396881Z       COLLATE Latin1_General_100_CI_AS;
+2026-11-04T18:56:26.5261523Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.5263098Z       Executed DbCommand (84ms) [Parameters=[], CommandType='Text', CommandTimeout='60']
+2026-11-04T18:56:26.5264183Z       IF SERVERPROPERTY('EngineEdition') <> 5
+2026-11-04T18:56:26.5265346Z       BEGIN
+2026-11-04T18:56:26.5266808Z           ALTER DATABASE [ClinicaVeterinaria_CI] SET READ_COMMITTED_SNAPSHOT ON;
+2026-11-04T18:56:26.5267774Z       END;
+2026-11-04T18:56:26.6186833Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.6188692Z       Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.6189776Z       SELECT 1
+2026-11-04T18:56:26.6213950Z info: Microsoft.EntityFrameworkCore.Migrations[20411]
+2026-11-04T18:56:26.6215302Z       Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-11-04T18:56:26.6270876Z Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-11-04T18:56:26.6509354Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.6510172Z       Executed DbCommand (22ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.6510970Z       DECLARE @result int;
+2026-11-04T18:56:26.6511685Z       EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+2026-11-04T18:56:26.6512344Z       SELECT @result
+2026-11-04T18:56:26.7021600Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7022573Z       Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7023189Z       IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+2026-11-04T18:56:26.7023581Z       BEGIN
+2026-11-04T18:56:26.7024039Z           CREATE TABLE [__EFMigrationsHistory] (
+2026-11-04T18:56:26.7024645Z               [MigrationId] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.7025281Z               [ProductVersion] nvarchar(32) NOT NULL,
+2026-11-04T18:56:26.7025862Z               CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+2026-11-04T18:56:26.7026391Z           );
+2026-11-04T18:56:26.7026686Z       END;
+2026-11-04T18:56:26.7109039Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7110479Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7110996Z       SELECT 1
+2026-11-04T18:56:26.7119331Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7120361Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7121075Z       SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-11-04T18:56:26.7202498Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7203783Z       Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7204788Z       SELECT [MigrationId], [ProductVersion]
+2026-11-04T18:56:26.7205457Z       FROM [__EFMigrationsHistory]
+2026-11-04T18:56:26.7206106Z       ORDER BY [MigrationId];
+2026-11-04T18:56:26.7277875Z info: Microsoft.EntityFrameworkCore.Migrations[20402]
+2026-11-04T18:56:26.7278833Z       Applying migration '20261025165126_Inicial'.
+2026-11-04T18:56:26.7291036Z Applying migration '20261025165126_Inicial'.
+2026-11-04T18:56:26.7779695Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7780769Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7781432Z       CREATE TABLE [Clinica] (
+2026-11-04T18:56:26.7781878Z           [Id] tinyint NOT NULL,
+2026-11-04T18:56:26.7782273Z           [Nome] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.7782741Z           [NIF] char(9) NOT NULL,
+2026-11-04T18:56:26.7783161Z           [Morada] nvarchar(250) NOT NULL,
+2026-11-04T18:56:26.7783620Z           [Telefone] nvarchar(20) NOT NULL,
+2026-11-04T18:56:26.7784049Z           [Email] nvarchar(256) NOT NULL,
+2026-11-04T18:56:26.7784677Z           [DataUltimaAlteracao] datetime2(0) NOT NULL,
+2026-11-04T18:56:26.7785231Z           CONSTRAINT [PK_Clinica] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7785739Z           CONSTRAINT [CK_Clinica_LinhaUnica] CHECK ([Id] = 1)
+2026-11-04T18:56:26.7786205Z       );
+2026-11-04T18:56:26.7800990Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7805070Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7805971Z       CREATE TABLE [ConfiguracaoSistema] (
+2026-11-04T18:56:26.7806553Z           [Chave] nvarchar(100) NOT NULL,
+2026-11-04T18:56:26.7807216Z           [Valor] nvarchar(500) NOT NULL,
+2026-11-04T18:56:26.7807784Z           [Descricao] nvarchar(250) NULL,
+2026-11-04T18:56:26.7808498Z           [DataUltimaAlteracao] datetime2(0) NOT NULL,
+2026-11-04T18:56:26.7809279Z           CONSTRAINT [PK_ConfiguracaoSistema] PRIMARY KEY ([Chave])
+2026-11-04T18:56:26.7810004Z       );
+2026-11-04T18:56:26.7819057Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7819972Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7820826Z       CREATE TABLE [Especie] (
+2026-11-04T18:56:26.7821255Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7821775Z           [Nome] nvarchar(50) NOT NULL,
+2026-11-04T18:56:26.7822225Z           CONSTRAINT [PK_Especie] PRIMARY KEY ([Id])
+2026-11-04T18:56:26.7822677Z       );
+2026-11-04T18:56:26.7838342Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7839311Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7840196Z       CREATE TABLE [HorarioFuncionamento] (
+2026-11-04T18:56:26.7840722Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7841186Z           [DiaSemana] tinyint NOT NULL,
+2026-11-04T18:56:26.7841596Z           [HoraAbertura] time(0) NOT NULL,
+2026-11-04T18:56:26.7842090Z           [HoraFecho] time(0) NOT NULL,
+2026-11-04T18:56:26.7842663Z           [Ativo] bit NOT NULL CONSTRAINT [DF_HorarioFuncionamento_Ativo] DEFAULT CAST(1 AS bit),
+2026-11-04T18:56:26.7843387Z           CONSTRAINT [PK_HorarioFuncionamento] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7844426Z           CONSTRAINT [CK_Horario_DiaSemana] CHECK ([DiaSemana] BETWEEN 1 AND 7),
+2026-11-04T18:56:26.7845334Z           CONSTRAINT [CK_Horario_Intervalo] CHECK ([HoraFecho] > [HoraAbertura])
+2026-11-04T18:56:26.7845862Z       );
+2026-11-04T18:56:26.7863342Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7864397Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7865223Z       CREATE TABLE [Utilizador] (
+2026-11-04T18:56:26.7865897Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7866314Z           [Email] nvarchar(256) NOT NULL,
+2026-11-04T18:56:26.7866733Z           [PasswordHash] nvarchar(256) NOT NULL,
+2026-11-04T18:56:26.7867258Z           [Perfil] nvarchar(25) NOT NULL,
+2026-11-04T18:56:26.7867813Z           [Estado] nvarchar(10) NOT NULL CONSTRAINT [DF_Utilizador_Estado] DEFAULT N'Ativo',
+2026-11-04T18:56:26.7868639Z           [DataCriacao] datetime2(0) NOT NULL CONSTRAINT [DF_Utilizador_DataCriacao] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.7869254Z           [DataUltimoAcesso] datetime2(0) NULL,
+2026-11-04T18:56:26.7869776Z           CONSTRAINT [PK_Utilizador] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7870342Z           CONSTRAINT [CK_Utilizador_Estado] CHECK ([Estado] IN ('Ativo','Bloqueado')),
+2026-11-04T18:56:26.7871177Z           CONSTRAINT [CK_Utilizador_Perfil] CHECK ([Perfil] IN ('Administrador','Rececionista','Veterinario','AuxiliarVeterinario','Cliente'))
+2026-11-04T18:56:26.7871875Z       );
+2026-11-04T18:56:26.7883884Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7885109Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7885741Z       CREATE TABLE [Raca] (
+2026-11-04T18:56:26.7886345Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7886741Z           [EspecieId] int NOT NULL,
+2026-11-04T18:56:26.7887122Z           [Nome] nvarchar(80) NOT NULL,
+2026-11-04T18:56:26.7887749Z           CONSTRAINT [PK_Raca] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7888284Z           CONSTRAINT [UQ_Raca_Especie_Id] UNIQUE ([EspecieId], [Id]),
+2026-11-04T18:56:26.7889060Z           CONSTRAINT [FK_Raca_Especie_EspecieId] FOREIGN KEY ([EspecieId]) REFERENCES [Especie] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.7889630Z       );
+2026-11-04T18:56:26.7903332Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7904194Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7905110Z       CREATE TABLE [Cliente] (
+2026-11-04T18:56:26.7905608Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7906011Z           [UtilizadorId] int NOT NULL,
+2026-11-04T18:56:26.7906854Z           [Nome] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.7907303Z           [NIF] char(9) NULL,
+2026-11-04T18:56:26.7907749Z           [Telefone] nvarchar(20) NOT NULL,
+2026-11-04T18:56:26.7908157Z           [Morada] nvarchar(250) NULL,
+2026-11-04T18:56:26.7908835Z           [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_Cliente_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.7909568Z           CONSTRAINT [PK_Cliente] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7910301Z           CONSTRAINT [FK_Cliente_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.7910980Z       );
+2026-11-04T18:56:26.7921207Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7922278Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7923113Z       CREATE TABLE [Funcionario] (
+2026-11-04T18:56:26.7923579Z           [UtilizadorId] int NOT NULL,
+2026-11-04T18:56:26.7924026Z           [Nome] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.7924451Z           [Telefone] nvarchar(20) NULL,
+2026-11-04T18:56:26.7925641Z           [PodeRegistarApoio] bit NOT NULL CONSTRAINT [DF_Funcionario_PodeRegistarApoio] DEFAULT CAST(0 AS bit),
+2026-11-04T18:56:26.7926802Z           CONSTRAINT [PK_Funcionario] PRIMARY KEY ([UtilizadorId]),
+2026-11-04T18:56:26.7927627Z           CONSTRAINT [FK_Funcionario_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.7928318Z       );
+2026-11-04T18:56:26.7938152Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7939060Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7939680Z       CREATE TABLE [TokenRevogado] (
+2026-11-04T18:56:26.7940126Z           [Jti] nvarchar(64) NOT NULL,
+2026-11-04T18:56:26.7940542Z           [UtilizadorId] int NOT NULL,
+2026-11-04T18:56:26.7941031Z           [DataExpiracao] datetime2(0) NOT NULL,
+2026-11-04T18:56:26.7941725Z           [DataRevogacao] datetime2(0) NOT NULL CONSTRAINT [DF_TokenRevogado_DataRevogacao] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.7942413Z           CONSTRAINT [PK_TokenRevogado] PRIMARY KEY ([Jti]),
+2026-11-04T18:56:26.7943212Z           CONSTRAINT [FK_TokenRevogado_Utilizador_UtilizadorId] FOREIGN KEY ([UtilizadorId]) REFERENCES [Utilizador] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.7943887Z       );
+2026-11-04T18:56:26.7964905Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7965927Z       Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7966705Z       CREATE TABLE [Paciente] (
+2026-11-04T18:56:26.7967145Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7967615Z           [ClienteId] int NOT NULL,
+2026-11-04T18:56:26.7968052Z           [Nome] nvarchar(80) NOT NULL,
+2026-11-04T18:56:26.7968454Z           [EspecieId] int NOT NULL,
+2026-11-04T18:56:26.7968865Z           [RacaId] int NULL,
+2026-11-04T18:56:26.7969447Z           [Sexo] nvarchar(12) NOT NULL CONSTRAINT [DF_Paciente_Sexo] DEFAULT N'Desconhecido',
+2026-11-04T18:56:26.7970021Z           [DataNascimento] date NULL,
+2026-11-04T18:56:26.7970477Z           [Peso] decimal(6,2) NULL,
+2026-11-04T18:56:26.7971097Z           [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_Paciente_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.7971749Z           [DataUltimaAlteracao] datetime2(0) NULL,
+2026-11-04T18:56:26.7972247Z           CONSTRAINT [PK_Paciente] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.7972795Z           CONSTRAINT [CK_Paciente_Peso] CHECK ([Peso] IS NULL OR [Peso] > 0),
+2026-11-04T18:56:26.7973446Z           CONSTRAINT [CK_Paciente_Sexo] CHECK ([Sexo] IN ('Macho','Femea','Desconhecido')),
+2026-11-04T18:56:26.7974271Z           CONSTRAINT [FK_Paciente_Cliente_ClienteId] FOREIGN KEY ([ClienteId]) REFERENCES [Cliente] ([Id]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.7975711Z           CONSTRAINT [FK_Paciente_Especie_EspecieId] FOREIGN KEY ([EspecieId]) REFERENCES [Especie] ([Id]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.7976644Z           CONSTRAINT [FK_Paciente_Raca] FOREIGN KEY ([EspecieId], [RacaId]) REFERENCES [Raca] ([EspecieId], [Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.7977289Z       );
+2026-11-04T18:56:26.7993844Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.7994918Z       Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.7995846Z       CREATE TABLE [Marcacao] (
+2026-11-04T18:56:26.7996302Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.7996689Z           [PacienteId] int NOT NULL,
+2026-11-04T18:56:26.7997132Z           [VeterinarioId] int NOT NULL,
+2026-11-04T18:56:26.7997622Z           [DataHoraInicio] datetime2(0) NOT NULL,
+2026-11-04T18:56:26.7998139Z           [DuracaoMinutos] smallint NOT NULL,
+2026-11-04T18:56:26.7998588Z           [Motivo] nvarchar(250) NULL,
+2026-11-04T18:56:26.7999148Z           [Estado] nvarchar(12) NOT NULL CONSTRAINT [DF_Marcacao_Estado] DEFAULT N'Pendente',
+2026-11-04T18:56:26.7999770Z           [DataHoraChegada] datetime2(0) NULL,
+2026-11-04T18:56:26.8000174Z           [CriadaPorId] int NOT NULL,
+2026-11-04T18:56:26.8001005Z           [DataCriacao] datetime2(0) NOT NULL CONSTRAINT [DF_Marcacao_DataCriacao] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.8001653Z           [DataUltimaAlteracao] datetime2(0) NULL,
+2026-11-04T18:56:26.8002101Z           [RowVersion] rowversion NOT NULL,
+2026-11-04T18:56:26.8002862Z           CONSTRAINT [PK_Marcacao] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8003380Z           CONSTRAINT [CK_Marcacao_Duracao] CHECK ([DuracaoMinutos] > 0),
+2026-11-04T18:56:26.8004117Z           CONSTRAINT [CK_Marcacao_Estado] CHECK ([Estado] IN ('Pendente','Confirmada','Realizada','Cancelada')),
+2026-11-04T18:56:26.8005334Z           CONSTRAINT [FK_Marcacao_Funcionario_CriadaPorId] FOREIGN KEY ([CriadaPorId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8006606Z           CONSTRAINT [FK_Marcacao_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8007588Z           CONSTRAINT [FK_Marcacao_Paciente_PacienteId] FOREIGN KEY ([PacienteId]) REFERENCES [Paciente] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8008215Z       );
+2026-11-04T18:56:26.8014219Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8015409Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8016459Z       CREATE TABLE [InformacaoApoio] (
+2026-11-04T18:56:26.8016871Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.8017350Z           [MarcacaoId] int NOT NULL,
+2026-11-04T18:56:26.8017743Z           [AuxiliarId] int NOT NULL,
+2026-11-04T18:56:26.8018211Z           [Descricao] nvarchar(1000) NOT NULL,
+2026-11-04T18:56:26.8018921Z           [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_InformacaoApoio_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.8019601Z           CONSTRAINT [PK_InformacaoApoio] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8020454Z           CONSTRAINT [FK_InformacaoApoio_Funcionario_AuxiliarId] FOREIGN KEY ([AuxiliarId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8021454Z           CONSTRAINT [FK_InformacaoApoio_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8022166Z       );
+2026-11-04T18:56:26.8037545Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8038607Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8039187Z       CREATE TABLE [RegistoClinico] (
+2026-11-04T18:56:26.8039845Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.8040233Z           [MarcacaoId] int NOT NULL,
+2026-11-04T18:56:26.8040845Z           [VeterinarioId] int NOT NULL,
+2026-11-04T18:56:26.8041330Z           [NotasClinicas] nvarchar(4000) NULL,
+2026-11-04T18:56:26.8041741Z           [Diagnostico] nvarchar(1000) NULL,
+2026-11-04T18:56:26.8042890Z           [CriadoEm] datetime2(0) NOT NULL CONSTRAINT [DF_RegistoClinico_CriadoEm] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.8043635Z           [AtualizadoEm] datetime2(0) NULL,
+2026-11-04T18:56:26.8044081Z           [AtualizadoPorId] int NULL,
+2026-11-04T18:56:26.8044741Z           CONSTRAINT [PK_RegistoClinico] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8045693Z           CONSTRAINT [CK_RegistoClinico_Atualizacao] CHECK (([AtualizadoEm] IS NULL AND [AtualizadoPorId] IS NULL) OR ([AtualizadoEm] IS NOT NULL AND [AtualizadoPorId] IS NOT NULL)),
+2026-11-04T18:56:26.8046906Z           CONSTRAINT [FK_RegistoClinico_Funcionario_AtualizadoPorId] FOREIGN KEY ([AtualizadoPorId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8047994Z           CONSTRAINT [FK_RegistoClinico_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8049199Z           CONSTRAINT [FK_RegistoClinico_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8049967Z       );
+2026-11-04T18:56:26.8072299Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8073230Z       Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8074206Z       CREATE TABLE [RegistoProfilaxia] (
+2026-11-04T18:56:26.8074857Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.8075439Z           [PacienteId] int NOT NULL,
+2026-11-04T18:56:26.8075864Z           [VeterinarioId] int NOT NULL,
+2026-11-04T18:56:26.8076261Z           [MarcacaoId] int NULL,
+2026-11-04T18:56:26.8076760Z           [Tipo] nvarchar(15) NOT NULL,
+2026-11-04T18:56:26.8077217Z           [Produto] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.8077722Z           [Lote] nvarchar(50) NOT NULL,
+2026-11-04T18:56:26.8078148Z           [DataAdministracao] date NOT NULL,
+2026-11-04T18:56:26.8078578Z           [IntervaloDias] smallint NULL,
+2026-11-04T18:56:26.8079460Z           [DataProximaAdministracao] AS CASE WHEN [IntervaloDias] IS NULL THEN NULL ELSE DATEADD(DAY, [IntervaloDias], [DataAdministracao]) END PERSISTED,
+2026-11-04T18:56:26.8080465Z           [DataRegisto] datetime2(0) NOT NULL CONSTRAINT [DF_RegistoProfilaxia_DataRegisto] DEFAULT (SYSUTCDATETIME()),
+2026-11-04T18:56:26.8081248Z           CONSTRAINT [PK_RegistoProfilaxia] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8081917Z           CONSTRAINT [CK_Profilaxia_Intervalo] CHECK ([IntervaloDias] IS NULL OR [IntervaloDias] > 0),
+2026-11-04T18:56:26.8082705Z           CONSTRAINT [CK_Profilaxia_Tipo] CHECK ([Tipo] IN ('Vacina','Desparasitacao')),
+2026-11-04T18:56:26.8083665Z           CONSTRAINT [FK_RegistoProfilaxia_Funcionario_VeterinarioId] FOREIGN KEY ([VeterinarioId]) REFERENCES [Funcionario] ([UtilizadorId]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8085071Z           CONSTRAINT [FK_RegistoProfilaxia_Marcacao_MarcacaoId] FOREIGN KEY ([MarcacaoId]) REFERENCES [Marcacao] ([Id]) ON DELETE NO ACTION,
+2026-11-04T18:56:26.8086113Z           CONSTRAINT [FK_RegistoProfilaxia_Paciente_PacienteId] FOREIGN KEY ([PacienteId]) REFERENCES [Paciente] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8086782Z       );
+2026-11-04T18:56:26.8093471Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8094395Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8095208Z       CREATE TABLE [Prescricao] (
+2026-11-04T18:56:26.8095691Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.8096202Z           [RegistoClinicoId] int NOT NULL,
+2026-11-04T18:56:26.8096667Z           [Medicamento] nvarchar(150) NOT NULL,
+2026-11-04T18:56:26.8097136Z           [Dosagem] nvarchar(100) NOT NULL,
+2026-11-04T18:56:26.8097789Z           [Frequencia] nvarchar(100) NOT NULL,
+2026-11-04T18:56:26.8098202Z           [DuracaoDias] smallint NULL,
+2026-11-04T18:56:26.8098726Z           CONSTRAINT [PK_Prescricao] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8099333Z           CONSTRAINT [CK_Prescricao_Duracao] CHECK ([DuracaoDias] IS NULL OR [DuracaoDias] > 0),
+2026-11-04T18:56:26.8100309Z           CONSTRAINT [FK_Prescricao_RegistoClinico_RegistoClinicoId] FOREIGN KEY ([RegistoClinicoId]) REFERENCES [RegistoClinico] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8100989Z       );
+2026-11-04T18:56:26.8110446Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8111476Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8112157Z       CREATE TABLE [Tratamento] (
+2026-11-04T18:56:26.8112726Z           [Id] int NOT NULL IDENTITY,
+2026-11-04T18:56:26.8113129Z           [RegistoClinicoId] int NOT NULL,
+2026-11-04T18:56:26.8113648Z           [Descricao] nvarchar(1000) NOT NULL,
+2026-11-04T18:56:26.8114077Z           [DataAplicacao] date NOT NULL,
+2026-11-04T18:56:26.8114857Z           CONSTRAINT [PK_Tratamento] PRIMARY KEY ([Id]),
+2026-11-04T18:56:26.8115701Z           CONSTRAINT [FK_Tratamento_RegistoClinico_RegistoClinicoId] FOREIGN KEY ([RegistoClinicoId]) REFERENCES [RegistoClinico] ([Id]) ON DELETE NO ACTION
+2026-11-04T18:56:26.8116590Z       );
+2026-11-04T18:56:26.8121488Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8122300Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8123206Z       CREATE INDEX [IX_Cliente_Nome] ON [Cliente] ([Nome]);
+2026-11-04T18:56:26.8132611Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8133526Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8134291Z       CREATE UNIQUE INDEX [UQ_Cliente_NIF] ON [Cliente] ([NIF]) WHERE [NIF] IS NOT NULL;
+2026-11-04T18:56:26.8141904Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8142832Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8143627Z       CREATE UNIQUE INDEX [UQ_Cliente_UtilizadorId] ON [Cliente] ([UtilizadorId]);
+2026-11-04T18:56:26.8151464Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8152395Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8153461Z       CREATE UNIQUE INDEX [UQ_Especie_Nome] ON [Especie] ([Nome]);
+2026-11-04T18:56:26.8161954Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8162895Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8163823Z       CREATE INDEX [IX_InformacaoApoio_AuxiliarId] ON [InformacaoApoio] ([AuxiliarId]);
+2026-11-04T18:56:26.8172293Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8173588Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8174306Z       CREATE INDEX [IX_InformacaoApoio_MarcacaoId] ON [InformacaoApoio] ([MarcacaoId]);
+2026-11-04T18:56:26.8184116Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8185280Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8186349Z       CREATE INDEX [IX_Marcacao_CriadaPorId] ON [Marcacao] ([CriadaPorId]);
+2026-11-04T18:56:26.8193882Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8195031Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8196079Z       CREATE INDEX [IX_Marcacao_Data] ON [Marcacao] ([DataHoraInicio]);
+2026-11-04T18:56:26.8203693Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8204769Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8206117Z       CREATE INDEX [IX_Marcacao_Paciente_Data] ON [Marcacao] ([PacienteId], [DataHoraInicio]);
+2026-11-04T18:56:26.8214261Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8215261Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8216390Z       CREATE INDEX [IX_Marcacao_Veterinario_Data] ON [Marcacao] ([VeterinarioId], [DataHoraInicio]);
+2026-11-04T18:56:26.8223929Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8224932Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8225935Z       CREATE INDEX [IX_Paciente_ClienteId] ON [Paciente] ([ClienteId]);
+2026-11-04T18:56:26.8233763Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8234961Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8235872Z       CREATE INDEX [IX_Paciente_EspecieId_RacaId] ON [Paciente] ([EspecieId], [RacaId]);
+2026-11-04T18:56:26.8242589Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8243645Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8244774Z       CREATE INDEX [IX_Paciente_Nome] ON [Paciente] ([Nome]);
+2026-11-04T18:56:26.8252005Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8252996Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8253850Z       CREATE INDEX [IX_Prescricao_Registo] ON [Prescricao] ([RegistoClinicoId]);
+2026-11-04T18:56:26.8261707Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8262786Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8263636Z       CREATE UNIQUE INDEX [UQ_Raca_Especie_Nome] ON [Raca] ([EspecieId], [Nome]);
+2026-11-04T18:56:26.8270782Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8280144Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8281204Z       CREATE INDEX [IX_RegistoClinico_AtualizadoPorId] ON [RegistoClinico] ([AtualizadoPorId]);
+2026-11-04T18:56:26.8282163Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8282786Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8283646Z       CREATE INDEX [IX_RegistoClinico_VeterinarioId] ON [RegistoClinico] ([VeterinarioId]);
+2026-11-04T18:56:26.8289634Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8290498Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8291608Z       CREATE UNIQUE INDEX [UQ_RegistoClinico_Marcacao] ON [RegistoClinico] ([MarcacaoId]);
+2026-11-04T18:56:26.8299679Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8300705Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8301708Z       CREATE INDEX [IX_Profilaxia_Paciente_Data] ON [RegistoProfilaxia] ([PacienteId], [DataAdministracao]);
+2026-11-04T18:56:26.8309674Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8310580Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8311502Z       CREATE INDEX [IX_RegistoProfilaxia_MarcacaoId] ON [RegistoProfilaxia] ([MarcacaoId]);
+2026-11-04T18:56:26.8319014Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8319936Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8320856Z       CREATE INDEX [IX_RegistoProfilaxia_VeterinarioId] ON [RegistoProfilaxia] ([VeterinarioId]);
+2026-11-04T18:56:26.8328863Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8329811Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8330652Z       CREATE INDEX [IX_TokenRevogado_Utilizador] ON [TokenRevogado] ([UtilizadorId], [DataExpiracao]);
+2026-11-04T18:56:26.8338379Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8339258Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8340081Z       CREATE INDEX [IX_Tratamento_Registo] ON [Tratamento] ([RegistoClinicoId]);
+2026-11-04T18:56:26.8347778Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8348785Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8349638Z       CREATE UNIQUE INDEX [UQ_Utilizador_Email] ON [Utilizador] ([Email]);
+2026-11-04T18:56:26.8387941Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.8389035Z       Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.8389900Z       INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+2026-11-04T18:56:26.8390573Z       VALUES (N'20261025165126_Inicial', N'10.0.13');
+2026-11-04T18:56:26.8407121Z info: Microsoft.EntityFrameworkCore.Migrations[20402]
+2026-11-04T18:56:26.8407846Z       Applying migration '20261025184243_I062DadosReferencia'.
+2026-11-04T18:56:26.8408675Z Applying migration '20261025184243_I062DadosReferencia'.
+2026-11-04T18:56:26.9171093Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9172470Z       Executed DbCommand (38ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9173609Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'DataUltimaAlteracao', N'Email', N'Morada', N'NIF', N'Nome', N'Telefone') AND [object_id] = OBJECT_ID(N'[Clinica]'))
+2026-11-04T18:56:26.9174846Z           SET IDENTITY_INSERT [Clinica] ON;
+2026-11-04T18:56:26.9175776Z       INSERT INTO [Clinica] ([Id], [DataUltimaAlteracao], [Email], [Morada], [NIF], [Nome], [Telefone])
+2026-11-04T18:56:26.9177232Z       VALUES (CAST(1 AS tinyint), '2026-10-25T00:00:00', N'geral@clinica-g08.test', N'Rua do Exemplo, 100, 4470-000 Maia', '501234560', N'Clínica Veterinária G08', N'229000000');
+2026-11-04T18:56:26.9178435Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'DataUltimaAlteracao', N'Email', N'Morada', N'NIF', N'Nome', N'Telefone') AND [object_id] = OBJECT_ID(N'[Clinica]'))
+2026-11-04T18:56:26.9179266Z           SET IDENTITY_INSERT [Clinica] OFF;
+2026-11-04T18:56:26.9295860Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9296855Z       Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9298555Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Chave', N'DataUltimaAlteracao', N'Descricao', N'Valor') AND [object_id] = OBJECT_ID(N'[ConfiguracaoSistema]'))
+2026-11-04T18:56:26.9299440Z           SET IDENTITY_INSERT [ConfiguracaoSistema] ON;
+2026-11-04T18:56:26.9300086Z       INSERT INTO [ConfiguracaoSistema] ([Chave], [DataUltimaAlteracao], [Descricao], [Valor])
+2026-11-04T18:56:26.9301319Z       VALUES (N'DuracaoPadraoConsultaMinutos', '2026-10-25T00:00:00', N'Duração por omissão de uma consulta, em minutos (EP-009 e EP-010).', N'30');
+2026-11-04T18:56:26.9302484Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Chave', N'DataUltimaAlteracao', N'Descricao', N'Valor') AND [object_id] = OBJECT_ID(N'[ConfiguracaoSistema]'))
+2026-11-04T18:56:26.9303317Z           SET IDENTITY_INSERT [ConfiguracaoSistema] OFF;
+2026-11-04T18:56:26.9421877Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9423230Z       Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9425238Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Nome') AND [object_id] = OBJECT_ID(N'[Especie]'))
+2026-11-04T18:56:26.9425975Z           SET IDENTITY_INSERT [Especie] ON;
+2026-11-04T18:56:26.9426451Z       INSERT INTO [Especie] ([Id], [Nome])
+2026-11-04T18:56:26.9427122Z       VALUES (1, N'Cão'),
+2026-11-04T18:56:26.9427545Z       (2, N'Gato');
+2026-11-04T18:56:26.9428150Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Nome') AND [object_id] = OBJECT_ID(N'[Especie]'))
+2026-11-04T18:56:26.9428818Z           SET IDENTITY_INSERT [Especie] OFF;
+2026-11-04T18:56:26.9576810Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9578153Z       Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9579215Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'EspecieId', N'Nome') AND [object_id] = OBJECT_ID(N'[Raca]'))
+2026-11-04T18:56:26.9579909Z           SET IDENTITY_INSERT [Raca] ON;
+2026-11-04T18:56:26.9580434Z       INSERT INTO [Raca] ([Id], [EspecieId], [Nome])
+2026-11-04T18:56:26.9580900Z       VALUES (1, 1, N'Labrador Retriever'),
+2026-11-04T18:56:26.9581563Z       (2, 1, N'Pastor Alemão'),
+2026-11-04T18:56:26.9582094Z       (3, 1, N'Sem raça definida'),
+2026-11-04T18:56:26.9583440Z       (4, 2, N'Europeu Comum'),
+2026-11-04T18:56:26.9584026Z       (5, 2, N'Siamês');
+2026-11-04T18:56:26.9585128Z       IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'EspecieId', N'Nome') AND [object_id] = OBJECT_ID(N'[Raca]'))
+2026-11-04T18:56:26.9586084Z           SET IDENTITY_INSERT [Raca] OFF;
+2026-11-04T18:56:26.9586714Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9587626Z       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9588590Z       INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+2026-11-04T18:56:26.9589308Z       VALUES (N'20261025184243_I062DadosReferencia', N'10.0.13');
+2026-11-04T18:56:26.9619615Z info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+2026-11-04T18:56:26.9620835Z       Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+2026-11-04T18:56:26.9621731Z       DECLARE @result int;
+2026-11-04T18:56:26.9622502Z       EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+2026-11-04T18:56:26.9623307Z       SELECT @result
+2026-11-04T18:56:26.9643386Z Done.
+2026-11-04T18:56:26.9935980Z ##[group]Run DADOS="$(jq -r '.Newman.dadosDemonstracao' "$QUALITY_GATES")"
+2026-11-04T18:56:26.9936758Z [36;1mDADOS="$(jq -r '.Newman.dadosDemonstracao' "$QUALITY_GATES")"[0m
+2026-11-04T18:56:26.9937355Z [36;1mbash "$DADOS/executar-dados.sh" \[0m
+2026-11-04T18:56:26.9937755Z [36;1m  --base-dados "$BASE_DADOS" \[0m
+2026-11-04T18:56:26.9938244Z [36;1m  --confiar-certificado \[0m
+2026-11-04T18:56:26.9938709Z [36;1m  --pasta-registos "$GITHUB_WORKSPACE/$RESULTADOS/newman"[0m
+2026-11-04T18:56:26.9953131Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:26.9953620Z env:
+2026-11-04T18:56:26.9954013Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:26.9954402Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:26.9955092Z   CONFIGURACAO: Release
+2026-11-04T18:56:26.9955510Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:26.9956157Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:26.9957148Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:26.9957789Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:26.9958157Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:26.9958593Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:26.9958989Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:26.9959459Z   API_URL: http://localhost:5159
+2026-11-04T18:56:26.9959823Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:26.9960297Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:26.9960751Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:26.9961253Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:26.9962025Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:26.9962646Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:26.9963245Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:26.9963661Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:26.9964344Z   Jwt__Key: ***
+2026-11-04T18:56:26.9965551Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:26.9966221Z ##[endgroup]
+2026-11-04T18:56:27.0103629Z Execução dos scripts de dados iniciais e de demonstração (I061)
+2026-11-04T18:56:27.0124743Z Data e hora      : 2026-11-04 18:56:27 +0000
+2026-11-04T18:56:27.0145959Z Computador       : runnervm7aw5e
+2026-11-04T18:56:27.0157275Z Servidor         : localhost
+2026-11-04T18:56:27.0168517Z Base de dados    : ClinicaVeterinaria_CI
+2026-11-04T18:56:27.0180586Z Autenticação     : SQL Server (login sa)
+2026-11-04T18:56:27.0228262Z Scripts          : 02-dados-demonstracao.sql 02-dados-demonstracao.sql verificar-dados-demonstracao.sql 
+2026-11-04T18:56:27.1723806Z SQL Server       : Microsoft SQL Server 2025 (RTM-CU9) (KB5122048) - 17.0.5005.3 (X64) 
+2026-11-04T18:56:27.1735243Z 
+2026-11-04T18:56:27.1769921Z === 02-dados-demonstracao.sql — início 18:56:27
+2026-11-04T18:56:27.5279177Z  Utilizador: 10 linha(s) inserida(s).
+2026-11-04T18:56:27.5279817Z  Funcionario: 7 linha(s) inserida(s).
+2026-11-04T18:56:27.5280253Z  HorarioFuncionamento: 11 linha(s) inserida(s).
+2026-11-04T18:56:27.5280745Z  Cliente: 3 linha(s) inserida(s).
+2026-11-04T18:56:27.5281193Z  Paciente: 4 linha(s) inserida(s).
+2026-11-04T18:56:27.5281606Z  Marcacao: 5 linha(s) inserida(s).
+2026-11-04T18:56:27.5282075Z  InformacaoApoio: 1 linha(s) inserida(s).
+2026-11-04T18:56:27.5282532Z  RegistoClinico: 1 linha(s) inserida(s).
+2026-11-04T18:56:27.5283019Z  Tratamento: 1 linha(s) inserida(s).
+2026-11-04T18:56:27.5283408Z  Prescricao: 1 linha(s) inserida(s).
+2026-11-04T18:56:27.5283857Z  RegistoProfilaxia: 4 linha(s) inserida(s).
+2026-11-04T18:56:27.5284966Z  Dados de demonstração concluídos.
+2026-11-04T18:56:27.5371792Z === 02-dados-demonstracao.sql — fim 18:56:27 — código de saída 0
+2026-11-04T18:56:27.5383176Z 
+2026-11-04T18:56:27.5418734Z === 02-dados-demonstracao.sql — início 18:56:27
+2026-11-04T18:56:27.8323790Z  Utilizador: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8324758Z  Funcionario: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8325232Z  HorarioFuncionamento: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8325747Z  Cliente: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8326202Z  Paciente: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8326643Z  Marcacao: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8327054Z  InformacaoApoio: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8327479Z  RegistoClinico: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8327953Z  Tratamento: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8328374Z  Prescricao: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8328829Z  RegistoProfilaxia: 0 linha(s) inserida(s).
+2026-11-04T18:56:27.8329555Z  Dados de demonstração concluídos.
+2026-11-04T18:56:27.8416922Z === 02-dados-demonstracao.sql — fim 18:56:27 — código de saída 0
+2026-11-04T18:56:27.8427962Z 
+2026-11-04T18:56:27.8463089Z === verificar-dados-demonstracao.sql — início 18:56:27
+2026-11-04T18:56:28.0948193Z Código Verificação                                                                                                                                                                                              Esperado                                                                                             Obtido                                                                                               Resultado 
+2026-11-04T18:56:28.0950193Z ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ----------
+2026-11-04T18:56:28.0952156Z D01    Conta ativa no perfil Administrador                                                                                                                                                                      >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0953621Z D01    Conta ativa no perfil Rececionista                                                                                                                                                                       >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0956028Z D01    Conta ativa no perfil Veterinario                                                                                                                                                                        >= 1                                                                                                 2                                                                                                    OK        
+2026-11-04T18:56:28.0958171Z D01    Conta ativa no perfil AuxiliarVeterinario                                                                                                                                                                >= 1                                                                                                 2                                                                                                    OK        
+2026-11-04T18:56:28.0961544Z D01    Conta ativa no perfil Cliente                                                                                                                                                                            >= 1                                                                                                 3                                                                                                    OK        
+2026-11-04T18:56:28.0963532Z D02    Conta bloqueada                                                                                                                                                                                          >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0966071Z D03    Auxiliar Veterinário ativo COM autorização de registo de apoio                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0968854Z D04    Auxiliar Veterinário ativo SEM autorização de registo de apoio                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0971199Z D05    Contas internas sem linha em Funcionario                                                                                                                                                                 0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.0973405Z D06    Contas de Cliente sem linha em Cliente                                                                                                                                                                   0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.0976354Z D07    Contas de demonstração com hash fora do formato PasswordHasher v3                                                                                                                                        0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.0978789Z D08    Clientes com mais de um animal                                                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0981370Z D09    Marcações no estado Pendente                                                                                                                                                                             >= 1                                                                                                 2                                                                                                    OK        
+2026-11-04T18:56:28.0983790Z D09    Marcações no estado Confirmada                                                                                                                                                                           >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0986343Z D09    Marcações no estado Realizada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0988554Z D09    Marcações no estado Cancelada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0991003Z D10    Registo clínico com tratamento e prescrição                                                                                                                                                              >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0993806Z D11    Paciente com boletim de vacinação e de desparasitação                                                                                                                                                    >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0996598Z D12    Marcação com registo de chegada                                                                                                                                                                          >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.0998898Z D13    Informação de apoio registada                                                                                                                                                                            >= 1                                                                                                 1                                                                                                    OK        
+2026-11-04T18:56:28.1001560Z D14    Dias com horário de funcionamento por omissão                                                                                                                                                            6                                                                                                    6                                                                                                    OK        
+2026-11-04T18:56:28.1004400Z D15    Registos clínicos em consultas não realizadas                                                                                                                                                            0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1007254Z D16    Registos clínicos de outro Veterinário que não o da consulta                                                                                                                                             0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1008796Z D17    Profilaxias ligadas a consulta de outro paciente                                                                                                                                                         0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1010610Z D18    Marcações sobrepostas do mesmo Veterinário (RF021)                                                                                                                                                       0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1012397Z D19    Marcações atribuídas a quem não é Veterinário                                                                                                                                                            0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1014644Z D20    Informação de apoio registada por quem não tem autorização                                                                                                                                               0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1017321Z D21    Contas fora do domínio reservado .test (demonstração)                                                                                                                                                    0                                                                                                    0                                                                                                    OK        
+2026-11-04T18:56:28.1018204Z Tabela               Linhas     
+2026-11-04T18:56:28.1018685Z -------------------- -----------
+2026-11-04T18:56:28.1019127Z Utilizador                    10
+2026-11-04T18:56:28.1019525Z Funcionario                    7
+2026-11-04T18:56:28.1019928Z Cliente                        3
+2026-11-04T18:56:28.1020302Z Paciente                       4
+2026-11-04T18:56:28.1020755Z HorarioFuncionamento          11
+2026-11-04T18:56:28.1021113Z Marcacao                       5
+2026-11-04T18:56:28.1021526Z InformacaoApoio                1
+2026-11-04T18:56:28.1021929Z RegistoClinico                 1
+2026-11-04T18:56:28.1022423Z Tratamento                     1
+2026-11-04T18:56:28.1022855Z Prescricao                     1
+2026-11-04T18:56:28.1023238Z RegistoProfilaxia              4
+2026-11-04T18:56:28.1023836Z Verificação dos dados de demonstração: 28 verificações, 28 OK, 0 falhadas.
+2026-11-04T18:56:28.1024830Z Resultado: os dados de demonstração cobrem os critérios 2 e 3 da I061 e são coerentes.
+2026-11-04T18:56:28.1040712Z === verificar-dados-demonstracao.sql — fim 18:56:28 — código de saída 0
+2026-11-04T18:56:28.1052424Z 
+2026-11-04T18:56:28.1066311Z Concluído sem erros. Registo: /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO/resultados-ci/newman/dados-execucao-20261104-185627.log
+2026-11-04T18:56:28.1107127Z ##[group]Run AMBIENTE="$(jq -r '.Newman.ambiente' "$QUALITY_GATES")"
+2026-11-04T18:56:28.1107740Z [36;1mAMBIENTE="$(jq -r '.Newman.ambiente' "$QUALITY_GATES")"[0m
+2026-11-04T18:56:28.1108280Z [36;1mpython3 .github/scripts/preparar-newman.py \[0m
+2026-11-04T18:56:28.1108909Z [36;1m  "$QUALITY_GATES" "$AMBIENTE" \[0m
+2026-11-04T18:56:28.1109497Z [36;1m  "$RUNNER_TEMP/newman-ambiente.json" "$RUNNER_TEMP/palavra-passe-demonstracao.sql" \[0m
+2026-11-04T18:56:28.1110049Z [36;1m  "$API_URL"[0m
+2026-11-04T18:56:28.1110615Z [36;1msqlcmd -S localhost -d "$BASE_DADOS" -U sa -C -b -h -1 -W -i "$RUNNER_TEMP/palavra-passe-demonstracao.sql"[0m
+2026-11-04T18:56:28.1111289Z [36;1mrm -f "$RUNNER_TEMP/palavra-passe-demonstracao.sql"[0m
+2026-11-04T18:56:28.1125873Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:28.1126481Z env:
+2026-11-04T18:56:28.1126861Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:28.1127463Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:28.1128059Z   CONFIGURACAO: Release
+2026-11-04T18:56:28.1128646Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:28.1129598Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:28.1130765Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:28.1131811Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:28.1132376Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:28.1133000Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:28.1133536Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:28.1134143Z   API_URL: http://localhost:5159
+2026-11-04T18:56:28.1134666Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:28.1135164Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:28.1135639Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:28.1136116Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:28.1136874Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:28.1137465Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:28.1138067Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:28.1138471Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:28.1138999Z   Jwt__Key: ***
+2026-11-04T18:56:28.1139984Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:28.1140753Z ##[endgroup]
+2026-11-04T18:56:28.2169728Z Variáveis preenchidas na cópia do ambiente: passwordAdmin, passwordRececionista, passwordVeterinario, passwordAuxiliar, passwordCliente, passwordBloqueada, passwordAuxiliarSemApoio; baseUrl = http://localhost:5159
+2026-11-04T18:56:28.2172144Z Contas atualizadas: e-mails terminados em @clinica-g08.test, só na base de dados temporária do runner.
+2026-11-04T18:56:28.3666571Z Contas de demonstração com a palavra-passe descartável: 10
+2026-11-04T18:56:28.3762593Z ##[group]Run SAIDA="$(dirname "$PROJETO_API")/bin/$CONFIGURACAO/net10.0"
+2026-11-04T18:56:28.3763290Z [36;1mSAIDA="$(dirname "$PROJETO_API")/bin/$CONFIGURACAO/net10.0"[0m
+2026-11-04T18:56:28.3763758Z [36;1m([0m
+2026-11-04T18:56:28.3764105Z [36;1m  cd "$SAIDA"[0m
+2026-11-04T18:56:28.3765414Z [36;1m  ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS="$API_URL" \[0m
+2026-11-04T18:56:28.3766189Z [36;1m    nohup dotnet ClinicaVeterinaria.Api.dll > "$GITHUB_WORKSPACE/$RESULTADOS/newman/api.log" 2>&1 &[0m
+2026-11-04T18:56:28.3766761Z [36;1m  echo $! > "$RUNNER_TEMP/api.pid"[0m
+2026-11-04T18:56:28.3767257Z [36;1m)[0m
+2026-11-04T18:56:28.3767575Z [36;1mfor i in $(seq 1 60); do[0m
+2026-11-04T18:56:28.3768123Z [36;1m  CODIGO="$(curl -s -o /dev/null -w '%{http_code}' "$API_URL/clinica" || true)"[0m
+2026-11-04T18:56:28.3768649Z [36;1m  if [ "$CODIGO" != "000" ]; then[0m
+2026-11-04T18:56:28.3769329Z [36;1m    echo "API a responder ao fim de $((i * 2)) s (GET /clinica sem token: HTTP $CODIGO)."[0m
+2026-11-04T18:56:28.3769828Z [36;1m    exit 0[0m
+2026-11-04T18:56:28.3770520Z [36;1m  fi[0m
+2026-11-04T18:56:28.3770922Z [36;1m  if ! kill -0 "$(cat "$RUNNER_TEMP/api.pid")" 2>/dev/null; then[0m
+2026-11-04T18:56:28.3771422Z [36;1m    break[0m
+2026-11-04T18:56:28.3771744Z [36;1m  fi[0m
+2026-11-04T18:56:28.3772085Z [36;1m  sleep 2[0m
+2026-11-04T18:56:28.3772436Z [36;1mdone[0m
+2026-11-04T18:56:28.3772817Z [36;1mtail -n 50 "$GITHUB_WORKSPACE/$RESULTADOS/newman/api.log"[0m
+2026-11-04T18:56:28.3773548Z [36;1mecho "::error title=Newman::A API não arrancou (ver api.log no artefacto resultado-newman)."[0m
+2026-11-04T18:56:28.3774115Z [36;1mexit 1[0m
+2026-11-04T18:56:28.3788454Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:28.3788994Z env:
+2026-11-04T18:56:28.3789310Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:28.3789733Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:28.3790116Z   CONFIGURACAO: Release
+2026-11-04T18:56:28.3790560Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:28.3791196Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:28.3792068Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:28.3792704Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:28.3793093Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:28.3793485Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:28.3793932Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:28.3794338Z   API_URL: http://localhost:5159
+2026-11-04T18:56:28.3795018Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:28.3795452Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:28.3795958Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:28.3796462Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:28.3797228Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:28.3797981Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:28.3798577Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:28.3799056Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:28.3799514Z   Jwt__Key: ***
+2026-11-04T18:56:28.3800434Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:28.3801123Z ##[endgroup]
+2026-11-04T18:56:30.5541146Z API a responder ao fim de 4 s (GET /clinica sem token: HTTP 401).
+2026-11-04T18:56:30.5585330Z ##[group]Run VERSAO="$(jq -r '.Newman.versaoNewman' "$QUALITY_GATES")"
+2026-11-04T18:56:30.5586096Z [36;1mVERSAO="$(jq -r '.Newman.versaoNewman' "$QUALITY_GATES")"[0m
+2026-11-04T18:56:30.5586677Z [36;1mCOLLECTION="$(jq -r '.Newman.collection' "$QUALITY_GATES")"[0m
+2026-11-04T18:56:30.5587143Z [36;1mset +e[0m
+2026-11-04T18:56:30.5587524Z [36;1mnpx --yes "newman@$VERSAO" run "$COLLECTION" \[0m
+2026-11-04T18:56:30.5588067Z [36;1m  -e "$RUNNER_TEMP/newman-ambiente.json" \[0m
+2026-11-04T18:56:30.5588525Z [36;1m  --reporters cli,junit \[0m
+2026-11-04T18:56:30.5589022Z [36;1m  --reporter-junit-export "$RESULTADOS/newman/newman-junit.xml" \[0m
+2026-11-04T18:56:30.5589554Z [36;1m  --timeout-request 30000 \[0m
+2026-11-04T18:56:30.5590092Z [36;1m  --color off --disable-unicode \[0m
+2026-11-04T18:56:30.5590608Z [36;1m  | tee "$RESULTADOS/newman/resultado-newman.txt"[0m
+2026-11-04T18:56:30.5591063Z [36;1mecho "codigo=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"[0m
+2026-11-04T18:56:30.5591644Z [36;1mexit 0[0m
+2026-11-04T18:56:30.5606212Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:30.5606724Z env:
+2026-11-04T18:56:30.5607047Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:30.5607429Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:30.5607869Z   CONFIGURACAO: Release
+2026-11-04T18:56:30.5608275Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:30.5608926Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:30.5609761Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:30.5610409Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:30.5610823Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:30.5611188Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:30.5611651Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:30.5612068Z   API_URL: http://localhost:5159
+2026-11-04T18:56:30.5612487Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:30.5612915Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:30.5613454Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:30.5613929Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:30.5614974Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:30.5615585Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:30.5616179Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:30.5616613Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:30.5617142Z   Jwt__Key: ***
+2026-11-04T18:56:30.5618064Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:30.5618734Z ##[endgroup]
+2026-11-04T18:56:38.9075490Z npm warn deprecated har-validator@5.1.5: this library is no longer supported
+2026-11-04T18:56:39.1645670Z npm warn deprecated uuid@3.4.0: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+2026-11-04T18:56:39.5976425Z npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+2026-11-04T18:56:40.7534458Z npm warn deprecated @faker-js/faker@5.5.3: Please update to a newer version.
+2026-11-04T18:56:41.4615453Z newman
+2026-11-04T18:56:41.4615826Z 
+2026-11-04T18:56:41.4616468Z Clínica Veterinária G08 — API m3
+2026-11-04T18:56:41.4670285Z 
+2026-11-04T18:56:41.4671444Z Folder 00 · Preparação — sessões por perfil
+2026-11-04T18:56:41.4672156Z Sub-folder EP-001 · 200 — iniciar sessão (Administrador)
+2026-11-04T18:56:41.9422982Z   POST http://localhost:5159/auth/login [200 OK, 714B, 467ms]
+2026-11-04T18:56:41.9577447Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:41.9675719Z   Pass  Devolve 200
+2026-11-04T18:56:41.9682104Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:41.9686201Z   Pass  O utilizador tem o perfil Administrador
+2026-11-04T18:56:41.9690472Z   Pass  O Administrador não tem clienteId
+2026-11-04T18:56:41.9748820Z 
+2026-11-04T18:56:41.9749629Z Sub-folder EP-001 · 200 — iniciar sessão (Rececionista)
+2026-11-04T18:56:42.1415864Z   POST http://localhost:5159/auth/login [200 OK, 719B, 161ms]
+2026-11-04T18:56:42.1490503Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.1580948Z   Pass  Devolve 200
+2026-11-04T18:56:42.1589429Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:42.1591310Z   Pass  O utilizador tem o perfil Rececionista
+2026-11-04T18:56:42.1723037Z 
+2026-11-04T18:56:42.1723928Z Sub-folder EP-001 · 200 — iniciar sessão (Veterinário)
+2026-11-04T18:56:42.2579209Z   POST http://localhost:5159/auth/login [200 OK, 747B, 81ms]
+2026-11-04T18:56:42.2641494Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.2752347Z   Pass  Devolve 200
+2026-11-04T18:56:42.2757774Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:42.2758744Z   Pass  O utilizador tem o perfil Veterinario
+2026-11-04T18:56:42.2813001Z 
+2026-11-04T18:56:42.2814180Z Sub-folder EP-001 · 200 — iniciar sessão (Auxiliar Veterinário)
+2026-11-04T18:56:42.3675217Z   POST http://localhost:5159/auth/login [200 OK, 732B, 82ms]
+2026-11-04T18:56:42.3736607Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.3870758Z   Pass  Devolve 200
+2026-11-04T18:56:42.3872358Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:42.3875049Z   Pass  O utilizador tem o perfil AuxiliarVeterinario
+2026-11-04T18:56:42.3963119Z 
+2026-11-04T18:56:42.3987151Z Sub-folder EP-001 · 200 — iniciar sessão (Cliente)
+2026-11-04T18:56:42.4924386Z   POST http://localhost:5159/auth/login [200 OK, 731B, 92ms]
+2026-11-04T18:56:42.4986245Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.5056051Z   Pass  Devolve 200
+2026-11-04T18:56:42.5059629Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:42.5060643Z   Pass  O utilizador tem o perfil Cliente
+2026-11-04T18:56:42.5062657Z   Pass  O Cliente tem clienteId
+2026-11-04T18:56:42.5113738Z 
+2026-11-04T18:56:42.5115045Z Folder 01 · Autenticação (EP-001 a EP-003)
+2026-11-04T18:56:42.5116064Z Sub-folder EP-001 · 400 — e-mail em falta
+2026-11-04T18:56:42.5223586Z   POST http://localhost:5159/auth/login [400 Bad Request, 236B, 6ms]
+2026-11-04T18:56:42.5273562Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.5276391Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:42.5336813Z   Pass  Devolve 400
+2026-11-04T18:56:42.5391521Z 
+2026-11-04T18:56:42.5393089Z Sub-folder EP-001 · 400 — palavra-passe em falta
+2026-11-04T18:56:42.5496479Z   POST http://localhost:5159/auth/login [400 Bad Request, 243B, 5ms]
+2026-11-04T18:56:42.5556104Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.5577003Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:42.5631811Z   Pass  Devolve 400
+2026-11-04T18:56:42.5705664Z 
+2026-11-04T18:56:42.5721878Z Sub-folder EP-001 · 401 — palavra-passe incorreta
+2026-11-04T18:56:42.6706256Z   POST http://localhost:5159/auth/login [401 Unauthorized, 246B, 97ms]
+2026-11-04T18:56:42.6740995Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.6742993Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:42.6803112Z   Pass  Devolve 401
+2026-11-04T18:56:42.6807974Z   Pass  Não devolve token
+2026-11-04T18:56:42.6853214Z 
+2026-11-04T18:56:42.6854726Z Sub-folder EP-001 · 401 — e-mail inexistente (mesma resposta)
+2026-11-04T18:56:42.7676688Z   POST http://localhost:5159/auth/login [401 Unauthorized, 246B, 78ms]
+2026-11-04T18:56:42.7723777Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.7726877Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:42.7815779Z   Pass  Devolve 401
+2026-11-04T18:56:42.7868754Z 
+2026-11-04T18:56:42.7870213Z Sub-folder EP-001 · 403 — conta bloqueada (palavra-passe correta)
+2026-11-04T18:56:42.8683280Z   POST http://localhost:5159/auth/login [403 Forbidden, 296B, 77ms]
+2026-11-04T18:56:42.8726780Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.8729018Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:42.8787549Z   Pass  Devolve 403
+2026-11-04T18:56:42.8830671Z 
+2026-11-04T18:56:42.8832078Z Sub-folder EP-003 · 200 — utilizador autenticado (Administrador)
+2026-11-04T18:56:42.9702286Z   GET http://localhost:5159/auth/me [200 OK, 273B, 83ms]
+2026-11-04T18:56:42.9744198Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:42.9818570Z   Pass  Devolve 200
+2026-11-04T18:56:42.9826419Z   Pass  Devolve o Administrador do token
+2026-11-04T18:56:42.9874161Z 
+2026-11-04T18:56:42.9875652Z Sub-folder EP-003 · 200 — utilizador autenticado (Cliente, com clienteId)
+2026-11-04T18:56:43.0015136Z   GET http://localhost:5159/auth/me [200 OK, 267B, 11ms]
+2026-11-04T18:56:43.0045267Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.0101951Z   Pass  Devolve 200
+2026-11-04T18:56:43.0105926Z   Pass  Devolve o Cliente com clienteId
+2026-11-04T18:56:43.0157344Z 
+2026-11-04T18:56:43.0158276Z Sub-folder EP-003 · 401 — sem token
+2026-11-04T18:56:43.0219500Z   GET http://localhost:5159/auth/me [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:43.0259175Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.0262379Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.0324920Z   Pass  Devolve 401
+2026-11-04T18:56:43.0359275Z 
+2026-11-04T18:56:43.0360388Z Sub-folder EP-003 · 401 — token adulterado
+2026-11-04T18:56:43.0453595Z   GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 5ms]
+2026-11-04T18:56:43.0506139Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.0507274Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.0564911Z   Pass  Devolve 401
+2026-11-04T18:56:43.0615405Z 
+2026-11-04T18:56:43.0616324Z Sub-folder EP-003 · 401 — token assinado com outra chave
+2026-11-04T18:56:43.0676719Z   GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 2ms]
+2026-11-04T18:56:43.0710664Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.0714071Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.0775357Z   Pass  Devolve 401
+2026-11-04T18:56:43.0817716Z 
+2026-11-04T18:56:43.0819039Z Sub-folder EP-002 · preparação — iniciar a sessão a terminar (EP-001 · 200)
+2026-11-04T18:56:43.1660579Z   POST http://localhost:5159/auth/login [200 OK, 714B, 81ms]
+2026-11-04T18:56:43.1736972Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.1843401Z   Pass  Devolve 200
+2026-11-04T18:56:43.1848167Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:43.1849014Z   Pass  O utilizador tem o perfil Administrador
+2026-11-04T18:56:43.1894382Z 
+2026-11-04T18:56:43.1895893Z Sub-folder EP-002 · 204 — terminar sessão
+2026-11-04T18:56:43.2441863Z   POST http://localhost:5159/auth/logout [204 No Content, 81B, 51ms]
+2026-11-04T18:56:43.2546979Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.2574368Z   Pass  Devolve 204
+2026-11-04T18:56:43.2596637Z   Pass  Sem corpo
+2026-11-04T18:56:43.2629667Z 
+2026-11-04T18:56:43.2630950Z Sub-folder EP-002 · 401 — o token terminado deixa de ser aceite (EP-003)
+2026-11-04T18:56:43.2734933Z   GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 7ms]
+2026-11-04T18:56:43.2762577Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.2764857Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.2855880Z   Pass  Devolve 401
+2026-11-04T18:56:43.2869188Z 
+2026-11-04T18:56:43.2870348Z Sub-folder EP-002 · 401 — terminar sessão outra vez com o token revogado
+2026-11-04T18:56:43.2970689Z   POST http://localhost:5159/auth/logout [401 Unauthorized, 288B, 6ms]
+2026-11-04T18:56:43.3008818Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.3010937Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.3052149Z   Pass  Devolve 401
+2026-11-04T18:56:43.3089730Z 
+2026-11-04T18:56:43.3090600Z Sub-folder EP-002 · 401 — sem token
+2026-11-04T18:56:43.3142485Z   POST http://localhost:5159/auth/logout [401 Unauthorized, 269B, 1ms]
+2026-11-04T18:56:43.3180661Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.3182542Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.3223231Z   Pass  Devolve 401
+2026-11-04T18:56:43.3259888Z 
+2026-11-04T18:56:43.3261179Z Folder 02 · Contas de funcionário (EP-004 a EP-008)
+2026-11-04T18:56:43.3261859Z Sub-folder EP-004 · 200 — listar contas de funcionário
+2026-11-04T18:56:43.4434008Z   GET http://localhost:5159/utilizadores [200 OK, 1.3kB, 113ms]
+2026-11-04T18:56:43.4474098Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.4533004Z   Pass  Devolve 200
+2026-11-04T18:56:43.4538698Z   Pass  Envelope paginado (itens, pagina, tamanho, total)
+2026-11-04T18:56:43.4542920Z   Pass  Nunca lista contas de Cliente
+2026-11-04T18:56:43.4562889Z   Pass  Cada conta tem id, nome, e-mail, perfil e estado
+2026-11-04T18:56:43.4609253Z 
+2026-11-04T18:56:43.4610244Z Sub-folder EP-004 · 200 — filtrar por perfil e estado
+2026-11-04T18:56:43.4957694Z   GET http://localhost:5159/utilizadores?perfil=Veterinario&estado=Ativo [200 OK, 512B, 31ms]
+2026-11-04T18:56:43.5004605Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.5063752Z   Pass  Devolve 200
+2026-11-04T18:56:43.5067754Z   Pass  Só Veterinários ativos
+2026-11-04T18:56:43.5119700Z 
+2026-11-04T18:56:43.5120533Z Sub-folder EP-004 · 400 — perfil fora da enumeração
+2026-11-04T18:56:43.5247066Z   GET http://localhost:5159/utilizadores?perfil=Gestor [400 Bad Request, 341B, 9ms]
+2026-11-04T18:56:43.5291383Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.5293905Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.5342961Z   Pass  Devolve 400
+2026-11-04T18:56:43.5383087Z 
+2026-11-04T18:56:43.5384152Z Sub-folder EP-004 · 401 — sem token
+2026-11-04T18:56:43.5442943Z   GET http://localhost:5159/utilizadores [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:43.5479778Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.5482203Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.5595992Z   Pass  Devolve 401
+2026-11-04T18:56:43.5627484Z 
+2026-11-04T18:56:43.5628642Z Sub-folder EP-004 · 403 — Rececionista
+2026-11-04T18:56:43.5742354Z   GET http://localhost:5159/utilizadores [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:43.5779218Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.5781515Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.5830613Z   Pass  Devolve 403
+2026-11-04T18:56:43.5869136Z 
+2026-11-04T18:56:43.5869744Z Sub-folder EP-005 · 200 — consultar conta de funcionário
+2026-11-04T18:56:43.6188501Z   GET http://localhost:5159/utilizadores/1 [200 OK, 356B, 28ms]
+2026-11-04T18:56:43.6228239Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.6270479Z   Pass  Devolve 200
+2026-11-04T18:56:43.6273335Z   Pass  Devolve a conta do Administrador
+2026-11-04T18:56:43.6318937Z 
+2026-11-04T18:56:43.6320056Z Sub-folder EP-005 · 404 — conta de Cliente não é conta de funcionário
+2026-11-04T18:56:43.6451837Z   GET http://localhost:5159/utilizadores/8 [404 Not Found, 258B, 9ms]
+2026-11-04T18:56:43.6492192Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.6495460Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.6551645Z   Pass  Devolve 404
+2026-11-04T18:56:43.6590850Z 
+2026-11-04T18:56:43.6591947Z Sub-folder EP-005 · 404 — conta inexistente
+2026-11-04T18:56:43.6722954Z   GET http://localhost:5159/utilizadores/999999 [404 Not Found, 258B, 9ms]
+2026-11-04T18:56:43.6763902Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.6765976Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.6819204Z   Pass  Devolve 404
+2026-11-04T18:56:43.6849693Z 
+2026-11-04T18:56:43.6850618Z Sub-folder EP-005 · 401 — sem token
+2026-11-04T18:56:43.6909474Z   GET http://localhost:5159/utilizadores/1 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:43.6945819Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.6948186Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.6988752Z   Pass  Devolve 401
+2026-11-04T18:56:43.7028771Z 
+2026-11-04T18:56:43.7029382Z Sub-folder EP-005 · 403 — Veterinário
+2026-11-04T18:56:43.7137426Z   GET http://localhost:5159/utilizadores/1 [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:43.7176533Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.7177655Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.7221846Z   Pass  Devolve 403
+2026-11-04T18:56:43.7271084Z 
+2026-11-04T18:56:43.7272063Z Sub-folder EP-006 · 201 — criar conta de funcionário (Rececionista)
+2026-11-04T18:56:43.9268730Z   POST http://localhost:5159/utilizadores [201 Created, 356B, 191ms]
+2026-11-04T18:56:43.9309292Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.9351866Z   Pass  Devolve 201
+2026-11-04T18:56:43.9354586Z   Pass  Conta ativa com os dados enviados
+2026-11-04T18:56:43.9358187Z   Pass  Location indica a conta criada
+2026-11-04T18:56:43.9409130Z 
+2026-11-04T18:56:43.9410047Z Sub-folder EP-006 · 400 — palavra-passe fraca
+2026-11-04T18:56:43.9512581Z   POST http://localhost:5159/utilizadores [400 Bad Request, 348B, 6ms]
+2026-11-04T18:56:43.9549297Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.9551875Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.9592866Z   Pass  Devolve 400
+2026-11-04T18:56:43.9632384Z 
+2026-11-04T18:56:43.9632951Z Sub-folder EP-006 · 409 — e-mail já registado
+2026-11-04T18:56:43.9751653Z   POST http://localhost:5159/utilizadores [409 Conflict, 258B, 8ms]
+2026-11-04T18:56:43.9789605Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:43.9791490Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:43.9846148Z   Pass  Devolve 409
+2026-11-04T18:56:43.9877971Z 
+2026-11-04T18:56:43.9878786Z Sub-folder EP-006 · 422 — perfil Cliente
+2026-11-04T18:56:43.9988494Z   POST http://localhost:5159/utilizadores [422 Unprocessable Entity, 367B, 7ms]
+2026-11-04T18:56:44.0025585Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.0027550Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.0068456Z   Pass  Devolve 422
+2026-11-04T18:56:44.0099279Z 
+2026-11-04T18:56:44.0100171Z Sub-folder EP-006 · 422 — podeRegistarApoio para um Veterinário
+2026-11-04T18:56:44.0208688Z   POST http://localhost:5159/utilizadores [422 Unprocessable Entity, 344B, 7ms]
+2026-11-04T18:56:44.0244304Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.0246703Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.0288116Z   Pass  Devolve 422
+2026-11-04T18:56:44.0328329Z 
+2026-11-04T18:56:44.0328947Z Sub-folder EP-006 · 401 — sem token
+2026-11-04T18:56:44.0386114Z   POST http://localhost:5159/utilizadores [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:44.0419979Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.0422377Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.0490827Z   Pass  Devolve 401
+2026-11-04T18:56:44.0527469Z 
+2026-11-04T18:56:44.0528201Z Sub-folder EP-006 · 403 — Rececionista
+2026-11-04T18:56:44.0626984Z   POST http://localhost:5159/utilizadores [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:44.0664092Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.0666785Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.0706791Z   Pass  Devolve 403
+2026-11-04T18:56:44.0760038Z 
+2026-11-04T18:56:44.0761033Z Sub-folder EP-006 · 200 — a conta criada inicia sessão (EP-001)
+2026-11-04T18:56:44.1587531Z   POST http://localhost:5159/auth/login [200 OK, 741B, 79ms]
+2026-11-04T18:56:44.1626725Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.1671999Z   Pass  Devolve 200
+2026-11-04T18:56:44.1676672Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:44.1677811Z   Pass  O utilizador tem o perfil Rececionista
+2026-11-04T18:56:44.1724143Z 
+2026-11-04T18:56:44.1725606Z Sub-folder EP-007 · 200 — atualizar e atribuir o perfil Auxiliar com apoio
+2026-11-04T18:56:44.2187981Z   PUT http://localhost:5159/utilizadores/11 [200 OK, 380B, 43ms]
+2026-11-04T18:56:44.2228823Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.2285959Z   Pass  Devolve 200
+2026-11-04T18:56:44.2299136Z   Pass  Devolve a conta atualizada (formato de EP-005)
+2026-11-04T18:56:44.2336691Z 
+2026-11-04T18:56:44.2337955Z Sub-folder EP-007 · 401 — o token com o perfil antigo deixa de ser aceite (EP-003)
+2026-11-04T18:56:44.2422565Z   GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 4ms]
+2026-11-04T18:56:44.2458702Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.2460894Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.2511345Z   Pass  Devolve 401
+2026-11-04T18:56:44.2552533Z 
+2026-11-04T18:56:44.2553010Z Sub-folder EP-007 · 400 — dados inválidos
+2026-11-04T18:56:44.2657690Z   PUT http://localhost:5159/utilizadores/11 [400 Bad Request, 344B, 6ms]
+2026-11-04T18:56:44.2694640Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.2697160Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.2748704Z   Pass  Devolve 400
+2026-11-04T18:56:44.2780137Z 
+2026-11-04T18:56:44.2780996Z Sub-folder EP-007 · 400 — perfil Cliente
+2026-11-04T18:56:44.2891115Z   PUT http://localhost:5159/utilizadores/11 [400 Bad Request, 334B, 7ms]
+2026-11-04T18:56:44.2929035Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.2931199Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.2970749Z   Pass  Devolve 400
+2026-11-04T18:56:44.3014016Z 
+2026-11-04T18:56:44.3015077Z Sub-folder EP-007 · 404 — conta inexistente
+2026-11-04T18:56:44.3135843Z   PUT http://localhost:5159/utilizadores/999999 [404 Not Found, 258B, 8ms]
+2026-11-04T18:56:44.3162359Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.3164586Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.3204037Z   Pass  Devolve 404
+2026-11-04T18:56:44.3239308Z 
+2026-11-04T18:56:44.3239851Z Sub-folder EP-007 · 409 — e-mail usado por outra conta
+2026-11-04T18:56:44.3368736Z   PUT http://localhost:5159/utilizadores/11 [409 Conflict, 262B, 9ms]
+2026-11-04T18:56:44.3405670Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.3407465Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.3448798Z   Pass  Devolve 409
+2026-11-04T18:56:44.3498216Z 
+2026-11-04T18:56:44.3499558Z Sub-folder EP-007 · 422 — o Administrador remove o próprio perfil
+2026-11-04T18:56:44.3611383Z   PUT http://localhost:5159/utilizadores/1 [422 Unprocessable Entity, 322B, 7ms]
+2026-11-04T18:56:44.3650691Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.3652794Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.3691459Z   Pass  Devolve 422
+2026-11-04T18:56:44.3729017Z 
+2026-11-04T18:56:44.3730038Z Sub-folder EP-007 · 422 — podeRegistarApoio para um perfil diferente de Auxiliar
+2026-11-04T18:56:44.3849849Z   PUT http://localhost:5159/utilizadores/11 [422 Unprocessable Entity, 344B, 8ms]
+2026-11-04T18:56:44.3886879Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.3888817Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.3928129Z   Pass  Devolve 422
+2026-11-04T18:56:44.3968076Z 
+2026-11-04T18:56:44.3969089Z Sub-folder EP-007 · 401 — sem token
+2026-11-04T18:56:44.4027787Z   PUT http://localhost:5159/utilizadores/11 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:44.4066018Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.4068007Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.4110319Z   Pass  Devolve 401
+2026-11-04T18:56:44.4159597Z 
+2026-11-04T18:56:44.4160910Z Sub-folder EP-007 · 403 — Rececionista
+2026-11-04T18:56:44.4271926Z   PUT http://localhost:5159/utilizadores/11 [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:44.4309771Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.4310828Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.4364918Z   Pass  Devolve 403
+2026-11-04T18:56:44.4405440Z 
+2026-11-04T18:56:44.4406424Z Sub-folder EP-008 · preparação — sessão da conta com o perfil atual (EP-001 · 200)
+2026-11-04T18:56:44.5320093Z   POST http://localhost:5159/auth/login [200 OK, 771B, 88ms]
+2026-11-04T18:56:44.5363769Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.5409126Z   Pass  Devolve 200
+2026-11-04T18:56:44.5414062Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:44.5415221Z   Pass  O utilizador tem o perfil AuxiliarVeterinario
+2026-11-04T18:56:44.5460335Z 
+2026-11-04T18:56:44.5461514Z Sub-folder EP-008 · 400 — estado diferente de Bloqueado
+2026-11-04T18:56:44.5659924Z   PATCH http://localhost:5159/utilizadores/11/estado [400 Bad Request, 296B, 16ms]
+2026-11-04T18:56:44.5699429Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.5701759Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.5756342Z   Pass  Devolve 400
+2026-11-04T18:56:44.5797604Z 
+2026-11-04T18:56:44.5798995Z Sub-folder EP-008 · 404 — conta inexistente
+2026-11-04T18:56:44.6013015Z   PATCH http://localhost:5159/utilizadores/999999/estado [404 Not Found, 258B, 17ms]
+2026-11-04T18:56:44.6053405Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.6055712Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.6100776Z   Pass  Devolve 404
+2026-11-04T18:56:44.6153125Z 
+2026-11-04T18:56:44.6154110Z Sub-folder EP-008 · 422 — o Administrador bloqueia a própria conta
+2026-11-04T18:56:44.6274619Z   PATCH http://localhost:5159/utilizadores/1/estado [422 Unprocessable Entity, 305B, 9ms]
+2026-11-04T18:56:44.6304614Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.6306974Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.6349206Z   Pass  Devolve 422
+2026-11-04T18:56:44.6390358Z 
+2026-11-04T18:56:44.6390977Z Sub-folder EP-008 · 422 — conta de Cliente
+2026-11-04T18:56:44.6517071Z   PATCH http://localhost:5159/utilizadores/8/estado [422 Unprocessable Entity, 350B, 9ms]
+2026-11-04T18:56:44.6554927Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.6557690Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.6598409Z   Pass  Devolve 422
+2026-11-04T18:56:44.6638169Z 
+2026-11-04T18:56:44.6638756Z Sub-folder EP-008 · 401 — sem token
+2026-11-04T18:56:44.6696737Z   PATCH http://localhost:5159/utilizadores/11/estado [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:44.6732684Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.6734907Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.6775488Z   Pass  Devolve 401
+2026-11-04T18:56:44.6809748Z 
+2026-11-04T18:56:44.6810747Z Sub-folder EP-008 · 403 — Rececionista
+2026-11-04T18:56:44.6901801Z   PATCH http://localhost:5159/utilizadores/11/estado [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:44.6938693Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.6940542Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.6993642Z   Pass  Devolve 403
+2026-11-04T18:56:44.7036733Z 
+2026-11-04T18:56:44.7037618Z Sub-folder EP-008 · 204 — bloquear a conta
+2026-11-04T18:56:44.7185852Z   PATCH http://localhost:5159/utilizadores/11/estado [204 No Content, 81B, 12ms]
+2026-11-04T18:56:44.7224068Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.7286846Z   Pass  Devolve 204
+2026-11-04T18:56:44.7289501Z   Pass  Sem corpo
+2026-11-04T18:56:44.7339884Z 
+2026-11-04T18:56:44.7340580Z Sub-folder EP-008 · 401 — o token emitido antes do bloqueio deixa de ser aceite (EP-003)
+2026-11-04T18:56:44.7428256Z   GET http://localhost:5159/auth/me [401 Unauthorized, 288B, 5ms]
+2026-11-04T18:56:44.7462988Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.7465733Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.7503384Z   Pass  Devolve 401
+2026-11-04T18:56:44.7542024Z 
+2026-11-04T18:56:44.7543200Z Sub-folder EP-008 · 403 — a conta bloqueada já não inicia sessão (EP-001)
+2026-11-04T18:56:44.8324933Z   POST http://localhost:5159/auth/login [403 Forbidden, 296B, 75ms]
+2026-11-04T18:56:44.8363367Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.8365536Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.8412356Z   Pass  Devolve 403
+2026-11-04T18:56:44.8462633Z 
+2026-11-04T18:56:44.8464194Z Sub-folder EP-008 · 422 — conta já bloqueada
+2026-11-04T18:56:44.8591950Z   PATCH http://localhost:5159/utilizadores/11/estado [422 Unprocessable Entity, 281B, 9ms]
+2026-11-04T18:56:44.8631826Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.8633192Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.8676197Z   Pass  Devolve 422
+2026-11-04T18:56:44.8709243Z 
+2026-11-04T18:56:44.8710366Z Folder 03 · Clínica (EP-009, EP-010)
+2026-11-04T18:56:44.8711026Z Sub-folder EP-009 · 200 — consultar dados, configurações e horário
+2026-11-04T18:56:44.9203086Z   GET http://localhost:5159/clinica [200 OK, 993B, 45ms]
+2026-11-04T18:56:44.9242993Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.9286785Z   Pass  Devolve 200
+2026-11-04T18:56:44.9293486Z   Pass  Tem os dados gerais e a duração das consultas
+2026-11-04T18:56:44.9305302Z   Pass  Cada período tem dia, abertura e fecho
+2026-11-04T18:56:44.9346175Z 
+2026-11-04T18:56:44.9346606Z Sub-folder EP-009 · 401 — sem token
+2026-11-04T18:56:44.9398208Z   GET http://localhost:5159/clinica [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:44.9433755Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.9436683Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.9476150Z   Pass  Devolve 401
+2026-11-04T18:56:44.9514360Z 
+2026-11-04T18:56:44.9515015Z Sub-folder EP-009 · 403 — Rececionista
+2026-11-04T18:56:44.9603311Z   GET http://localhost:5159/clinica [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:44.9639437Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:44.9641610Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:44.9681473Z   Pass  Devolve 403
+2026-11-04T18:56:44.9729514Z 
+2026-11-04T18:56:44.9731324Z Sub-folder EP-010 · 200 — atualizar a duração e o horário (vários períodos, fora de ordem)
+2026-11-04T18:56:45.1016041Z   PUT http://localhost:5159/clinica [200 OK, 590B, 121ms]
+2026-11-04T18:56:45.1045655Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.1088930Z   Pass  Devolve 200
+2026-11-04T18:56:45.1090175Z   Pass  Guarda a nova duração
+2026-11-04T18:56:45.1098523Z   Pass  Devolve o horário ordenado por dia e hora
+2026-11-04T18:56:45.1129758Z 
+2026-11-04T18:56:45.1130995Z Sub-folder EP-010 · 400 — períodos sobrepostos no mesmo dia
+2026-11-04T18:56:45.1259059Z   PUT http://localhost:5159/clinica [400 Bad Request, 280B, 9ms]
+2026-11-04T18:56:45.1297260Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.1299439Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.1343621Z   Pass  Devolve 400
+2026-11-04T18:56:45.1392429Z 
+2026-11-04T18:56:45.1393394Z Sub-folder EP-010 · 400 — hora de fecho igual à de abertura
+2026-11-04T18:56:45.1502600Z   PUT http://localhost:5159/clinica [400 Bad Request, 270B, 7ms]
+2026-11-04T18:56:45.1539591Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.1541477Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.1581713Z   Pass  Devolve 400
+2026-11-04T18:56:45.1618670Z 
+2026-11-04T18:56:45.1619601Z Sub-folder EP-010 · 400 — campos inválidos
+2026-11-04T18:56:45.1724190Z   PUT http://localhost:5159/clinica [400 Bad Request, 608B, 7ms]
+2026-11-04T18:56:45.1764286Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.1765679Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.1805991Z   Pass  Devolve 400
+2026-11-04T18:56:45.1846008Z 
+2026-11-04T18:56:45.1847236Z Sub-folder EP-010 · 401 — sem token
+2026-11-04T18:56:45.1898389Z   PUT http://localhost:5159/clinica [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:45.1933777Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.1936248Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.1973815Z   Pass  Devolve 401
+2026-11-04T18:56:45.2012554Z 
+2026-11-04T18:56:45.2012939Z Sub-folder EP-010 · 403 — Rececionista
+2026-11-04T18:56:45.2101652Z   PUT http://localhost:5159/clinica [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:45.2137427Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.2139837Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.2180191Z   Pass  Devolve 403
+2026-11-04T18:56:45.2219711Z 
+2026-11-04T18:56:45.2220302Z Sub-folder EP-010 · 200 — repor os dados originais
+2026-11-04T18:56:45.2498399Z   PUT http://localhost:5159/clinica [200 OK, 993B, 24ms]
+2026-11-04T18:56:45.2551055Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.2598469Z   Pass  Devolve 200
+2026-11-04T18:56:45.2605542Z   Pass  A clínica volta ao estado inicial
+2026-11-04T18:56:45.2660753Z 
+2026-11-04T18:56:45.2661490Z Folder 04 · Clientes (EP-011 a EP-014)
+2026-11-04T18:56:45.2662211Z Sub-folder EP-011 · 200 — pesquisar clientes
+2026-11-04T18:56:45.3306562Z   GET http://localhost:5159/clientes?pesquisa=silva [200 OK, 340B, 61ms]
+2026-11-04T18:56:45.3347257Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.3390580Z   Pass  Devolve 200
+2026-11-04T18:56:45.3393927Z   Pass  Envelope paginado (itens, pagina, tamanho, total)
+2026-11-04T18:56:45.3397898Z   Pass  Encontra clientes e indica o número de animais
+2026-11-04T18:56:45.3439349Z 
+2026-11-04T18:56:45.3439886Z Sub-folder EP-011 · 400 — página inválida
+2026-11-04T18:56:45.3544139Z   GET http://localhost:5159/clientes?pagina=0 [400 Bad Request, 252B, 7ms]
+2026-11-04T18:56:45.3581149Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.3583569Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.3626949Z   Pass  Devolve 400
+2026-11-04T18:56:45.3658223Z 
+2026-11-04T18:56:45.3658966Z Sub-folder EP-011 · 401 — sem token
+2026-11-04T18:56:45.3710969Z   GET http://localhost:5159/clientes [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:45.3748197Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.3750159Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.3789495Z   Pass  Devolve 401
+2026-11-04T18:56:45.3827149Z 
+2026-11-04T18:56:45.3827851Z Sub-folder EP-011 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:45.3932030Z   GET http://localhost:5159/clientes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:45.3967845Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.3970191Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.4021775Z   Pass  Devolve 403
+2026-11-04T18:56:45.4057453Z 
+2026-11-04T18:56:45.4058277Z Sub-folder EP-011 · 403 — Cliente
+2026-11-04T18:56:45.4158956Z   GET http://localhost:5159/clientes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:45.4195718Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.4198698Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.4240650Z   Pass  Devolve 403
+2026-11-04T18:56:45.4282728Z 
+2026-11-04T18:56:45.4283938Z Sub-folder EP-012 · 200 — consultar cliente com os animais
+2026-11-04T18:56:45.4836663Z   GET http://localhost:5159/clientes/1 [200 OK, 448B, 53ms]
+2026-11-04T18:56:45.4879187Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.4932346Z   Pass  Devolve 200
+2026-11-04T18:56:45.4935473Z   Pass  Devolve o Cliente do seed
+2026-11-04T18:56:45.4946310Z   Pass  Lista os animais do Cliente
+2026-11-04T18:56:45.4977360Z 
+2026-11-04T18:56:45.4978329Z Sub-folder EP-012 · 404 — cliente inexistente
+2026-11-04T18:56:45.5098376Z   GET http://localhost:5159/clientes/999999 [404 Not Found, 240B, 8ms]
+2026-11-04T18:56:45.5134270Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.5136904Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.5175584Z   Pass  Devolve 404
+2026-11-04T18:56:45.5207359Z 
+2026-11-04T18:56:45.5208092Z Sub-folder EP-012 · 401 — sem token
+2026-11-04T18:56:45.5269626Z   GET http://localhost:5159/clientes/1 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:45.5356114Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.5385859Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.5386804Z   Pass  Devolve 401
+2026-11-04T18:56:45.5435012Z 
+2026-11-04T18:56:45.5445572Z Sub-folder EP-012 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:45.5584925Z   GET http://localhost:5159/clientes/1 [403 Forbidden, 311B, 9ms]
+2026-11-04T18:56:45.5621907Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.5624289Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.5671771Z   Pass  Devolve 403
+2026-11-04T18:56:45.5711541Z 
+2026-11-04T18:56:45.5712633Z Sub-folder EP-013 · 201 — criar conta de Cliente
+2026-11-04T18:56:45.7012222Z   POST http://localhost:5159/clientes [201 Created, 395B, 122ms]
+2026-11-04T18:56:45.7050761Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.7095094Z   Pass  Devolve 201
+2026-11-04T18:56:45.7098286Z   Pass  Cliente criado com a conta ativa
+2026-11-04T18:56:45.7100528Z   Pass  Location indica a ficha
+2026-11-04T18:56:45.7144592Z 
+2026-11-04T18:56:45.7970903Z Sub-folder EP-013 · 200 — o Cliente criado inicia sessão (EP-001)
+2026-11-04T18:56:45.7971849Z   POST http://localhost:5159/auth/login [200 OK, 750B, 78ms]
+2026-11-04T18:56:45.8009523Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.8056878Z   Pass  Devolve 200
+2026-11-04T18:56:45.8060485Z   Pass  Devolve um token JWT e a data de expiração
+2026-11-04T18:56:45.8061827Z   Pass  O utilizador tem o perfil Cliente
+2026-11-04T18:56:45.8063379Z   Pass  O token é do Cliente criado
+2026-11-04T18:56:45.8105610Z 
+2026-11-04T18:56:45.8106060Z Sub-folder EP-013 · 400 — campos em falta, NIF e e-mail inválidos
+2026-11-04T18:56:45.8212361Z   POST http://localhost:5159/clientes [400 Bad Request, 418B, 6ms]
+2026-11-04T18:56:45.8251923Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.8253902Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.8307291Z   Pass  Devolve 400
+2026-11-04T18:56:45.8347311Z 
+2026-11-04T18:56:45.8348389Z Sub-folder EP-013 · 409 — NIF já registado
+2026-11-04T18:56:45.8587989Z   POST http://localhost:5159/clientes [409 Conflict, 256B, 21ms]
+2026-11-04T18:56:45.8626648Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.8628712Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.8670035Z   Pass  Devolve 409
+2026-11-04T18:56:45.8709589Z 
+2026-11-04T18:56:45.8710351Z Sub-folder EP-013 · 409 — e-mail já registado (conta de funcionário)
+2026-11-04T18:56:45.8829529Z   POST http://localhost:5159/clientes [409 Conflict, 258B, 8ms]
+2026-11-04T18:56:45.8865392Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.8867925Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.8911127Z   Pass  Devolve 409
+2026-11-04T18:56:45.8952780Z 
+2026-11-04T18:56:45.8953830Z Sub-folder EP-013 · 401 — sem token
+2026-11-04T18:56:45.9009942Z   POST http://localhost:5159/clientes [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:45.9040120Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.9042002Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.9080380Z   Pass  Devolve 401
+2026-11-04T18:56:45.9132301Z 
+2026-11-04T18:56:45.9132785Z Sub-folder EP-013 · 403 — Veterinário
+2026-11-04T18:56:45.9230831Z   POST http://localhost:5159/clientes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:45.9267154Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.9269557Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:45.9307705Z   Pass  Devolve 403
+2026-11-04T18:56:45.9346854Z 
+2026-11-04T18:56:45.9347303Z Sub-folder EP-014 · 200 — atualizar cliente (e o e-mail da conta)
+2026-11-04T18:56:45.9897361Z   PUT http://localhost:5159/clientes/4 [200 OK, 364B, 48ms]
+2026-11-04T18:56:45.9937313Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:45.9978965Z   Pass  Devolve 200
+2026-11-04T18:56:45.9982195Z   Pass  Devolve o cliente atualizado
+2026-11-04T18:56:46.0018432Z 
+2026-11-04T18:56:46.0018828Z Sub-folder EP-014 · 400 — campos inválidos
+2026-11-04T18:56:46.0115117Z   PUT http://localhost:5159/clientes/4 [400 Bad Request, 366B, 6ms]
+2026-11-04T18:56:46.0150234Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.0151094Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.0184242Z   Pass  Devolve 400
+2026-11-04T18:56:46.0218093Z 
+2026-11-04T18:56:46.0219246Z Sub-folder EP-014 · 404 — cliente inexistente
+2026-11-04T18:56:46.0333901Z   PUT http://localhost:5159/clientes/999999 [404 Not Found, 240B, 8ms]
+2026-11-04T18:56:46.0369799Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.0371689Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.0411951Z   Pass  Devolve 404
+2026-11-04T18:56:46.0448275Z 
+2026-11-04T18:56:46.0449314Z Sub-folder EP-014 · 409 — NIF de outro cliente
+2026-11-04T18:56:46.0633388Z   PUT http://localhost:5159/clientes/4 [409 Conflict, 256B, 15ms]
+2026-11-04T18:56:46.0670346Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.0672628Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.0713149Z   Pass  Devolve 409
+2026-11-04T18:56:46.0754195Z 
+2026-11-04T18:56:46.0754845Z Sub-folder EP-014 · 401 — sem token
+2026-11-04T18:56:46.0810887Z   PUT http://localhost:5159/clientes/4 [401 Unauthorized, 269B, 1ms]
+2026-11-04T18:56:46.0846001Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.0848345Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.0887410Z   Pass  Devolve 401
+2026-11-04T18:56:46.0918269Z 
+2026-11-04T18:56:46.0918779Z Sub-folder EP-014 · 403 — Veterinário
+2026-11-04T18:56:46.1013592Z   PUT http://localhost:5159/clientes/4 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:46.1048894Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.1051413Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.1089799Z   Pass  Devolve 403
+2026-11-04T18:56:46.1140493Z 
+2026-11-04T18:56:46.1141495Z Folder 05 · Pacientes (EP-015 a EP-018)
+2026-11-04T18:56:46.1142104Z Sub-folder EP-015 · 200 — pacientes de um Cliente
+2026-11-04T18:56:46.1688411Z   GET http://localhost:5159/animais?clienteId=1 [200 OK, 490B, 51ms]
+2026-11-04T18:56:46.1727525Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.1769051Z   Pass  Devolve 200
+2026-11-04T18:56:46.1772604Z   Pass  Envelope paginado (itens, pagina, tamanho, total)
+2026-11-04T18:56:46.1774963Z   Pass  Só animais do Cliente indicado
+2026-11-04T18:56:46.1777044Z   Pass  Inclui o Bobi e a Mia
+2026-11-04T18:56:46.1808989Z 
+2026-11-04T18:56:46.1809503Z Sub-folder EP-015 · 200 — pesquisar por nome do animal
+2026-11-04T18:56:46.2156585Z   GET http://localhost:5159/animais?pesquisa=Kiko [200 OK, 345B, 31ms]
+2026-11-04T18:56:46.2194365Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.2234133Z   Pass  Devolve 200
+2026-11-04T18:56:46.2237604Z   Pass  Encontra o Kiko, de outro Cliente
+2026-11-04T18:56:46.2277850Z 
+2026-11-04T18:56:46.2278415Z Sub-folder EP-015 · 400 — paginação inválida
+2026-11-04T18:56:46.2389762Z   GET http://localhost:5159/animais?pagina=0&tamanho=101 [400 Bad Request, 299B, 7ms]
+2026-11-04T18:56:46.2427301Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.2430589Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.2475279Z   Pass  Devolve 400
+2026-11-04T18:56:46.2515566Z 
+2026-11-04T18:56:46.2516270Z Sub-folder EP-015 · 401 — sem token
+2026-11-04T18:56:46.2570059Z   GET http://localhost:5159/animais [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:46.2597994Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.2600545Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.2646862Z   Pass  Devolve 401
+2026-11-04T18:56:46.2684858Z 
+2026-11-04T18:56:46.2685366Z Sub-folder EP-015 · 403 — Cliente
+2026-11-04T18:56:46.2779307Z   GET http://localhost:5159/animais [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:46.2813109Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.2815521Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.2851395Z   Pass  Devolve 403
+2026-11-04T18:56:46.2888970Z 
+2026-11-04T18:56:46.2889692Z Sub-folder EP-016 · 200 — ficha administrativa (Auxiliar Veterinário)
+2026-11-04T18:56:46.3345007Z   GET http://localhost:5159/animais/1 [200 OK, 387B, 41ms]
+2026-11-04T18:56:46.3380712Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.3421223Z   Pass  Devolve 200
+2026-11-04T18:56:46.3426507Z   Pass  Devolve a ficha com o proprietário
+2026-11-04T18:56:46.3429955Z   Pass  Sem dados clínicos
+2026-11-04T18:56:46.3469778Z 
+2026-11-04T18:56:46.3470256Z Sub-folder EP-016 · 404 — animal inexistente
+2026-11-04T18:56:46.3581210Z   GET http://localhost:5159/animais/999999 [404 Not Found, 239B, 8ms]
+2026-11-04T18:56:46.3616763Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.3618856Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.3656792Z   Pass  Devolve 404
+2026-11-04T18:56:46.3687400Z 
+2026-11-04T18:56:46.3688044Z Sub-folder EP-016 · 401 — sem token
+2026-11-04T18:56:46.3745328Z   GET http://localhost:5159/animais/1 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:46.3780092Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.3782879Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.3819906Z   Pass  Devolve 401
+2026-11-04T18:56:46.3848583Z 
+2026-11-04T18:56:46.3936430Z Sub-folder EP-016 · 403 — Cliente
+2026-11-04T18:56:46.3937199Z   GET http://localhost:5159/animais/1 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:46.3971086Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.3973343Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.4010510Z   Pass  Devolve 403
+2026-11-04T18:56:46.4049476Z 
+2026-11-04T18:56:46.4050417Z Sub-folder EP-017 · 201 — registar paciente
+2026-11-04T18:56:46.5131175Z   POST http://localhost:5159/animais [201 Created, 433B, 105ms]
+2026-11-04T18:56:46.5170149Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.5211843Z   Pass  Devolve 201
+2026-11-04T18:56:46.5214685Z   Pass  Ficha criada para o Cliente indicado
+2026-11-04T18:56:46.5217535Z   Pass  Location indica a ficha
+2026-11-04T18:56:46.5262021Z 
+2026-11-04T18:56:46.5263101Z Sub-folder EP-017 · 400 — peso igual a zero
+2026-11-04T18:56:46.5359672Z   POST http://localhost:5159/animais [400 Bad Request, 240B, 6ms]
+2026-11-04T18:56:46.5398267Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.5400276Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.5445568Z   Pass  Devolve 400
+2026-11-04T18:56:46.5497193Z 
+2026-11-04T18:56:46.5498387Z Sub-folder EP-017 · 400 — data de nascimento futura
+2026-11-04T18:56:46.5636136Z   POST http://localhost:5159/animais [400 Bad Request, 246B, 7ms]
+2026-11-04T18:56:46.5661752Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.5664194Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.5706239Z   Pass  Devolve 400
+2026-11-04T18:56:46.5739204Z 
+2026-11-04T18:56:46.5739740Z Sub-folder EP-017 · 400 — clienteId em falta
+2026-11-04T18:56:46.5843166Z   POST http://localhost:5159/animais [400 Bad Request, 245B, 6ms]
+2026-11-04T18:56:46.5880630Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.5883089Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.5927374Z   Pass  Devolve 400
+2026-11-04T18:56:46.5966285Z 
+2026-11-04T18:56:46.5967417Z Sub-folder EP-017 · 404 — cliente inexistente
+2026-11-04T18:56:46.6087224Z   POST http://localhost:5159/animais [404 Not Found, 240B, 8ms]
+2026-11-04T18:56:46.6123773Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.6125342Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.6168605Z   Pass  Devolve 404
+2026-11-04T18:56:46.6215815Z 
+2026-11-04T18:56:46.6216854Z Sub-folder EP-017 · 401 — sem token
+2026-11-04T18:56:46.6265470Z   POST http://localhost:5159/animais [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:46.6290741Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.6293485Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.6351858Z   Pass  Devolve 401
+2026-11-04T18:56:46.6368854Z 
+2026-11-04T18:56:46.6369867Z Sub-folder EP-017 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:46.6464751Z   POST http://localhost:5159/animais [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:46.6500486Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.6502906Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.6543588Z   Pass  Devolve 403
+2026-11-04T18:56:46.6586146Z 
+2026-11-04T18:56:46.6586717Z Sub-folder EP-017 · 403 — Cliente
+2026-11-04T18:56:46.6683858Z   POST http://localhost:5159/animais [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:46.6720072Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.6722513Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.6762630Z   Pass  Devolve 403
+2026-11-04T18:56:46.6802766Z 
+2026-11-04T18:56:46.6806196Z Sub-folder EP-018 · 200 — atualizar dados administrativos
+2026-11-04T18:56:46.7213880Z   PUT http://localhost:5159/animais/5 [200 OK, 413B, 36ms]
+2026-11-04T18:56:46.7251798Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.7295427Z   Pass  Devolve 200
+2026-11-04T18:56:46.7297993Z   Pass  Devolve a ficha atualizada
+2026-11-04T18:56:46.7349712Z 
+2026-11-04T18:56:46.7350568Z Sub-folder EP-018 · 400 — peso inválido
+2026-11-04T18:56:46.7447670Z   PUT http://localhost:5159/animais/5 [400 Bad Request, 240B, 6ms]
+2026-11-04T18:56:46.7482867Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.7485056Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.7523848Z   Pass  Devolve 400
+2026-11-04T18:56:46.7563216Z 
+2026-11-04T18:56:46.7563738Z Sub-folder EP-018 · 400 — data de nascimento futura
+2026-11-04T18:56:46.7709411Z   PUT http://localhost:5159/animais/5 [400 Bad Request, 246B, 7ms]
+2026-11-04T18:56:46.7743893Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.7747129Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.7977007Z   Pass  Devolve 400
+2026-11-04T18:56:46.7977267Z 
+2026-11-04T18:56:46.7977843Z Sub-folder EP-018 · 404 — animal inexistente
+2026-11-04T18:56:46.7978703Z   PUT http://localhost:5159/animais/999999 [404 Not Found, 239B, 9ms]
+2026-11-04T18:56:46.8012417Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.8014367Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.8053655Z   Pass  Devolve 404
+2026-11-04T18:56:46.8093461Z 
+2026-11-04T18:56:46.8094036Z Sub-folder EP-018 · 404 — novo cliente inexistente
+2026-11-04T18:56:46.8204749Z   PUT http://localhost:5159/animais/5 [404 Not Found, 240B, 8ms]
+2026-11-04T18:56:46.8241721Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.8243316Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.8285155Z   Pass  Devolve 404
+2026-11-04T18:56:46.8329178Z 
+2026-11-04T18:56:46.8330028Z Sub-folder EP-018 · 401 — sem token
+2026-11-04T18:56:46.8387041Z   PUT http://localhost:5159/animais/5 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:46.8423079Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.8426584Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.8465582Z   Pass  Devolve 401
+2026-11-04T18:56:46.8506703Z 
+2026-11-04T18:56:46.8507158Z Sub-folder EP-018 · 403 — Cliente
+2026-11-04T18:56:46.8603525Z   PUT http://localhost:5159/animais/5 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:46.8639979Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.8642240Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.8681526Z   Pass  Devolve 403
+2026-11-04T18:56:46.8718037Z 
+2026-11-04T18:56:46.8718567Z Folder 06 · Animais do Cliente — aplicação móvel (EP-019, EP-020)
+2026-11-04T18:56:46.8719183Z Sub-folder EP-019 · 200 — listar os meus animais
+2026-11-04T18:56:46.9042692Z   GET http://localhost:5159/me/animais [200 OK, 332B, 28ms]
+2026-11-04T18:56:46.9080046Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.9119536Z   Pass  Devolve 200
+2026-11-04T18:56:46.9124370Z   Pass  Devolve uma lista com os animais do Cliente
+2026-11-04T18:56:46.9127610Z   Pass  Não inclui animais de outro Cliente
+2026-11-04T18:56:46.9177219Z 
+2026-11-04T18:56:46.9178048Z Sub-folder EP-019 · 200 — o Cliente criado vê só o animal registado em EP-017
+2026-11-04T18:56:46.9291780Z   GET http://localhost:5159/me/animais [200 OK, 260B, 7ms]
+2026-11-04T18:56:46.9327171Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.9365720Z   Pass  Devolve 200
+2026-11-04T18:56:46.9368771Z   Pass  Um único animal: o criado nesta execução
+2026-11-04T18:56:46.9407763Z 
+2026-11-04T18:56:46.9408379Z Sub-folder EP-019 · 200 — o clienteId no pedido é ignorado
+2026-11-04T18:56:46.9516032Z   GET http://localhost:5159/me/animais?clienteId=4 [200 OK, 332B, 7ms]
+2026-11-04T18:56:46.9550826Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.9590533Z   Pass  Devolve 200
+2026-11-04T18:56:46.9594068Z   Pass  Continua a devolver os animais do Cliente do token
+2026-11-04T18:56:46.9632608Z 
+2026-11-04T18:56:46.9633265Z Sub-folder EP-019 · 401 — sem token
+2026-11-04T18:56:46.9689585Z   GET http://localhost:5159/me/animais [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:46.9719372Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.9721287Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.9759114Z   Pass  Devolve 401
+2026-11-04T18:56:46.9788065Z 
+2026-11-04T18:56:46.9788779Z Sub-folder EP-019 · 403 — perfil interno (Rececionista)
+2026-11-04T18:56:46.9882665Z   GET http://localhost:5159/me/animais [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:46.9917771Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:46.9919877Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:46.9971117Z   Pass  Devolve 403
+2026-11-04T18:56:47.0009002Z 
+2026-11-04T18:56:47.0009664Z Sub-folder EP-020 · 200 — consultar o meu animal
+2026-11-04T18:56:47.0338013Z   GET http://localhost:5159/me/animais/1 [200 OK, 287B, 28ms]
+2026-11-04T18:56:47.0377232Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.0420756Z   Pass  Devolve 200
+2026-11-04T18:56:47.0426399Z   Pass  Devolve os dados básicos do animal
+2026-11-04T18:56:47.0428902Z   Pass  Sem dados do proprietário nem clínicos
+2026-11-04T18:56:47.0458651Z 
+2026-11-04T18:56:47.0459282Z Sub-folder EP-020 · 403 — animal de outro Cliente
+2026-11-04T18:56:47.0573368Z   GET http://localhost:5159/me/animais/2 [403 Forbidden, 302B, 9ms]
+2026-11-04T18:56:47.0610328Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.0612320Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.0653921Z   Pass  Devolve 403
+2026-11-04T18:56:47.0656617Z   Pass  Não revela dados do animal
+2026-11-04T18:56:47.0695892Z 
+2026-11-04T18:56:47.0696429Z Sub-folder EP-020 · 404 — animal inexistente
+2026-11-04T18:56:47.0815161Z   GET http://localhost:5159/me/animais/999999 [404 Not Found, 239B, 8ms]
+2026-11-04T18:56:47.0841155Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.0842649Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.0900607Z   Pass  Devolve 404
+2026-11-04T18:56:47.0940178Z 
+2026-11-04T18:56:47.0941621Z Sub-folder EP-020 · 401 — sem token
+2026-11-04T18:56:47.0998450Z   GET http://localhost:5159/me/animais/1 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:47.1033628Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.1036450Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.1073419Z   Pass  Devolve 401
+2026-11-04T18:56:47.1109082Z 
+2026-11-04T18:56:47.1110001Z Sub-folder EP-020 · 403 — perfil interno (Veterinário)
+2026-11-04T18:56:47.1209265Z   GET http://localhost:5159/me/animais/1 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:47.1246067Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.1248454Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.1287075Z   Pass  Devolve 403
+2026-11-04T18:56:47.1326595Z 
+2026-11-04T18:56:47.1327472Z Folder 07 · Agenda e Consultas (EP-021 a EP-030)
+2026-11-04T18:56:47.1328146Z Sub-folder EP-023 · 200 — agenda do Veterinário da sessão (só as suas marcações)
+2026-11-04T18:56:47.2223160Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100 [200 OK, 1.2kB, 85ms]
+2026-11-04T18:56:47.2262564Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.2307621Z   Pass  Devolve 200
+2026-11-04T18:56:47.2312401Z   Pass  Resposta paginada (itens, pagina, tamanho, total)
+2026-11-04T18:56:47.2315042Z   Pass  Só aparecem marcações do próprio Veterinário
+2026-11-04T18:56:47.2320380Z   Pass  Cada marcação tem data, estado, animal, cliente e Veterinário
+2026-11-04T18:56:47.2361824Z 
+2026-11-04T18:56:47.2362670Z Sub-folder EP-021 · 200 — listar Veterinários (Rececionista)
+2026-11-04T18:56:47.2659591Z   GET http://localhost:5159/veterinarios [200 OK, 264B, 26ms]
+2026-11-04T18:56:47.2697611Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.2742010Z   Pass  Devolve 200
+2026-11-04T18:56:47.2747689Z   Pass  Lista os Veterinários ativos com id e nome
+2026-11-04T18:56:47.2750551Z   Pass  Inclui o Veterinário da sessão
+2026-11-04T18:56:47.2798997Z 
+2026-11-04T18:56:47.2800123Z Sub-folder EP-021 · 401 — sem token
+2026-11-04T18:56:47.2856976Z   GET http://localhost:5159/veterinarios [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:47.2892769Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.2895662Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.2935462Z   Pass  Devolve 401
+2026-11-04T18:56:47.2968061Z 
+2026-11-04T18:56:47.2968414Z Sub-folder EP-021 · 403 — Veterinário
+2026-11-04T18:56:47.3066148Z   GET http://localhost:5159/veterinarios [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:47.3102127Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.3104291Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.3142786Z   Pass  Devolve 403
+2026-11-04T18:56:47.3178578Z 
+2026-11-04T18:56:47.3179168Z Sub-folder EP-023 · 200 — o Veterinário só vê as suas, mesmo pedindo outro veterinarioId
+2026-11-04T18:56:47.3329457Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100&veterinarioId=5 [200 OK, 1.2kB, 11ms]
+2026-11-04T18:56:47.3366004Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.3406209Z   Pass  Devolve 200
+2026-11-04T18:56:47.3411830Z   Pass  O filtro veterinarioId é ignorado para o Veterinário
+2026-11-04T18:56:47.3451631Z 
+2026-11-04T18:56:47.3452396Z Sub-folder EP-023 · 200 — agenda da Rececionista (todos os Veterinários)
+2026-11-04T18:56:47.3743951Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100 [200 OK, 1.84kB, 25ms]
+2026-11-04T18:56:47.3782174Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.3833631Z   Pass  Devolve 200
+2026-11-04T18:56:47.3837057Z   Pass  A agenda tem marcações de mais do que um Veterinário
+2026-11-04T18:56:47.3867634Z 
+2026-11-04T18:56:47.3868211Z Sub-folder EP-023 · 200 — filtrar por Veterinário e estado
+2026-11-04T18:56:47.4187215Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100&veterinarioId=4&estado=Confirmada [200 OK, 518B, 29ms]
+2026-11-04T18:56:47.4225416Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.4266891Z   Pass  Devolve 200
+2026-11-04T18:56:47.4270341Z   Pass  Só marcações Confirmadas do Veterinário pedido
+2026-11-04T18:56:47.4311687Z 
+2026-11-04T18:56:47.4312129Z Sub-folder EP-023 · 200 — agenda do Auxiliar Veterinário
+2026-11-04T18:56:47.4443924Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100 [200 OK, 1.84kB, 10ms]
+2026-11-04T18:56:47.4480212Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.4520993Z   Pass  Devolve 200
+2026-11-04T18:56:47.4525391Z   Pass  O Auxiliar vê a agenda
+2026-11-04T18:56:47.4559111Z 
+2026-11-04T18:56:47.4559773Z Sub-folder EP-023 · 400 — dataFim anterior a dataInicio
+2026-11-04T18:56:47.4662755Z   GET http://localhost:5159/consultas?dataInicio=2026-12-02&dataFim=2026-12-01 [400 Bad Request, 290B, 6ms]
+2026-11-04T18:56:47.4697525Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.4699588Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.4738663Z   Pass  Devolve 400
+2026-11-04T18:56:47.4786544Z 
+2026-11-04T18:56:47.4787295Z Sub-folder EP-023 · 401 — sem token
+2026-11-04T18:56:47.4841231Z   GET http://localhost:5159/consultas [401 Unauthorized, 269B, 1ms]
+2026-11-04T18:56:47.4876655Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.4878361Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.4915954Z   Pass  Devolve 401
+2026-11-04T18:56:47.4947789Z 
+2026-11-04T18:56:47.4948316Z Sub-folder EP-023 · 403 — Cliente
+2026-11-04T18:56:47.5044977Z   GET http://localhost:5159/consultas [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:47.5069615Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.5071764Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.5109193Z   Pass  Devolve 403
+2026-11-04T18:56:47.5139409Z 
+2026-11-04T18:56:47.5140209Z Sub-folder EP-022 · 200 — horários livres do Veterinário nos próximos 31 dias
+2026-11-04T18:56:47.5768407Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-11-05&dataFim=2026-12-05 [200 OK, 4.96kB, 56ms]
+2026-11-04T18:56:47.5809398Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.5854747Z   Pass  Devolve 200
+2026-11-04T18:56:47.5861395Z   Pass  Identifica o Veterinário, a duração e os dias do período
+2026-11-04T18:56:47.5932613Z   Pass  Há pelo menos três horários livres (HH:MM)
+2026-11-04T18:56:47.5986601Z 
+2026-11-04T18:56:47.5987644Z Sub-folder EP-022 · 400 — dataInicio em falta
+2026-11-04T18:56:47.6097321Z   GET http://localhost:5159/veterinarios/4/disponibilidade [400 Bad Request, 281B, 7ms]
+2026-11-04T18:56:47.6133162Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.6136176Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.6175687Z   Pass  Devolve 400
+2026-11-04T18:56:47.6208248Z 
+2026-11-04T18:56:47.6208879Z Sub-folder EP-022 · 400 — período superior a 31 dias
+2026-11-04T18:56:47.6311125Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-12-01&dataFim=2027-01-15 [400 Bad Request, 252B, 6ms]
+2026-11-04T18:56:47.6348031Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.6350067Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.6392979Z   Pass  Devolve 400
+2026-11-04T18:56:47.6428299Z 
+2026-11-04T18:56:47.6429045Z Sub-folder EP-022 · 404 — Veterinário inexistente
+2026-11-04T18:56:47.6535881Z   GET http://localhost:5159/veterinarios/999999/disponibilidade?dataInicio=2026-11-05 [404 Not Found, 277B, 7ms]
+2026-11-04T18:56:47.6560501Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.6562605Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.6601260Z   Pass  Devolve 404
+2026-11-04T18:56:47.6640324Z 
+2026-11-04T18:56:47.6640743Z Sub-folder EP-022 · 401 — sem token
+2026-11-04T18:56:47.6707612Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-11-05 [401 Unauthorized, 269B, 1ms]
+2026-11-04T18:56:47.6730331Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.6731929Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.6779611Z   Pass  Devolve 401
+2026-11-04T18:56:47.6807768Z 
+2026-11-04T18:56:47.6808267Z Sub-folder EP-022 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:47.6900764Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-11-05 [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:47.6934723Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.6937231Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.6974878Z   Pass  Devolve 403
+2026-11-04T18:56:47.7009878Z 
+2026-11-04T18:56:47.7010544Z Sub-folder EP-025 · 201 — criar marcação (Pendente)
+2026-11-04T18:56:47.8214003Z   POST http://localhost:5159/consultas [201 Created, 570B, 116ms]
+2026-11-04T18:56:47.8253315Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.8298387Z   Pass  Devolve 201
+2026-11-04T18:56:47.8301724Z   Pass  Cabeçalho Location aponta para a marcação criada
+2026-11-04T18:56:47.8303417Z   Pass  Devolve o ETag da versão criada
+2026-11-04T18:56:47.8306861Z   Pass  Marcação Pendente com o animal, o Veterinário e a hora pedidos
+2026-11-04T18:56:47.8348765Z 
+2026-11-04T18:56:47.8349307Z Sub-folder EP-022 · 200 — o horário marcado deixa de estar livre
+2026-11-04T18:56:47.8488621Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-11-05 [200 OK, 373B, 10ms]
+2026-11-04T18:56:47.8528632Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.8569477Z   Pass  Devolve 200
+2026-11-04T18:56:47.8575712Z   Pass  A hora da marcação criada já não aparece nos horários livres
+2026-11-04T18:56:47.8624823Z 
+2026-11-04T18:56:47.8625764Z Sub-folder EP-025 · 400 — campos em falta
+2026-11-04T18:56:47.8721521Z   POST http://localhost:5159/consultas [400 Bad Request, 327B, 5ms]
+2026-11-04T18:56:47.8758176Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.8760381Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.8802398Z   Pass  Devolve 400
+2026-11-04T18:56:47.8843218Z 
+2026-11-04T18:56:47.8843683Z Sub-folder EP-025 · 400 — data no passado
+2026-11-04T18:56:47.8949521Z   POST http://localhost:5159/consultas [400 Bad Request, 245B, 7ms]
+2026-11-04T18:56:47.8984340Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.8986920Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.9027362Z   Pass  Devolve 400
+2026-11-04T18:56:47.9066555Z 
+2026-11-04T18:56:47.9066850Z Sub-folder EP-025 · 404 — animal inexistente
+2026-11-04T18:56:47.9180777Z   POST http://localhost:5159/consultas [404 Not Found, 239B, 7ms]
+2026-11-04T18:56:47.9217175Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.9219120Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.9260737Z   Pass  Devolve 404
+2026-11-04T18:56:47.9298529Z 
+2026-11-04T18:56:47.9299009Z Sub-folder EP-025 · 404 — Veterinário inexistente
+2026-11-04T18:56:47.9425967Z   POST http://localhost:5159/consultas [404 Not Found, 277B, 9ms]
+2026-11-04T18:56:47.9451235Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.9453115Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.9492638Z   Pass  Devolve 404
+2026-11-04T18:56:47.9529382Z 
+2026-11-04T18:56:47.9529867Z Sub-folder EP-025 · 422 — Veterinário ocupado nesse horário
+2026-11-04T18:56:47.9694454Z   POST http://localhost:5159/consultas [422 Unprocessable Entity, 340B, 14ms]
+2026-11-04T18:56:47.9730763Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.9732700Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:47.9772863Z   Pass  Devolve 422
+2026-11-04T18:56:47.9813214Z 
+2026-11-04T18:56:47.9813871Z Sub-folder EP-025 · 422 — fora do horário de funcionamento
+2026-11-04T18:56:47.9952312Z   POST http://localhost:5159/consultas [422 Unprocessable Entity, 397B, 10ms]
+2026-11-04T18:56:47.9988637Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:47.9991001Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.0031850Z   Pass  Devolve 422
+2026-11-04T18:56:48.0071379Z 
+2026-11-04T18:56:48.0071703Z Sub-folder EP-025 · 401 — sem token
+2026-11-04T18:56:48.0127109Z   POST http://localhost:5159/consultas [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:48.0158922Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.0161057Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.0199696Z   Pass  Devolve 401
+2026-11-04T18:56:48.0248013Z 
+2026-11-04T18:56:48.0248507Z Sub-folder EP-025 · 403 — Veterinário
+2026-11-04T18:56:48.0336894Z   POST http://localhost:5159/consultas [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:48.0375543Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.0377660Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.0418854Z   Pass  Devolve 403
+2026-11-04T18:56:48.0458932Z 
+2026-11-04T18:56:48.0459619Z Sub-folder EP-024 · 200 — consultar a marcação (Rececionista)
+2026-11-04T18:56:48.0665704Z   GET http://localhost:5159/consultas/6 [200 OK, 520B, 18ms]
+2026-11-04T18:56:48.0693573Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.0738068Z   Pass  Devolve 200
+2026-11-04T18:56:48.0744316Z   Pass  Devolve a marcação com animal, cliente, Veterinário e notas de preparação
+2026-11-04T18:56:48.0746142Z   Pass  O ETag é o da versão criada
+2026-11-04T18:56:48.0789906Z 
+2026-11-04T18:56:48.0790543Z Sub-folder EP-024 · 200 — o Veterinário da marcação consulta-a
+2026-11-04T18:56:48.0929179Z   GET http://localhost:5159/consultas/6 [200 OK, 520B, 10ms]
+2026-11-04T18:56:48.0969060Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.1011501Z   Pass  Devolve 200
+2026-11-04T18:56:48.1013819Z   Pass  É a marcação do próprio Veterinário
+2026-11-04T18:56:48.1055467Z 
+2026-11-04T18:56:48.1056122Z Sub-folder EP-024 · 403 — marcação não atribuída ao Veterinário autenticado
+2026-11-04T18:56:48.1178177Z   GET http://localhost:5159/consultas/2 [403 Forbidden, 330B, 9ms]
+2026-11-04T18:56:48.1215184Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.1217223Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.1272744Z   Pass  Devolve 403
+2026-11-04T18:56:48.1274334Z   Pass  Não devolve dados da marcação
+2026-11-04T18:56:48.1345940Z 
+2026-11-04T18:56:48.1348789Z Sub-folder EP-024 · 404 — marcação inexistente
+2026-11-04T18:56:48.1533787Z   GET http://localhost:5159/consultas/999999 [404 Not Found, 251B, 17ms]
+2026-11-04T18:56:48.1574784Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.1576914Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.1619973Z   Pass  Devolve 404
+2026-11-04T18:56:48.1659567Z 
+2026-11-04T18:56:48.1660505Z Sub-folder EP-024 · 401 — sem token
+2026-11-04T18:56:48.1710868Z   GET http://localhost:5159/consultas/6 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:48.1739658Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.1741754Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.1783076Z   Pass  Devolve 401
+2026-11-04T18:56:48.1825045Z 
+2026-11-04T18:56:48.1825567Z Sub-folder EP-024 · 403 — Cliente
+2026-11-04T18:56:48.1921245Z   GET http://localhost:5159/consultas/6 [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:48.1956624Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.1958670Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.2006154Z   Pass  Devolve 403
+2026-11-04T18:56:48.2055462Z 
+2026-11-04T18:56:48.2076310Z Sub-folder EP-026 · 200 — alterar a data e o motivo com o ETag atual (If-Match)
+2026-11-04T18:56:48.2613737Z   PUT http://localhost:5159/consultas/6 [200 OK, 530B, 52ms]
+2026-11-04T18:56:48.2653100Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.2696915Z   Pass  Devolve 200
+2026-11-04T18:56:48.2700051Z   Pass  A marcação tem a nova data e o novo motivo e continua Pendente
+2026-11-04T18:56:48.2701534Z   Pass  Devolve um ETag novo
+2026-11-04T18:56:48.2753923Z 
+2026-11-04T18:56:48.2754731Z Sub-folder EP-026 · 412 — If-Match com uma versão desatualizada
+2026-11-04T18:56:48.2882120Z   PUT http://localhost:5159/consultas/6 [412 Precondition Failed, 386B, 8ms]
+2026-11-04T18:56:48.2920615Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.2922492Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.2966833Z   Pass  Devolve 412
+2026-11-04T18:56:48.3006885Z 
+2026-11-04T18:56:48.3007610Z Sub-folder EP-026 · 400 — dataHora em falta
+2026-11-04T18:56:48.3103371Z   PUT http://localhost:5159/consultas/6 [400 Bad Request, 266B, 6ms]
+2026-11-04T18:56:48.3139802Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.3141311Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.3181735Z   Pass  Devolve 400
+2026-11-04T18:56:48.3220606Z 
+2026-11-04T18:56:48.3221466Z Sub-folder EP-026 · 404 — marcação inexistente
+2026-11-04T18:56:48.3336810Z   PUT http://localhost:5159/consultas/999999 [404 Not Found, 251B, 8ms]
+2026-11-04T18:56:48.3374012Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.3376497Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.3433089Z   Pass  Devolve 404
+2026-11-04T18:56:48.3460071Z 
+2026-11-04T18:56:48.3460803Z Sub-folder EP-026 · 422 — novo horário fora do horário de funcionamento
+2026-11-04T18:56:48.3954992Z   PUT http://localhost:5159/consultas/6 [422 Unprocessable Entity, 397B, 46ms]
+2026-11-04T18:56:48.3993743Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.3995435Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.4038265Z   Pass  Devolve 422
+2026-11-04T18:56:48.4068152Z 
+2026-11-04T18:56:48.4068661Z Sub-folder EP-026 · 401 — sem token
+2026-11-04T18:56:48.4116958Z   PUT http://localhost:5159/consultas/6 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:48.4153247Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.4156069Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.4203229Z   Pass  Devolve 401
+2026-11-04T18:56:48.4245597Z 
+2026-11-04T18:56:48.4246710Z Sub-folder EP-026 · 403 — Veterinário
+2026-11-04T18:56:48.4339127Z   PUT http://localhost:5159/consultas/6 [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:48.4374911Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.4377319Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.4418313Z   Pass  Devolve 403
+2026-11-04T18:56:48.4457383Z 
+2026-11-04T18:56:48.4457790Z Sub-folder EP-027 · 400 — Pendente não pode ser escolhido manualmente
+2026-11-04T18:56:48.4656097Z   PATCH http://localhost:5159/consultas/6/estado [400 Bad Request, 258B, 16ms]
+2026-11-04T18:56:48.4693745Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.4696570Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.4747375Z   Pass  Devolve 400
+2026-11-04T18:56:48.4788709Z 
+2026-11-04T18:56:48.4790037Z Sub-folder EP-027 · 400 — estado inexistente
+2026-11-04T18:56:48.4909593Z   PATCH http://localhost:5159/consultas/6/estado [400 Bad Request, 303B, 8ms]
+2026-11-04T18:56:48.4945872Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.4948299Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.4988436Z   Pass  Devolve 400
+2026-11-04T18:56:48.5028643Z 
+2026-11-04T18:56:48.5029607Z Sub-folder EP-028 · 422 — chegada numa marcação que não está Confirmada
+2026-11-04T18:56:48.5287922Z   PATCH http://localhost:5159/consultas/6/chegada [422 Unprocessable Entity, 328B, 23ms]
+2026-11-04T18:56:48.5325415Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.5327672Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.5367641Z   Pass  Devolve 422
+2026-11-04T18:56:48.5407299Z 
+2026-11-04T18:56:48.5408014Z Sub-folder EP-027 · 204 — confirmar a marcação (Pendente → Confirmada) com If-Match
+2026-11-04T18:56:48.5578411Z   PATCH http://localhost:5159/consultas/6/estado [204 No Content, 103B, 13ms]
+2026-11-04T18:56:48.5619046Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.5665561Z   Pass  Devolve 204
+2026-11-04T18:56:48.5671260Z   Pass  Devolve um ETag novo
+2026-11-04T18:56:48.5718104Z 
+2026-11-04T18:56:48.5719237Z Sub-folder EP-027 · 412 — If-Match com uma versão desatualizada
+2026-11-04T18:56:48.5835665Z   PATCH http://localhost:5159/consultas/6/estado [412 Precondition Failed, 386B, 8ms]
+2026-11-04T18:56:48.5873146Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.5875485Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.5917914Z   Pass  Devolve 412
+2026-11-04T18:56:48.5948287Z 
+2026-11-04T18:56:48.5949060Z Sub-folder EP-028 · 412 — If-Match com uma versão desatualizada
+2026-11-04T18:56:48.6057010Z   PATCH http://localhost:5159/consultas/6/chegada [412 Precondition Failed, 386B, 7ms]
+2026-11-04T18:56:48.6091294Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.6093323Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.6133904Z   Pass  Devolve 412
+2026-11-04T18:56:48.6136858Z   Pass  Erro no formato da API (I058): code 412 e message preenchida
+2026-11-04T18:56:48.6175953Z 
+2026-11-04T18:56:48.6176594Z Sub-folder EP-028 · 200 — registar a chegada com If-Match
+2026-11-04T18:56:48.6333315Z   PATCH http://localhost:5159/consultas/6/chegada [200 OK, 213B, 12ms]
+2026-11-04T18:56:48.6369927Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.6410053Z   Pass  Devolve 200
+2026-11-04T18:56:48.6413180Z   Pass  Devolve a marcação e a hora de chegada do servidor
+2026-11-04T18:56:48.6414902Z   Pass  Devolve um ETag novo
+2026-11-04T18:56:48.6449698Z 
+2026-11-04T18:56:48.6450723Z Sub-folder EP-028 · 422 — a chegada já foi registada
+2026-11-04T18:56:48.6564926Z   PATCH http://localhost:5159/consultas/6/chegada [422 Unprocessable Entity, 302B, 8ms]
+2026-11-04T18:56:48.6589722Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.6592125Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.6631917Z   Pass  Devolve 422
+2026-11-04T18:56:48.6671855Z 
+2026-11-04T18:56:48.6672333Z Sub-folder EP-028 · 404 — marcação inexistente
+2026-11-04T18:56:48.6780692Z   PATCH http://localhost:5159/consultas/999999/chegada [404 Not Found, 251B, 7ms]
+2026-11-04T18:56:48.6815405Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.6817613Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.6855208Z   Pass  Devolve 404
+2026-11-04T18:56:48.6893966Z 
+2026-11-04T18:56:48.6894389Z Sub-folder EP-028 · 401 — sem token
+2026-11-04T18:56:48.6949664Z   PATCH http://localhost:5159/consultas/6/chegada [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:48.6983584Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.6986222Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.7023739Z   Pass  Devolve 401
+2026-11-04T18:56:48.7063373Z 
+2026-11-04T18:56:48.7064426Z Sub-folder EP-028 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:48.7151980Z   PATCH http://localhost:5159/consultas/6/chegada [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:48.7186459Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.7188739Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.7225634Z   Pass  Devolve 403
+2026-11-04T18:56:48.7268021Z 
+2026-11-04T18:56:48.7268635Z Sub-folder EP-029 · 201 — registar nota de preparação (Auxiliar com apoio)
+2026-11-04T18:56:48.7783582Z   POST http://localhost:5159/consultas/6/notas-preparacao [201 Created, 355B, 47ms]
+2026-11-04T18:56:48.7822248Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.7865629Z   Pass  Devolve 201
+2026-11-04T18:56:48.7870634Z   Pass  Devolve a nota com a marcação, o texto, o autor e a data
+2026-11-04T18:56:48.7912222Z 
+2026-11-04T18:56:48.7912916Z Sub-folder EP-024 · 200 — a marcação está Confirmada, com a chegada e a nota de preparação
+2026-11-04T18:56:48.8044047Z   GET http://localhost:5159/consultas/6 [200 OK, 710B, 11ms]
+2026-11-04T18:56:48.8080804Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.8121160Z   Pass  Devolve 200
+2026-11-04T18:56:48.8123929Z   Pass  Estado Confirmada e chegada registada
+2026-11-04T18:56:48.8126972Z   Pass  A nota de preparação aparece na marcação
+2026-11-04T18:56:48.8128191Z   Pass  O registo da nota não mudou a versão da marcação (ETag)
+2026-11-04T18:56:48.8167954Z 
+2026-11-04T18:56:48.8168664Z Sub-folder EP-029 · 400 — texto vazio
+2026-11-04T18:56:48.8261236Z   POST http://localhost:5159/consultas/6/notas-preparacao [400 Bad Request, 243B, 5ms]
+2026-11-04T18:56:48.8290948Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.8293005Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.8332139Z   Pass  Devolve 400
+2026-11-04T18:56:48.8371346Z 
+2026-11-04T18:56:48.8372148Z Sub-folder EP-029 · 400 — texto com mais de 1000 caracteres
+2026-11-04T18:56:48.8511583Z   POST http://localhost:5159/consultas/6/notas-preparacao [400 Bad Request, 265B, 5ms]
+2026-11-04T18:56:48.8547186Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.8549222Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.8589398Z   Pass  Devolve 400
+2026-11-04T18:56:48.8628698Z 
+2026-11-04T18:56:48.8629577Z Sub-folder EP-029 · preparação — sessão do Auxiliar sem autorização de apoio (EP-001 · 200)
+2026-11-04T18:56:48.9449767Z   POST http://localhost:5159/auth/login [200 OK, 732B, 78ms]
+2026-11-04T18:56:48.9489532Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.9531905Z   Pass  Devolve 200
+2026-11-04T18:56:48.9534205Z   Pass  É uma conta de Auxiliar Veterinário
+2026-11-04T18:56:48.9575166Z 
+2026-11-04T18:56:48.9576283Z Sub-folder EP-029 · 403 — Auxiliar sem autorização de registo de apoio
+2026-11-04T18:56:48.9692716Z   POST http://localhost:5159/consultas/6/notas-preparacao [403 Forbidden, 362B, 8ms]
+2026-11-04T18:56:48.9730295Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.9732414Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:48.9773394Z   Pass  Devolve 403
+2026-11-04T18:56:48.9808261Z 
+2026-11-04T18:56:48.9808628Z Sub-folder EP-029 · 404 — marcação inexistente
+2026-11-04T18:56:48.9943689Z   POST http://localhost:5159/consultas/999999/notas-preparacao [404 Not Found, 251B, 10ms]
+2026-11-04T18:56:48.9981820Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:48.9984316Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.0026187Z   Pass  Devolve 404
+2026-11-04T18:56:49.0058868Z 
+2026-11-04T18:56:49.0059732Z Sub-folder EP-029 · 401 — sem token
+2026-11-04T18:56:49.0116750Z   POST http://localhost:5159/consultas/6/notas-preparacao [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:49.0151065Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.0153137Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.0217956Z   Pass  Devolve 401
+2026-11-04T18:56:49.0248292Z 
+2026-11-04T18:56:49.0249308Z Sub-folder EP-029 · 403 — Rececionista
+2026-11-04T18:56:49.0363193Z   POST http://localhost:5159/consultas/6/notas-preparacao [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:49.0401380Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.0403089Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.0447244Z   Pass  Devolve 403
+2026-11-04T18:56:49.0489376Z 
+2026-11-04T18:56:49.0490394Z Sub-folder EP-027 · 204 — marcar como Realizada (Confirmada → Realizada)
+2026-11-04T18:56:49.0676135Z   PATCH http://localhost:5159/consultas/6/estado [204 No Content, 103B, 14ms]
+2026-11-04T18:56:49.0703789Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.0757266Z   Pass  Devolve 204
+2026-11-04T18:56:49.0788194Z 
+2026-11-04T18:56:49.0788978Z Sub-folder EP-027 · 422 — transição inválida (Realizada → Confirmada)
+2026-11-04T18:56:49.0901878Z   PATCH http://localhost:5159/consultas/6/estado [422 Unprocessable Entity, 346B, 7ms]
+2026-11-04T18:56:49.0938594Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.0940637Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.0981234Z   Pass  Devolve 422
+2026-11-04T18:56:49.1018829Z 
+2026-11-04T18:56:49.1019440Z Sub-folder EP-026 · 422 — marcação Realizada não pode ser alterada
+2026-11-04T18:56:49.1136004Z   PUT http://localhost:5159/consultas/6 [422 Unprocessable Entity, 318B, 8ms]
+2026-11-04T18:56:49.1172472Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.1174399Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.1214215Z   Pass  Devolve 422
+2026-11-04T18:56:49.1248800Z 
+2026-11-04T18:56:49.1249556Z Sub-folder EP-025 · preparação — marcação a cancelar
+2026-11-04T18:56:49.1470334Z   POST http://localhost:5159/consultas [201 Created, 573B, 18ms]
+2026-11-04T18:56:49.1508033Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.1549275Z   Pass  Devolve 201
+2026-11-04T18:56:49.1600958Z 
+2026-11-04T18:56:49.1602085Z Sub-folder EP-027 · 204 — cancelar com observação (Pendente → Cancelada)
+2026-11-04T18:56:49.1712468Z   PATCH http://localhost:5159/consultas/7/estado [204 No Content, 103B, 7ms]
+2026-11-04T18:56:49.1747893Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.1788511Z   Pass  Devolve 204
+2026-11-04T18:56:49.1827477Z 
+2026-11-04T18:56:49.1828338Z Sub-folder EP-027 · 422 — transição inválida (Cancelada → Confirmada)
+2026-11-04T18:56:49.1936656Z   PATCH http://localhost:5159/consultas/7/estado [422 Unprocessable Entity, 346B, 7ms]
+2026-11-04T18:56:49.1972670Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.1975115Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.2015538Z   Pass  Devolve 422
+2026-11-04T18:56:49.2054214Z 
+2026-11-04T18:56:49.2055150Z Sub-folder EP-028 · 422 — chegada numa marcação Cancelada
+2026-11-04T18:56:49.2162692Z   PATCH http://localhost:5159/consultas/7/chegada [422 Unprocessable Entity, 328B, 6ms]
+2026-11-04T18:56:49.2199434Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.2201880Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.2241495Z   Pass  Devolve 422
+2026-11-04T18:56:49.2280569Z 
+2026-11-04T18:56:49.2281475Z Sub-folder EP-029 · 422 — nota de preparação numa marcação Cancelada
+2026-11-04T18:56:49.2415204Z   POST http://localhost:5159/consultas/7/notas-preparacao [422 Unprocessable Entity, 348B, 10ms]
+2026-11-04T18:56:49.2450584Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.2452745Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.2493326Z   Pass  Devolve 422
+2026-11-04T18:56:49.2532543Z 
+2026-11-04T18:56:49.2533361Z Sub-folder EP-027 · 404 — marcação inexistente
+2026-11-04T18:56:49.2638024Z   PATCH http://localhost:5159/consultas/999999/estado [404 Not Found, 251B, 7ms]
+2026-11-04T18:56:49.2673152Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.2677524Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.2719199Z   Pass  Devolve 404
+2026-11-04T18:56:49.2751149Z 
+2026-11-04T18:56:49.2751898Z Sub-folder EP-027 · 401 — sem token
+2026-11-04T18:56:49.2806878Z   PATCH http://localhost:5159/consultas/6/estado [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:49.2841527Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.2843849Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.2896170Z   Pass  Devolve 401
+2026-11-04T18:56:49.2939387Z 
+2026-11-04T18:56:49.2940036Z Sub-folder EP-027 · 403 — Veterinário
+2026-11-04T18:56:49.3035398Z   PATCH http://localhost:5159/consultas/6/estado [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:49.3070368Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.3072841Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.3121534Z   Pass  Devolve 403
+2026-11-04T18:56:49.3161642Z 
+2026-11-04T18:56:49.3162073Z Sub-folder EP-030 · 200 — marcações futuras do Cliente
+2026-11-04T18:56:49.3583063Z   GET http://localhost:5159/me/consultas [200 OK, 316B, 38ms]
+2026-11-04T18:56:49.3621739Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.3665053Z   Pass  Devolve 200
+2026-11-04T18:56:49.3668759Z   Pass  Só marcações Pendentes ou Confirmadas a partir de agora, por ordem de data
+2026-11-04T18:56:49.3671763Z   Pass  Só informação administrativa: sem motivo nem dados clínicos
+2026-11-04T18:56:49.3712745Z 
+2026-11-04T18:56:49.3713315Z Sub-folder EP-030 · 200 — histórico com a marcação Realizada e a Cancelada
+2026-11-04T18:56:49.3945987Z   GET http://localhost:5159/me/consultas?tipo=historico [200 OK, 821B, 20ms]
+2026-11-04T18:56:49.3983375Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.4025866Z   Pass  Devolve 200
+2026-11-04T18:56:49.4029107Z   Pass  O histórico tem a marcação Realizada desta pasta
+2026-11-04T18:56:49.4030729Z   Pass  O histórico tem a marcação Cancelada, mesmo sendo futura
+2026-11-04T18:56:49.4033010Z   Pass  Por ordem de data decrescente
+2026-11-04T18:56:49.4072632Z 
+2026-11-04T18:56:49.4073165Z Sub-folder EP-030 · 200 — filtrar por um animal próprio
+2026-11-04T18:56:49.4354764Z   GET http://localhost:5159/me/consultas?tipo=historico&animalId=1 [200 OK, 653B, 25ms]
+2026-11-04T18:56:49.4391932Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.4433788Z   Pass  Devolve 200
+2026-11-04T18:56:49.4439047Z   Pass  Só marcações desse animal
+2026-11-04T18:56:49.4487999Z 
+2026-11-04T18:56:49.4488875Z Sub-folder EP-030 · 400 — tipo inválido
+2026-11-04T18:56:49.4589679Z   GET http://localhost:5159/me/consultas?tipo=proximas [400 Bad Request, 256B, 6ms]
+2026-11-04T18:56:49.4625724Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.4627856Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.4667717Z   Pass  Devolve 400
+2026-11-04T18:56:49.4707126Z 
+2026-11-04T18:56:49.4707517Z Sub-folder EP-030 · 400 — animalId inferior a 1
+2026-11-04T18:56:49.4802230Z   GET http://localhost:5159/me/consultas?animalId=0 [400 Bad Request, 244B, 5ms]
+2026-11-04T18:56:49.4838329Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.4840044Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.4878500Z   Pass  Devolve 400
+2026-11-04T18:56:49.4917766Z 
+2026-11-04T18:56:49.4918739Z Sub-folder EP-030 · 403 — animal de outro Cliente
+2026-11-04T18:56:49.5024251Z   GET http://localhost:5159/me/consultas?animalId=2 [403 Forbidden, 302B, 8ms]
+2026-11-04T18:56:49.5061607Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.5063184Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.5103564Z   Pass  Devolve 403
+2026-11-04T18:56:49.5107564Z   Pass  Não devolve marcações
+2026-11-04T18:56:49.5138370Z 
+2026-11-04T18:56:49.5138985Z Sub-folder EP-030 · 401 — sem token
+2026-11-04T18:56:49.5193061Z   GET http://localhost:5159/me/consultas [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:49.5228650Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.5231369Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.5280581Z   Pass  Devolve 401
+2026-11-04T18:56:49.5317819Z 
+2026-11-04T18:56:49.5318615Z Sub-folder EP-030 · 403 — perfil interno (Rececionista)
+2026-11-04T18:56:49.5416214Z   GET http://localhost:5159/me/consultas [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:49.5441966Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.5444072Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.5483630Z   Pass  Devolve 403
+2026-11-04T18:56:49.5523844Z 
+2026-11-04T18:56:49.5524605Z Folder 08 · Registo clínico (EP-031 a EP-034)
+2026-11-04T18:56:49.5525307Z Sub-folder EP-023 · preparação — identificar o Veterinário da sessão
+2026-11-04T18:56:49.5663957Z   GET http://localhost:5159/consultas?dataInicio=2026-10-01&dataFim=2026-12-31&tamanho=100 [200 OK, 1.89kB, 10ms]
+2026-11-04T18:56:49.5701958Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.5747255Z   Pass  Devolve 200
+2026-11-04T18:56:49.5750523Z   Pass  A agenda do Veterinário tem marcações (dados da I061)
+2026-11-04T18:56:49.5752922Z   Pass  Só aparecem marcações do próprio Veterinário
+2026-11-04T18:56:49.5792510Z 
+2026-11-04T18:56:49.5793025Z Sub-folder EP-023 · preparação — marcação de outro Veterinário
+2026-11-04T18:56:49.5909816Z   GET http://localhost:5159/consultas?dataInicio=2026-11-04&dataFim=2026-11-04&tamanho=100 [200 OK, 516B, 9ms]
+2026-11-04T18:56:49.5946154Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.5986955Z   Pass  Devolve 200
+2026-11-04T18:56:49.5990932Z   Pass  Existe uma marcação de outro Veterinário (M4 da I061)
+2026-11-04T18:56:49.6037330Z 
+2026-11-04T18:56:49.6038396Z Sub-folder EP-022 · preparação — próximos horários livres do Veterinário
+2026-11-04T18:56:49.6212134Z   GET http://localhost:5159/veterinarios/4/disponibilidade?dataInicio=2026-11-05&dataFim=2026-12-05 [200 OK, 4.95kB, 10ms]
+2026-11-04T18:56:49.6252006Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.6297052Z   Pass  Devolve 200
+2026-11-04T18:56:49.6303123Z   Pass  Há pelo menos dois horários livres nos próximos 31 dias
+2026-11-04T18:56:49.6346612Z 
+2026-11-04T18:56:49.6347449Z Sub-folder EP-025 · preparação — marcação para o registo clínico
+2026-11-04T18:56:49.6583701Z   POST http://localhost:5159/consultas [201 Created, 584B, 19ms]
+2026-11-04T18:56:49.6623534Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.6667895Z   Pass  Devolve 201
+2026-11-04T18:56:49.6670384Z   Pass  Marcação Pendente do Veterinário da sessão
+2026-11-04T18:56:49.6712135Z 
+2026-11-04T18:56:49.6712694Z Sub-folder EP-027 · preparação — confirmar a marcação
+2026-11-04T18:56:49.6831067Z   PATCH http://localhost:5159/consultas/8/estado [204 No Content, 103B, 8ms]
+2026-11-04T18:56:49.6867598Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.6908756Z   Pass  Devolve 204
+2026-11-04T18:56:49.6957867Z 
+2026-11-04T18:56:49.6958689Z Sub-folder EP-025 · preparação — marcação que fica Pendente
+2026-11-04T18:56:49.7167419Z   POST http://localhost:5159/consultas [201 Created, 571B, 18ms]
+2026-11-04T18:56:49.7204817Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.7247521Z   Pass  Devolve 201
+2026-11-04T18:56:49.7287563Z 
+2026-11-04T18:56:49.7288370Z Sub-folder EP-031 · 201 — criar registo clínico com tratamento e prescrição
+2026-11-04T18:56:49.8602283Z   POST http://localhost:5159/registos-clinicos [201 Created, 675B, 127ms]
+2026-11-04T18:56:49.8641608Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.8687139Z   Pass  Devolve 201
+2026-11-04T18:56:49.8690955Z   Pass  Registo associado à consulta e ao paciente
+2026-11-04T18:56:49.8694011Z   Pass  Um tratamento e uma prescrição, com identificador
+2026-11-04T18:56:49.8695826Z   Pass  Location indica o registo
+2026-11-04T18:56:49.8729392Z 
+2026-11-04T18:56:49.8729884Z Sub-folder EP-031 · 400 — nenhum elemento clínico
+2026-11-04T18:56:49.8845685Z   POST http://localhost:5159/registos-clinicos [400 Bad Request, 339B, 7ms]
+2026-11-04T18:56:49.8872013Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.8874297Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.8915489Z   Pass  Devolve 400
+2026-11-04T18:56:49.8955038Z 
+2026-11-04T18:56:49.8956299Z Sub-folder EP-031 · 400 — prescrição incompleta
+2026-11-04T18:56:49.9056461Z   POST http://localhost:5159/registos-clinicos [400 Bad Request, 300B, 7ms]
+2026-11-04T18:56:49.9080861Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.9082880Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.9122247Z   Pass  Devolve 400
+2026-11-04T18:56:49.9159622Z 
+2026-11-04T18:56:49.9160158Z Sub-folder EP-031 · 404 — consulta inexistente
+2026-11-04T18:56:49.9280151Z   POST http://localhost:5159/registos-clinicos [404 Not Found, 241B, 8ms]
+2026-11-04T18:56:49.9315608Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.9317725Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.9357409Z   Pass  Devolve 404
+2026-11-04T18:56:49.9388081Z 
+2026-11-04T18:56:49.9388645Z Sub-folder EP-031 · 403 — consulta de outro Veterinário
+2026-11-04T18:56:49.9516625Z   POST http://localhost:5159/registos-clinicos [403 Forbidden, 320B, 8ms]
+2026-11-04T18:56:49.9554293Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.9556421Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.9596515Z   Pass  Devolve 403
+2026-11-04T18:56:49.9636797Z 
+2026-11-04T18:56:49.9637621Z Sub-folder EP-031 · 422 — marcação Pendente
+2026-11-04T18:56:49.9758340Z   POST http://localhost:5159/registos-clinicos [422 Unprocessable Entity, 342B, 7ms]
+2026-11-04T18:56:49.9794605Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:49.9796933Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:49.9848381Z   Pass  Devolve 422
+2026-11-04T18:56:49.9887489Z 
+2026-11-04T18:56:49.9888340Z Sub-folder EP-031 · 409 — a consulta já tem registo clínico
+2026-11-04T18:56:50.0008215Z   POST http://localhost:5159/registos-clinicos [409 Conflict, 300B, 8ms]
+2026-11-04T18:56:50.0043710Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.0046318Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.0085539Z   Pass  Devolve 409
+2026-11-04T18:56:50.0129453Z 
+2026-11-04T18:56:50.0129753Z Sub-folder EP-031 · 401 — sem token
+2026-11-04T18:56:50.0185390Z   POST http://localhost:5159/registos-clinicos [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:50.0209415Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.0211606Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.0249752Z   Pass  Devolve 401
+2026-11-04T18:56:50.0290153Z 
+2026-11-04T18:56:50.0290783Z Sub-folder EP-031 · 403 — Auxiliar Veterinário (só leitura)
+2026-11-04T18:56:50.0391029Z   POST http://localhost:5159/registos-clinicos [403 Forbidden, 311B, 5ms]
+2026-11-04T18:56:50.0427325Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.0429634Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.0470008Z   Pass  Devolve 403
+2026-11-04T18:56:50.0532153Z 
+2026-11-04T18:56:50.0533362Z Sub-folder EP-032 · 200 — atualizar notas, diagnóstico, tratamentos e prescrições
+2026-11-04T18:56:50.1256377Z   PUT http://localhost:5159/registos-clinicos/2 [200 OK, 764B, 66ms]
+2026-11-04T18:56:50.1297791Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.1340866Z   Pass  Devolve 200
+2026-11-04T18:56:50.1343243Z   Pass  Notas e diagnóstico atualizados; consulta e paciente mantêm-se
+2026-11-04T18:56:50.1346211Z   Pass  O tratamento indicado mantém-se e o novo é acrescentado
+2026-11-04T18:56:50.1348326Z   Pass  A prescrição indicada é alterada
+2026-11-04T18:56:50.1351317Z   Pass  Regista atualizadoEm e atualizadoPor
+2026-11-04T18:56:50.1389585Z 
+2026-11-04T18:56:50.1390127Z Sub-folder EP-032 · 400 — o registo ficaria sem elemento clínico
+2026-11-04T18:56:50.1489126Z   PUT http://localhost:5159/registos-clinicos/2 [400 Bad Request, 339B, 6ms]
+2026-11-04T18:56:50.1525844Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.1528186Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.1569920Z   Pass  Devolve 400
+2026-11-04T18:56:50.1613397Z 
+2026-11-04T18:56:50.1613823Z Sub-folder EP-032 · 400 — tratamento que não é deste registo
+2026-11-04T18:56:50.1745582Z   PUT http://localhost:5159/registos-clinicos/2 [400 Bad Request, 273B, 9ms]
+2026-11-04T18:56:50.1770853Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.1772766Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.1813983Z   Pass  Devolve 400
+2026-11-04T18:56:50.1858011Z 
+2026-11-04T18:56:50.1858694Z Sub-folder EP-032 · 404 — registo inexistente
+2026-11-04T18:56:50.1966807Z   PUT http://localhost:5159/registos-clinicos/999999 [404 Not Found, 253B, 7ms]
+2026-11-04T18:56:50.2002426Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.2004417Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.2044822Z   Pass  Devolve 404
+2026-11-04T18:56:50.2078518Z 
+2026-11-04T18:56:50.2078967Z Sub-folder EP-032 · 401 — sem token
+2026-11-04T18:56:50.2135658Z   PUT http://localhost:5159/registos-clinicos/2 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:50.2170213Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.2172596Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.2212131Z   Pass  Devolve 401
+2026-11-04T18:56:50.2248001Z 
+2026-11-04T18:56:50.2248659Z Sub-folder EP-032 · 403 — Auxiliar Veterinário (só leitura)
+2026-11-04T18:56:50.2343192Z   PUT http://localhost:5159/registos-clinicos/2 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:50.2379097Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.2381093Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.2420218Z   Pass  Devolve 403
+2026-11-04T18:56:50.2459909Z 
+2026-11-04T18:56:50.2460722Z Sub-folder EP-033 · 200 — consultar o registo (Veterinário)
+2026-11-04T18:56:50.2735169Z   GET http://localhost:5159/registos-clinicos/2 [200 OK, 764B, 24ms]
+2026-11-04T18:56:50.2761642Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.2812877Z   Pass  Devolve 200
+2026-11-04T18:56:50.2817655Z   Pass  Registo completo, já com a atualização
+2026-11-04T18:56:50.2857566Z 
+2026-11-04T18:56:50.2858153Z Sub-folder EP-033 · 200 — consultar o registo (Auxiliar Veterinário, só leitura)
+2026-11-04T18:56:50.3007081Z   GET http://localhost:5159/registos-clinicos/2 [200 OK, 764B, 11ms]
+2026-11-04T18:56:50.3042933Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.3083318Z   Pass  Devolve 200
+2026-11-04T18:56:50.3089048Z   Pass  Registo completo, já com a atualização
+2026-11-04T18:56:50.3128098Z 
+2026-11-04T18:56:50.3128375Z Sub-folder EP-033 · 404 — registo inexistente
+2026-11-04T18:56:50.3234306Z   GET http://localhost:5159/registos-clinicos/999999 [404 Not Found, 253B, 7ms]
+2026-11-04T18:56:50.3269613Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.3271564Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.3309152Z   Pass  Devolve 404
+2026-11-04T18:56:50.3347232Z 
+2026-11-04T18:56:50.3347729Z Sub-folder EP-033 · 401 — sem token
+2026-11-04T18:56:50.3397985Z   GET http://localhost:5159/registos-clinicos/2 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:50.3432019Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.3434056Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.3471111Z   Pass  Devolve 401
+2026-11-04T18:56:50.3519755Z 
+2026-11-04T18:56:50.3520525Z Sub-folder EP-033 · 403 — Rececionista
+2026-11-04T18:56:50.3608347Z   GET http://localhost:5159/registos-clinicos/2 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:50.3687226Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.3735829Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.3775192Z   Pass  Devolve 403
+2026-11-04T18:56:50.3792337Z 
+2026-11-04T18:56:50.3793011Z Sub-folder EP-033 · 403 — Cliente
+2026-11-04T18:56:50.3942365Z   GET http://localhost:5159/registos-clinicos/2 [403 Forbidden, 311B, 8ms]
+2026-11-04T18:56:50.3980828Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.3981728Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.4022219Z   Pass  Devolve 403
+2026-11-04T18:56:50.4061386Z 
+2026-11-04T18:56:50.4062361Z Sub-folder EP-034 · 200 — histórico clínico do paciente
+2026-11-04T18:56:50.4598692Z   GET http://localhost:5159/animais/1/historico-clinico [200 OK, 569B, 50ms]
+2026-11-04T18:56:50.4645974Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.4685798Z   Pass  Devolve 200
+2026-11-04T18:56:50.4689286Z   Pass  Histórico do animal pedido, com o registo criado
+2026-11-04T18:56:50.4690463Z   Pass  Do registo mais recente para o mais antigo
+2026-11-04T18:56:50.4692933Z   Pass  O resumo conta os tratamentos e as prescrições
+2026-11-04T18:56:50.4734721Z 
+2026-11-04T18:56:50.4735619Z Sub-folder EP-034 · 200 — histórico filtrado por datas
+2026-11-04T18:56:50.5033175Z   GET http://localhost:5159/animais/1/historico-clinico?dataInicio=2026-11-05&dataFim=2026-11-05 [200 OK, 396B, 25ms]
+2026-11-04T18:56:50.5073794Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.5117429Z   Pass  Devolve 200
+2026-11-04T18:56:50.5120841Z   Pass  Só registos do dia pedido, incluindo o registo criado
+2026-11-04T18:56:50.5161018Z 
+2026-11-04T18:56:50.5162123Z Sub-folder EP-034 · 200 — animal sem registos (Auxiliar Veterinário)
+2026-11-04T18:56:50.5288854Z   GET http://localhost:5159/animais/5/historico-clinico [200 OK, 228B, 9ms]
+2026-11-04T18:56:50.5325670Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.5365188Z   Pass  Devolve 200
+2026-11-04T18:56:50.5367731Z   Pass  Lista de registos vazia
+2026-11-04T18:56:50.5418383Z 
+2026-11-04T18:56:50.5419059Z Sub-folder EP-034 · 400 — dataFim anterior a dataInicio
+2026-11-04T18:56:50.5519191Z   GET http://localhost:5159/animais/1/historico-clinico?dataInicio=2026-10-15&dataFim=2026-10-14 [400 Bad Request, 290B, 6ms]
+2026-11-04T18:56:50.5558356Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.5560980Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.5601617Z   Pass  Devolve 400
+2026-11-04T18:56:50.5638468Z 
+2026-11-04T18:56:50.5639313Z Sub-folder EP-034 · 404 — animal inexistente
+2026-11-04T18:56:50.5752970Z   GET http://localhost:5159/animais/999999/historico-clinico [404 Not Found, 239B, 7ms]
+2026-11-04T18:56:50.5789817Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.5791913Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.5831680Z   Pass  Devolve 404
+2026-11-04T18:56:50.5871501Z 
+2026-11-04T18:56:50.5872311Z Sub-folder EP-034 · 401 — sem token
+2026-11-04T18:56:50.5921700Z   GET http://localhost:5159/animais/1/historico-clinico [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:50.5949497Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.5951955Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.5989800Z   Pass  Devolve 401
+2026-11-04T18:56:50.6028406Z 
+2026-11-04T18:56:50.6028705Z Sub-folder EP-034 · 403 — Rececionista
+2026-11-04T18:56:50.6119213Z   GET http://localhost:5159/animais/1/historico-clinico [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:50.6155345Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.6157793Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.6210568Z   Pass  Devolve 403
+2026-11-04T18:56:50.6251540Z 
+2026-11-04T18:56:50.6252149Z Sub-folder EP-027 · preparação — cancelar a marcação Pendente (limpeza)
+2026-11-04T18:56:50.6378786Z   PATCH http://localhost:5159/consultas/9/estado [204 No Content, 103B, 9ms]
+2026-11-04T18:56:50.6416405Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.6458160Z   Pass  Devolve 204
+2026-11-04T18:56:50.6487800Z 
+2026-11-04T18:56:50.6488337Z Folder 09 · Boletim de vacinas e desparasitações (EP-042 a EP-044)
+2026-11-04T18:56:50.6489203Z Sub-folder EP-043 · 201 — registar vacinação com intervalo
+2026-11-04T18:56:50.7163113Z   POST http://localhost:5159/animais/1/vacinacoes [201 Created, 415B, 64ms]
+2026-11-04T18:56:50.7202728Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.7247341Z   Pass  Devolve 201
+2026-11-04T18:56:50.7251064Z   Pass  Vacinação registada com os dados enviados
+2026-11-04T18:56:50.7252600Z   Pass  Próxima administração = data + intervalo (2026-10-14 + 365 dias)
+2026-11-04T18:56:50.7255258Z   Pass  Location indica a administração do animal
+2026-11-04T18:56:50.7299170Z 
+2026-11-04T18:56:50.7300131Z Sub-folder EP-043 · 201 — registar desparasitação sem intervalo
+2026-11-04T18:56:50.7442979Z   POST http://localhost:5159/animais/1/vacinacoes [201 Created, 421B, 11ms]
+2026-11-04T18:56:50.7481937Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.7524896Z   Pass  Devolve 201
+2026-11-04T18:56:50.7528920Z   Pass  Sem intervalo, não há próxima administração
+2026-11-04T18:56:50.7582320Z 
+2026-11-04T18:56:50.7583436Z Sub-folder EP-043 · 400 — data de administração futura
+2026-11-04T18:56:50.7699583Z   POST http://localhost:5159/animais/1/vacinacoes [400 Bad Request, 259B, 8ms]
+2026-11-04T18:56:50.7737191Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.7739096Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.7781777Z   Pass  Devolve 400
+2026-11-04T18:56:50.7821970Z 
+2026-11-04T18:56:50.7822482Z Sub-folder EP-043 · 400 — intervaloDias igual a zero
+2026-11-04T18:56:50.7917097Z   POST http://localhost:5159/animais/1/vacinacoes [400 Bad Request, 284B, 6ms]
+2026-11-04T18:56:50.7954830Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.7957206Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.7997821Z   Pass  Devolve 400
+2026-11-04T18:56:50.8037535Z 
+2026-11-04T18:56:50.8037927Z Sub-folder EP-043 · 400 — tipo inválido e lote em falta
+2026-11-04T18:56:50.8138566Z   POST http://localhost:5159/animais/1/vacinacoes [400 Bad Request, 276B, 6ms]
+2026-11-04T18:56:50.8178373Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.8179959Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.8225750Z   Pass  Devolve 400
+2026-11-04T18:56:50.8270566Z 
+2026-11-04T18:56:50.8271635Z Sub-folder EP-043 · 404 — animal inexistente
+2026-11-04T18:56:50.8393728Z   POST http://localhost:5159/animais/999999/vacinacoes [404 Not Found, 239B, 9ms]
+2026-11-04T18:56:50.8431942Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.8433463Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.8475118Z   Pass  Devolve 404
+2026-11-04T18:56:50.8514790Z 
+2026-11-04T18:56:50.8515595Z Sub-folder EP-043 · 401 — sem token
+2026-11-04T18:56:50.8572434Z   POST http://localhost:5159/animais/1/vacinacoes [401 Unauthorized, 269B, 1ms]
+2026-11-04T18:56:50.8610391Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.8613211Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.8654859Z   Pass  Devolve 401
+2026-11-04T18:56:50.8697265Z 
+2026-11-04T18:56:50.8698431Z Sub-folder EP-043 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:50.8810386Z   POST http://localhost:5159/animais/1/vacinacoes [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:50.8849530Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.8852437Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.8897232Z   Pass  Devolve 403
+2026-11-04T18:56:50.8938991Z 
+2026-11-04T18:56:50.8939514Z Sub-folder EP-043 · 403 — Cliente
+2026-11-04T18:56:50.9048072Z   POST http://localhost:5159/animais/1/vacinacoes [403 Forbidden, 311B, 7ms]
+2026-11-04T18:56:50.9086823Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.9088190Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:50.9145871Z   Pass  Devolve 403
+2026-11-04T18:56:50.9186773Z 
+2026-11-04T18:56:50.9187592Z Sub-folder EP-042 · 200 — boletim completo do paciente
+2026-11-04T18:56:50.9600441Z   GET http://localhost:5159/animais/1/vacinacoes [200 OK, 1.68kB, 37ms]
+2026-11-04T18:56:50.9639001Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:50.9682025Z   Pass  Devolve 200
+2026-11-04T18:56:50.9686504Z   Pass  Boletim do animal pedido, com as duas administrações registadas
+2026-11-04T18:56:50.9699480Z   Pass  Cada administração tem lote, intervalo, próxima e Veterinário
+2026-11-04T18:56:50.9701315Z   Pass  Administrações da mais recente para a mais antiga
+2026-11-04T18:56:50.9702591Z   Pass  Próximas da mais próxima para a mais distante
+2026-11-04T18:56:50.9743527Z 
+2026-11-04T18:56:50.9744169Z Sub-folder EP-042 · 200 — filtrar por tipo (Desparasitacao)
+2026-11-04T18:56:50.9995227Z   GET http://localhost:5159/animais/1/vacinacoes?tipo=Desparasitacao [200 OK, 811B, 21ms]
+2026-11-04T18:56:51.0033737Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.0076240Z   Pass  Devolve 200
+2026-11-04T18:56:51.0081182Z   Pass  Só desparasitações, nas administrações e nas próximas
+2026-11-04T18:56:51.0121582Z 
+2026-11-04T18:56:51.0122814Z Sub-folder EP-042 · 400 — tipo inválido
+2026-11-04T18:56:51.0218515Z   GET http://localhost:5159/animais/1/vacinacoes?tipo=Antibiotico [400 Bad Request, 252B, 6ms]
+2026-11-04T18:56:51.0255879Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.0258276Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.0301509Z   Pass  Devolve 400
+2026-11-04T18:56:51.0354029Z 
+2026-11-04T18:56:51.0355215Z Sub-folder EP-042 · 404 — animal inexistente
+2026-11-04T18:56:51.0474307Z   GET http://localhost:5159/animais/999999/vacinacoes [404 Not Found, 239B, 8ms]
+2026-11-04T18:56:51.0511731Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.0514186Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.0555120Z   Pass  Devolve 404
+2026-11-04T18:56:51.0593703Z 
+2026-11-04T18:56:51.0594119Z Sub-folder EP-042 · 401 — sem token
+2026-11-04T18:56:51.0638098Z   GET http://localhost:5159/animais/1/vacinacoes [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:51.0672922Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.0675046Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.0712356Z   Pass  Devolve 401
+2026-11-04T18:56:51.0750554Z 
+2026-11-04T18:56:51.0751028Z Sub-folder EP-042 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:51.0841454Z   GET http://localhost:5159/animais/1/vacinacoes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:51.0877132Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.0879446Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.0917576Z   Pass  Devolve 403
+2026-11-04T18:56:51.0948114Z 
+2026-11-04T18:56:51.0948438Z Sub-folder EP-042 · 403 — Cliente
+2026-11-04T18:56:51.1048148Z   GET http://localhost:5159/animais/1/vacinacoes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:51.1084751Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.1086464Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.1136454Z   Pass  Devolve 403
+2026-11-04T18:56:51.1169416Z 
+2026-11-04T18:56:51.1170400Z Sub-folder RF056 · 200 — atualizar a data e o intervalo e recalcular a próxima
+2026-11-04T18:56:51.1552373Z   PUT http://localhost:5159/animais/1/vacinacoes/5 [200 OK, 374B, 34ms]
+2026-11-04T18:56:51.1591484Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.1636244Z   Pass  Devolve 200
+2026-11-04T18:56:51.1639930Z   Pass  Próxima recalculada (2026-10-01 + 90 dias)
+2026-11-04T18:56:51.1677904Z 
+2026-11-04T18:56:51.1678641Z Sub-folder RF056 · 200 — acrescentar um intervalo a uma desparasitação
+2026-11-04T18:56:51.1862424Z   PUT http://localhost:5159/animais/1/vacinacoes/6 [200 OK, 387B, 14ms]
+2026-11-04T18:56:51.1899597Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.1941957Z   Pass  Devolve 200
+2026-11-04T18:56:51.1944106Z   Pass  Passa a ter próxima administração (2026-10-14 + 30 dias)
+2026-11-04T18:56:51.1983911Z 
+2026-11-04T18:56:51.1984380Z Sub-folder RF056 · 400 — data de administração futura
+2026-11-04T18:56:51.2083929Z   PUT http://localhost:5159/animais/1/vacinacoes/5 [400 Bad Request, 259B, 6ms]
+2026-11-04T18:56:51.2120368Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.2121629Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.2164861Z   Pass  Devolve 400
+2026-11-04T18:56:51.2208846Z 
+2026-11-04T18:56:51.2209557Z Sub-folder RF056 · 404 — administração inexistente
+2026-11-04T18:56:51.2324415Z   PUT http://localhost:5159/animais/1/vacinacoes/999999 [404 Not Found, 293B, 8ms]
+2026-11-04T18:56:51.2349996Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.2352629Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.2391869Z   Pass  Devolve 404
+2026-11-04T18:56:51.2432171Z 
+2026-11-04T18:56:51.2433496Z Sub-folder RF056 · 404 — administração de outro animal
+2026-11-04T18:56:51.2556340Z   PUT http://localhost:5159/animais/5/vacinacoes/5 [404 Not Found, 293B, 9ms]
+2026-11-04T18:56:51.2583730Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.2585287Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.2627904Z   Pass  Devolve 404
+2026-11-04T18:56:51.2658458Z 
+2026-11-04T18:56:51.2659262Z Sub-folder RF056 · 401 — sem token
+2026-11-04T18:56:51.2736394Z   PUT http://localhost:5159/animais/1/vacinacoes/5 [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:51.2760779Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.2762770Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.2801750Z   Pass  Devolve 401
+2026-11-04T18:56:51.2838758Z 
+2026-11-04T18:56:51.2839576Z Sub-folder RF056 · 403 — Auxiliar Veterinário
+2026-11-04T18:56:51.2926405Z   PUT http://localhost:5159/animais/1/vacinacoes/5 [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:51.2962110Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.2964894Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.3004087Z   Pass  Devolve 403
+2026-11-04T18:56:51.3037677Z 
+2026-11-04T18:56:51.3038127Z Sub-folder EP-044 · 200 — boletim do meu animal
+2026-11-04T18:56:51.3368836Z   GET http://localhost:5159/me/animais/1/vacinacoes [200 OK, 1.07kB, 29ms]
+2026-11-04T18:56:51.3406551Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.3447199Z   Pass  Devolve 200
+2026-11-04T18:56:51.3453876Z   Pass  Histórico com o registo atualizado e sem lote nem Veterinário
+2026-11-04T18:56:51.3455890Z   Pass  Próximas da mais próxima para a mais distante
+2026-11-04T18:56:51.3495646Z 
+2026-11-04T18:56:51.3496267Z Sub-folder EP-044 · 200 — outro Cliente vê o boletim do seu animal (vazio)
+2026-11-04T18:56:51.3611989Z   GET http://localhost:5159/me/animais/5/vacinacoes [200 OK, 178B, 8ms]
+2026-11-04T18:56:51.3647559Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.3687100Z   Pass  Devolve 200
+2026-11-04T18:56:51.3690382Z   Pass  Sem registos, as duas listas vêm vazias
+2026-11-04T18:56:51.3730483Z 
+2026-11-04T18:56:51.3731066Z Sub-folder EP-044 · 403 — animal de outro Cliente
+2026-11-04T18:56:51.3837523Z   GET http://localhost:5159/me/animais/5/vacinacoes [403 Forbidden, 302B, 7ms]
+2026-11-04T18:56:51.3872097Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.3874011Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.3925740Z   Pass  Devolve 403
+2026-11-04T18:56:51.3927666Z   Pass  A resposta não tem dados do animal
+2026-11-04T18:56:51.3966594Z 
+2026-11-04T18:56:51.3967184Z Sub-folder EP-044 · 403 — o outro Cliente pede um animal que não é seu
+2026-11-04T18:56:51.4074069Z   GET http://localhost:5159/me/animais/1/vacinacoes [403 Forbidden, 302B, 7ms]
+2026-11-04T18:56:51.4108573Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.4110551Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.4150431Z   Pass  Devolve 403
+2026-11-04T18:56:51.4153101Z   Pass  A resposta não tem dados do animal
+2026-11-04T18:56:51.4187237Z 
+2026-11-04T18:56:51.4187878Z Sub-folder EP-044 · 404 — animal inexistente
+2026-11-04T18:56:51.4308037Z   GET http://localhost:5159/me/animais/999999/vacinacoes [404 Not Found, 239B, 8ms]
+2026-11-04T18:56:51.4344367Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.4346752Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.4386898Z   Pass  Devolve 404
+2026-11-04T18:56:51.4418071Z 
+2026-11-04T18:56:51.4418662Z Sub-folder EP-044 · 401 — sem token
+2026-11-04T18:56:51.4475282Z   GET http://localhost:5159/me/animais/1/vacinacoes [401 Unauthorized, 269B, 2ms]
+2026-11-04T18:56:51.4510028Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.4512371Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.4550344Z   Pass  Devolve 401
+2026-11-04T18:56:51.4601740Z 
+2026-11-04T18:56:51.4602321Z Sub-folder EP-044 · 403 — perfil interno (Veterinário)
+2026-11-04T18:56:51.4688573Z   GET http://localhost:5159/me/animais/1/vacinacoes [403 Forbidden, 311B, 6ms]
+2026-11-04T18:56:51.4723235Z   Pass  Não expõe palavras-passe nem hashes
+2026-11-04T18:56:51.4726142Z   Pass  Erro no formato único da API (code, message, detail)
+2026-11-04T18:56:51.4763717Z   Pass  Devolve 403
+2026-11-04T18:56:51.5263444Z 
+2026-11-04T18:56:51.5265167Z ------------------------------------------------------------------
+2026-11-04T18:56:51.5265984Z |                         |          executed |           failed |
+2026-11-04T18:56:51.5266633Z --------------------------+-------------------+-------------------
+2026-11-04T18:56:51.5267282Z |              iterations |                 1 |                0 |
+2026-11-04T18:56:51.5268262Z --------------------------+-------------------+-------------------
+2026-11-04T18:56:51.5268903Z |                requests |               269 |                0 |
+2026-11-04T18:56:51.5269621Z --------------------------+-------------------+-------------------
+2026-11-04T18:56:51.5270278Z |            test-scripts |               538 |                0 |
+2026-11-04T18:56:51.5270997Z --------------------------+-------------------+-------------------
+2026-11-04T18:56:51.5271779Z |      prerequest-scripts |                 9 |                0 |
+2026-11-04T18:56:51.5272508Z --------------------------+-------------------+-------------------
+2026-11-04T18:56:51.5273220Z |              assertions |               862 |                0 |
+2026-11-04T18:56:51.5273882Z ------------------------------------------------------------------
+2026-11-04T18:56:51.5274760Z | total run duration: 10s                                        |
+2026-11-04T18:56:51.5275479Z ------------------------------------------------------------------
+2026-11-04T18:56:51.5276203Z | total data received: 69.38kB (approx)                          |
+2026-11-04T18:56:51.5276957Z ------------------------------------------------------------------
+2026-11-04T18:56:51.5277706Z | average response time: 20ms [min: 1ms, max: 467ms, s.d.: 39ms] |
+2026-11-04T18:56:51.5278409Z ------------------------------------------------------------------
+2026-11-04T18:56:51.5755604Z ##[group]Run # Defesa adicional: os resultados anexados não podem conter a
+2026-11-04T18:56:51.5756210Z [36;1m# Defesa adicional: os resultados anexados não podem conter a[0m
+2026-11-04T18:56:51.5756680Z [36;1m# palavra-passe descartável (já escondida nos registos).[0m
+2026-11-04T18:56:51.5757257Z [36;1mSEGREDO="$(jq -r '.values[] | select(.key == "passwordAdmin") | .value' "$RUNNER_TEMP/newman-ambiente.json")"[0m
+2026-11-04T18:56:51.5757862Z [36;1mif [ -n "$SEGREDO" ] && grep -rqF -- "$SEGREDO" "$RESULTADOS/newman"; then[0m
+2026-11-04T18:56:51.5758524Z [36;1m  echo "::error title=Newman::Um ficheiro de resultados contém a palavra-passe descartável; os resultados não são publicados."[0m
+2026-11-04T18:56:51.5759093Z [36;1m  rm -rf "$RESULTADOS/newman"[0m
+2026-11-04T18:56:51.5759500Z [36;1m  exit 1[0m
+2026-11-04T18:56:51.5759727Z [36;1mfi[0m
+2026-11-04T18:56:51.5759947Z [36;1mpython3 - <<'PYTHON'[0m
+2026-11-04T18:56:51.5760218Z [36;1mimport json, os, sys[0m
+2026-11-04T18:56:51.5760541Z [36;1mimport xml.etree.ElementTree as ET[0m
+2026-11-04T18:56:51.5760965Z [36;1mcfg = json.load(open(os.environ["QUALITY_GATES"], encoding="utf-8"))["Newman"][0m
+2026-11-04T18:56:51.5761396Z [36;1mmaximo = int(cfg["maximoFalhas"])[0m
+2026-11-04T18:56:51.5761736Z [36;1mcodigo = int(os.environ.get("CODIGO_NEWMAN") or 1)[0m
+2026-11-04T18:56:51.5762202Z [36;1mcaminho = os.path.join(os.environ["RESULTADOS"], "newman", "newman-junit.xml")[0m
+2026-11-04T18:56:51.5762665Z [36;1mlinhas = ["### 7 · Collection Postman (Newman)", ""][0m
+2026-11-04T18:56:51.5763019Z [36;1mif not os.path.exists(caminho):[0m
+2026-11-04T18:56:51.5763534Z [36;1m    linhas.append(f"❌ **Collection não avaliada:** o Newman terminou com o código {codigo} sem relatório JUnit.")[0m
+2026-11-04T18:56:51.5764170Z [36;1m    falhou = True[0m
+2026-11-04T18:56:51.5764413Z [36;1melse:[0m
+2026-11-04T18:56:51.5764857Z [36;1m    raiz = ET.parse(caminho).getroot()[0m
+2026-11-04T18:56:51.5765273Z [36;1m    suites = [raiz] if raiz.tag == "testsuite" else raiz.findall("testsuite")[0m
+2026-11-04T18:56:51.5765676Z [36;1m    pedidos = len(suites)[0m
+2026-11-04T18:56:51.5766002Z [36;1m    testes = sum(int(s.get("tests", 0)) for s in suites)[0m
+2026-11-04T18:56:51.5766464Z [36;1m    falhas = sum(int(s.get("failures", 0)) + int(s.get("errors", 0)) for s in suites)[0m
+2026-11-04T18:56:51.5767065Z [36;1m    pedidos_falhados = [s.get("name", "?") for s in suites if int(s.get("failures", 0)) + int(s.get("errors", 0)) > 0][0m
+2026-11-04T18:56:51.5767587Z [36;1m    linhas += ["| Medida | Valor |", "|---|---|",[0m
+2026-11-04T18:56:51.5767940Z [36;1m               f"| Pedidos executados | {pedidos} |",[0m
+2026-11-04T18:56:51.5768308Z [36;1m               f"| Verificações (`pm.test`) | {testes} |",[0m
+2026-11-04T18:56:51.5768691Z [36;1m               f"| **Verificações falhadas** | **{falhas}** |",[0m
+2026-11-04T18:56:51.5769150Z [36;1m               f"| Máximo permitido (`.github/quality-gates.json`) | {maximo} |",[0m
+2026-11-04T18:56:51.5769586Z [36;1m               f"| Código de saída do Newman | {codigo} |", ""][0m
+2026-11-04T18:56:51.5769930Z [36;1m    if pedidos_falhados:[0m
+2026-11-04T18:56:51.5770341Z [36;1m        linhas += ["Pedidos com falhas:", ""] + [f"- {p}" for p in pedidos_falhados[:30]] + [""][0m
+2026-11-04T18:56:51.5770832Z [36;1m    falhou = falhas > maximo or (codigo != 0 and falhas == 0)[0m
+2026-11-04T18:56:51.5771208Z [36;1m    if codigo != 0 and falhas == 0:[0m
+2026-11-04T18:56:51.5771759Z [36;1m        linhas.append("❌ O Newman terminou com erro sem verificações falhadas (pedido sem resposta ou collection inválida).")[0m
+2026-11-04T18:56:51.5772585Z [36;1mlinhas.append("❌ **A Collection Postman falhou: o merge fica bloqueado.**" if falhou else "✅ **Collection Postman executada sem falhas.**")[0m
+2026-11-04T18:56:51.5773298Z [36;1mwith open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:[0m
+2026-11-04T18:56:51.5773868Z [36;1m    resumo.write("\n".join(linhas) + "\n")[0m
+2026-11-04T18:56:51.5774186Z [36;1mprint("\n".join(linhas))[0m
+2026-11-04T18:56:51.5774455Z [36;1mif falhou:[0m
+2026-11-04T18:56:51.5775088Z [36;1m    print("::error title=Newman::A Collection Postman tem pedidos ou verificações falhadas.")[0m
+2026-11-04T18:56:51.5775538Z [36;1m    sys.exit(1)[0m
+2026-11-04T18:56:51.5775778Z [36;1mPYTHON[0m
+2026-11-04T18:56:51.5790498Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:51.5790905Z env:
+2026-11-04T18:56:51.5791121Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:51.5791384Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:51.5791665Z   CONFIGURACAO: Release
+2026-11-04T18:56:51.5791949Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:51.5792448Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:51.5793328Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:51.5794002Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:51.5794286Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:51.5794958Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:51.5795445Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:51.5795751Z   API_URL: http://localhost:5159
+2026-11-04T18:56:51.5796036Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:51.5796375Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:51.5796736Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:51.5797121Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:51.5797892Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:51.5798388Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:51.5798914Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:51.5799285Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:51.5799685Z   Jwt__Key: ***
+2026-11-04T18:56:51.5800628Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:51.5801402Z   CODIGO_NEWMAN: 0
+2026-11-04T18:56:51.5801651Z ##[endgroup]
+2026-11-04T18:56:51.6160076Z ### 7 · Collection Postman (Newman)
+2026-11-04T18:56:51.6160490Z 
+2026-11-04T18:56:51.6160660Z | Medida | Valor |
+2026-11-04T18:56:51.6160992Z |---|---|
+2026-11-04T18:56:51.6161341Z | Pedidos executados | 269 |
+2026-11-04T18:56:51.6161874Z | Verificações (`pm.test`) | 862 |
+2026-11-04T18:56:51.6162400Z | **Verificações falhadas** | **0** |
+2026-11-04T18:56:51.6163037Z | Máximo permitido (`.github/quality-gates.json`) | 0 |
+2026-11-04T18:56:51.6163621Z | Código de saída do Newman | 0 |
+2026-11-04T18:56:51.6163881Z 
+2026-11-04T18:56:51.6164172Z ✅ **Collection Postman executada sem falhas.**
+2026-11-04T18:56:51.6277577Z ##[group]Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+2026-11-04T18:56:51.6278016Z with:
+2026-11-04T18:56:51.6278250Z   name: resultado-newman
+2026-11-04T18:56:51.6278523Z   path: resultados-ci/newman
+2026-11-04T18:56:51.6278803Z   if-no-files-found: warn
+2026-11-04T18:56:51.6279055Z   retention-days: 90
+2026-11-04T18:56:51.6279293Z   compression-level: 6
+2026-11-04T18:56:51.6279537Z   overwrite: false
+2026-11-04T18:56:51.6279776Z   include-hidden-files: false
+2026-11-04T18:56:51.6280042Z   archive: true
+2026-11-04T18:56:51.6280258Z env:
+2026-11-04T18:56:51.6280475Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:51.6280721Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:51.6281013Z   CONFIGURACAO: Release
+2026-11-04T18:56:51.6281289Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:51.6281816Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:51.6282602Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:51.6283173Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:51.6283453Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:51.6283875Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:51.6284207Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:51.6284990Z   API_URL: http://localhost:5159
+2026-11-04T18:56:51.6285307Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:51.6285658Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:51.6286036Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:51.6286431Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:51.6287078Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:51.6287595Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:51.6288016Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:51.6288338Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:51.6288902Z   Jwt__Key: ***
+2026-11-04T18:56:51.6289710Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:51.6290309Z ##[endgroup]
+2026-11-04T18:56:51.8236740Z With the provided path, there will be 4 files uploaded
+2026-11-04T18:56:51.8287722Z Artifact name is valid!
+2026-11-04T18:56:51.8319971Z Root directory input is valid!
+2026-11-04T18:56:52.2027293Z Uploading artifact: resultado-newman.zip
+2026-11-04T18:56:52.2081234Z Beginning upload of artifact content to blob storage
+2026-11-04T18:56:52.5963659Z Uploaded bytes 52906
+2026-11-04T18:56:52.6567763Z Finished uploading artifact content to blob storage!
+2026-11-04T18:56:52.6569155Z SHA256 digest of uploaded artifact is 2326bb74b4bbb651779d8ee5017e304819cf74993e28627156d9868d1226355b
+2026-11-04T18:56:52.6570467Z Finalizing artifact upload
+2026-11-04T18:56:53.2958403Z Artifact resultado-newman successfully finalized. Artifact ID 13353113533
+2026-11-04T18:56:53.2966522Z Artifact resultado-newman has been successfully uploaded! Final size is 52906 bytes. Artifact ID is 13353113533
+2026-11-04T18:56:53.2967927Z Artifact download URL: https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/actions/runs/41891706460/artifacts/13353113533
+2026-11-04T18:56:53.3109881Z ##[group]Run if [ -f "$RUNNER_TEMP/api.pid" ]; then kill "$(cat "$RUNNER_TEMP/api.pid")" 2>/dev/null || true; fi
+2026-11-04T18:56:53.3110996Z [36;1mif [ -f "$RUNNER_TEMP/api.pid" ]; then kill "$(cat "$RUNNER_TEMP/api.pid")" 2>/dev/null || true; fi[0m
+2026-11-04T18:56:53.3111799Z [36;1mdocker rm -f "$CONTENTOR_SQL" >/dev/null 2>&1 || true[0m
+2026-11-04T18:56:53.3112358Z [36;1mrm -f "$RUNNER_TEMP/newman-ambiente.json"[0m
+2026-11-04T18:56:53.3113092Z [36;1mecho "API parada, contentor $CONTENTOR_SQL destruído e cópia do ambiente apagada."[0m
+2026-11-04T18:56:53.3133306Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-04T18:56:53.3133901Z env:
+2026-11-04T18:56:53.3134221Z   DOTNET_NOLOGO: true
+2026-11-04T18:56:53.3134829Z   DOTNET_CLI_TELEMETRY_OPTOUT: true
+2026-11-04T18:56:53.3135282Z   CONFIGURACAO: Release
+2026-11-04T18:56:53.3135709Z   SOLUCAO: src/backend/ClinicaVeterinaria.sln
+2026-11-04T18:56:53.3136995Z   TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+2026-11-04T18:56:53.3138125Z   TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+2026-11-04T18:56:53.3138978Z   RESULTADOS: resultados-ci
+2026-11-04T18:56:53.3139404Z   REPORTGENERATOR_VERSAO: 5.5.11
+2026-11-04T18:56:53.3139834Z   QUALITY_GATES: .github/quality-gates.json
+2026-11-04T18:56:53.3140317Z   BASE_DADOS: ClinicaVeterinaria_CI
+2026-11-04T18:56:53.3140770Z   API_URL: http://localhost:5159
+2026-11-04T18:56:53.3141190Z   CONTENTOR_SQL: sql-newman-ci
+2026-11-04T18:56:53.3141760Z   IMAGEM_SQL: mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04
+2026-11-04T18:56:53.3142339Z   DOTNET_EF_VERSAO: 10.0.13
+2026-11-04T18:56:53.3142913Z   PROJETO_API: src/backend/ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.csproj
+2026-11-04T18:56:53.3143904Z   PROJETO_INFRA: src/backend/ClinicaVeterinaria.Infrastructure/ClinicaVeterinaria.Infrastructure.csproj
+2026-11-04T18:56:53.3144987Z   DOTNET_ROOT: /usr/share/dotnet
+2026-11-04T18:56:53.3145627Z   SQL_SA_PASSWORD: ***
+2026-11-04T18:56:53.3146118Z   SQLCMDPASSWORD: ***
+2026-11-04T18:56:53.3146771Z   Jwt__Key: ***
+2026-11-04T18:56:53.3148051Z   ConnectionStrings__ClinicaDb: Server=localhost,1433;Database=ClinicaVeterinaria_CI;User Id=sa;***;TrustServerCertificate=True;Encrypt=True
+2026-11-04T18:56:53.3148977Z ##[endgroup]
+2026-11-04T18:56:54.1370104Z API parada, contentor sql-newman-ci destruído e cópia do ambiente apagada.
+2026-11-04T18:56:54.1454300Z Post job cleanup.
+2026-11-04T18:56:54.1459567Z ##[start-action display=Reutilizar a cache dos pacotes NuGet;id=__6577c0fb-36de-4027-b329-74d4360145d0.__actions_cache]
+2026-11-04T18:56:54.3249812Z Post job cleanup.
+2026-11-04T18:56:54.4540637Z Cache hit occurred on the primary key nuget-Linux-c8252acdcad9b687c3131c725ee3c1b10105ceb23478247a43e8389c12c19830, not saving cache.
+2026-11-04T18:56:54.4599243Z ##[end-action id=__6577c0fb-36de-4027-b329-74d4360145d0.__actions_cache;outcome=success;conclusion=success;duration_ms=313]
+2026-11-04T18:56:54.4602548Z ##[start-action display=Instalar o SDK do .NET 10;id=__6577c0fb-36de-4027-b329-74d4360145d0.__actions_setup-dotnet]
+2026-11-04T18:56:54.4642267Z Post job cleanup.
+2026-11-04T18:56:54.5869878Z ##[end-action id=__6577c0fb-36de-4027-b329-74d4360145d0.__actions_setup-dotnet;outcome=success;conclusion=success;duration_ms=126]
+2026-11-04T18:56:54.5946952Z Post job cleanup.
+2026-11-04T18:56:54.6856069Z [command]/usr/bin/git version
+2026-11-04T18:56:54.6882677Z git version 2.56.0
+2026-11-04T18:56:54.6947416Z Temporarily overriding HOME='/home/runner/work/_temp/e4e29f29-9153-4477-ac28-2f0cf55496aa' before making global git config changes
+2026-11-04T18:56:54.6948741Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-04T18:56:54.6950026Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/LEI-Grupo-de-LDS-UTPORTO/LEI-Grupo-de-LDS-UTPORTO
+2026-11-04T18:56:54.6986717Z Removing SSH command configuration
+2026-11-04T18:56:54.6987548Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-04T18:56:54.7020244Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-04T18:56:54.7289420Z Removing HTTP extra header
+2026-11-04T18:56:54.7295405Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-04T18:56:54.7332363Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-04T18:56:54.7567201Z Removing includeIf entries pointing to credentials config files
+2026-11-04T18:56:54.7570258Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-04T18:56:54.7608362Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-04T18:56:54.7993315Z Cleaning up orphan processes
+2026-11-04T18:56:54.8279068Z Terminate orphan process: pid (2439) (dotnet)
+2026-11-04T18:56:54.8306653Z Terminate orphan process: pid (2440) (dotnet)
+2026-11-04T18:56:54.8333804Z Terminate orphan process: pid (2441) (dotnet)
+2026-11-04T18:56:54.8359202Z Terminate orphan process: pid (2555) (VBCSCompiler)
+``````

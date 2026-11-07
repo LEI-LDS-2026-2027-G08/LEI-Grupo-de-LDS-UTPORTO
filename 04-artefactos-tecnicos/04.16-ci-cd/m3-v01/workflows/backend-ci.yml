@@ -1,0 +1,345 @@
+# =============================================================================
+# Projeto        : Gestão de Clínica Veterinária — Grupo G08 — LDS 2026/2027
+# Issue          : I102 — Criar a pipeline de compilação e testes do backend
+# Ficheiro       : .github/workflows/backend-ci.yml
+#                  (nome fixado no Regulamento Interno do Grupo v02, secção 11.6)
+# Versão         : m3-v01 (cópia arquivada em
+#                  /projeto/04-artefactos-tecnicos/04.16-ci-cd/m3-v01)
+# Plataforma     : GitHub Actions, runner ubuntu-latest (Regulamento do Grupo, 11.6)
+# Finalidade     : Em cada push e em cada Pull Request para develop e main:
+#                  restaurar as dependências, compilar a solução com o quality
+#                  gate da I101 (QG-01), executar os testes unitários e os testes
+#                  de integração (QG-02) com uma base de dados SQL Server própria
+#                  de cada execução, publicar os resultados dos testes e a
+#                  cobertura como artefactos e terminar sem sucesso se alguma
+#                  etapa falhar, o que bloqueia o merge através da verificação
+#                  obrigatória «Resultado da pipeline» na proteção dos ramos.
+# Fora do âmbito : Limiar de cobertura (QG-03), formatação (QG-08) e Collection
+#                  Postman — Issue I103. Entrega contínua — Issue I104.
+# Segredos       : Nenhum. A base de dados dos testes de integração e a chave JWT
+#                  da API são criadas pela própria infraestrutura de testes (I091)
+#                  em cada execução e destruídas no fim.
+# =============================================================================
+name: Backend CI
+
+on:
+  # Critério 1 da I102: em cada push (qualquer ramo) e em cada Pull Request.
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+  # Execução manual, para repetir uma verificação ou recolher evidências.
+  workflow_dispatch:
+
+# Privilégio mínimo: a pipeline só lê o repositório.
+permissions:
+  contents: read
+
+# Uma nova execução no mesmo Pull Request ou ramo de trabalho cancela a anterior,
+# que já está desatualizada. Em develop e main nenhuma execução é cancelada, para
+# que fique sempre o resultado de cada integração.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+defaults:
+  run:
+    # Com shell explícito, o GitHub Actions usa "bash -eo pipefail": um comando
+    # que falhe numa sequência com "|" também faz falhar o passo.
+    shell: bash
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  CONFIGURACAO: Release
+  SOLUCAO: src/backend/ClinicaVeterinaria.sln
+  TESTES_UNITARIOS: src/backend/ClinicaVeterinaria.UnitTests/ClinicaVeterinaria.UnitTests.csproj
+  TESTES_INTEGRACAO: src/backend/ClinicaVeterinaria.IntegrationTests/ClinicaVeterinaria.IntegrationTests.csproj
+  RESULTADOS: resultados-ci
+  REPORTGENERATOR_VERSAO: "5.5.11"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Restauro e compilação — QG-01 (zero erros de compilação)
+  #    O Directory.Build.props da I101 (AnalysisMode Recommended,
+  #    TreatWarningsAsErrors e EnforceCodeStyleInBuild) aplica-se a esta
+  #    compilação: um aviso do compilador ou da análise estática faz falhar a etapa.
+  # ---------------------------------------------------------------------------
+  compilacao:
+    name: 1 · Restauro e compilação (QG-01)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Restauro das dependências
+        run: dotnet restore "$SOLUCAO"
+
+      # ContinuousIntegrationBuild só nesta etapa, de propósito: torna a compilação
+      # determinística, mas nos jobs de testes trocaria os caminhos das fontes e o
+      # relatório de cobertura deixaria de as encontrar.
+      - name: Compilação da solução (QG-01 — zero erros, avisos tratados como erros)
+        run: |
+          dotnet build "$SOLUCAO" \
+            --configuration "$CONFIGURACAO" \
+            --no-restore \
+            -p:ContinuousIntegrationBuild=true
+
+      - name: Resumo da compilação
+        run: |
+          {
+            echo "### 1 · Restauro e compilação (QG-01)"
+            echo ""
+            echo "✅ A solução \`$SOLUCAO\` foi restaurada e compilada em \`$CONFIGURACAO\` sem erros nem avisos (quality gate da I101)."
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # 2. Testes unitários — QG-02 (100% dos testes a passar)
+  # ---------------------------------------------------------------------------
+  testes-unitarios:
+    name: 2 · Testes unitários (QG-02)
+    needs: compilacao
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Restauro das dependências
+        run: dotnet restore "$SOLUCAO"
+
+      - name: Compilação do projeto de testes unitários
+        run: dotnet build "$TESTES_UNITARIOS" --configuration "$CONFIGURACAO" --no-restore
+
+      - name: Execução dos testes unitários, com recolha de cobertura (QG-02)
+        run: |
+          dotnet test "$TESTES_UNITARIOS" \
+            --configuration "$CONFIGURACAO" \
+            --no-build \
+            --results-directory "$RESULTADOS/testes-unitarios" \
+            --logger "trx;LogFileName=testes-unitarios.trx" \
+            --logger "console;verbosity=normal" \
+            --collect:"XPlat Code Coverage" \
+            --blame-hang-timeout 5m
+
+      - name: Resumo dos testes unitários
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/resumo-testes.py "$RESULTADOS/testes-unitarios" "2 · Testes unitários (QG-02)"
+
+      - name: Publicar os resultados (TRX e cobertura) como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: resultados-testes-unitarios
+          path: ${{ env.RESULTADOS }}/testes-unitarios
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # 3. Testes de integração — QG-02 (100% dos testes a passar)
+  #    Critério 3 da I102: a infraestrutura da I091 (IntegracaoFixture) cria, no
+  #    próprio runner, um contentor SQL Server 2025 novo pelo Testcontainers,
+  #    aplica as migrações (I062) e os dados de demonstração (I061), e destrói o
+  #    contentor no fim. Nenhuma instância é partilhada entre execuções.
+  #    A IntegracaoFixture destrói o contentor no DisposeAsync de cada classe de
+  #    testes, antes de o dotnet test terminar; por isso a verificação do fim
+  #    da etapa não depende do Ryuk, que só atua quando o processo termina mal.
+  #    Os limites de tempo de cada etapa são de segurança: a duração real
+  #    (critério 1, menos de 15 minutos) fica registada nas evidências.
+  # ---------------------------------------------------------------------------
+  testes-integracao:
+    name: 3 · Testes de integração (QG-02)
+    needs: compilacao
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obter o código do commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar o .NET do backend
+        uses: ./.github/actions/preparar-dotnet
+
+      - name: Confirmar o Docker do runner (contentores efémeros dos testes)
+        run: |
+          docker version --format 'Docker {{.Server.Version}} ({{.Server.Os}}/{{.Server.Arch}})'
+
+      - name: Restauro das dependências
+        run: dotnet restore "$SOLUCAO"
+
+      - name: Compilação do projeto de testes de integração
+        run: dotnet build "$TESTES_INTEGRACAO" --configuration "$CONFIGURACAO" --no-restore
+
+      - name: Execução dos testes de integração, com recolha de cobertura (QG-02)
+        run: |
+          dotnet test "$TESTES_INTEGRACAO" \
+            --configuration "$CONFIGURACAO" \
+            --no-build \
+            --results-directory "$RESULTADOS/testes-integracao" \
+            --logger "trx;LogFileName=testes-integracao.trx" \
+            --logger "console;verbosity=normal" \
+            --collect:"XPlat Code Coverage" \
+            --blame-hang-timeout 10m
+
+      - name: Resumo dos testes de integração
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/resumo-testes.py "$RESULTADOS/testes-integracao" "3 · Testes de integração (QG-02)"
+
+      - name: Confirmar que as bases de dados dos testes foram destruídas
+        if: ${{ !cancelled() }}
+        run: |
+          # O Testcontainers marca os contentores que cria. O contentor auxiliar
+          # que os remove (Ryuk) termina sozinho e não é uma base de dados.
+          SQL_ATIVOS="$(docker ps --all --filter "label=org.testcontainers=true" --format '{{.Image}}' | { grep -c 'mssql' || true; })"
+          echo "Contentores SQL Server do Testcontainers ainda existentes: ${SQL_ATIVOS}"
+          {
+            echo "### Base de dados dos testes de integração (critério 3)"
+            echo ""
+            echo "Contentores SQL Server criados pelo Testcontainers que ainda existem no fim dos testes: **${SQL_ATIVOS}**"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$SQL_ATIVOS" -ne 0 ]; then
+            docker ps --all --filter "label=org.testcontainers=true"
+            echo "::error title=Base de dados::Ficaram contentores SQL Server dos testes por destruir."
+            exit 1
+          fi
+
+      - name: Publicar os resultados (TRX e cobertura) como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: resultados-testes-integracao
+          path: ${{ env.RESULTADOS }}/testes-integracao
+          if-no-files-found: warn
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # 4. Relatório de cobertura — publicado como artefacto (critério 4 da I102).
+  #    O limiar de 70% (QG-03) e as exclusões do Regulamento do Grupo (11.5)
+  #    são aplicados na Issue I103; aqui a cobertura é medida e publicada.
+  # ---------------------------------------------------------------------------
+  cobertura:
+    name: 4 · Relatório de cobertura (artefacto)
+    needs: [testes-unitarios, testes-integracao]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obter o código do commit (fontes para o relatório)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar o SDK do .NET 10
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Obter os resultados dos testes unitários e de integração
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: resultados-testes-*
+          path: ${{ env.RESULTADOS }}/entrada
+
+      - name: Instalar o ReportGenerator
+        run: dotnet tool install dotnet-reportgenerator-globaltool --version "$REPORTGENERATOR_VERSAO" --tool-path .ferramentas
+
+      - name: Gerar o relatório de cobertura (unitários e integração em conjunto)
+        env:
+          TESTES_OK: ${{ needs.testes-unitarios.result == 'success' && needs.testes-integracao.result == 'success' }}
+        run: |
+          shopt -s globstar nullglob
+          FICHEIROS=("$RESULTADOS"/entrada/**/coverage.cobertura.xml)
+          if [ "${#FICHEIROS[@]}" -eq 0 ]; then
+            if [ "$TESTES_OK" = "true" ]; then
+              echo "::error title=Cobertura::Os testes passaram, mas não foi produzido nenhum coverage.cobertura.xml."
+              exit 1
+            fi
+            echo "::notice title=Cobertura::Sem ficheiros de cobertura, porque os testes não terminaram com sucesso."
+            echo "ℹ️ Relatório de cobertura não gerado: os testes não terminaram com sucesso." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "Ficheiros de cobertura: ${#FICHEIROS[@]}"
+          ./.ferramentas/reportgenerator \
+            "-reports:$RESULTADOS/entrada/**/coverage.cobertura.xml" \
+            "-targetdir:$RESULTADOS/cobertura" \
+            "-reporttypes:Html;Cobertura;MarkdownSummaryGithub;TextSummary" \
+            "-assemblyfilters:-*.UnitTests;-*.IntegrationTests" \
+            "-title:Backend — Gestão de Clínica Veterinária (G08)"
+          {
+            echo "### 4 · Relatório de cobertura"
+            echo ""
+            echo "Medida com Coverlet sobre os testes unitários e de integração em conjunto e gerada com ReportGenerator ${REPORTGENERATOR_VERSAO}."
+            echo "O limiar de 70% de cobertura de linhas (QG-03) é aplicado na Issue I103."
+            echo ""
+            cat "$RESULTADOS/cobertura/SummaryGithub.md"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar o relatório de cobertura como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: relatorio-cobertura
+          path: ${{ env.RESULTADOS }}/cobertura
+          if-no-files-found: ignore
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Resultado da pipeline — verificação obrigatória na proteção de main e develop
+  # (critério 5 da I102 e Regulamento do Grupo, 10.4). Termina sem sucesso se
+  # alguma etapa não terminar com sucesso, o que impede o merge.
+  # ---------------------------------------------------------------------------
+  resultado:
+    name: Resultado da pipeline
+    needs: [compilacao, testes-unitarios, testes-integracao, cobertura]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirmar que todas as etapas terminaram com sucesso
+        env:
+          RESULTADOS_ETAPAS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, sys
+          nomes = {
+              "compilacao": "1 · Restauro e compilação (QG-01)",
+              "testes-unitarios": "2 · Testes unitários (QG-02)",
+              "testes-integracao": "3 · Testes de integração (QG-02)",
+              "cobertura": "4 · Relatório de cobertura (artefacto)",
+          }
+          etapas = json.loads(os.environ["RESULTADOS_ETAPAS"])
+          linhas = ["### Resultado da pipeline", "", "| Etapa | Resultado |", "|---|---|"]
+          falhas = []
+          for chave, nome in nomes.items():
+              resultado = etapas.get(chave, {}).get("result", "desconhecido")
+              linhas.append(f"| {nome} | {'✅' if resultado == 'success' else '❌'} {resultado} |")
+              if resultado != "success":
+                  falhas.append(nome)
+          linhas.append("")
+          if falhas:
+              linhas.append("**❌ A pipeline falhou: o merge fica bloqueado até todas as etapas terminarem com sucesso.**")
+          else:
+              linhas.append("**✅ Todas as etapas terminaram com sucesso.**")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as resumo:
+              resumo.write("\n".join(linhas) + "\n")
+          print("\n".join(linhas))
+          if falhas:
+              for nome in falhas:
+                  print(f"::error title=Resultado da pipeline::A etapa «{nome}» não terminou com sucesso.")
+              sys.exit(1)
+          PYTHON

@@ -1,0 +1,238 @@
+using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Seguranca;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ClinicaVeterinaria.Api.Controllers;
+
+/// <summary>
+/// Agenda e consulta de marcações (EP-023, EP-024): Rececionista, Veterinário e Auxiliar
+/// Veterinário. O Veterinário só vê as marcações que lhe estão atribuídas, identificado pelo token.
+/// Criação, alteração e gestão do estado das marcações (EP-025 a EP-027): só Rececionista.
+/// </summary>
+[ApiController]
+[Route("consultas")]
+[Produces("application/json")]
+[Authorize(Roles = PerfisAgenda)]
+public sealed class ConsultasController : ControllerBase
+{
+    public const string PerfisAgenda =
+        Perfis.Rececionista + "," + Perfis.Veterinario + "," + Perfis.AuxiliarVeterinario;
+
+    private readonly IConsultasService _consultasService;
+
+    public ConsultasController(IConsultasService consultasService)
+    {
+        _consultasService = consultasService;
+    }
+
+    /// <summary>EP-023 — Consultar agenda.</summary>
+    /// <remarks>
+    /// Marcações que começam entre <c>dataInicio</c> e <c>dataFim</c> (dias em hora de Lisboa, os dois
+    /// incluídos), por data e hora. Para o perfil Veterinário, <c>veterinarioId</c> é ignorado e
+    /// só são devolvidas as marcações do Veterinário autenticado.
+    /// </remarks>
+    /// <response code="200">Página de marcações.</response>
+    /// <response code="400">Intervalo de datas inválido, estado inválido ou paginação fora dos limites.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    [HttpGet]
+    [ProducesResponseType<PagedResultDto<ConsultaListItemDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<PagedResultDto<ConsultaListItemDto>>> GetConsultas(
+        [FromQuery] ConsultaFiltroQuery filtro)
+    {
+        return Ok(await _consultasService.ObterConsultasAsync(filtro, AcessoConsultas.DoUtilizador(User)));
+    }
+
+    /// <summary>EP-024 — Consultar marcação.</summary>
+    /// <remarks>
+    /// Devolve a marcação e as notas de preparação não clínicas (só leitura), com a versão atual
+    /// da marcação no cabeçalho <c>ETag</c>.
+    /// </remarks>
+    /// <response code="200">Marcação, com o cabeçalho ETag.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão ou marcação não atribuída ao Veterinário autenticado.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    [HttpGet("{id:int}")]
+    [ProducesResponseType<ConsultaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ConsultaDto>> GetConsulta(int id)
+    {
+        var resultado = await _consultasService.ObterConsultaAsync(id, AcessoConsultas.DoUtilizador(User));
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return Ok(resultado.Consulta);
+    }
+
+    /// <summary>EP-025 — Criar marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Cria a marcação no estado <c>Pendente</c>, com a duração configurada (EP-010), se a consulta
+    /// couber inteira num período do horário de funcionamento (hora de Lisboa) e o Veterinário não
+    /// tiver outra marcação não cancelada que se sobreponha. <c>dataHora</c> é em UTC e tem de ser
+    /// estritamente futura. Devolve a marcação no formato de EP-024, com o cabeçalho <c>ETag</c>.
+    /// </remarks>
+    /// <response code="201">Marcação criada, com os cabeçalhos Location e ETag.</response>
+    /// <response code="400">Campos em falta ou inválidos, ou data e hora que não é futura.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Animal inexistente, ou Veterinário inexistente ou não ativo.</response>
+    /// <response code="422">Fora do horário de funcionamento ou Veterinário indisponível nesse horário.</response>
+    [HttpPost]
+    // Soma-se ao [Authorize] do controlador: dos três perfis da agenda, só a Rececionista cria.
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ConsultaDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ConsultaDto>> CriarConsulta(CreateConsultaDto pedido)
+    {
+        var criadaPorId = User.ObterUtilizadorId()
+            ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
+
+        var resultado = await _consultasService.CriarConsultaAsync(pedido, criadaPorId);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return CreatedAtAction(nameof(GetConsulta), new { id = resultado.Consulta.Id }, resultado.Consulta);
+    }
+
+    /// <summary>EP-026 — Alterar marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Altera o Veterinário, a data/hora e o motivo de uma marcação Pendente ou Confirmada.
+    /// O novo horário volta a ser validado quanto ao horário da clínica e disponibilidade
+    /// do Veterinário. O cabeçalho If-Match é opcional.
+    /// </remarks>
+    /// <response code="200">Marcação atualizada, com a nova ETag.</response>
+    /// <response code="400">Dados inválidos ou data/hora não futura.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação ou Veterinário inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Marcação finalizada ou novo horário indisponível.</response>
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ConsultaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ConsultaDto>> AtualizarConsulta(
+        int id,
+        UpdateConsultaDto pedido,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var resultado = await _consultasService.AtualizarConsultaAsync(
+            id,
+            pedido,
+            ifMatch);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return Ok(resultado.Consulta);
+    }
+
+    /// <summary>EP-027 — Atualizar estado da marcação (só Rececionista).</summary>
+    /// <remarks>
+    /// Aplica uma transição válida para Confirmada, Realizada ou Cancelada.
+    /// Pendente nunca pode ser escolhido manualmente.
+    /// O cabeçalho If-Match é opcional.
+    /// </remarks>
+    /// <response code="204">Estado atualizado.</response>
+    /// <response code="400">Estado inexistente ou Pendente.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Transição de estado inválida.</response>
+    [HttpPatch("{id:int}/estado")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> AtualizarEstado(
+        int id,
+        UpdateEstadoConsultaDto pedido,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var etag = await _consultasService.AtualizarEstadoAsync(
+            id,
+            pedido,
+            ifMatch);
+
+        Response.Headers.ETag = etag;
+
+        return NoContent();
+    }
+
+    /// <summary>EP-028 — Registar chegada (só Rececionista).</summary>
+    /// <remarks>Regista a chegada com a hora atual do servidor. O cabeçalho If-Match é opcional.</remarks>
+    /// <response code="200">Chegada registada, com a nova ETag.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="412">If-Match não corresponde à versão atual.</response>
+    /// <response code="422">Marcação não Confirmada ou chegada já registada.</response>
+    [HttpPatch("{id:int}/chegada")]
+    [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
+    [ProducesResponseType<ChegadaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status412PreconditionFailed)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<ChegadaDto>> RegistarChegada(
+        int id,
+        [FromHeader(Name = "If-Match")] string? ifMatch = null)
+    {
+        var resultado = await _consultasService.RegistarChegadaAsync(id, ifMatch);
+
+        Response.Headers.ETag = resultado.ETag;
+
+        return Ok(resultado.Chegada);
+    }
+
+    /// <summary>EP-029 — Registar informação não clínica de apoio (só Auxiliar Veterinário).</summary>
+    /// <remarks>
+    /// Exige PodeRegistarApoio ativo, lido no momento do pedido. Não altera a marcação nem o registo clínico.
+    /// </remarks>
+    /// <response code="201">Nota criada.</response>
+    /// <response code="400">Texto vazio ou com mais de 1000 caracteres.</response>
+    /// <response code="401">Token ausente ou inválido.</response>
+    /// <response code="403">Perfil sem permissão ou Auxiliar sem autorização de registo de apoio.</response>
+    /// <response code="404">Marcação inexistente.</response>
+    /// <response code="422">Marcação Cancelada.</response>
+    [HttpPost("{id:int}/notas-preparacao")]
+    [Authorize(Policy = PoliticasAutorizacao.AuxiliarVeterinario)]
+    [ProducesResponseType<NotaPreparacaoDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<NotaPreparacaoDto>> CriarNotaPreparacao(int id, CreateNotaPreparacaoDto pedido)
+    {
+        var auxiliarId = User.ObterUtilizadorId()
+            ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
+
+        var nota = await _consultasService.CriarNotaPreparacaoAsync(id, pedido, auxiliarId);
+
+        return CreatedAtAction(nameof(GetConsulta), new { id }, nota);
+    }
+}
