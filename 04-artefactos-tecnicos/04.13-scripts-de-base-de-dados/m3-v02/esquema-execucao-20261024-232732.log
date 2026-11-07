@@ -1,0 +1,96 @@
+﻿Execução dos scripts do esquema da base de dados ClinicaVeterinaria
+Data e hora      : 2026-10-24 23:27:32 +01:00
+Computador       : LAPTOP-A30FA39J
+Servidor         : .
+Autenticação     : Windows
+Scripts          : 00-criar-base-de-dados.sql, 01-acesso-e-configuracao.sql, 02-clientes-e-pacientes.sql, 03-agenda.sql, 04-registo-clinico.sql, 05-vacinacao-e-desparasitacao.sql, 06-indices.sql, verificar-esquema.sql
+SQL Server       : Microsoft SQL Server 2025 (RTM) - 17.0.1000.7 (X64) 
+
+=== 00-criar-base-de-dados.sql — início 23:27:32
+Changed database context to 'master'.
+ Base de dados ClinicaVeterinaria já existe — sem alterações.
+=== 00-criar-base-de-dados.sql — fim 23:27:32 — código de saída 0
+
+=== 01-acesso-e-configuracao.sql — início 23:27:32
+Changed database context to 'ClinicaVeterinaria'.
+ Tabela dbo.Utilizador já existe — sem alterações.
+ Tabela dbo.TokenRevogado já existe — sem alterações.
+ Tabela dbo.Funcionario já existe — sem alterações.
+ Tabela dbo.Clinica já existe — sem alterações.
+ Tabela dbo.ConfiguracaoSistema já existe — sem alterações.
+=== 01-acesso-e-configuracao.sql — fim 23:27:32 — código de saída 0
+
+=== 02-clientes-e-pacientes.sql — início 23:27:32
+Changed database context to 'ClinicaVeterinaria'.
+ Tabela dbo.Cliente já existe — sem alterações.
+ Índice UQ_Cliente_NIF já existe — sem alterações.
+ Tabela dbo.Especie já existe — sem alterações.
+ Tabela dbo.Raca já existe — sem alterações.
+ Tabela dbo.Paciente já existe — sem alterações.
+=== 02-clientes-e-pacientes.sql — fim 23:27:32 — código de saída 0
+
+=== 03-agenda.sql — início 23:27:32
+Changed database context to 'ClinicaVeterinaria'.
+ Tabela dbo.HorarioFuncionamento já existe — sem alterações.
+ Tabela dbo.Marcacao já existe — sem alterações.
+ Tabela dbo.InformacaoApoio já existe — sem alterações.
+=== 03-agenda.sql — fim 23:27:32 — código de saída 0
+
+=== 04-registo-clinico.sql — início 23:27:32
+Changed database context to 'ClinicaVeterinaria'.
+ Tabela dbo.RegistoClinico já existe — sem alterações.
+ Tabela dbo.Tratamento já existe — sem alterações.
+ Tabela dbo.Prescricao já existe — sem alterações.
+=== 04-registo-clinico.sql — fim 23:27:33 — código de saída 0
+
+=== 05-vacinacao-e-desparasitacao.sql — início 23:27:33
+Changed database context to 'ClinicaVeterinaria'.
+ Tabela dbo.RegistoProfilaxia já existe — sem alterações.
+=== 05-vacinacao-e-desparasitacao.sql — fim 23:27:33 — código de saída 0
+
+=== 06-indices.sql — início 23:27:33
+Changed database context to 'ClinicaVeterinaria'.
+ Índice IX_TokenRevogado_Utilizador já existe — sem alterações.
+ Índice IX_Paciente_ClienteId já existe — sem alterações.
+ Índice IX_Marcacao_Veterinario_Data já existe — sem alterações.
+ Índice IX_Marcacao_Paciente_Data já existe — sem alterações.
+ Índice IX_Marcacao_Data já existe — sem alterações.
+ Índice IX_Tratamento_Registo já existe — sem alterações.
+ Índice IX_Prescricao_Registo já existe — sem alterações.
+ Índice IX_Profilaxia_Paciente_Data já existe — sem alterações.
+ Índice IX_Paciente_EspecieId_RacaId já existe — sem alterações.
+ Índice IX_Marcacao_CriadaPorId já existe — sem alterações.
+ Índice IX_InformacaoApoio_MarcacaoId já existe — sem alterações.
+ Índice IX_InformacaoApoio_AuxiliarId já existe — sem alterações.
+ Índice IX_RegistoClinico_VeterinarioId já existe — sem alterações.
+ Índice IX_RegistoClinico_AtualizadoPorId já existe — sem alterações.
+ Índice IX_RegistoProfilaxia_VeterinarioId já existe — sem alterações.
+ Índice IX_RegistoProfilaxia_MarcacaoId já existe — sem alterações.
+ Índice IX_Cliente_Nome já existe — sem alterações.
+ Índice IX_Paciente_Nome já existe — sem alterações.
+ Esquema da base de dados ClinicaVeterinaria concluído.
+=== 06-indices.sql — fim 23:27:33 — código de saída 0
+
+=== verificar-esquema.sql — início 23:27:33
+Changed database context to 'ClinicaVeterinaria'.
+Verificação                                                  Verificações OK          Divergências
+------------------------------------------------------------ ------------ ----------- ------------
+1. Tabela                                                              16          16            0
+2. Coluna                                                              99          99            0
+3. Restrição C                                                         13          13            0
+3. Restrição D                                                         13          13            0
+3. Restrição F                                                         20          20            0
+3. Restrição PK                                                        16          16            0
+3. Restrição UQ                                                         6           6            0
+4. Regra da FK                                                         20          20            0
+4. Regra do CHECK                                                      13          13            0
+5. Índice                                                              19          19            0
+6. Filtro do índice                                                     1           1            0
+7. Collation da base de dados                                           1           1            0
+Verificação                                                  Objeto                                                                                                                                                                                                                                                                                                       Esperado                                                                                                                                                                                                                                                                                                     Encontrado                                                                                                                                                                                                                                                                                                   Resultado 
+------------------------------------------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ ----------
+Verificação do esquema ClinicaVeterinaria: 237 verificações, 0 divergência(s).
+Resultado: o esquema corresponde integralmente ao previsto.
+=== verificar-esquema.sql — fim 23:27:33 — código de saída 0
+
+Concluído sem erros. Registo: C:\LDS\LEI-Grupo-de-LDS-UTPORTO\04-artefactos-tecnicos\04.13-scripts-de-base-de-dados\m3-v02\esquema-execucao-20261024-232732.log
