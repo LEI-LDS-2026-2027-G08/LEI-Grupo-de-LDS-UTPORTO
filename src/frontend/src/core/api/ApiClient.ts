@@ -22,10 +22,11 @@ export interface PedidoOpcoes {
 }
 
 function eApiErro(valor: unknown): valor is ApiErro {
+  if (typeof valor !== "object" || valor === null) return false;
+  const { message, detail } = valor as { message?: unknown; detail?: unknown };
   return (
-    typeof valor === "object" &&
-    valor !== null &&
-    typeof (valor as { message?: unknown }).message === "string"
+    typeof message === "string" &&
+    (detail === undefined || detail === null || typeof detail === "string")
   );
 }
 
@@ -161,10 +162,14 @@ export class ApiClient {
       // Corpo vazio ou que não é JSON: usamos a mensagem por omissão.
     }
     if (eApiErro(corpo)) {
+      // API v03 §5: `message` é fixo por código (ex.: «Pedido inválido.») e o
+      // texto específico vem em `detail` (ex.: as mensagens dos campos num 400).
+      // Mostramos o `detail` quando existe; senão o `message`.
+      const detail = corpo.detail?.trim();
       return new ApiRequestError(
         resposta.status,
         categoria,
-        corpo.message,
+        detail ? detail : corpo.message,
         corpo,
       );
     }

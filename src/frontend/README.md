@@ -4,7 +4,7 @@ Aplicação web (React 19 + TypeScript + Vite) usada por Administradores, Receci
 
 ## Pré-requisitos
 
-- [Node.js 24 LTS](https://nodejs.org/) (inclui o `npm`)
+- [Node.js 24 LTS](https://nodejs.org/), que inclui o `npm` 11. O Backlog e o regulamento indicam npm 12: o projeto foi verificado com o npm 11 que vem com o Node 24 e não exige atualizar. (Confirme com `node -v` e `npm -v`.)
 - O backend a correr (por omissão em `http://localhost:5159`) com a origem `http://localhost:5173` incluída em `Cors:AllowedOrigins`
 
 ## Instalação
@@ -34,15 +34,15 @@ Abra <http://localhost:5173>. Sem sessão iniciada, qualquer endereço leva ao e
 
 ## Comandos
 
-| Comando                | O que faz                                            |
-| ---------------------- | ---------------------------------------------------- |
-| `npm run dev`          | Servidor de desenvolvimento com recarga automática   |
-| `npm run build`        | Verifica os tipos (TypeScript strict) e gera `dist/` |
-| `npm run lint`         | ESLint, sem avisos permitidos                        |
-| `npm run format`       | Formata o código com Prettier                        |
-| `npm run format:check` | Verifica a formatação (usado na CI)                  |
-| `npm test`             | Testes unitários e de integração (Vitest)            |
-| `npm run test:e2e`     | Testes ponta-a-ponta (Playwright)                    |
+| Comando                | O que faz                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| `npm run dev`          | Servidor de desenvolvimento com recarga automática                           |
+| `npm run build`        | Verifica os tipos (TypeScript strict) e gera `dist/`                         |
+| `npm run lint`         | ESLint, sem avisos permitidos                                                |
+| `npm run format`       | Formata o código com Prettier                                                |
+| `npm run format:check` | Verifica a formatação (usado na CI)                                          |
+| `npm test`             | Testes unitários e de integração (Vitest)                                    |
+| `npm run test:e2e`     | Testes ponta-a-ponta (Playwright). Na primeira vez: `npx playwright install` |
 
 ## Estrutura
 

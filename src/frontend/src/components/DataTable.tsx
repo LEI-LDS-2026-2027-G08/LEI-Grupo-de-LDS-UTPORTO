@@ -62,8 +62,8 @@ export function DataTable<T>({
     <table className="tabela">
       <thead>
         <tr>
-          {colunas.map((coluna) => (
-            <th key={coluna.cabecalho} scope="col">
+          {colunas.map((coluna, indice) => (
+            <th key={indice} scope="col">
               {coluna.cabecalho}
             </th>
           ))}
@@ -72,8 +72,8 @@ export function DataTable<T>({
       <tbody>
         {linhas.map((linha) => (
           <tr key={chaveLinha(linha)}>
-            {colunas.map((coluna) => (
-              <td key={coluna.cabecalho}>{coluna.celula(linha)}</td>
+            {colunas.map((coluna, indice) => (
+              <td key={indice}>{coluna.celula(linha)}</td>
             ))}
           </tr>
         ))}

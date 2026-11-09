@@ -80,11 +80,13 @@ describe("ApiClient", () => {
     "traduz o estado %i em ApiRequestError '%s'",
     async (status, categoria) => {
       const cliente = criar(
-        vi
-          .fn()
-          .mockResolvedValue(
-            resposta(status, { code: 1, message: "Mensagem do backend" }),
-          ),
+        vi.fn().mockResolvedValue(
+          resposta(status, {
+            code: status,
+            message: "Mensagem fixa.",
+            detail: "Explicação específica.",
+          }),
+        ),
       );
 
       const erro = await cliente.get("/x").catch((e: unknown) => e);
@@ -95,27 +97,63 @@ describe("ApiClient", () => {
     },
   );
 
-  it("usa a mensagem do backend nos erros de cliente", async () => {
+  it("mostra o detail da API (o message é fixo por código)", async () => {
     const cliente = criar(
-      vi
-        .fn()
-        .mockResolvedValue(
-          resposta(409, { code: 9, message: "Email já registado." }),
-        ),
+      vi.fn().mockResolvedValue(
+        resposta(409, {
+          code: 409,
+          message: "Conflito ao processar o pedido.",
+          detail: "O e-mail já está registado.",
+        }),
+      ),
     );
     const erro = (await cliente
       .post("/x", {})
       .catch((e: unknown) => e)) as ApiRequestError;
-    expect(erro.message).toBe("Email já registado.");
-    expect(erro.erro?.code).toBe(9);
+    expect(erro.message).toBe("O e-mail já está registado.");
+    expect(erro.erro?.code).toBe(409);
+  });
+
+  it("num 400 mostra as mensagens de todos os campos juntas (detail)", async () => {
+    const cliente = criar(
+      vi.fn().mockResolvedValue(
+        resposta(400, {
+          code: 400,
+          message: "Pedido inválido.",
+          detail: "O e-mail é obrigatório. O peso deve ser superior a 0.",
+        }),
+      ),
+    );
+    const erro = (await cliente
+      .post("/x", {})
+      .catch((e: unknown) => e)) as ApiRequestError;
+    expect(erro.categoria).toBe("validacao");
+    expect(erro.message).toBe(
+      "O e-mail é obrigatório. O peso deve ser superior a 0.",
+    );
+  });
+
+  it("sem detail (ou vazio) usa o message da API", async () => {
+    for (const corpo of [
+      { code: 404, message: "Recurso não encontrado." },
+      { code: 404, message: "Recurso não encontrado.", detail: "  " },
+      { code: 404, message: "Recurso não encontrado.", detail: null },
+    ]) {
+      const cliente = criar(vi.fn().mockResolvedValue(resposta(404, corpo)));
+      const erro = (await cliente
+        .get("/x")
+        .catch((e: unknown) => e)) as ApiRequestError;
+      expect(erro.message).toBe("Recurso não encontrado.");
+    }
   });
 
   it("esconde os detalhes técnicos dos erros 500", async () => {
     const cliente = criar(
       vi.fn().mockResolvedValue(
         resposta(500, {
-          code: 1,
-          message: "NullReferenceException em Foo.cs:42",
+          code: 500,
+          message: "Ocorreu um erro interno no servidor.",
+          detail: "NullReferenceException em Foo.cs:42",
         }),
       ),
     );
@@ -151,11 +189,13 @@ describe("ApiClient", () => {
 
   it("não trata como sessão expirada um 401 num pedido público (login)", async () => {
     const cliente = criar(
-      vi
-        .fn()
-        .mockResolvedValue(
-          resposta(401, { code: 1, message: "Credenciais inválidas." }),
-        ),
+      vi.fn().mockResolvedValue(
+        resposta(401, {
+          code: 401,
+          message: "Autenticação necessária.",
+          detail: "Credenciais inválidas.",
+        }),
+      ),
     );
     const aoNaoAutorizado = vi.fn();
     cliente.definirAoNaoAutorizado(aoNaoAutorizado);
