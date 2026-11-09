@@ -2,7 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { expect, test } from "vitest";
 import App from "./App";
 
-test("renderiza a aplicação", () => {
+test("sem sessão a aplicação abre no ecrã de login", () => {
+  window.history.pushState({}, "", "/");
   render(<App />);
-  expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "Iniciar sessão" }),
+  ).toBeInTheDocument();
 });
