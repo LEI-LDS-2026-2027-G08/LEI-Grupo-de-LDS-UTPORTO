@@ -1,0 +1,195 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiClient } from "../core/api";
+import { AuthProvider } from "../core/auth/AuthContext";
+import { TokenStorage } from "../core/auth/TokenStorage";
+import type { Perfil } from "../models/auth";
+import { resposta, servicoFalso, sessaoDe } from "../test/auxiliares";
+import { AppRoutes } from "./AppRoutes";
+
+function montar(
+  caminho: string,
+  servico = servicoFalso(),
+  cliente?: ApiClient,
+) {
+  const clienteHttp = cliente ?? new ApiClient("http://api.teste", vi.fn());
+  render(
+    <MemoryRouter initialEntries={[caminho]}>
+      <AuthProvider servico={servico} cliente={clienteHttp}>
+        <AppRoutes />
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+  return { servico, cliente: clienteHttp };
+}
+
+async function iniciarSessao(
+  perfil: Perfil,
+  servico: ReturnType<typeof servicoFalso>,
+) {
+  servico.login.mockResolvedValue(sessaoDe(perfil));
+  const utilizador = userEvent.setup();
+  await utilizador.type(screen.getByLabelText("Email"), "maria@clinica.pt");
+  await utilizador.type(screen.getByLabelText("Palavra-passe"), "segredo");
+  await utilizador.click(screen.getByRole("button", { name: "Entrar" }));
+  return utilizador;
+}
+
+describe("rotas protegidas", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it("sem sessão, qualquer rota protegida leva ao login", () => {
+    montar("/clientes");
+    expect(
+      screen.getByRole("heading", { name: "Iniciar sessão" }),
+    ).toBeInTheDocument();
+  });
+
+  it("após o login mostra a página inicial e o menu do perfil", async () => {
+    const { servico } = montar("/login");
+    await iniciarSessao("Rececionista", servico);
+
+    expect(
+      await screen.findByRole("heading", { name: "Agenda" }),
+    ).toBeInTheDocument();
+    const menu = screen.getByRole("navigation", { name: "Menu principal" });
+    expect(menu).toHaveTextContent("Pacientes");
+    expect(menu).toHaveTextContent("Clientes");
+    expect(menu).not.toHaveTextContent("Funcionários");
+    expect(screen.getByText(/Maria Teste/)).toBeInTheDocument();
+  });
+
+  it("volta à página pedida depois de iniciar sessão", async () => {
+    const { servico } = montar("/clientes");
+    await iniciarSessao("Administrador", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Clientes" }),
+    ).toBeInTheDocument();
+  });
+
+  it("perfil sem permissão numa rota vai para 'Acesso negado'", async () => {
+    const { servico } = montar("/funcionarios");
+    await iniciarSessao("Rececionista", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Acesso negado" }),
+    ).toBeInTheDocument();
+  });
+
+  it("mostra o erro do backend quando as credenciais são inválidas", async () => {
+    const servico = servicoFalso();
+    const cliente = new ApiClient(
+      "http://api.teste",
+      vi
+        .fn()
+        .mockResolvedValue(
+          resposta(401, { code: 1, message: "Credenciais inválidas." }),
+        ),
+    );
+    servico.login.mockImplementation(() =>
+      cliente.post("/auth/login", {}, { publico: true }),
+    );
+    montar("/login", servico, cliente);
+
+    const utilizador = userEvent.setup();
+    await utilizador.type(screen.getByLabelText("Email"), "a@b.pt");
+    await utilizador.type(screen.getByLabelText("Palavra-passe"), "errada");
+    await utilizador.click(screen.getByRole("button", { name: "Entrar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Credenciais inválidas.",
+    );
+    expect(
+      screen.getByRole("heading", { name: "Iniciar sessão" }),
+    ).toBeInTheDocument();
+  });
+
+  it("recusa Clientes e termina a sessão que o backend abriu", async () => {
+    const servico = servicoFalso();
+    montar("/login", servico);
+    await iniciarSessao("Cliente", servico);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /aplicação móvel/,
+    );
+    expect(servico.logout).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("terminar sessão volta ao login e limpa o armazenamento", async () => {
+    const servico = servicoFalso();
+    montar("/login", servico);
+    const utilizador = await iniciarSessao("Veterinario", servico);
+    await screen.findByRole("heading", { name: "Agenda" });
+
+    await utilizador.click(
+      screen.getByRole("button", { name: "Terminar sessão" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Iniciar sessão" }),
+    ).toBeInTheDocument();
+    expect(servico.logout).toHaveBeenCalled();
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("um 401 em qualquer pedido leva de volta ao login", async () => {
+    const servico = servicoFalso();
+    const cliente = new ApiClient(
+      "http://api.teste",
+      vi
+        .fn()
+        .mockResolvedValue(
+          resposta(401, { code: 1, message: "Token expirado." }),
+        ),
+    );
+    montar("/login", servico, cliente);
+    await iniciarSessao("Rececionista", servico);
+    await screen.findByRole("heading", { name: "Agenda" });
+
+    await cliente.get("/qualquer-coisa").catch(() => undefined);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iniciar sessão" }),
+    ).toBeInTheDocument();
+  });
+
+  it("restaura uma sessão guardada depois de a confirmar com o backend", async () => {
+    const sessao = sessaoDe("AuxiliarVeterinario");
+    TokenStorage.guardar(sessao);
+    const servico = servicoFalso();
+    servico.me.mockResolvedValue(sessao.utilizador);
+
+    montar("/preparacao", servico);
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "A verificar a sessão",
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Preparação de consultas" }),
+    ).toBeInTheDocument();
+    expect(servico.me).toHaveBeenCalled();
+  });
+
+  it("descarta a sessão guardada se o backend a recusar", async () => {
+    TokenStorage.guardar(sessaoDe("Rececionista"));
+    const servico = servicoFalso();
+    servico.me.mockRejectedValue(new Error("401"));
+
+    montar("/agenda", servico);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iniciar sessão" }),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(sessionStorage.length).toBe(0));
+  });
+
+  it("rotas desconhecidas mostram 'Página não encontrada' a quem tem sessão", async () => {
+    const { servico } = montar("/nao-existe");
+    await iniciarSessao("Rececionista", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Página não encontrada" }),
+    ).toBeInTheDocument();
+  });
+});

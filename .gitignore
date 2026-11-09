@@ -14,3 +14,6 @@ Thumbs.db
 # Test outputs
 **/TestResults/
 **/coverage/
+
+# IDEs (ficheiros pessoais do JetBrains: Rider, WebStorm, Android Studio)
+.idea/
