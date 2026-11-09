@@ -200,3 +200,12 @@ button:disabled {
       "conteudo";
   }
 }
+
+.aviso {
+  background: #fffaeb;
+  color: #93370d;
+  border: 1px solid #f0c36d;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}

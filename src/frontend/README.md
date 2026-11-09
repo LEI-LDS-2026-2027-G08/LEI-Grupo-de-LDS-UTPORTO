@@ -51,13 +51,13 @@ src/
   core/
     config.ts            URL da API (VITE_API_URL)
     api/                 ApiClient (HTTP) e ApiRequestError (erro único)
-    auth/                AuthContext/AuthProvider, useAuth, ProtectedRoute, TokenStorage
+    auth/                AuthProvider, useAuth, ProtectedRoute, TokenStorage, permissoes (ações por perfil)
   layout/                AppLayout (cabeçalho + menu) e navegacao.ts (menu por perfil)
   routes/                AppRoutes (tabela de rotas) e rotas.ts (rota -> perfis)
   pages/                 Uma pasta por área (auth, funcionarios, clientes, ...)
   services/              Um Service por área; só eles falam com o ApiClient
   models/                Tipos que espelham os DTOs da API
-  components/            FormField, FormErro, DataTable
+  components/            FormField, FormErro, DataTable, SoPara
 ```
 
 Regra de ouro: **as páginas nunca chamam `fetch`**. Uma página usa um Service, e o Service usa o `apiClient`.
@@ -66,9 +66,34 @@ Regra de ouro: **as páginas nunca chamam `fetch`**. Uma página usa um Service,
 
 - `POST /auth/login` devolve o token; fica em `sessionStorage` (desaparece ao fechar o separador) e é enviado em todos os pedidos como `Authorization: Bearer ...`. Não há refresh token e o token nunca é escrito na consola.
 - Ao recarregar a página, a sessão guardada é confirmada com `GET /auth/me` antes de se mostrar a aplicação.
-- Se o backend responder **401** a qualquer pedido, a sessão é limpa e o utilizador volta ao login.
-- Se o backend aceitar o login de um **Cliente**, a sessão é terminada de imediato e é mostrada uma mensagem a indicar a aplicação móvel.
-- Um perfil sem permissão numa rota é enviado para `/acesso-negado`.
+- **Credenciais inválidas** (401) e **conta bloqueada** (403) mostram mensagens fixas que não revelam qual campo está errado: "Email ou palavra-passe incorretos." e "Esta conta está bloqueada. Contacte o administrador da clínica.".
+- **Terminar sessão** chama `POST /auth/logout`, limpa a sessão local e deixa de enviar o token (a sessão terminada não se reutiliza, nem com o botão Voltar do browser).
+- **Sessão expirada ou revogada:** se o backend responder **401** a um pedido que levava token, a sessão é limpa e o utilizador volta ao login com o aviso "A sua sessão terminou. Inicie sessão novamente.".
+- **Perfis:** se o backend aceitar o login de um **Cliente**, a sessão é terminada de imediato e é mostrada uma mensagem a indicar a aplicação móvel (RNF003).
+- **Rotas e menus** respeitam o perfil, também quando se escreve o endereço à mão: um perfil sem permissão é enviado para `/acesso-negado`.
+- **Falhas de ligação:** cada pedido tem um tempo limite de 30 s; se o servidor não responder, aparece uma mensagem e o ecrã não fica preso.
+
+## Permissões por ação (RF005)
+
+Além das rotas e do menu, a interface esconde botões e campos que o perfil não pode usar. As ações e os perfis que as podem executar estão em `src/core/auth/permissoes.ts` (matriz de acesso do Modelo de Classes, §12). Quem implementa um ecrã usa-as assim:
+
+```tsx
+import { SoPara } from "../../components/SoPara";
+import { useAuth } from "../../core/auth/useAuth";
+
+// Esconde o botão a quem não pode
+<SoPara acao="gerirMarcacoes">
+  <button onClick={novaMarcacao}>Nova marcação</button>
+</SoPara>;
+
+// Ou, em lógica:
+const { pode } = useAuth();
+if (pode("registarClinico")) {
+  /* campos editáveis */
+}
+```
+
+Isto só melhora a interface: a API continua a ser quem autoriza e rejeita o que o perfil não pode fazer.
 
 ## Erros da API
 
@@ -138,4 +163,4 @@ export function ClientesPage() {
 
 ## Testes
 
-`npm test` corre o Vitest com React Testing Library. Os testes não precisam do backend: simulam as respostas HTTP. Há testes do `ApiClient` (tradução de erros, token, 401), do `TokenStorage`, do menu por perfil e das rotas protegidas.
+`npm test` corre o Vitest com React Testing Library. Os testes não precisam do backend: simulam as respostas HTTP. Há testes do `ApiClient` (tradução de erros, token, 401, tempo limite), do `AuthService` (mensagens do login), do `TokenStorage`, das permissões por perfil, do menu e das rotas protegidas (login, sessão expirada, fim de sessão, acesso por endereço direto).

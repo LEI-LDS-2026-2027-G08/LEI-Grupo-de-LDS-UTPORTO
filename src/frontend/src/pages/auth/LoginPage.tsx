@@ -7,7 +7,7 @@ import { rotaInicial } from "../../layout/navegacao";
 
 /** W01 — Início de sessão. */
 export function LoginPage() {
-  const { utilizador, aRestaurar, login } = useAuth();
+  const { utilizador, aRestaurar, sessaoTerminada, login } = useAuth();
   const localizacao = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +43,11 @@ export function LoginPage() {
     <main className="login">
       <form onSubmit={submeter} className="login-cartao">
         <h1>Iniciar sessão</h1>
+        {sessaoTerminada && erro === null ? (
+          <p role="status" className="aviso">
+            A sua sessão terminou. Inicie sessão novamente.
+          </p>
+        ) : null}
         <FormErro erro={erro} />
         <FormField
           rotulo="Email"
