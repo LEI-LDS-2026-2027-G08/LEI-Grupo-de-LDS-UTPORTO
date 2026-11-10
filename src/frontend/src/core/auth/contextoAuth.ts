@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import type { Acao } from "./permissoes";
 import type {
   CredenciaisLogin,
   PerfilWeb,
@@ -17,6 +18,10 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   /** O utilizador atual tem um destes perfis? */
   temPerfil: (perfis: readonly PerfilWeb[]) => boolean;
+  /** O utilizador atual pode executar esta ação? (RF005; ver permissoes.ts) */
+  pode: (acao: Acao) => boolean;
+  /** true se a sessão acabou porque o token expirou ou foi revogado (401). */
+  sessaoTerminada: boolean;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

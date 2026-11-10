@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiClient } from "../core/api";
+import { ApiClient, ApiRequestError } from "../core/api";
+import { SoPara } from "../components/SoPara";
 import { AuthProvider } from "../core/auth/AuthContext";
 import { TokenStorage } from "../core/auth/TokenStorage";
 import type { Perfil } from "../models/auth";
@@ -148,11 +149,84 @@ describe("rotas protegidas", () => {
     await iniciarSessao("Rececionista", servico);
     await screen.findByRole("heading", { name: "Agenda" });
 
-    await cliente.get("/qualquer-coisa").catch(() => undefined);
+    await act(async () => {
+      await cliente.get("/qualquer-coisa").catch(() => undefined);
+    });
 
     expect(
       await screen.findByRole("heading", { name: "Iniciar sessão" }),
     ).toBeInTheDocument();
+    // O utilizador percebe porque voltou ao login (critério 4 da I108).
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "A sua sessão terminou",
+    );
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it("depois de terminar sessão, o token já não é enviado nos pedidos", async () => {
+    const servico = servicoFalso();
+    const fetchFalso = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(resposta(200, {})));
+    const cliente = new ApiClient("http://api.teste", fetchFalso);
+    montar("/login", servico, cliente);
+    const utilizador = await iniciarSessao("Rececionista", servico);
+    await screen.findByRole("heading", { name: "Agenda" });
+    await cliente.get("/antes");
+    expect(fetchFalso.mock.calls[0][1].headers.Authorization).toBe(
+      "Bearer token-secreto-de-teste",
+    );
+
+    await utilizador.click(
+      screen.getByRole("button", { name: "Terminar sessão" }),
+    );
+    await screen.findByRole("heading", { name: "Iniciar sessão" });
+    await cliente.get("/depois");
+
+    expect(fetchFalso.mock.calls[1][1].headers.Authorization).toBeUndefined();
+    // Sem aviso: sair por vontade própria não é "sessão terminada" por expiração.
+    expect(screen.queryByText(/A sua sessão terminou/)).not.toBeInTheDocument();
+  });
+
+  it("falha de ligação no login mostra a mensagem e não bloqueia o ecrã", async () => {
+    const servico = servicoFalso();
+    servico.login.mockRejectedValue(new ApiRequestError(0, "rede"));
+    montar("/login", servico);
+
+    const utilizador = userEvent.setup();
+    await utilizador.type(screen.getByLabelText("Email"), "a@b.pt");
+    await utilizador.type(screen.getByLabelText("Palavra-passe"), "x");
+    await utilizador.click(screen.getByRole("button", { name: "Entrar" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Não foi possível contactar o servidor",
+    );
+    expect(screen.getByRole("button", { name: "Entrar" })).toBeEnabled();
+  });
+
+  it("SoPara mostra o conteúdo só a quem pode executar a ação", async () => {
+    TokenStorage.guardar(sessaoDe("Veterinario"));
+    const servico = servicoFalso();
+    servico.me.mockResolvedValue(sessaoDe("Veterinario").utilizador);
+    render(
+      <MemoryRouter>
+        <AuthProvider
+          servico={servico}
+          cliente={new ApiClient("http://api.teste", vi.fn())}
+        >
+          <SoPara acao="registarVacinacao">
+            <p>Botão de vacinação</p>
+          </SoPara>
+          <SoPara acao="gerirMarcacoes" alternativa={<p>Sem permissão</p>}>
+            <p>Botão de marcações</p>
+          </SoPara>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("Botão de vacinação")).toBeInTheDocument();
+    expect(screen.queryByText("Botão de marcações")).not.toBeInTheDocument();
+    expect(screen.getByText("Sem permissão")).toBeInTheDocument();
   });
 
   it("restaura uma sessão guardada depois de a confirmar com o backend", async () => {

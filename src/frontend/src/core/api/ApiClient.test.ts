@@ -181,6 +181,7 @@ describe("ApiClient", () => {
     );
     const aoNaoAutorizado = vi.fn();
     cliente.definirAoNaoAutorizado(aoNaoAutorizado);
+    cliente.setToken("abc");
 
     await cliente.get("/x").catch(() => undefined);
 
@@ -226,5 +227,43 @@ describe("ApiClient", () => {
       .catch((e: unknown) => e)) as ApiRequestError;
     expect(erro.categoria).toBe("configuracao");
     expect(fetchFalso).not.toHaveBeenCalled();
+  });
+
+  it("não avisa de sessão terminada se nunca houve sessão (sem token)", async () => {
+    const cliente = criar(
+      vi.fn().mockResolvedValue(resposta(401, { code: 1, message: "x" })),
+    );
+    const aoNaoAutorizado = vi.fn();
+    cliente.definirAoNaoAutorizado(aoNaoAutorizado);
+
+    await cliente.get("/x").catch(() => undefined);
+
+    expect(aoNaoAutorizado).not.toHaveBeenCalled();
+  });
+
+  it("falha com mensagem própria se o servidor não responder a tempo", async () => {
+    const cliente = criar(
+      vi.fn().mockRejectedValue(new DOMException("tempo", "TimeoutError")),
+    );
+    const erro = (await cliente
+      .get("/x")
+      .catch((e: unknown) => e)) as ApiRequestError;
+    expect(erro.categoria).toBe("rede");
+    expect(erro.message).toMatch(/demorou demasiado/);
+  });
+
+  it("envia um sinal de tempo limite em cada pedido", async () => {
+    const fetchFalso = vi.fn().mockResolvedValue(resposta(200, {}));
+    await criar(fetchFalso).get("/x");
+    expect(fetchFalso.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("deixa de enviar o token depois de setToken(null)", async () => {
+    const fetchFalso = vi.fn().mockResolvedValue(resposta(200, {}));
+    const cliente = criar(fetchFalso);
+    cliente.setToken("abc");
+    cliente.setToken(null);
+    await cliente.get("/x");
+    expect(fetchFalso.mock.calls[0][1].headers.Authorization).toBeUndefined();
   });
 });

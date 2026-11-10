@@ -39,15 +39,24 @@ function eApiErro(valor: unknown): valor is ApiErro {
  *   (o AuthContext, que volta ao login).
  * - Converte qualquer falha num `ApiRequestError` com categoria e mensagem.
  */
+/** Um pedido sem resposta durante este tempo falha (não deixa o ecrã preso). */
+export const TEMPO_LIMITE_PEDIDO_MS = 30_000;
+
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly fetchFn: typeof fetch;
+  private readonly timeoutMs: number;
   private token: string | null = null;
   private aoNaoAutorizado: (() => void) | null = null;
 
-  constructor(baseUrl: string, fetchFn?: typeof fetch) {
+  constructor(
+    baseUrl: string,
+    fetchFn?: typeof fetch,
+    timeoutMs: number = TEMPO_LIMITE_PEDIDO_MS,
+  ) {
     this.baseUrl = baseUrl;
     this.fetchFn = fetchFn ?? ((input, init) => fetch(input, init));
+    this.timeoutMs = timeoutMs;
   }
 
   setToken(token: string | null): void {
@@ -111,15 +120,27 @@ export class ApiClient {
     }
     Object.assign(cabecalhos, opcoes.headers);
 
+    const limite = AbortSignal.timeout(this.timeoutMs);
+    const sinal = opcoes.signal
+      ? AbortSignal.any([limite, opcoes.signal])
+      : limite;
+
     let resposta: Response;
     try {
       resposta = await this.fetchFn(this.construirUrl(caminho, opcoes.query), {
         method: metodo,
         headers: cabecalhos,
         body: corpo === undefined ? undefined : JSON.stringify(corpo),
-        signal: opcoes.signal,
+        signal: sinal,
       });
     } catch (e) {
+      if (e instanceof DOMException && e.name === "TimeoutError") {
+        throw new ApiRequestError(
+          0,
+          "rede",
+          "O servidor demorou demasiado a responder. Tente novamente.",
+        );
+      }
       // Pedido cancelado de propósito: deixamos passar tal como veio.
       if (e instanceof DOMException && e.name === "AbortError") throw e;
       throw new ApiRequestError(0, "rede");
@@ -129,7 +150,9 @@ export class ApiClient {
       return (await this.lerCorpoSucesso(resposta)) as T;
     }
 
-    if (resposta.status === 401 && !opcoes.publico) {
+    // 401 num pedido que levava token = a sessão expirou ou foi revogada.
+    // (Sem token não havia sessão para terminar.)
+    if (resposta.status === 401 && !opcoes.publico && this.token) {
       this.aoNaoAutorizado?.();
     }
     throw await this.construirErro(resposta);

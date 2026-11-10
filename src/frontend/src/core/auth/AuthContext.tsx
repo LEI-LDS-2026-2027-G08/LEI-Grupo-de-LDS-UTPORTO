@@ -15,6 +15,7 @@ import {
 } from "../../models/auth";
 import { authService, type AuthService } from "../../services/AuthService";
 import { AuthContext, type AuthContextValue } from "./contextoAuth";
+import { perfilPodeExecutar, type Acao } from "./permissoes";
 import { TokenStorage } from "./TokenStorage";
 
 interface AuthProviderProps {
@@ -30,8 +31,8 @@ interface AuthProviderProps {
  * - Ao arrancar, lê a sessão guardada e confirma-a com `GET /auth/me`.
  * - Só aceita perfis web: um Cliente que faça login válido é terminado
  *   logo (EP-002) e recebe um erro (RNF003).
- * - Se o backend responder 401 a qualquer pedido, a sessão é limpa e o
- *   ProtectedRoute leva o utilizador ao login.
+ * - Se o backend responder 401 a qualquer pedido com token, a sessão é limpa,
+ *   `sessaoTerminada` fica true e o ProtectedRoute leva o utilizador ao login.
  */
 export function AuthProvider({
   children,
@@ -41,6 +42,7 @@ export function AuthProvider({
   const [sessaoInicial] = useState(() => TokenStorage.obter());
   const [sessao, setSessao] = useState<SessaoAutenticada | null>(sessaoInicial);
   const [aRestaurar, setARestaurar] = useState(sessaoInicial !== null);
+  const [sessaoTerminada, setSessaoTerminada] = useState(false);
 
   const terminarSessaoLocal = useCallback(() => {
     cliente.setToken(null);
@@ -48,9 +50,13 @@ export function AuthProvider({
     setSessao(null);
   }, [cliente]);
 
-  // 401 vindo de qualquer pedido -> sessão acabou.
+  // 401 vindo de qualquer pedido com token -> a sessão expirou ou foi revogada.
+  // Limpamos tudo e deixamos um aviso para o ecrã de login mostrar.
   useEffect(() => {
-    cliente.definirAoNaoAutorizado(terminarSessaoLocal);
+    cliente.definirAoNaoAutorizado(() => {
+      terminarSessaoLocal();
+      setSessaoTerminada(true);
+    });
     return () => cliente.definirAoNaoAutorizado(null);
   }, [cliente, terminarSessaoLocal]);
 
@@ -108,6 +114,7 @@ export function AuthProvider({
 
       cliente.setToken(nova.token);
       TokenStorage.guardar(nova);
+      setSessaoTerminada(false);
       setSessao(nova);
       return nova.utilizador;
     },
@@ -135,8 +142,11 @@ export function AuthProvider({
       temPerfil: (perfis: readonly PerfilWeb[]) =>
         utilizador !== null &&
         (perfis as readonly string[]).includes(utilizador.perfil),
+      pode: (acao: Acao) =>
+        utilizador !== null && perfilPodeExecutar(utilizador.perfil, acao),
+      sessaoTerminada,
     };
-  }, [sessao, aRestaurar, login, logout]);
+  }, [sessao, aRestaurar, sessaoTerminada, login, logout]);
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
