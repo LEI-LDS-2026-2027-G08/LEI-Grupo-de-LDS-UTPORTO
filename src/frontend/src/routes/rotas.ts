@@ -1,5 +1,7 @@
 import { ClienteFormPage } from "../pages/clientes/ClienteFormPage";
 import { ClientesPage } from "../pages/clientes/ClientesPage";
+import { PacienteDetalhePage } from "../pages/pacientes/PacienteDetalhePage";
+import { PacientesPage } from "../pages/pacientes/PacientesPage";
 import type { ComponentType } from "react";
 import type { PerfilWeb } from "../models/auth";
 import { FuncionarioFormPage } from "../pages/funcionarios/FuncionarioFormPage";
@@ -78,12 +80,21 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Pacientes",
     caminho: "/pacientes",
     perfis: [REC, VET],
+    pagina: PacientesPage,
+  },
+  {
+    ecra: "W08",
+    titulo: "Novo paciente",
+    caminho: "/pacientes/novo",
+    perfis: [REC, VET],
+    pagina: PacienteDetalhePage,
   },
   {
     ecra: "W08",
     titulo: "Ficha de paciente",
     caminho: "/pacientes/:id",
     perfis: [REC, VET, AUX],
+    pagina: PacienteDetalhePage,
   },
   { ecra: "W09", titulo: "Agenda", caminho: "/agenda", perfis: [REC, VET] },
   {

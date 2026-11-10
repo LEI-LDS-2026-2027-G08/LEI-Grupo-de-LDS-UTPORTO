@@ -318,3 +318,44 @@ describe("I111 — acesso às páginas de Clientes", () => {
     },
   );
 });
+
+describe("I112 — acesso às páginas de pacientes", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["AuxiliarVeterinario", "/pacientes"],
+    ["AuxiliarVeterinario", "/pacientes/novo"],
+    ["Administrador", "/pacientes/3"],
+  ] as const)(
+    "%s não acede a %s por endereço direto",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("o Auxiliar abre a ficha do paciente, mas não vê Pacientes no menu", async () => {
+    const { servico } = montar("/pacientes/3");
+    await iniciarSessao("AuxiliarVeterinario", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Ficha do paciente" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Menu principal" }),
+    ).not.toHaveTextContent("Pacientes");
+  });
+
+  it.each(["Rececionista", "Veterinario"] as const)(
+    "%s abre o formulário de novo paciente",
+    async (perfil) => {
+      const { servico } = montar("/pacientes/novo");
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Novo paciente" }),
+      ).toBeInTheDocument();
+    },
+  );
+});
