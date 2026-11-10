@@ -17,4 +17,16 @@ data class SessaoAutenticada(
     val utilizador: UtilizadorResumoDto,
 ) {
     fun expirada(agora: Instant = Instant.now()): Boolean = !agora.isBefore(expiraEm)
+
+    /** Nunca expõe o token (por exemplo, em registos). */
+    override fun toString(): String =
+        "SessaoAutenticada(token=***, expiraEm=$expiraEm, utilizador=$utilizador)"
+
+    companion object {
+        fun deLogin(resposta: LoginResponseDto): SessaoAutenticada = SessaoAutenticada(
+            token = resposta.token,
+            expiraEm = resposta.expiraEm,
+            utilizador = resposta.utilizador,
+        )
+    }
 }
