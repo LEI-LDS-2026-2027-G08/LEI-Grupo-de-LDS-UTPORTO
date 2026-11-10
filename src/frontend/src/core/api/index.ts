@@ -1,7 +1,12 @@
 import { lerApiUrl } from "../config";
 import { ApiClient } from "./ApiClient";
 
-export { ApiClient, type PedidoOpcoes } from "./ApiClient";
+export {
+  ApiClient,
+  type Metodo,
+  type PedidoOpcoes,
+  type RespostaComCabecalhos,
+} from "./ApiClient";
 export {
   ApiRequestError,
   mensagemDeErro,

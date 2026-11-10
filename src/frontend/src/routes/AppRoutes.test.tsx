@@ -387,3 +387,39 @@ describe("I112 — acesso às páginas de pacientes", () => {
     },
   );
 });
+
+describe("I113 — acesso às páginas de marcações", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["Veterinario", "/agenda/nova"],
+    ["Veterinario", "/agenda/41/editar"],
+    ["AuxiliarVeterinario", "/agenda/41"],
+    ["Administrador", "/agenda/nova"],
+  ] as const)(
+    "%s não acede a %s por endereço direto",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("a Rececionista abre o formulário de nova marcação", async () => {
+    const { servico } = montar("/agenda/nova");
+    await iniciarSessao("Rececionista", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Nova marcação" }),
+    ).toBeInTheDocument();
+  });
+
+  it("o Veterinário abre o detalhe de uma marcação", async () => {
+    const { servico } = montar("/agenda/41");
+    await iniciarSessao("Veterinario", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Detalhe da marcação" }),
+    ).toBeInTheDocument();
+  });
+});

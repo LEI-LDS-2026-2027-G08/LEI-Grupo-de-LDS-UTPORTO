@@ -393,6 +393,19 @@ describe("W08 — ficha do paciente por perfil", () => {
     );
   });
 
+  it("I113: a Rececionista tem «Nova marcação» na ficha; o Veterinário não", async () => {
+    montar("/pacientes/3");
+    expect(
+      await screen.findByRole("link", { name: "Nova marcação" }),
+    ).toHaveAttribute("href", "/agenda/nova");
+  });
+
+  it("I113: o Veterinário não tem «Nova marcação» na ficha", async () => {
+    montar("/pacientes/3", { perfil: "Veterinario" });
+    await screen.findByLabelText("Nome do animal");
+    expect(screen.queryByRole("link", { name: "Nova marcação" })).toBeNull();
+  });
+
   it("Auxiliar consulta a ficha só em leitura, sem ações de edição", async () => {
     const { servico } = montar("/pacientes/3", {
       perfil: "AuxiliarVeterinario",
