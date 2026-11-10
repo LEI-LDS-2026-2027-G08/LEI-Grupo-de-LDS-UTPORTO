@@ -348,3 +348,67 @@ button.ligacao.perigo-texto {
 .detalhe-conta {
   color: #475467;
 }
+
+/* W06 — Clínica e horários */
+.formulario-largo {
+  max-width: 720px;
+}
+
+.grupo {
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+.grupo legend {
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+
+.horario-dia {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.horario-dia:last-child {
+  border-bottom: 0;
+}
+
+.horario-dia-nome {
+  flex: 0 0 6rem;
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+}
+
+.horario-periodos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.horario-periodo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.horario-periodo input[type="time"] {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.horario-encerrado {
+  margin: 0.35rem 0 0;
+  color: #475467;
+}
+
+.form-erro ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
