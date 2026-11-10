@@ -62,6 +62,25 @@ describe("ApiClient", () => {
     );
   });
 
+  it("pedirComCabecalhos devolve os dados e os cabeçalhos (ETag)", async () => {
+    const fetchFalso = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ id: 41 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ETag: '"v7"' },
+      }),
+    );
+    const cliente = criar(fetchFalso);
+
+    const resultado = await cliente.pedirComCabecalhos<{ id: number }>(
+      "GET",
+      "/consultas/41",
+    );
+
+    expect(resultado.dados).toEqual({ id: 41 });
+    expect(resultado.cabecalhos.get("ETag")).toBe('"v7"');
+    expect(fetchFalso.mock.calls[0][1].method).toBe("GET");
+  });
+
   it("devolve undefined em respostas 204", async () => {
     const cliente = criar(vi.fn().mockResolvedValue(resposta(204)));
     await expect(cliente.post("/auth/logout")).resolves.toBeUndefined();

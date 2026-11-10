@@ -5,7 +5,7 @@ import {
   type CategoriaErro,
 } from "./ApiRequestError";
 
-type Metodo = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+export type Metodo = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type ValorQuery = string | number | boolean | null | undefined;
 
 export interface PedidoOpcoes {
@@ -19,6 +19,15 @@ export interface PedidoOpcoes {
    */
   publico?: boolean;
   signal?: AbortSignal;
+}
+
+/**
+ * Resposta com os cabeçalhos, para quem precisa de ler, por exemplo, o
+ * `ETag` das marcações (Modelo de Classes Web, §9.2).
+ */
+export interface RespostaComCabecalhos<T> {
+  dados: T;
+  cabecalhos: Headers;
 }
 
 function eApiErro(valor: unknown): valor is ApiErro {
@@ -68,15 +77,15 @@ export class ApiClient {
   }
 
   get<T>(caminho: string, opcoes?: PedidoOpcoes): Promise<T> {
-    return this.pedir<T>("GET", caminho, undefined, opcoes);
+    return this.pedirDados<T>("GET", caminho, undefined, opcoes);
   }
 
   post<T>(caminho: string, corpo?: unknown, opcoes?: PedidoOpcoes): Promise<T> {
-    return this.pedir<T>("POST", caminho, corpo, opcoes);
+    return this.pedirDados<T>("POST", caminho, corpo, opcoes);
   }
 
   put<T>(caminho: string, corpo?: unknown, opcoes?: PedidoOpcoes): Promise<T> {
-    return this.pedir<T>("PUT", caminho, corpo, opcoes);
+    return this.pedirDados<T>("PUT", caminho, corpo, opcoes);
   }
 
   patch<T>(
@@ -84,11 +93,30 @@ export class ApiClient {
     corpo?: unknown,
     opcoes?: PedidoOpcoes,
   ): Promise<T> {
-    return this.pedir<T>("PATCH", caminho, corpo, opcoes);
+    return this.pedirDados<T>("PATCH", caminho, corpo, opcoes);
   }
 
   delete<T>(caminho: string, opcoes?: PedidoOpcoes): Promise<T> {
-    return this.pedir<T>("DELETE", caminho, undefined, opcoes);
+    return this.pedirDados<T>("DELETE", caminho, undefined, opcoes);
+  }
+
+  /** Como os métodos acima, mas devolve também os cabeçalhos da resposta. */
+  pedirComCabecalhos<T>(
+    metodo: Metodo,
+    caminho: string,
+    corpo?: unknown,
+    opcoes?: PedidoOpcoes,
+  ): Promise<RespostaComCabecalhos<T>> {
+    return this.pedir<T>(metodo, caminho, corpo, opcoes);
+  }
+
+  private async pedirDados<T>(
+    metodo: Metodo,
+    caminho: string,
+    corpo?: unknown,
+    opcoes?: PedidoOpcoes,
+  ): Promise<T> {
+    return (await this.pedir<T>(metodo, caminho, corpo, opcoes)).dados;
   }
 
   private construirUrl(caminho: string, query?: PedidoOpcoes["query"]): string {
@@ -108,7 +136,7 @@ export class ApiClient {
     caminho: string,
     corpo?: unknown,
     opcoes: PedidoOpcoes = {},
-  ): Promise<T> {
+  ): Promise<RespostaComCabecalhos<T>> {
     if (!this.baseUrl) {
       throw new ApiRequestError(0, "configuracao");
     }
@@ -147,7 +175,10 @@ export class ApiClient {
     }
 
     if (resposta.ok) {
-      return (await this.lerCorpoSucesso(resposta)) as T;
+      return {
+        dados: (await this.lerCorpoSucesso(resposta)) as T,
+        cabecalhos: resposta.headers,
+      };
     }
 
     // 401 num pedido que levava token = a sessão expirou ou foi revogada.

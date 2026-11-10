@@ -280,6 +280,20 @@ function FichaPaciente({
             : ""}{" "}
           <SoPara acao="gerirClientes">
             <Link to={`/clientes/${paciente.cliente.id}`}>Ver cliente</Link>
+          </SoPara>{" "}
+          <SoPara acao="gerirMarcacoes">
+            <Link
+              to="/agenda/nova"
+              state={{
+                paciente: {
+                  id: paciente.id,
+                  nome: paciente.nome,
+                  cliente: paciente.cliente.nome,
+                },
+              }}
+            >
+              Nova marcação
+            </Link>
           </SoPara>
         </p>
       ) : null}
