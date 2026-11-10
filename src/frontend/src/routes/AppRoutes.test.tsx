@@ -285,3 +285,36 @@ describe("rotas protegidas", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("I111 — acesso às páginas de Clientes", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["Veterinario", "/clientes"],
+    ["Veterinario", "/clientes/5"],
+    ["AuxiliarVeterinario", "/clientes/novo"],
+  ] as const)(
+    "%s não acede a %s por endereço direto nem vê Clientes no menu",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("navigation", { name: "Menu principal" }),
+      ).not.toHaveTextContent("Clientes");
+    },
+  );
+
+  it.each(["Administrador", "Rececionista"] as const)(
+    "%s abre o formulário de novo cliente",
+    async (perfil) => {
+      const { servico } = montar("/clientes/novo");
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Novo cliente" }),
+      ).toBeInTheDocument();
+    },
+  );
+});

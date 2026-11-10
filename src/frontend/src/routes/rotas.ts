@@ -1,3 +1,5 @@
+import { ClienteFormPage } from "../pages/clientes/ClienteFormPage";
+import { ClientesPage } from "../pages/clientes/ClientesPage";
 import type { ComponentType } from "react";
 import type { PerfilWeb } from "../models/auth";
 import { FuncionarioFormPage } from "../pages/funcionarios/FuncionarioFormPage";
@@ -49,12 +51,21 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Clientes",
     caminho: "/clientes",
     perfis: [ADMIN, REC],
+    pagina: ClientesPage,
+  },
+  {
+    ecra: "W05",
+    titulo: "Novo cliente",
+    caminho: "/clientes/novo",
+    perfis: [ADMIN, REC],
+    pagina: ClienteFormPage,
   },
   {
     ecra: "W05",
     titulo: "Ficha de cliente",
     caminho: "/clientes/:id",
     perfis: [ADMIN, REC],
+    pagina: ClienteFormPage,
   },
   {
     ecra: "W06",
