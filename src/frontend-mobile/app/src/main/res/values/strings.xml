@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Gestão de Clínica Veterinária</string>
+
+    <string name="nav_animais">Animais</string>
+    <string name="nav_consultas">Consultas</string>
+    <string name="nav_terminar_sessao">Terminar sessão</string>
+
+    <string name="estado_tentar_novamente">Tentar novamente</string>
+
+    <string name="ecra_m02">M02 — Os meus animais</string>
+    <string name="ecra_m03">M03 — Detalhe do animal</string>
+    <string name="ecra_m04">M04 — Consultas</string>
+    <string name="ecra_m06">M06 — Boletim de vacinação</string>
+    <string name="por_implementar">Ecrã a implementar na %1$s.</string>
+
+    <string name="login_por_implementar">Início de sessão: a implementar na I121.</string>
+    <string name="login_abrir_tecnico">Abrir ecrã técnico</string>
+    <string name="aviso_sessao_terminada">A sua sessão terminou. Inicie sessão novamente.</string>
+    <string name="aviso_sessao_terminada_utilizador">Terminou a sessão.</string>
+
+    <string name="tecnico_titulo">Ecrã técnico</string>
+    <string name="tecnico_nota">Diagnóstico da base da aplicação, apenas em desenvolvimento. Não faz parte do produto final.</string>
+    <string name="tecnico_url_api">URL da API: %1$s</string>
+    <string name="tecnico_sessao_guardada">Sessão guardada (cifrada): %1$s</string>
+    <string name="tecnico_sessao_detalhe">Perfil: %1$s. Expira em %2$s.</string>
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
+    <string name="tecnico_guardar_teste">Guardar sessão de teste</string>
+    <string name="tecnico_testar_ligacao">Testar ligação à API (GET /auth/me)</string>
+    <string name="tecnico_limpar">Limpar dados de sessão</string>
+    <string name="tecnico_abrir_principal">Abrir área autenticada</string>
+    <string name="tecnico_ligacao_ok">Ligação à API estabelecida.</string>
 </resources>

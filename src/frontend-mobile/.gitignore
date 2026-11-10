@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ficheiros do Android Studio (cada developer tem os seus)
+/.idea
