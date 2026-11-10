@@ -1,5 +1,7 @@
 import type { ComponentType } from "react";
 import type { PerfilWeb } from "../models/auth";
+import { FuncionarioFormPage } from "../pages/funcionarios/FuncionarioFormPage";
+import { FuncionariosPage } from "../pages/funcionarios/FuncionariosPage";
 
 export interface RotaApp {
   /** Código do ecrã no Modelo de Classes (W02, W04, ...). */
@@ -26,12 +28,21 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Funcionários",
     caminho: "/funcionarios",
     perfis: [ADMIN],
+    pagina: FuncionariosPage,
+  },
+  {
+    ecra: "W03",
+    titulo: "Novo funcionário",
+    caminho: "/funcionarios/novo",
+    perfis: [ADMIN],
+    pagina: FuncionarioFormPage,
   },
   {
     ecra: "W03",
     titulo: "Ficha de funcionário",
     caminho: "/funcionarios/:id",
     perfis: [ADMIN],
+    pagina: FuncionarioFormPage,
   },
   {
     ecra: "W04",

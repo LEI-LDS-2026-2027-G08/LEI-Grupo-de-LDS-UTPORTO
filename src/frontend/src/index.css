@@ -209,3 +209,142 @@ button:disabled {
   padding: 0.6rem 0.8rem;
   margin-bottom: 1rem;
 }
+
+/* Páginas de gestão (W02, W03) */
+.titulo-pagina {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.titulo-pagina h1 {
+  margin: 0;
+}
+
+a.botao {
+  display: inline-block;
+  background: var(--cor-primaria);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+}
+
+a.botao:hover {
+  background: var(--cor-primaria-escura);
+}
+
+button.secundario,
+a.botao.secundario {
+  background: transparent;
+  color: var(--cor-primaria);
+  border: 1px solid var(--cor-primaria);
+}
+
+button.secundario:hover:not(:disabled),
+a.botao.secundario:hover {
+  background: #e6f4f2;
+}
+
+button.perigo {
+  background: var(--cor-erro);
+}
+
+button.perigo:hover:not(:disabled) {
+  background: #912018;
+}
+
+button.ligacao {
+  background: none;
+  color: var(--cor-primaria);
+  padding: 0;
+  text-decoration: underline;
+}
+
+button.ligacao:hover:not(:disabled) {
+  background: none;
+}
+
+button.ligacao.perigo-texto {
+  color: var(--cor-erro);
+}
+
+.campo select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.campo-caixa {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filtros .campo {
+  margin-bottom: 0;
+}
+
+.formulario {
+  max-width: 480px;
+  background: var(--cor-cartao);
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.acoes,
+.acoes-linha,
+.paginacao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.paginacao {
+  margin-top: 1rem;
+}
+
+.acoes-linha a,
+.acoes-linha button {
+  white-space: nowrap;
+}
+
+.confirmacao {
+  max-width: 480px;
+  background: var(--cor-erro-fundo);
+  border: 1px solid var(--cor-erro);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.confirmacao p {
+  margin-top: 0;
+}
+
+.sucesso {
+  background: #ecfdf3;
+  color: #05603a;
+  border: 1px solid #6ce9a6;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.detalhe-conta {
+  color: #475467;
+}

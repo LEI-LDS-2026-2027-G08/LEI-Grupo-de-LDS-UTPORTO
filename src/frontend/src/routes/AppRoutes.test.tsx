@@ -70,6 +70,24 @@ describe("rotas protegidas", () => {
     ).toBeInTheDocument();
   });
 
+  it.each([
+    ["Rececionista", "/funcionarios/novo"],
+    ["Veterinario", "/funcionarios"],
+    ["AuxiliarVeterinario", "/funcionarios/5"],
+  ] as const)(
+    "I109: %s não acede a %s por endereço direto nem vê Funcionários no menu",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("navigation", { name: "Menu principal" }),
+      ).not.toHaveTextContent("Funcionários");
+    },
+  );
+
   it("perfil sem permissão numa rota vai para 'Acesso negado'", async () => {
     const { servico } = montar("/funcionarios");
     await iniciarSessao("Rececionista", servico);
