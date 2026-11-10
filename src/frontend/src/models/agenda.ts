@@ -65,16 +65,18 @@ export interface ClienteMarcacao {
   nome: string;
 }
 
-/** Nota não clínica dos Auxiliares (só leitura nesta tarefa). */
+/** Nota não clínica de apoio registada por um Auxiliar (EP-024 e EP-029). */
 export interface NotaPreparacao {
   id: number;
+  /** Só vem na resposta de EP-029. */
+  consultaId?: number | null;
   texto: string;
   autor: string;
   criadaEm: string;
 }
 
-/** Marcação (EP-024, e resposta de EP-025 e EP-026). */
-export interface MarcacaoDetalhe {
+/** Marcação na agenda (EP-023). */
+export interface MarcacaoResumo {
   id: number;
   /** Início da consulta em UTC (ISO 8601). */
   dataHora: string;
@@ -84,8 +86,31 @@ export interface MarcacaoDetalhe {
   animal: AnimalMarcacao;
   cliente: ClienteMarcacao;
   veterinario: VeterinarioResumo;
+  /** Hora de chegada (UTC) registada na receção (EP-028), ou null. */
   chegadaEm: string | null;
+}
+
+/** Marcação (EP-024, e resposta de EP-025 e EP-026). */
+export interface MarcacaoDetalhe extends MarcacaoResumo {
   notasPreparacao: NotaPreparacao[];
+}
+
+/** Parâmetros de EP-023: dias de Lisboa (aaaa-mm-dd), ambos incluídos. */
+export interface AgendaFiltros {
+  dataInicio?: string;
+  dataFim?: string;
+  /** Ignorado pela API quando o perfil é Veterinário. */
+  veterinarioId?: number;
+  animalId?: number;
+  estado?: EstadoConsulta;
+  pagina: number;
+  tamanho: number;
+}
+
+/** Resposta de EP-028. */
+export interface ChegadaConsulta {
+  id: number;
+  chegadaEm: string;
 }
 
 /** Corpo de EP-025 (POST /consultas). */

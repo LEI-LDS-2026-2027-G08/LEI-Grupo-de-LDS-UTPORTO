@@ -141,4 +141,64 @@ describe("AgendaService", () => {
     await servico.alterarEstado(99, { estado: "Confirmada", observacao: null });
     expect(pedido(0).ifMatch).toBeUndefined();
   });
+
+  it("listarConsultas: EP-023 com o dia, o Veterinário e o estado", async () => {
+    const { servico, pedido } = preparar(
+      respostaComVersao(200, { itens: [], pagina: 1, tamanho: 100, total: 0 }),
+    );
+    await servico.listarConsultas({
+      dataInicio: "2026-11-20",
+      dataFim: "2026-11-20",
+      veterinarioId: 5,
+      estado: "Confirmada",
+      pagina: 1,
+      tamanho: 100,
+    });
+    expect(pedido(0).url).toBe(
+      "http://api.teste/consultas?dataInicio=2026-11-20&dataFim=2026-11-20&veterinarioId=5&estado=Confirmada&pagina=1&tamanho=100",
+    );
+  });
+
+  it("registarChegada: EP-028 com If-Match e guarda o novo ETag", async () => {
+    const { servico, pedido } = preparar(
+      respostaComVersao(200, marcacao, '"v1"'),
+      respostaComVersao(
+        200,
+        { id: 41, chegadaEm: "2026-11-20T09:52:00Z" },
+        '"v2"',
+      ),
+      respostaComVersao(204, undefined, '"v3"'),
+    );
+    await servico.obterConsulta(41);
+    const chegada = await servico.registarChegada(41);
+    await servico.alterarEstado(41, { estado: "Realizada", observacao: null });
+
+    expect(chegada.chegadaEm).toBe("2026-11-20T09:52:00Z");
+    expect(pedido(1)).toEqual({
+      url: "http://api.teste/consultas/41/chegada",
+      metodo: "PATCH",
+      ifMatch: '"v1"',
+      corpo: undefined,
+    });
+    expect(pedido(2).ifMatch).toBe('"v2"');
+  });
+
+  it("registarNotaPreparacao: EP-029 com o texto aparado", async () => {
+    const { servico, pedido } = preparar(
+      respostaComVersao(201, {
+        id: 2,
+        consultaId: 41,
+        texto: "Sala 2 preparada.",
+        autor: "Carla",
+        criadaEm: "2026-11-20T09:25:00Z",
+      }),
+    );
+    await servico.registarNotaPreparacao(41, "  Sala 2 preparada.  ");
+    expect(pedido(0)).toEqual({
+      url: "http://api.teste/consultas/41/notas-preparacao",
+      metodo: "POST",
+      ifMatch: undefined,
+      corpo: { texto: "Sala 2 preparada." },
+    });
+  });
 });
