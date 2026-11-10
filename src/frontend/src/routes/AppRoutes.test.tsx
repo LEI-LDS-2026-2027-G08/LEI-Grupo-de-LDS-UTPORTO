@@ -88,6 +88,34 @@ describe("rotas protegidas", () => {
     },
   );
 
+  it.each(["Rececionista", "Veterinario", "AuxiliarVeterinario"] as const)(
+    "I110: %s não acede a /clinica por endereço direto nem vê Clínica e horários no menu",
+    async (perfil) => {
+      const { servico } = montar("/clinica");
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("navigation", { name: "Menu principal" }),
+      ).not.toHaveTextContent("Clínica e horários");
+      expect(
+        screen.queryByLabelText("Nome da clínica"),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it("I110: o Administrador vê o ecrã Clínica e horários e a entrada no menu", async () => {
+    const { servico } = montar("/clinica");
+    await iniciarSessao("Administrador", servico);
+    expect(
+      await screen.findByRole("heading", { name: "Clínica e horários" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Menu principal" }),
+    ).toHaveTextContent("Clínica e horários");
+  });
+
   it("perfil sem permissão numa rota vai para 'Acesso negado'", async () => {
     const { servico } = montar("/funcionarios");
     await iniciarSessao("Rececionista", servico);

@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { PerfilWeb } from "../models/auth";
+import { ClinicaConfiguracaoPage } from "../pages/clinica/ClinicaConfiguracaoPage";
 import { FuncionarioFormPage } from "../pages/funcionarios/FuncionarioFormPage";
 import { FuncionariosPage } from "../pages/funcionarios/FuncionariosPage";
 
@@ -61,6 +62,7 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Clínica e horários",
     caminho: "/clinica",
     perfis: [ADMIN],
+    pagina: ClinicaConfiguracaoPage,
   },
   {
     ecra: "W07",
