@@ -7,6 +7,7 @@ import pt.ipp.estg.g08.clinica.core.storage.CifraKeystore
 import pt.ipp.estg.g08.clinica.core.storage.SharedPreferencesArmazenamento
 import pt.ipp.estg.g08.clinica.core.storage.TokenStorage
 import pt.ipp.estg.g08.clinica.core.storage.TokenStorageCifrado
+import pt.ipp.estg.g08.clinica.sessao.AuthService
 import pt.ipp.estg.g08.clinica.sessao.MotivoFimSessao
 import pt.ipp.estg.g08.clinica.sessao.SessaoLocal
 
@@ -28,6 +29,8 @@ class AppContainer(contexto: Context) {
         )
 
     val sessaoLocal: SessaoLocal = SessaoLocal(tokenStorage, apiClient)
+
+    val authService: AuthService = AuthService(apiClient)
 
     init {
         // Resposta 401 a um pedido autenticado: a sessão terminou no servidor ou expirou.

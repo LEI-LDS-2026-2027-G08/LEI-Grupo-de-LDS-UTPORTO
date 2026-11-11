@@ -13,7 +13,10 @@
     <string name="ecra_m06">M06 — Boletim de vacinação</string>
     <string name="por_implementar">Ecrã a implementar na %1$s.</string>
 
-    <string name="login_por_implementar">Início de sessão: a implementar na I121.</string>
+    <string name="login_titulo">Iniciar sessão</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Palavra-passe</string>
+    <string name="login_entrar">Entrar</string>
     <string name="login_abrir_tecnico">Abrir ecrã técnico</string>
     <string name="aviso_sessao_terminada">A sua sessão terminou. Inicie sessão novamente.</string>
     <string name="aviso_sessao_terminada_utilizador">Terminou a sessão.</string>
@@ -28,6 +31,5 @@
     <string name="tecnico_guardar_teste">Guardar sessão de teste</string>
     <string name="tecnico_testar_ligacao">Testar ligação à API (GET /auth/me)</string>
     <string name="tecnico_limpar">Limpar dados de sessão</string>
-    <string name="tecnico_abrir_principal">Abrir área autenticada</string>
     <string name="tecnico_ligacao_ok">Ligação à API estabelecida.</string>
 </resources>

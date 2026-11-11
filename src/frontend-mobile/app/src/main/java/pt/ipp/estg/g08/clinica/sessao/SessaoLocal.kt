@@ -10,7 +10,8 @@ import pt.ipp.estg.g08.clinica.core.storage.TokenStorage
  * Fim da sessão no dispositivo: remove o token do `ApiClient` e do armazenamento e emite um
  * evento em [sessaoTerminada] (por exemplo, para a navegação regressar ao início de sessão).
  *
- * Não chama a API: o pedido `POST /auth/logout` (revogação no servidor) é da I121.
+ * Não chama a API: a revogação no servidor (`POST /auth/logout`) é feita pelo
+ * `SessaoViewModel` antes de terminar a sessão local.
  * Cada evento é entregue uma única vez; se ainda não houver quem o observe, fica em espera.
  */
 class SessaoLocal(private val tokenStorage: TokenStorage, private val apiClient: ApiClient) {

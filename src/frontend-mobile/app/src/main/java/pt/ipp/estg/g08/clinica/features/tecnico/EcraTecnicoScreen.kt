@@ -25,13 +25,12 @@ import pt.ipp.estg.g08.clinica.AppContainer
 import pt.ipp.estg.g08.clinica.R
 import pt.ipp.estg.g08.clinica.shared.components.EstadoVista
 
-/** Ecrã técnico (só em desenvolvimento): diagnóstico da configuração da API e da sessão. */
+/**
+ * Ecrã técnico (só em debug, a partir do início de sessão): diagnóstico da configuração da API
+ * e da sessão guardada. Não dá acesso à área autenticada, que exige uma sessão de Cliente.
+ */
 @Composable
-fun EcraTecnicoScreen(
-    container: AppContainer,
-    onAbrirPrincipal: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun EcraTecnicoScreen(container: AppContainer, modifier: Modifier = Modifier) {
     val viewModel: EcraTecnicoViewModel =
         viewModel(
             factory =
@@ -106,12 +105,6 @@ fun EcraTecnicoScreen(
             modifier = Modifier.testTag("tecnico-limpar"),
         ) {
             Text(text = stringResource(R.string.tecnico_limpar))
-        }
-        OutlinedButton(
-            onClick = onAbrirPrincipal,
-            modifier = Modifier.testTag("tecnico-abrir-principal"),
-        ) {
-            Text(text = stringResource(R.string.tecnico_abrir_principal))
         }
     }
 }

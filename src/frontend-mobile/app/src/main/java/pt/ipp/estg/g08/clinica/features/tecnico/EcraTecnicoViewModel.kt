@@ -34,7 +34,7 @@ data class EcraTecnicoEstado(
 /**
  * Ecrã de diagnóstico da base (apenas em desenvolvimento): mostra a URL da API configurada e se
  * há sessão guardada, e permite exercitar o armazenamento cifrado, o tratamento de `401` e de
- * falhas de rede. Não faz login: o início de sessão é da I121.
+ * falhas de rede. Não faz login: o início de sessão é feito no ecrã M01.
  */
 class EcraTecnicoViewModel(
     config: AppConfig,
