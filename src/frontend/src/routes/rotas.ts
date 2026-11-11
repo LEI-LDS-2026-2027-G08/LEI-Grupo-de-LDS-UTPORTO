@@ -1,7 +1,9 @@
 import { ClienteFormPage } from "../pages/clientes/ClienteFormPage";
 import { ClientesPage } from "../pages/clientes/ClientesPage";
+import { AgendaPage } from "../pages/agenda/AgendaPage";
 import { MarcacaoDetalhePage } from "../pages/agenda/MarcacaoDetalhePage";
 import { MarcacaoFormPage } from "../pages/agenda/MarcacaoFormPage";
+import { PreparacaoConsultaPage } from "../pages/agenda/PreparacaoConsultaPage";
 import { PacienteDetalhePage } from "../pages/pacientes/PacienteDetalhePage";
 import { PacientesPage } from "../pages/pacientes/PacientesPage";
 import type { ComponentType } from "react";
@@ -100,7 +102,13 @@ export const ROTAS: readonly RotaApp[] = [
     perfis: [REC, VET, AUX],
     pagina: PacienteDetalhePage,
   },
-  { ecra: "W09", titulo: "Agenda", caminho: "/agenda", perfis: [REC, VET] },
+  {
+    ecra: "W09",
+    titulo: "Agenda",
+    caminho: "/agenda",
+    perfis: [REC, VET],
+    pagina: AgendaPage,
+  },
   {
     ecra: "W10",
     titulo: "Nova marcação",
@@ -127,6 +135,7 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Preparação de consultas",
     caminho: "/preparacao",
     perfis: [AUX],
+    pagina: PreparacaoConsultaPage,
   },
   {
     ecra: "W13",

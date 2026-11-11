@@ -423,3 +423,23 @@ describe("I113 — acesso às páginas de marcações", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("I114 — acesso à agenda e à preparação de consultas", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["AuxiliarVeterinario", "/agenda"],
+    ["Administrador", "/agenda"],
+    ["Rececionista", "/preparacao"],
+    ["Veterinario", "/preparacao"],
+  ] as const)(
+    "%s não acede a %s por endereço direto",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+    },
+  );
+});

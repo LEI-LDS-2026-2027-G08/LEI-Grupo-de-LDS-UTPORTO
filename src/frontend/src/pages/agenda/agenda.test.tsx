@@ -48,10 +48,16 @@ function servicoFalso(estado: EstadoConsulta = "Pendente"): {
       { id: 6, nome: "Dr. Paulo" },
     ]),
     obterDisponibilidade: vi.fn().mockResolvedValue(disponibilidade),
+    listarConsultas: vi.fn(),
     obterConsulta: vi.fn().mockResolvedValue(marcacaoEm(estado)),
     criar: vi.fn().mockResolvedValue(marcacaoEm("Pendente")),
     atualizar: vi.fn().mockResolvedValue(marcacaoEm(estado)),
     alterarEstado: vi.fn().mockResolvedValue(undefined),
+    registarChegada: vi.fn().mockResolvedValue({
+      id: 41,
+      chegadaEm: "2026-11-20T09:52:00Z",
+    }),
+    registarNotaPreparacao: vi.fn(),
   };
 }
 
@@ -403,6 +409,52 @@ describe("W11 — detalhe e estado da marcação", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Este registo foi alterado entretanto",
     );
+  });
+
+  it("I114: regista a chegada de uma marcação Confirmada sem mudar o estado", async () => {
+    const servico = servicoFalso("Confirmada");
+    montar("/agenda/41", { servico });
+    await userEvent
+      .setup()
+      .click(await screen.findByRole("button", { name: "Registar chegada" }));
+    expect(servico.registarChegada).toHaveBeenCalledWith(41);
+    expect(servico.alterarEstado).not.toHaveBeenCalled();
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Chegada registada às 09:52. O estado da marcação não muda.",
+    );
+    const dados = screen.getByLabelText("Dados da marcação");
+    expect(dados).toHaveTextContent("Confirmada");
+    expect(dados).toHaveTextContent("20/11/2026, 09:52");
+    expect(
+      screen.queryByRole("button", { name: "Registar chegada" }),
+    ).toBeNull();
+  });
+
+  it("I114: uma marcação Pendente não tem «Registar chegada»", async () => {
+    montar("/agenda/41");
+    await screen.findByRole("button", { name: "Confirmar marcação" });
+    expect(
+      screen.queryByRole("button", { name: "Registar chegada" }),
+    ).toBeNull();
+  });
+
+  it("I114: um 422 ao registar a chegada mostra o erro e recarrega a marcação", async () => {
+    const servico = servicoFalso("Confirmada");
+    servico.registarChegada.mockRejectedValue(
+      new ApiRequestError(
+        422,
+        "regraNegocio",
+        "A chegada desta marcação já foi registada.",
+      ),
+    );
+    montar("/agenda/41", { servico });
+    await userEvent
+      .setup()
+      .click(await screen.findByRole("button", { name: "Registar chegada" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "A chegada desta marcação já foi registada.",
+    );
+    expect(servico.obterConsulta).toHaveBeenCalledTimes(2);
   });
 
   it("o Veterinário vê a marcação sem ações e com a ligação para a ficha", async () => {

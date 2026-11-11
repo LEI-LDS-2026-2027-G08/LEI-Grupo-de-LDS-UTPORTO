@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { FormErro } from "../../components/FormErro";
 import { SoPara } from "../../components/SoPara";
 import { ApiRequestError } from "../../core/api";
-import { formatarDataHoraLisboa } from "../../core/horaLisboa";
+import { formatarDataHoraLisboa, utcParaLisboa } from "../../core/horaLisboa";
 import {
   TRANSICOES_ESTADO,
   marcacaoAlteravel,
@@ -28,9 +28,9 @@ const ROTULO_TRANSICAO: Record<EstadoMarcacaoAtualizavel, string> = {
 };
 
 /**
- * W11 — Detalhe da marcação (EP-024 e EP-027). Rececionista e Veterinário.
- * Só a Rececionista vê as ações: editar e mudar o estado, apenas pelas
- * transições permitidas, sempre com confirmação.
+ * W11 — Detalhe da marcação (EP-024, EP-027 e EP-028). Rececionista e
+ * Veterinário. Só a Rececionista vê as ações: editar, registar a chegada e
+ * mudar o estado, apenas pelas transições permitidas, com confirmação.
  *
  * A chave obriga a montar a página de novo quando o :id muda.
  */
@@ -102,28 +102,56 @@ function DetalheMarcacao({
       setAviso(`Estado alterado para ${transicao}.`);
       setTransicao(null);
     } catch (e) {
-      setErro(e);
-      // A marcação mudou entretanto (412) ou a transição já não é válida
-      // (422): mostra-se o estado atual e o utilizador decide (§9.2).
-      if (
-        e instanceof ApiRequestError &&
-        (e.categoria === "versaoDesatualizada" ||
-          e.categoria === "regraNegocio")
-      ) {
-        try {
-          setMarcacao(await servico.obterConsulta(id));
-          setTransicao(null);
-          if (e.categoria === "versaoDesatualizada") {
-            setAvisoConflito(
-              "A marcação foi alterada por outra pessoa. Os dados abaixo já estão atualizados: confirme se a operação ainda faz sentido e repita-a.",
-            );
-          }
-        } catch {
-          // O erro original já está à vista.
-        }
-      }
+      await tratarRecusa(e);
     } finally {
       setAGuardar(false);
+    }
+  }
+
+  /** EP-028 — a chegada não muda o estado da marcação (critério 1 da I114). */
+  async function registarChegada() {
+    setAGuardar(true);
+    setErro(null);
+    setAviso(null);
+    setAvisoConflito(null);
+    setTransicao(null);
+    try {
+      const chegada = await servico.registarChegada(id);
+      setMarcacao((atual) =>
+        atual ? { ...atual, chegadaEm: chegada.chegadaEm } : atual,
+      );
+      setAviso(
+        `Chegada registada às ${utcParaLisboa(chegada.chegadaEm).hora}. O estado da marcação não muda.`,
+      );
+    } catch (e) {
+      await tratarRecusa(e);
+    } finally {
+      setAGuardar(false);
+    }
+  }
+
+  /**
+   * A marcação mudou entretanto (412) ou a operação já não é válida (422):
+   * mostra-se o erro e o estado atual, e o utilizador decide (§9.2).
+   */
+  async function tratarRecusa(e: unknown) {
+    setErro(e);
+    if (
+      !(e instanceof ApiRequestError) ||
+      (e.categoria !== "versaoDesatualizada" && e.categoria !== "regraNegocio")
+    ) {
+      return;
+    }
+    try {
+      setMarcacao(await servico.obterConsulta(id));
+      setTransicao(null);
+      if (e.categoria === "versaoDesatualizada") {
+        setAvisoConflito(
+          "A marcação foi alterada por outra pessoa. Os dados abaixo já estão atualizados: confirme se a operação ainda faz sentido e repita-a.",
+        );
+      }
+    } catch {
+      // O erro original já está à vista.
     }
   }
 
@@ -221,6 +249,15 @@ function DetalheMarcacao({
                 >
                   Editar marcação
                 </Link>
+              ) : null}
+              {marcacao.estado === "Confirmada" && !marcacao.chegadaEm ? (
+                <button
+                  type="button"
+                  disabled={aGuardar}
+                  onClick={() => void registarChegada()}
+                >
+                  Registar chegada
+                </button>
               ) : null}
               {transicoes.map((estado) => (
                 <button
