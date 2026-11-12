@@ -19,7 +19,8 @@ namespace ClinicaVeterinaria.UnitTests.Middleware;
 /// </summary>
 public class ErrosERegistosTests
 {
-    [Theory(DisplayName = "UT-TRV-006 — Cada exceção prevista dá o seu código HTTP, com detail igual à mensagem e o formato único de erro")]
+    [Theory(DisplayName =
+        "UT-TRV-006 — Cada exceção prevista dá o seu código HTTP, com detail igual à mensagem e o formato único de erro")]
     [InlineData(nameof(ArgumentException), StatusCodes.Status400BadRequest)]
     [InlineData(nameof(UnauthorizedAccessException), StatusCodes.Status401Unauthorized)]
     [InlineData(nameof(ForbiddenException), StatusCodes.Status403Forbidden)]
@@ -38,9 +39,7 @@ public class ErrosERegistosTests
         Assert.Equal(mensagem, corpo.GetProperty("detail").GetString());
     }
 
-    [Fact(
-        DisplayName = "UT-TRV-007 — Uma exceção inesperada dá 500 com mensagem genérica, sem a mensagem interna",
-        Skip = "Defeito D-01 (I028, PA-07): o ExceptionHandlingMiddleware copia para detail a mensagem de qualquer exceção, também no 500. Reativar quando o defeito for corrigido.")]
+    [Fact(DisplayName = "UT-TRV-007 — Uma exceção inesperada dá 500 com mensagem genérica, sem a mensagem interna")]
     public async Task ExcecaoInesperadaNaoExpoeAMensagemInterna()
     {
         // A I028 usa uma NullReferenceException; o analisador (CA2201) não deixa criá-la, por isso
@@ -51,7 +50,8 @@ public class ErrosERegistosTests
         Assert.DoesNotContain("segredo interno", corpo.GetRawText(), StringComparison.Ordinal);
     }
 
-    [Fact(DisplayName = "UT-TRV-008 — Erros de validação em email e password dão 400 com as duas mensagens em português no detail")]
+    [Fact(DisplayName =
+        "UT-TRV-008 — Erros de validação em email e password dão 400 com as duas mensagens em português no detail")]
     public void ErrosDeValidacaoDaoAsDuasMensagens()
     {
         var estado = new ModelStateDictionary();
@@ -63,7 +63,8 @@ public class ErrosERegistosTests
         Assert.Equal("O e-mail é obrigatório. A palavra-passe é obrigatória.", corpo.GetProperty("detail").GetString());
     }
 
-    [Theory(DisplayName = "UT-TRV-009 — Corpo em falta ou JSON mal formado dão 400 com a mensagem genérica, sem mensagens internas")]
+    [Theory(DisplayName =
+        "UT-TRV-009 — Corpo em falta ou JSON mal formado dão 400 com a mensagem genérica, sem mensagens internas")]
     [InlineData("")]
     [InlineData("$.email")]
     public void CorpoInvalidoDaMensagemGenerica(string chave)
@@ -73,10 +74,12 @@ public class ErrosERegistosTests
 
         var corpo = CorpoDaValidacao(estado);
 
-        Assert.Equal("O corpo do pedido está em falta ou não é um JSON válido.", corpo.GetProperty("detail").GetString());
+        Assert.Equal("O corpo do pedido está em falta ou não é um JSON válido.",
+            corpo.GetProperty("detail").GetString());
     }
 
-    [Fact(DisplayName = "UT-TRV-010 — O registo do pedido tem método, caminho, código e duração, mas nunca o token nem o corpo")]
+    [Fact(DisplayName =
+        "UT-TRV-010 — O registo do pedido tem método, caminho, código e duração, mas nunca o token nem o corpo")]
     public async Task RegistoDoPedidoNaoTemTokenNemCorpo()
     {
         var logger = new LoggerDeTeste<RequestLoggingMiddleware>();
@@ -98,7 +101,7 @@ public class ErrosERegistosTests
         var concluido = logger.Registos.Single(r => r.Evento.Id == 1002).Mensagem;
         Assert.Contains("POST /auth/login -> 200 em", concluido, StringComparison.Ordinal);
         Assert.DoesNotContain(logger.Registos, r => r.Mensagem.Contains("abc.def.ghi", StringComparison.Ordinal)
-            || r.Mensagem.Contains("Segredo#123", StringComparison.Ordinal));
+                                                    || r.Mensagem.Contains("Segredo#123", StringComparison.Ordinal));
     }
 
     private static Exception CriarExcecao(string tipo, string mensagem) => tipo switch
