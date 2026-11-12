@@ -1,3 +1,4 @@
+using ClinicaVeterinaria.Application.Exceptions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -63,8 +64,8 @@ IF @resultado < 0
         }
         catch (SqlException erro) when (erro.Number == NumeroErroBloqueioNaoObtido)
         {
-            // Mapeado para 409 pelo middleware (InvalidOperationException).
-            throw new InvalidOperationException(MensagemOcupada, erro);
+            // Mapeado para 409 pelo middleware (ConflitoException).
+            throw new ConflitoException(MensagemOcupada, erro);
         }
     }
 }

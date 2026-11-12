@@ -137,7 +137,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         ArgumentNullException.ThrowIfNull(pedido);
 
         var perfil = NormalizarFiltro(pedido.Perfil, Perfis.Todos, "perfil")
-            ?? throw new ArgumentException("O perfil é obrigatório.");
+            ?? throw new ValidacaoException("O perfil é obrigatório.");
 
         // Regras de negócio do contrato (422), verificadas antes da unicidade do e-mail.
         if (perfil == Perfis.Cliente)
@@ -152,7 +152,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         if (await _db.Utilizadores.AnyAsync(u => u.Email == email))
         {
-            throw new InvalidOperationException(MensagemEmailRegistado);
+            throw new ConflitoException(MensagemEmailRegistado);
         }
 
         var utilizador = new Utilizador
@@ -199,12 +199,12 @@ public sealed class UtilizadoresService : IUtilizadoresService
         ArgumentNullException.ThrowIfNull(pedido);
 
         var perfil = NormalizarFiltro(pedido.Perfil, Perfis.Todos, "perfil")
-            ?? throw new ArgumentException("O perfil é obrigatório.");
+            ?? throw new ValidacaoException("O perfil é obrigatório.");
 
         // Em EP-007 o contrato prevê 400 para o perfil Cliente (em EP-006 é 422).
         if (perfil == Perfis.Cliente)
         {
-            throw new ArgumentException(
+            throw new ValidacaoException(
                 "O perfil Cliente não pode ser atribuído a uma conta de funcionário; as contas de Cliente são geridas em /clientes.");
         }
 
@@ -232,7 +232,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // O próprio e-mail não conta como conflito.
         if (await _db.Utilizadores.AnyAsync(u => u.Email == email && u.Id != id))
         {
-            throw new InvalidOperationException(MensagemEmailUsado);
+            throw new ConflitoException(MensagemEmailUsado);
         }
 
         dados.Utilizador.Email = email;
@@ -265,7 +265,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // EP-008 só bloqueia; o desbloqueio não faz parte do contrato.
         if (!string.Equals(pedido.Estado?.Trim(), EstadosUtilizador.Bloqueado, StringComparison.OrdinalIgnoreCase))
         {
-            throw new ArgumentException(
+            throw new ValidacaoException(
                 $"O estado '{pedido.Estado?.Trim()}' é inválido. Neste endpoint só é aceite {EstadosUtilizador.Bloqueado}.");
         }
 
@@ -320,7 +320,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var texto = valor.Trim();
 
         return permitidos.FirstOrDefault(p => string.Equals(p, texto, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException($"O {campo} '{texto}' é inválido. Valores permitidos: {string.Join(", ", permitidos)}.");
+            ?? throw new ValidacaoException($"O {campo} '{texto}' é inválido. Valores permitidos: {string.Join(", ", permitidos)}.");
     }
 
     /// <summary>
@@ -338,7 +338,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Number: ErroChaveDuplicada or ErroRestricaoUnica
         })
         {
-            throw new InvalidOperationException(mensagemConflito, ex);
+            throw new ConflitoException(mensagemConflito, ex);
         }
     }
 

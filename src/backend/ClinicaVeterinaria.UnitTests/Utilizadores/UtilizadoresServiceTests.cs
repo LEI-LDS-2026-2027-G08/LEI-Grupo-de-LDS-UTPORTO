@@ -138,7 +138,7 @@ public class UtilizadoresServiceTests
         await AdicionarFuncionarioAsync(db, "Rui Lopes", Perfis.Veterinario, email: EmailRui);
         var servico = CriarServico(db);
 
-        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => servico.CriarAsync(PedidoRui()));
+        var excecao = await Assert.ThrowsAsync<ConflitoException>(() => servico.CriarAsync(PedidoRui()));
 
         Assert.Equal("Já existe uma conta registada com este e-mail.", excecao.Message);
         Assert.Single(await db.Utilizadores.AsNoTracking().ToListAsync());
@@ -158,7 +158,7 @@ public class UtilizadoresServiceTests
         var criado = await servico.CriarAsync(pedido);
 
         Assert.Equal(EmailRui, criado.Email);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => servico.CriarAsync(repetido));
+        await Assert.ThrowsAsync<ConflitoException>(() => servico.CriarAsync(repetido));
         Assert.Equal(EmailRui, Assert.Single(await db.Utilizadores.AsNoTracking().ToListAsync()).Email);
     }
 
@@ -221,7 +221,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var servico = CriarServico(db);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => servico.CriarAsync(PedidoRui(perfil, podeRegistarApoio: false)));
 
         await NadaFoiGravadoAsync(db);
@@ -285,7 +285,7 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Perfil = "Gestor" }));
     }
 
@@ -294,7 +294,7 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Estado = "Suspenso" }));
     }
 
@@ -462,7 +462,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, Perfis.Cliente)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -558,7 +558,7 @@ public class UtilizadoresServiceTests
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
         var vet = await AdicionarFuncionarioAsync(db, "Vera Vet", Perfis.Veterinario);
 
-        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+        var excecao = await Assert.ThrowsAsync<ConflitoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Lopes", vet.Email.ToUpperInvariant(), Perfis.Rececionista)));
 
         Assert.Equal("O e-mail indicado já é usado por outra conta.", excecao.Message);
@@ -573,7 +573,7 @@ public class UtilizadoresServiceTests
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ConflitoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", cliente.Email, Perfis.Rececionista)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -634,7 +634,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, perfil)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -699,7 +699,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).BloquearAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).BloquearAsync(
             rececionista.Id, admin.Id, new AlterarEstadoUtilizadorDto { Estado = estado }));
 
         Assert.Equal(

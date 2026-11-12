@@ -1,5 +1,6 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.DTOs.Clinica;
+using ClinicaVeterinaria.Application.Exceptions;
 
 namespace ClinicaVeterinaria.Application.Validacao;
 
@@ -25,7 +26,7 @@ public static class ValidadorHorario
 
     /// <summary>
     /// Valida todos os períodos e devolve-os ordenados por dia e hora de abertura.
-    /// Reúne todos os erros numa única <see cref="ArgumentException"/> (400).
+    /// Reúne todos os erros numa única <see cref="ValidacaoException"/> (400).
     /// </summary>
     public static IReadOnlyList<PeriodoValidado> Validar(IReadOnlyList<PeriodoHorarioDto> periodos)
     {
@@ -98,7 +99,7 @@ public static class ValidadorHorario
 
         if (erros.Count > 0)
         {
-            throw new ArgumentException(string.Join(" ", erros));
+            throw new ValidacaoException(string.Join(" ", erros));
         }
 
         return ordenados;

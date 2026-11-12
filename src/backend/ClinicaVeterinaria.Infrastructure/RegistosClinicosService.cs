@@ -99,7 +99,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // (5) No máximo um registo por consulta → 409 (UT-F004-013).
         if (await _db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == consultaId))
         {
-            throw new InvalidOperationException(MensagemJaTemRegisto);
+            throw new ConflitoException(MensagemJaTemRegisto);
         }
 
         var agora = AgoraAoSegundo();
@@ -130,7 +130,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         catch (DbUpdateException erro) when (ChaveUnicaViolada(erro))
         {
             // Dois pedidos simultâneos para a mesma consulta: o segundo bate no índice único.
-            throw new InvalidOperationException(MensagemJaTemRegisto, erro);
+            throw new ConflitoException(MensagemJaTemRegisto, erro);
         }
 
         if (transacao is not null)
@@ -168,12 +168,12 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // (4) Um id indicado tem de ser deste registo → 400 (UT-F004-019; PA-10 da I028).
         if (tratamentosPedido.Any(t => t.Id is int tid && tratamentosAtuais.TrueForAll(a => a.Id != tid)))
         {
-            throw new ArgumentException(MensagemTratamentoDeOutroRegisto);
+            throw new ValidacaoException(MensagemTratamentoDeOutroRegisto);
         }
 
         if (prescricoesPedido.Any(p => p.Id is int pid && prescricoesAtuais.TrueForAll(a => a.Id != pid)))
         {
-            throw new ArgumentException(MensagemPrescricaoDeOutroRegisto);
+            throw new ValidacaoException(MensagemPrescricaoDeOutroRegisto);
         }
 
         // (5) As listas substituem as anteriores: atualizar os indicados, acrescentar os novos e
@@ -244,7 +244,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
 
         if (erroPeriodo is not null)
         {
-            throw new ArgumentException(erroPeriodo);
+            throw new ValidacaoException(erroPeriodo);
         }
 
         // (2) Animal existe → 404 (UT-F004-027).
@@ -385,7 +385,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
 
         if (erros.Count > 0)
         {
-            throw new ArgumentException(string.Join(" ", erros));
+            throw new ValidacaoException(string.Join(" ", erros));
         }
     }
 

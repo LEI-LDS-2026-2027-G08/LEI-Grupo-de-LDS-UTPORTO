@@ -142,7 +142,7 @@ public class AtualizarEstadoConsultaServiceTests
             30,
             EstadosConsulta.Pendente);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
                 new UpdateEstadoConsultaDto

@@ -74,7 +74,7 @@ public class AuthServiceTests
         await db.DisposeAsync();
         var hasher = new HasherDuplo();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db, hasher).LoginAsync(Pedido(string.Empty, PalavraPasse)));
 
         Assert.Equal("O e-mail é obrigatório.", erro.Message);
@@ -86,7 +86,7 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).LoginAsync(Pedido(EmailAdmin, string.Empty)));
 
         Assert.Equal("A palavra-passe é obrigatória.", erro.Message);
@@ -97,7 +97,7 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).LoginAsync(Pedido("   ", PalavraPasse)));
 
         Assert.Equal("O e-mail é obrigatório.", erro.Message);

@@ -63,7 +63,7 @@ public class CriarConsultaServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarConsultaAsync(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarConsultaAsync(
             Pedido(d.AnimalA1, d.VetA, "2026-10-14T07:59:00Z"), d.RecA));
 
         Assert.Equal(ConsultasService.MensagemDataNaoFutura, erro.Message);
@@ -76,7 +76,7 @@ public class CriarConsultaServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarConsultaAsync(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarConsultaAsync(
             Pedido(d.AnimalA1, d.VetA, "2026-10-14T08:00:00Z"), d.RecA));
 
         Assert.Equal(ConsultasService.MensagemDataNaoFutura, erro.Message);
@@ -95,7 +95,7 @@ public class CriarConsultaServiceTests
             DataHora = Utc("2026-10-15T09:00:00Z")
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarConsultaAsync(pedido, 1));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarConsultaAsync(pedido, 1));
     }
 
     [Fact(DisplayName = "I073 — animalId, veterinarioId e dataHora em falta devolvem 400 com as três mensagens")]
@@ -103,7 +103,7 @@ public class CriarConsultaServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).CriarConsultaAsync(new CreateConsultaDto(), 1));
 
         Assert.Contains("animalId", erro.Message, StringComparison.Ordinal);
@@ -117,7 +117,7 @@ public class CriarConsultaServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarConsultaAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarConsultaAsync(
             Pedido(d.AnimalA1, d.VetA, "2026-10-15T09:00:00Z", new string('x', 251)), d.RecA));
     }
 

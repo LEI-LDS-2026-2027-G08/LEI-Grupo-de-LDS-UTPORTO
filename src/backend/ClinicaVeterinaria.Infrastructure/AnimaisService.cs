@@ -178,7 +178,7 @@ public sealed class AnimaisService : IAnimaisService
 
         var especie = await _db.Especies
             .FirstOrDefaultAsync(e => e.Nome == pedido.Especie.Trim())
-            ?? throw new ArgumentException("A espécie indicada não existe.");
+            ?? throw new ValidacaoException("A espécie indicada não existe.");
 
         int? racaId = null;
 
@@ -188,7 +188,7 @@ public sealed class AnimaisService : IAnimaisService
                 .FirstOrDefaultAsync(r =>
                     r.EspecieId == especie.Id
                     && r.Nome == pedido.Raca.Trim())
-                ?? throw new ArgumentException(
+                ?? throw new ValidacaoException(
                     "A raça indicada não existe para a espécie selecionada.");
 
             racaId = raca.Id;
@@ -236,7 +236,7 @@ public sealed class AnimaisService : IAnimaisService
 
         var especie = await _db.Especies
             .FirstOrDefaultAsync(e => e.Nome == pedido.Especie.Trim())
-            ?? throw new ArgumentException("A espécie indicada não existe.");
+            ?? throw new ValidacaoException("A espécie indicada não existe.");
 
         int? racaId = null;
 
@@ -246,7 +246,7 @@ public sealed class AnimaisService : IAnimaisService
                 .FirstOrDefaultAsync(r =>
                     r.EspecieId == especie.Id
                     && r.Nome == pedido.Raca.Trim())
-                ?? throw new ArgumentException(
+                ?? throw new ValidacaoException(
                     "A raça indicada não existe para a espécie selecionada.");
 
             racaId = raca.Id;
@@ -367,7 +367,7 @@ public sealed class AnimaisService : IAnimaisService
     {
         if (pedido.Peso.HasValue && pedido.Peso.Value <= 0)
         {
-            throw new ArgumentException("O peso deve ser superior a 0.");
+            throw new ValidacaoException("O peso deve ser superior a 0.");
         }
 
         if (pedido.DataNascimento.HasValue)
@@ -377,7 +377,7 @@ public sealed class AnimaisService : IAnimaisService
 
             if (pedido.DataNascimento.Value > hoje)
             {
-                throw new ArgumentException(
+                throw new ValidacaoException(
                     "A data de nascimento não pode ser futura.");
             }
         }

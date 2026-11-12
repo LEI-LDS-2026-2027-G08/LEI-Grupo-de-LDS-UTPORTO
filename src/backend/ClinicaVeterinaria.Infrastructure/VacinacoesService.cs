@@ -61,7 +61,7 @@ public sealed class VacinacoesService : IVacinacoesService
 
         if (tipo is not null && !TiposAdministracao.Todos.Contains(tipo, StringComparer.Ordinal))
         {
-            throw new ArgumentException(TiposAdministracao.MensagemTipoInvalido);
+            throw new ValidacaoException(TiposAdministracao.MensagemTipoInvalido);
         }
 
         // (2) Animal existe → 404.
@@ -284,7 +284,7 @@ public sealed class VacinacoesService : IVacinacoesService
 
         if (mensagens.Count > 0)
         {
-            throw new ArgumentException(string.Join(" ", mensagens));
+            throw new ValidacaoException(string.Join(" ", mensagens));
         }
     }
 

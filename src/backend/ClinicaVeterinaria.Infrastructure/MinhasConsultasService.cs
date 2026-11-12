@@ -105,7 +105,7 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
 
         if (!Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true))
         {
-            throw new ArgumentException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
+            throw new ValidacaoException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
         }
     }
 }

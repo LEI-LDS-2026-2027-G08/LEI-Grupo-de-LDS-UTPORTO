@@ -1,5 +1,6 @@
 using ClinicaVeterinaria.Application.DTOs.Clientes;
 using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
@@ -176,7 +177,7 @@ public sealed class ClientesService : IClientesService
 
         if (emUso)
         {
-            throw new InvalidOperationException(MensagemEmailRegistado);
+            throw new ConflitoException(MensagemEmailRegistado);
         }
     }
 
@@ -192,7 +193,7 @@ public sealed class ClientesService : IClientesService
 
         if (emUso)
         {
-            throw new InvalidOperationException(MensagemNifRegistado);
+            throw new ConflitoException(MensagemNifRegistado);
         }
     }
 
@@ -215,7 +216,7 @@ public sealed class ClientesService : IClientesService
                 ? MensagemNifRegistado
                 : MensagemEmailRegistado;
 
-            throw new InvalidOperationException(mensagem, ex);
+            throw new ConflitoException(mensagem, ex);
         }
     }
 

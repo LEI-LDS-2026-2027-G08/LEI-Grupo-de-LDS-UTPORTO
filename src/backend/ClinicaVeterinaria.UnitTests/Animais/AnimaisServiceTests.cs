@@ -109,7 +109,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = 0m;
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Equal("O peso deve ser superior a 0.", erro.Message);
     }
@@ -133,7 +133,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = -3m;
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
     }
 
     [Fact(DisplayName = "UT-F002-010 — Data de nascimento de amanhã (2026-10-15) devolve 400")]
@@ -143,7 +143,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.DataNascimento = new DateOnly(2026, 10, 15);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
     }
 
     [Fact(DisplayName = "UT-F002-011 — Data de nascimento de hoje é aceite e a idade é 0")]
@@ -166,7 +166,7 @@ public class AnimaisServiceTests
         pedido.Especie = "Dragão";
         pedido.Raca = null;
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Contains("espécie", erro.Message, StringComparison.Ordinal);
     }
@@ -178,7 +178,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Raca = "Siamês";
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Contains("raça", erro.Message, StringComparison.Ordinal);
     }
@@ -206,7 +206,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = 0m;
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
 
         Assert.Equal(28.4m, (await db.Pacientes.AsNoTracking().SingleAsync(p => p.Id == AnimalA1)).Peso);
     }

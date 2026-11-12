@@ -120,7 +120,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var pedido = new CreateRegistoClinicoDto { ConsultaId = consultaId, Diagnostico = "Otite externa" };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, 1));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, 1));
 
         Assert.Contains("consultaId", erro.Message, StringComparison.Ordinal);
     }
@@ -139,7 +139,7 @@ public class RegistosClinicosServiceTests
             Prescricoes = []
         };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, erro.Message);
         Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
@@ -152,7 +152,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, NotasClinicas = "   " };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, erro.Message);
     }
@@ -182,7 +182,7 @@ public class RegistosClinicosServiceTests
 
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Contains(campoEmFalta, erro.Message, StringComparison.Ordinal);
         Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
@@ -197,7 +197,7 @@ public class RegistosClinicosServiceTests
         prescricao.DuracaoDias = 0;
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Equal(MensagemDuracaoInvalida, erro.Message);
         Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
@@ -226,7 +226,7 @@ public class RegistosClinicosServiceTests
         tratamento.Descricao = "";
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Tratamentos = [tratamento] };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Equal(MensagemTratamentoSemDescricao, erro.Message);
         Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
@@ -239,7 +239,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Diagnostico = new string('x', 1001) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
         Assert.Equal(MensagemDiagnosticoLongo, erro.Message);
         Assert.False(await db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == d.ConsultaConfirmada));
@@ -264,7 +264,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<InvalidOperationException>(
+        var erro = await Assert.ThrowsAsync<ConflitoException>(
             () => CriarServico(db).CriarAsync(PedidoExemplo(d.ConsultaRealizada), d.VetA));
 
         Assert.Equal(RegistosClinicosService.MensagemJaTemRegisto, erro.Message);
@@ -402,7 +402,7 @@ public class RegistosClinicosServiceTests
             Tratamentos = [new CreateTratamentoDto { Id = d.T9, Descricao = "Outro", DataAplicacao = Hoje }]
         };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
 
         Assert.Equal(RegistosClinicosService.MensagemTratamentoDeOutroRegisto, erro.Message);
@@ -415,7 +415,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.RegistoA, new UpdateRegistoClinicoDto(), d.VetA));
 
         Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, erro.Message);
@@ -463,7 +463,7 @@ public class RegistosClinicosServiceTests
             ]
         };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
 
         Assert.Equal(ValidadorRegistoClinico.MensagemTratamentoRepetido, erro.Message);
@@ -522,7 +522,7 @@ public class RegistosClinicosServiceTests
             Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = "", DataAplicacao = Hoje }]
         };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
 
         Assert.Equal(MensagemTratamentoSemDescricao, erro.Message);
@@ -544,7 +544,7 @@ public class RegistosClinicosServiceTests
             ]
         };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA));
 
         Assert.Equal(MensagemPrescricaoSemDosagem, erro.Message);

@@ -1,5 +1,6 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -167,7 +168,7 @@ public class VeterinariosServiceTests
             DataFim = Data(dataFim)
         };
 
-        var excecao = await Assert.ThrowsAsync<ArgumentException>(
+        var excecao = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(dados.VetA, query));
 
         Assert.Equal(mensagem, excecao.Message);
@@ -215,7 +216,7 @@ public class VeterinariosServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterDisponibilidadeAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterDisponibilidadeAsync(
             999, Periodo(new DateOnly(2026, 10, 15), new DateOnly(2026, 10, 14))));
     }
 

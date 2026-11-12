@@ -2,6 +2,7 @@ using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
 using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
@@ -49,7 +50,7 @@ public sealed class VeterinariosService : IVeterinariosService
         var erro = ValidadorPeriodoDisponibilidade.ObterErro(query.DataInicio, query.DataFim);
         if (erro is not null)
         {
-            throw new ArgumentException(erro);
+            throw new ValidacaoException(erro);
         }
 
         var dataInicio = query.DataInicio!.Value;

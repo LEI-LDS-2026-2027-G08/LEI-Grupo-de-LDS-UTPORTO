@@ -250,7 +250,7 @@ public sealed class AuthService : IAuthService
                 emFalta.Add("A palavra-passe é obrigatória.");
             }
 
-            throw new ArgumentException(string.Join(" ", emFalta));
+            throw new ValidacaoException(string.Join(" ", emFalta));
         }
     }
 

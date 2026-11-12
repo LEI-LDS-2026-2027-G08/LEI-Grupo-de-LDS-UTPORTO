@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
 using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -140,7 +141,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var query = new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 10, 14), DataFim = new DateOnly(2026, 9, 1) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemDataFimAnterior, erro.Message);
     }
@@ -236,7 +237,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var query = new HistoricoClinicoQuery { DataFim = new DateOnly(9999, 12, 31) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemForaDosLimites, erro.Message);
     }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using ClinicaVeterinaria.Application.DTOs.Clientes;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -88,7 +89,7 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<ConflitoException>(
             () => CriarServico(db).CriarAsync(PedidoCriacao(NifClienteA, EmailLivre)));
 
         Assert.Equal(2, await db.Clientes.CountAsync());
@@ -100,7 +101,7 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<ConflitoException>(
             () => CriarServico(db).CriarAsync(PedidoCriacao(NifLivre, EmailClienteA)));
 
         Assert.Equal(2, await db.Clientes.CountAsync());
@@ -127,7 +128,7 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<ConflitoException>(
             () => CriarServico(db).AtualizarAsync(ClienteA, PedidoAtualizacao(NifClienteB, EmailClienteA)));
     }
 

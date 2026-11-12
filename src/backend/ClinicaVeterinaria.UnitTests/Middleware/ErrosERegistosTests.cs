@@ -21,11 +21,11 @@ public class ErrosERegistosTests
 {
     [Theory(DisplayName =
         "UT-TRV-006 — Cada exceção prevista dá o seu código HTTP, com detail igual à mensagem e o formato único de erro")]
-    [InlineData(nameof(ArgumentException), StatusCodes.Status400BadRequest)]
+    [InlineData(nameof(ValidacaoException), StatusCodes.Status400BadRequest)]
     [InlineData(nameof(UnauthorizedAccessException), StatusCodes.Status401Unauthorized)]
     [InlineData(nameof(ForbiddenException), StatusCodes.Status403Forbidden)]
     [InlineData(nameof(KeyNotFoundException), StatusCodes.Status404NotFound)]
-    [InlineData(nameof(InvalidOperationException), StatusCodes.Status409Conflict)]
+    [InlineData(nameof(ConflitoException), StatusCodes.Status409Conflict)]
     [InlineData(nameof(UnprocessableEntityException), StatusCodes.Status422UnprocessableEntity)]
     public async Task ExcecaoPrevistaDaOCodigoHttp(string tipo, int esperado)
     {
@@ -45,6 +45,22 @@ public class ErrosERegistosTests
         // A I028 usa uma NullReferenceException; o analisador (CA2201) não deixa criá-la, por isso
         // usa-se outra exceção que o middleware também não conhece e que, como ela, dá 500.
         var (estado, corpo) = await ExecutarComExcecaoAsync(new NotSupportedException("segredo interno"));
+
+        Assert.Equal(StatusCodes.Status500InternalServerError, estado);
+        Assert.DoesNotContain("segredo interno", corpo.GetRawText(), StringComparison.Ordinal);
+    }
+
+    [Theory(DisplayName =
+        "UT-TRV-007b — Exceções genéricas do .NET (ArgumentException, InvalidOperationException) dão 500, sem a mensagem interna")]
+    [InlineData(nameof(ArgumentException))]
+    [InlineData(nameof(InvalidOperationException))]
+    public async Task ExcecaoGenericaDoFrameworkNaoExpoeAMensagemInterna(string tipo)
+    {
+        Exception excecao = tipo == nameof(ArgumentException)
+            ? new ArgumentException("segredo interno")
+            : new InvalidOperationException("segredo interno");
+
+        var (estado, corpo) = await ExecutarComExcecaoAsync(excecao);
 
         Assert.Equal(StatusCodes.Status500InternalServerError, estado);
         Assert.DoesNotContain("segredo interno", corpo.GetRawText(), StringComparison.Ordinal);
@@ -106,11 +122,11 @@ public class ErrosERegistosTests
 
     private static Exception CriarExcecao(string tipo, string mensagem) => tipo switch
     {
-        nameof(ArgumentException) => new ArgumentException(mensagem),
+        nameof(ValidacaoException) => new ValidacaoException(mensagem),
         nameof(UnauthorizedAccessException) => new UnauthorizedAccessException(mensagem),
         nameof(ForbiddenException) => new ForbiddenException(mensagem),
         nameof(KeyNotFoundException) => new KeyNotFoundException(mensagem),
-        nameof(InvalidOperationException) => new InvalidOperationException(mensagem),
+        nameof(ConflitoException) => new ConflitoException(mensagem),
         nameof(UnprocessableEntityException) => new UnprocessableEntityException(mensagem),
         _ => throw new ArgumentOutOfRangeException(nameof(tipo), tipo, "Tipo de exceção sem caso de teste.")
     };

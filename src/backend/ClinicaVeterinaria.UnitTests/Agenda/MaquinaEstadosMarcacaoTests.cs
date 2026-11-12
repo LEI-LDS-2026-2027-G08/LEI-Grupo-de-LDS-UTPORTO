@@ -52,7 +52,7 @@ public class MaquinaEstadosMarcacaoTests
     [InlineData(EstadosConsulta.Cancelada)]
     public void PendenteNuncaEUmDestinoValido(string estadoAtual)
     {
-        var erro = Assert.Throws<ArgumentException>(
+        var erro = Assert.Throws<ValidacaoException>(
             () => MaquinaEstadosMarcacao.ValidarTransicao(
                 estadoAtual,
                 MaquinaEstadosMarcacao.NormalizarDestino(
@@ -66,7 +66,7 @@ public class MaquinaEstadosMarcacaoTests
     [Fact(DisplayName = "UT-F003-075 — Um estado inexistente devolve 400")]
     public void EstadoInexistenteERecusado()
     {
-        Assert.Throws<ArgumentException>(
+        Assert.Throws<ValidacaoException>(
             () => MaquinaEstadosMarcacao.NormalizarDestino("Faltou"));
     }
 

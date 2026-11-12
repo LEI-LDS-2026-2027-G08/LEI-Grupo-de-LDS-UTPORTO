@@ -102,7 +102,7 @@ public class MinhasConsultasServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = tipo }));
 
         Assert.Equal(TiposMinhasConsultas.MensagemTipoInvalido, erro.Message);

@@ -62,7 +62,7 @@ public class NotasPreparacaoServiceTests
         var aux = await AdicionarAuxiliarAsync(db, "Carla Auxiliar", podeRegistarApoio: true);
         var id = await AdicionarMarcacaoAsync(db, EstadosConsulta.Confirmada);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
                 id, new CreateNotaPreparacaoDto { Texto = texto }, aux));
 
@@ -86,7 +86,7 @@ public class NotasPreparacaoServiceTests
         }
         else
         {
-            await Assert.ThrowsAsync<ArgumentException>(
+            await Assert.ThrowsAsync<ValidacaoException>(
                 () => CriarServico(db).CriarNotaPreparacaoAsync(id, pedido, aux));
             Assert.Empty(db.InformacoesApoio);
         }

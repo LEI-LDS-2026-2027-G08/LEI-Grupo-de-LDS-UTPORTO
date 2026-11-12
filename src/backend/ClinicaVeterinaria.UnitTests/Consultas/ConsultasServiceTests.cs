@@ -66,7 +66,7 @@ public class ConsultasServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var filtro = new ConsultaFiltroQuery { DataInicio = Quinta, DataFim = Quinta.AddDays(-1) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterConsultasAsync(filtro, AcessoConsultas.Rececionista));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemDataFimAnterior, erro.Message);
@@ -171,7 +171,7 @@ public class ConsultasServiceTests
             DataFim = dataFim is null ? null : Data(dataFim)
         };
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterConsultasAsync(filtro, AcessoConsultas.Rececionista));
     }
 

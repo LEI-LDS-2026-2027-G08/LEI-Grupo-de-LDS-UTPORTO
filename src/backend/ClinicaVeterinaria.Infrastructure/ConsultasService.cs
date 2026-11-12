@@ -193,7 +193,7 @@ public sealed class ConsultasService : IConsultasService
         // Estritamente futura: a hora atual já não serve (UT-F003-020, UT-F003-021).
         if (inicioUtc <= agoraUtc)
         {
-            throw new ArgumentException(MensagemDataNaoFutura);
+            throw new ValidacaoException(MensagemDataNaoFutura);
         }
 
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
@@ -296,7 +296,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (inicioUtc <= agoraUtc)
         {
-            throw new ArgumentException(MensagemDataNaoFutura);
+            throw new ValidacaoException(MensagemDataNaoFutura);
         }
 
         var marcacao = await _db.Marcacoes
@@ -506,7 +506,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true))
         {
-            throw new ArgumentException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
+            throw new ValidacaoException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
         }
     }
 

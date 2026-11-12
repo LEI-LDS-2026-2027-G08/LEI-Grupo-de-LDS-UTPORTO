@@ -1,4 +1,5 @@
 using ClinicaVeterinaria.Application.DTOs.Clinica;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.UnitTests.Validacao;
@@ -43,7 +44,7 @@ public class ValidadorHorarioTests
     [Fact]
     public void PeriodosSobrepostosNoMesmoDiaSaoRejeitados()
     {
-        var erro = Assert.Throws<ArgumentException>(() =>
+        var erro = Assert.Throws<ValidacaoException>(() =>
             ValidadorHorario.Validar([P("Segunda", "09:00", "13:00"), P("Segunda", "12:00", "15:00")]));
 
         Assert.Contains("sobrepõem-se", erro.Message, StringComparison.Ordinal);
@@ -62,7 +63,7 @@ public class ValidadorHorarioTests
     [InlineData("13:00", "09:00")]
     public void FechoIgualOuAnteriorAAberturaERejeitado(string abertura, string fecho)
     {
-        var erro = Assert.Throws<ArgumentException>(() => ValidadorHorario.Validar([P("Quarta", abertura, fecho)]));
+        var erro = Assert.Throws<ValidacaoException>(() => ValidadorHorario.Validar([P("Quarta", abertura, fecho)]));
 
         Assert.Contains("posterior à de abertura", erro.Message, StringComparison.Ordinal);
     }
@@ -74,6 +75,6 @@ public class ValidadorHorarioTests
     [InlineData("", "09:00", "13:00")]
     public void DiaOuHoraInvalidosSaoRejeitados(string dia, string abertura, string fecho)
     {
-        Assert.Throws<ArgumentException>(() => ValidadorHorario.Validar([P(dia, abertura, fecho)]));
+        Assert.Throws<ValidacaoException>(() => ValidadorHorario.Validar([P(dia, abertura, fecho)]));
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.DTOs.Clinica;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
 using ClinicaVeterinaria.UnitTests.Seguranca;
@@ -67,7 +68,7 @@ public class ClinicaServiceTests
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", "09:00", "09:00")])));
 
         Assert.Equal(11, await db.HorariosFuncionamento.CountAsync());
@@ -78,7 +79,7 @@ public class ClinicaServiceTests
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", "14:00", "13:00")])));
     }
 
@@ -88,7 +89,7 @@ public class ClinicaServiceTests
         using var db = CriarBaseComClinica(HorarioPadrao());
         var pedido = PedidoValido([PeriodoDto("Segunda", "09:00", "13:00"), PeriodoDto("Segunda", "12:00", "15:00")]);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(pedido));
     }
 
     [Fact(DisplayName = "UT-F001-106 — Um período que acaba às 13:00 e outro que começa às 13:00 não se sobrepõem")]
@@ -120,7 +121,7 @@ public class ClinicaServiceTests
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", abertura, fecho)])));
     }
 

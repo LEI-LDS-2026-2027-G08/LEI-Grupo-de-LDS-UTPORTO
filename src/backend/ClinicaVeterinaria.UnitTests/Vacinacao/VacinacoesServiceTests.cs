@@ -94,7 +94,7 @@ public class VacinacoesServiceTests
                 break;
         }
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).RegistarAsync(d.AnimalA1, pedido, d.VetA));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).RegistarAsync(d.AnimalA1, pedido, d.VetA));
 
         Assert.Contains(mensagem, erro.Message, StringComparison.Ordinal);
         Assert.Equal(antes, await db.RegistosProfilaxias.CountAsync());
@@ -106,7 +106,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).RegistarAsync(d.AnimalA1, Pedido(data: Hoje.AddDays(1)), d.VetA));
 
         Assert.Equal(VacinacoesService.MensagemDataFutura, erro.Message);
@@ -143,7 +143,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).RegistarAsync(d.AnimalA1, Pedido(intervaloDias: intervaloDias), d.VetA));
 
         Assert.Contains("intervaloDias", erro.Message, StringComparison.Ordinal);
@@ -166,7 +166,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).RegistarAsync(d.AnimalA1, Pedido(lote: new string('L', 51)), d.VetA));
 
         Assert.Contains("lote", erro.Message, StringComparison.Ordinal);
@@ -178,7 +178,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).RegistarAsync(d.AnimalA1, Pedido(tipo: "Vacinas"), d.VetA));
 
         Assert.Equal(TiposAdministracao.MensagemTipoInvalido, erro.Message);
@@ -267,7 +267,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarAsync(d.AnimalA1, d.VacinaA1, Pedido(data: Hoje.AddDays(1), intervaloDias: 0), d.VetA));
 
         var gravado = await db.RegistosProfilaxias.AsNoTracking().SingleAsync(r => r.Id == d.VacinaA1);
@@ -429,7 +429,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery { Tipo = "Vacinas" }));
 
         Assert.Equal(TiposAdministracao.MensagemTipoInvalido, erro.Message);
