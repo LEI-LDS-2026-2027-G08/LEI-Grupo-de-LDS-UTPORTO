@@ -59,21 +59,30 @@ public sealed class ClientesService : IClientesService
 
         var total = await consulta.CountAsync();
 
-        var itens = await consulta
-            .OrderBy(x => x.Cliente.Nome)
-            .ThenBy(x => x.Cliente.Id)
-            .Skip((filtro.Pagina - 1) * filtro.Tamanho)
-            .Take(filtro.Tamanho)
-            .Select(x => new ClienteListItemDto
-            {
-                Id = x.Cliente.Id,
-                Nome = x.Cliente.Nome,
-                Nif = x.Cliente.NIF,
-                Telefone = x.Cliente.Telefone,
-                Email = x.Email,
-                NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)
-            })
-            .ToListAsync();
+        // Em long, como em EP-004: com uma página muito alta, (pagina - 1) * tamanho ultrapassava
+        // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
+        var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
+
+        List<ClienteListItemDto> itens = [];
+
+        if (salto < total)
+        {
+            itens = await consulta
+                .OrderBy(x => x.Cliente.Nome)
+                .ThenBy(x => x.Cliente.Id)
+                .Skip((int)salto)
+                .Take(filtro.Tamanho)
+                .Select(x => new ClienteListItemDto
+                {
+                    Id = x.Cliente.Id,
+                    Nome = x.Cliente.Nome,
+                    Nif = x.Cliente.NIF,
+                    Telefone = x.Cliente.Telefone,
+                    Email = x.Email,
+                    NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)
+                })
+                .ToListAsync();
+        }
 
         return new PagedResultDto<ClienteListItemDto>
         {

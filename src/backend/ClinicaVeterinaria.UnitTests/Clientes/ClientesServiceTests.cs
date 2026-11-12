@@ -203,6 +203,23 @@ public class ClientesServiceTests
         Assert.Equal(57, pagina.Total);
     }
 
+    [Theory(DisplayName = "UT-F001-126 — Depois do fim, ou numa página muito alta (int.MaxValue), a lista fica vazia, sem erro, e o total mantém-se")]
+    [InlineData(2, 20)]
+    [InlineData(int.MaxValue, 100)]
+    public async Task PaginaDepoisDoFimDevolveListaVazia(int pagina, int tamanho)
+    {
+        using var db = CriarBase();
+        var servico = CriarServico(db);
+        var todos = await servico.PesquisarAsync(new ClienteFiltroQuery { Tamanho = 100 });
+
+        var resultado = await servico.PesquisarAsync(new ClienteFiltroQuery { Pagina = pagina, Tamanho = tamanho });
+
+        Assert.Empty(resultado.Itens);
+        Assert.Equal(pagina, resultado.Pagina);
+        Assert.NotEqual(0, todos.Total);
+        Assert.Equal(todos.Total, resultado.Total);
+    }
+
     // ----- Apoio -----
 
     private static ClientesService CriarServico(ClinicaDbContext db) =>

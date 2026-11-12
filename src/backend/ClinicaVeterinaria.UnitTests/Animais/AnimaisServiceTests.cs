@@ -253,6 +253,23 @@ public class AnimaisServiceTests
         Assert.Equal([AnimalA1, AnimalA2], resultado.Itens.Select(a => a.Id));
     }
 
+    [Theory(DisplayName = "UT-F002-031 — Depois do fim, ou numa página muito alta (int.MaxValue), a lista fica vazia, sem erro, e o total mantém-se")]
+    [InlineData(2, 20)]
+    [InlineData(int.MaxValue, 100)]
+    public async Task PaginaDepoisDoFimDevolveListaVazia(int pagina, int tamanho)
+    {
+        using var db = CriarBase();
+        var servico = CriarServico(db);
+        var todos = await servico.PesquisarAsync(new AnimalFiltroQuery { Tamanho = 100 });
+
+        var resultado = await servico.PesquisarAsync(new AnimalFiltroQuery { Pagina = pagina, Tamanho = tamanho });
+
+        Assert.Empty(resultado.Itens);
+        Assert.Equal(pagina, resultado.Pagina);
+        Assert.NotEqual(0, todos.Total);
+        Assert.Equal(todos.Total, resultado.Total);
+    }
+
     // ----- EP-019 e EP-020 — Área do Cliente -----
 
     [Fact(DisplayName = "UT-F002-020 — Na área do Cliente, o CLIENTE_A vê só os seus animais")]

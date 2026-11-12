@@ -76,40 +76,49 @@ public sealed class AnimaisService : IAnimaisService
 
         var total = await consulta.CountAsync();
 
-        var dados = await consulta
-            .OrderBy(x => x.Paciente.Nome)
-            .ThenBy(x => x.Paciente.Id)
-            .Skip((filtro.Pagina - 1) * filtro.Tamanho)
-            .Take(filtro.Tamanho)
-            .Select(x => new
-            {
-                x.Paciente.Id,
-                x.Paciente.Nome,
-                x.Especie,
-                x.Raca,
-                x.Paciente.DataNascimento,
-                x.Paciente.Peso,
-                ClienteId = x.Cliente.Id,
-                ClienteNome = x.Cliente.Nome
-            })
-            .ToListAsync();
+        // Em long, como em EP-004: com uma página muito alta, (pagina - 1) * tamanho ultrapassava
+        // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
+        var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        var itens = dados
-            .Select(x => new AnimalListItemDto
-            {
-                Id = x.Id,
-                Nome = x.Nome,
-                Especie = x.Especie,
-                Raca = x.Raca,
-                IdadeAnos = CalcularIdade(x.DataNascimento),
-                Peso = x.Peso,
-                Cliente = new ClienteResumoDto
+        List<AnimalListItemDto> itens = [];
+
+        if (salto < total)
+        {
+            var dados = await consulta
+                .OrderBy(x => x.Paciente.Nome)
+                .ThenBy(x => x.Paciente.Id)
+                .Skip((int)salto)
+                .Take(filtro.Tamanho)
+                .Select(x => new
                 {
-                    Id = x.ClienteId,
-                    Nome = x.ClienteNome
-                }
-            })
-            .ToList();
+                    x.Paciente.Id,
+                    x.Paciente.Nome,
+                    x.Especie,
+                    x.Raca,
+                    x.Paciente.DataNascimento,
+                    x.Paciente.Peso,
+                    ClienteId = x.Cliente.Id,
+                    ClienteNome = x.Cliente.Nome
+                })
+                .ToListAsync();
+
+            itens = dados
+                .Select(x => new AnimalListItemDto
+                {
+                    Id = x.Id,
+                    Nome = x.Nome,
+                    Especie = x.Especie,
+                    Raca = x.Raca,
+                    IdadeAnos = CalcularIdade(x.DataNascimento),
+                    Peso = x.Peso,
+                    Cliente = new ClienteResumoDto
+                    {
+                        Id = x.ClienteId,
+                        Nome = x.ClienteNome
+                    }
+                })
+                .ToList();
+        }
 
         return new PagedResultDto<AnimalListItemDto>
         {
