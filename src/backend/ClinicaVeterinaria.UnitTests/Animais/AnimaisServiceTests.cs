@@ -79,7 +79,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.ClienteId = 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Equal(3, await db.Pacientes.CountAsync());
     }
@@ -216,7 +216,7 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(999, PedidoBobi()));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(999, PedidoBobi()));
     }
 
     [Fact(DisplayName = "UT-F002-017 — Atualizar para um Cliente inexistente devolve 404")]
@@ -226,7 +226,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.ClienteId = 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
     }
 
     // ----- EP-015 e EP-016 — Pesquisar e consultar -----
@@ -301,7 +301,7 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterDoClienteAsync(ClienteA, 999));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterDoClienteAsync(ClienteA, 999));
     }
 
     // ----- Idade do animal -----

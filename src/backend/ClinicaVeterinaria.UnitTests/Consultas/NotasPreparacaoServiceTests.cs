@@ -125,7 +125,7 @@ public class NotasPreparacaoServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var aux = await AdicionarAuxiliarAsync(db, "Carla Auxiliar", podeRegistarApoio: true);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
                 999, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux));
     }

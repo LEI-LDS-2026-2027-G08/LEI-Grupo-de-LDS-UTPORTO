@@ -86,7 +86,7 @@ public class RegistarChegadaServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).RegistarChegadaAsync(999, null));
     }
 

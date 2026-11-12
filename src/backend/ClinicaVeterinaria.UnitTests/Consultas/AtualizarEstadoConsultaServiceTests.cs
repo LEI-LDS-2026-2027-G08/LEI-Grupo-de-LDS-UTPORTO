@@ -157,7 +157,7 @@ public class AtualizarEstadoConsultaServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 999,
                 new UpdateEstadoConsultaDto

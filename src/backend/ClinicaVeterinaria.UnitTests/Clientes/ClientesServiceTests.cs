@@ -153,7 +153,7 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarAsync(999, PedidoAtualizacao(NifLivre, EmailLivre)));
     }
 

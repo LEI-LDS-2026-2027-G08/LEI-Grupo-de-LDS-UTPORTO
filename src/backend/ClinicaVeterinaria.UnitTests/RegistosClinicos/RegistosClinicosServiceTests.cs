@@ -303,7 +303,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).CriarAsync(PedidoExemplo(999), d.VetA));
 
         Assert.Equal(RegistosClinicosService.MensagemConsultaNaoEncontrada, erro.Message);
@@ -430,7 +430,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarAsync(999, new UpdateRegistoClinicoDto { Diagnostico = "x" }, d.VetA));
 
         Assert.Equal(RegistosClinicosService.MensagemRegistoNaoEncontrado, erro.Message);

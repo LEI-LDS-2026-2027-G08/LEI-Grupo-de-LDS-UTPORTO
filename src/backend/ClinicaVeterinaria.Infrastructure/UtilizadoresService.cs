@@ -117,7 +117,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 where u.Id == id && u.Perfil != Perfis.Cliente
                 select new { Utilizador = u, Funcionario = f })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         return new UtilizadorDto
         {
@@ -214,7 +214,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 where u.Id == id && u.Perfil != Perfis.Cliente
                 select new { Utilizador = u, Funcionario = f })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         // Regras de negócio do contrato (422), verificadas antes da unicidade do e-mail.
         if (id == administradorId && perfil != Perfis.Administrador)
@@ -270,7 +270,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         }
 
         var utilizador = await _db.Utilizadores.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         // Ao contrário de EP-005 e EP-007, uma conta de Cliente existe e dá 422 (contrato de EP-008).
         if (utilizador.Perfil == Perfis.Cliente)

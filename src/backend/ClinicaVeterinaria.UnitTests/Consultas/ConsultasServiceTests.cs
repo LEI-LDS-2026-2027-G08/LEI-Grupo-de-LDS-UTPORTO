@@ -299,8 +299,8 @@ public class ConsultasServiceTests
         var d = await CriarBaseAsync(db);
         var servico = CriarServico(db);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => servico.ObterConsultaAsync(999, AcessoConsultas.Rececionista));
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => servico.ObterConsultaAsync(999, AcessoConsultas.Veterinario(d.VetA)));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => servico.ObterConsultaAsync(999, AcessoConsultas.Rececionista));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => servico.ObterConsultaAsync(999, AcessoConsultas.Veterinario(d.VetA)));
     }
 
     [Fact(DisplayName = "I072 — EP-024 devolve a versão da marcação como ETag (RowVersion em Base64, entre aspas)")]

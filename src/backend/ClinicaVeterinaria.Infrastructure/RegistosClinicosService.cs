@@ -82,7 +82,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             .Where(m => m.Id == consultaId)
             .Select(m => new { m.VeterinarioId, m.Estado })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemConsultaNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemConsultaNaoEncontrada);
 
         // (3) Só o Veterinário da consulta → 403.
         if (marcacao.VeterinarioId != veterinarioId)
@@ -151,7 +151,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
 
         // (2) Registo existe → 404 (UT-F004-021).
         var registo = await _db.RegistosClinicos.FirstOrDefaultAsync(r => r.Id == id)
-            ?? throw new KeyNotFoundException(MensagemRegistoNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemRegistoNaoEncontrado);
 
         // (3) Só o Veterinário que fez o registo → 403.
         if (registo.VeterinarioId != veterinarioId)
@@ -228,7 +228,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // registo: o histórico clínico do paciente inclui os registos de todos os Veterinários.
         if (!await _db.RegistosClinicos.AsNoTracking().AnyAsync(r => r.Id == id))
         {
-            throw new KeyNotFoundException(MensagemRegistoNaoEncontrado);
+            throw new NaoEncontradoException(MensagemRegistoNaoEncontrado);
         }
 
         return await ObterDtoAsync(id);
@@ -254,7 +254,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 where p.Id == animalId
                 select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Registos das consultas do animal. As datas são dias em hora de Lisboa e as marcações
         // estão em UTC (R-FUSO): conta o início da consulta, da meia-noite de dataInicio à

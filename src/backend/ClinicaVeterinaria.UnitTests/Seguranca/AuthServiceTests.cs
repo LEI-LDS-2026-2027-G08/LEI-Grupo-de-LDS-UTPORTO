@@ -120,7 +120,7 @@ public class AuthServiceTests
         var hasher = new HasherDuplo();
         var logger = new LoggerDeTeste<AuthService>();
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db, hasher, logger: logger).LoginAsync(Pedido(EmailInexistente, "Qualquer#1")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -135,7 +135,7 @@ public class AuthServiceTests
         var tokens = new TokenServiceDuplo();
         var servico = CriarServico(db, new HasherDuplo(PasswordVerificationResult.Failed), tokens);
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => servico.LoginAsync(Pedido(EmailAdmin, "Errada#0000")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -161,7 +161,7 @@ public class AuthServiceTests
         using var db = CriarBase();
         var servico = CriarServico(db, new HasherDuplo(PasswordVerificationResult.Failed));
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => servico.LoginAsync(Pedido(EmailBloqueado, "Errada#0000")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -184,7 +184,7 @@ public class AuthServiceTests
         using var db = CriarBase();
         var logger = new LoggerDeTeste<AuthService>();
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db, logger: logger).LoginAsync(Pedido(EmailInexistente, "Segredo#123")));
 
         var mensagem = Assert.Single(logger.Registos).Mensagem;
@@ -269,7 +269,7 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db).ObterAutenticadoAsync(Bloqueado));
     }
 

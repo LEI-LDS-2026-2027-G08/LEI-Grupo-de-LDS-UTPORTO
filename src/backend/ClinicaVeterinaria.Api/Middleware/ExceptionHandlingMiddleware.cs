@@ -52,9 +52,9 @@ public sealed partial class ExceptionHandlingMiddleware
         var statusCode = exception switch
         {
             ValidacaoException => HttpStatusCode.BadRequest,
-            UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+            NaoAutenticadoException => HttpStatusCode.Unauthorized,
             ForbiddenException => HttpStatusCode.Forbidden,
-            KeyNotFoundException => HttpStatusCode.NotFound,
+            NaoEncontradoException => HttpStatusCode.NotFound,
             ConflitoException => HttpStatusCode.Conflict,
             PreconditionFailedException => HttpStatusCode.PreconditionFailed,
             UnprocessableEntityException => HttpStatusCode.UnprocessableEntity,

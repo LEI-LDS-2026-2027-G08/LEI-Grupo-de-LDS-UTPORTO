@@ -1,5 +1,6 @@
 using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.DTOs.Utilizadores;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -121,5 +122,5 @@ public sealed class UtilizadoresController : ControllerBase
     /// <summary>O Administrador autenticado vem sempre do token (RNF002).</summary>
     private int AdministradorId() =>
         User.ObterUtilizadorId()
-        ?? throw new UnauthorizedAccessException("O token não contém as claims obrigatórias.");
+        ?? throw new NaoAutenticadoException("O token não contém as claims obrigatórias.");
 }

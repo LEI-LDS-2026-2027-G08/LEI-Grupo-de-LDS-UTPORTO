@@ -67,7 +67,7 @@ public sealed class VeterinariosService : IVeterinariosService
 
         if (!existe)
         {
-            throw new KeyNotFoundException(MensagemNaoEncontrado);
+            throw new NaoEncontradoException(MensagemNaoEncontrado);
         }
 
         var duracaoMinutos = DuracaoConsulta.Ler(await _db.ConfiguracaoSistema.AsNoTracking()

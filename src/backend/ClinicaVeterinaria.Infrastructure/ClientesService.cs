@@ -92,7 +92,7 @@ public sealed class ClientesService : IClientesService
                 where c.Id == id
                 select new { Cliente = c, Utilizador = u })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         return await CriarClienteDtoAsync(dados.Cliente, dados.Utilizador);
     }
@@ -147,7 +147,7 @@ public sealed class ClientesService : IClientesService
         ArgumentNullException.ThrowIfNull(pedido);
 
         var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         var utilizador = await _db.Utilizadores.FirstAsync(u => u.Id == cliente.UtilizadorId);
 

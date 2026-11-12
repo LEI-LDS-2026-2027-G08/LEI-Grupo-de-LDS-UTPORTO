@@ -411,7 +411,7 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(999));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterAsync(999));
     }
 
     [Fact(DisplayName = "I065 — Uma conta de Cliente dá 404 (EP-005 só consulta contas de funcionário)")]
@@ -420,7 +420,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(cliente.Id));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterAsync(cliente.Id));
     }
 
     // ----- EP-007 — Atualizar conta de funcionário (I066) -----
@@ -599,7 +599,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(
             999, admin.Id, PedidoAtualizacao("Rita Lopes", "rita.lopes" + Dominio, Perfis.Rececionista)));
     }
 
@@ -610,7 +610,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(
             cliente.Id, admin.Id, PedidoAtualizacao("Joao Costa", cliente.Email, Perfis.Rececionista)));
 
         Assert.Equal(Perfis.Cliente, (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == cliente.Id)).Perfil);
@@ -763,7 +763,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).BloquearAsync(999, admin.Id, PedidoBloqueio()));
     }
 

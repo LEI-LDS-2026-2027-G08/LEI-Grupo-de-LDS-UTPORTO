@@ -295,7 +295,7 @@ public class CriarConsultaServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).CriarConsultaAsync(
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).CriarConsultaAsync(
             Pedido(999, d.VetA, "2026-10-15T09:00:00Z"), d.RecA));
 
         Assert.Equal(ConsultasService.MensagemAnimalNaoEncontrado, erro.Message);
@@ -310,7 +310,7 @@ public class CriarConsultaServiceTests
 
         foreach (var veterinarioId in new[] { 999, d.RecA })
         {
-            var erro = await Assert.ThrowsAsync<KeyNotFoundException>(() => servico.CriarConsultaAsync(
+            var erro = await Assert.ThrowsAsync<NaoEncontradoException>(() => servico.CriarConsultaAsync(
                 Pedido(d.AnimalA1, veterinarioId, "2026-10-15T09:00:00Z"), d.RecA));
 
             Assert.Equal(ConsultasService.MensagemVeterinarioNaoEncontrado, erro.Message);
@@ -326,7 +326,7 @@ public class CriarConsultaServiceTests
         vet.Estado = "Bloqueado";
         await db.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).CriarConsultaAsync(
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).CriarConsultaAsync(
             Pedido(d.AnimalA1, d.VetB, "2026-10-15T09:00:00Z"), d.RecA));
     }
 

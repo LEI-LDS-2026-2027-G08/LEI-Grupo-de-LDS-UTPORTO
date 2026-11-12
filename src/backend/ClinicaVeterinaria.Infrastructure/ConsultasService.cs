@@ -136,7 +136,7 @@ public sealed class ConsultasService : IConsultasService
 
         var linha = await ComDetalhes(_db.Marcacoes.AsNoTracking().Where(m => m.Id == id))
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (acesso.VeterinarioId is int veterinarioId && linha.VeterinarioId != veterinarioId)
         {
@@ -198,7 +198,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // Mesma regra de EP-021 e EP-022: conta ativa, perfil Veterinário e registo de funcionário.
@@ -213,7 +213,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!veterinarioAtivo)
         {
-            throw new KeyNotFoundException(MensagemVeterinarioNaoEncontrado);
+            throw new NaoEncontradoException(MensagemVeterinarioNaoEncontrado);
         }
 
         var duracaoMinutos = DuracaoConsulta.Ler(await _db.ConfiguracaoSistema.AsNoTracking()
@@ -301,7 +301,7 @@ public sealed class ConsultasService : IConsultasService
 
         var marcacao = await _db.Marcacoes
             .FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         // If-Match é opcional. Quando vem indicado, tem de corresponder
         // fortemente à RowVersion atual.
@@ -334,7 +334,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!veterinarioAtivo)
         {
-            throw new KeyNotFoundException(MensagemVeterinarioNaoEncontrado);
+            throw new NaoEncontradoException(MensagemVeterinarioNaoEncontrado);
         }
 
         var horario = await _db.HorariosFuncionamento.AsNoTracking()
@@ -436,7 +436,7 @@ public sealed class ConsultasService : IConsultasService
 
         var marcacao = await _db.Marcacoes
             .FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (!VersaoMarcacao.CorrespondeIfMatch(
                 marcacao.RowVersion,
@@ -590,7 +590,7 @@ public sealed class ConsultasService : IConsultasService
     public async Task<ChegadaComVersao> RegistarChegadaAsync(int id, string? ifMatch)
     {
         var marcacao = await _db.Marcacoes.FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (!VersaoMarcacao.CorrespondeIfMatch(marcacao.RowVersion, ifMatch))
         {
@@ -661,7 +661,7 @@ public sealed class ConsultasService : IConsultasService
             .Where(m => m.Id == id)
             .Select(m => m.Estado)
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         // Só Cancelada impede o registo; Realizada é aceite.
         if (estado == EstadosConsulta.Cancelada)

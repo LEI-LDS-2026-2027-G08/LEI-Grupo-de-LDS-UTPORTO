@@ -190,7 +190,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).RegistarAsync(999, Pedido(), d.VetA));
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).RegistarAsync(999, Pedido(), d.VetA));
 
         Assert.Equal(VacinacoesService.MensagemAnimalNaoEncontrado, erro.Message);
     }
@@ -282,11 +282,11 @@ public class VacinacoesServiceTests
         var d = await CriarBaseAsync(db);
         var servico = CriarServico(db);
 
-        var deOutroAnimal = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var deOutroAnimal = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => servico.AtualizarAsync(d.AnimalA2, d.VacinaA1, Pedido(), d.VetA));
-        var inexistente = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var inexistente = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => servico.AtualizarAsync(d.AnimalA1, 999, Pedido(), d.VetA));
-        var animalInexistente = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var animalInexistente = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => servico.AtualizarAsync(999, d.VacinaA1, Pedido(), d.VetA));
 
         Assert.Equal(VacinacoesService.MensagemAdministracaoNaoEncontrada, deOutroAnimal.Message);
@@ -483,7 +483,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterBoletimAsync(999, new BoletimQuery()));
 
         Assert.Equal(VacinacoesService.MensagemAnimalNaoEncontrado, erro.Message);
@@ -550,7 +550,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterBoletimDoClienteAsync(d.ClienteA, 999));
 
         Assert.Equal(VacinacoesService.MensagemAnimalNaoEncontrado, erro.Message);

@@ -71,7 +71,7 @@ public sealed class VacinacoesService : IVacinacoesService
                 where p.Id == animalId
                 select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Administrações do animal (UT-F006-018) e, com tipo, só as desse tipo (UT-F006-019).
         var administracoes = await ObterAdministracoesAsync(animalId, tipo);
@@ -95,7 +95,7 @@ public sealed class VacinacoesService : IVacinacoesService
         // (2) Animal existe → 404 (UT-F006-017).
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // (3) Grava o registo; a próxima administração é calculada (coluna calculada no SQL Server e
@@ -129,13 +129,13 @@ public sealed class VacinacoesService : IVacinacoesService
         // (2) Animal existe → 404.
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // (3) O registo existe e é deste animal → 404 (o registo não muda de animal).
         var registo = await _db.RegistosProfilaxias
                 .FirstOrDefaultAsync(r => r.Id == administracaoId && r.PacienteId == animalId)
-            ?? throw new KeyNotFoundException(MensagemAdministracaoNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemAdministracaoNaoEncontrada);
 
         // (4) Só o Veterinário que fez o registo o altera → 403 (como em EP-032, I077). A tabela
         // não guarda o autor das alterações, por isso o Veterinário do registo nunca muda.
@@ -161,7 +161,7 @@ public sealed class VacinacoesService : IVacinacoesService
                 .Where(p => p.Id == animalId)
                 .Select(p => (int?)p.ClienteId)
                 .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         if (donoId != clienteId)
         {

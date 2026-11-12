@@ -195,7 +195,7 @@ public class VeterinariosServiceTests
         var dados = await CriarBaseAsync(db);
         var id = conta == "REC_A" ? dados.RecA : 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(id, Periodo(Quinta)));
     }
 
@@ -205,7 +205,7 @@ public class VeterinariosServiceTests
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
 
-        var excecao = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var excecao = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(dados.VetBloqueado, Periodo(Quinta)));
 
         Assert.Equal("O veterinário indicado não existe ou não está ativo.", excecao.Message);

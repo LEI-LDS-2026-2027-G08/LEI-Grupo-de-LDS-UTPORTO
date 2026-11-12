@@ -140,7 +140,7 @@ public sealed class AnimaisService : IAnimaisService
                     .FirstOrDefault()
             })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         return new AnimalDto
         {
@@ -173,7 +173,7 @@ public sealed class AnimaisService : IAnimaisService
 
         if (!clienteExiste)
         {
-            throw new KeyNotFoundException(MensagemClienteNaoEncontrado);
+            throw new NaoEncontradoException(MensagemClienteNaoEncontrado);
         }
 
         var especie = await _db.Especies
@@ -222,7 +222,7 @@ public sealed class AnimaisService : IAnimaisService
 
         var paciente = await _db.Pacientes
             .FirstOrDefaultAsync(p => p.Id == id)
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         ValidarDadosAdministrativos(pedido);
 
@@ -231,7 +231,7 @@ public sealed class AnimaisService : IAnimaisService
 
         if (!clienteExiste)
         {
-            throw new KeyNotFoundException(MensagemClienteNaoEncontrado);
+            throw new NaoEncontradoException(MensagemClienteNaoEncontrado);
         }
 
         var especie = await _db.Especies
@@ -322,7 +322,7 @@ public sealed class AnimaisService : IAnimaisService
                 p.Peso
             })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // O dono é comparado com o Cliente do token; nenhum dado do animal
         // é devolvido quando pertence a outro Cliente (RNF002).

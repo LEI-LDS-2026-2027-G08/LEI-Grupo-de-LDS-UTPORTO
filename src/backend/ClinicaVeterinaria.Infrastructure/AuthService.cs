@@ -80,7 +80,7 @@ public sealed class AuthService : IAuthService
         {
             _passwordHasher.VerifyHashedPassword(UtilizadorReferencia, HashReferencia, password);
             LogTentativaFalhada(_logger, email, "e-mail não registado", null);
-            throw new UnauthorizedAccessException(MensagemCredenciaisInvalidas);
+            throw new NaoAutenticadoException(MensagemCredenciaisInvalidas);
         }
 
         var resultado = _passwordHasher.VerifyHashedPassword(
@@ -89,7 +89,7 @@ public sealed class AuthService : IAuthService
         if (resultado == PasswordVerificationResult.Failed)
         {
             LogTentativaFalhada(_logger, email, "palavra-passe incorreta", null);
-            throw new UnauthorizedAccessException(MensagemCredenciaisInvalidas);
+            throw new NaoAutenticadoException(MensagemCredenciaisInvalidas);
         }
 
         // Só depois de confirmar a palavra-passe, para que uma palavra-passe
@@ -136,7 +136,7 @@ public sealed class AuthService : IAuthService
 
         if (utilizador is null || utilizador.Estado != EstadosUtilizador.Ativo)
         {
-            throw new UnauthorizedAccessException(MensagemSessaoInvalida);
+            throw new NaoAutenticadoException(MensagemSessaoInvalida);
         }
 
         return await CriarUtilizadorAutenticadoAsync(utilizador);
