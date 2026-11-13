@@ -169,7 +169,7 @@ public static class AutenticacaoExtensions
             "Não tem permissão para executar esta operação.",
             "O perfil do utilizador autenticado não tem acesso a esta operação.");
 
-    // Mesmo formato do ExceptionHandlingMiddleware (I058).
+
     private static Task EscreverErroAsync(
         HttpResponse resposta,
         int codigo,
@@ -178,11 +178,13 @@ public static class AutenticacaoExtensions
     {
         resposta.StatusCode = codigo;
 
-        return resposta.WriteAsJsonAsync(new
-        {
-            code = codigo,
-            message = mensagem,
-            detail = detalhe,
-        });
+        return resposta.WriteAsJsonAsync(
+            new
+            {
+                code = codigo,
+                message = mensagem,
+                detail = detalhe,
+            },
+            resposta.HttpContext.RequestAborted);
     }
 }

@@ -78,7 +78,8 @@ public sealed partial class ExceptionHandlingMiddleware
         context.Response.StatusCode = (int)statusCode;
 
         await context.Response.WriteAsync(
-            JsonSerializer.Serialize(response));
+            JsonSerializer.Serialize(response),
+            context.RequestAborted);
     }
 
     private static string GetMessage(HttpStatusCode statusCode)
