@@ -114,7 +114,7 @@ public sealed class AnimaisService : IAnimaisService
                     Cliente = new ClienteResumoDto
                     {
                         Id = x.ClienteId,
-                        Nome = x.ClienteNome
+                        Nome = x.ClienteNome,
                     },
                 })
                 .ToList();

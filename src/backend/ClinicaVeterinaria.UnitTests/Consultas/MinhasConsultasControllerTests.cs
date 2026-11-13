@@ -58,7 +58,7 @@ public class MinhasConsultasControllerTests
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext { User = PrincipalCliente(clienteId: 7) }
+                HttpContext = new DefaultHttpContext { User = PrincipalCliente(clienteId: 7) },
             },
         };
         var query = new MinhasConsultasQuery { Tipo = "historico", AnimalId = 3 };

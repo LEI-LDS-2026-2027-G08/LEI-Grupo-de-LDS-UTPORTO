@@ -441,7 +441,7 @@ public class ConsultasControllerTests
                 HttpContext = new DefaultHttpContext
                 {
                     User = utilizador
-                }
+                },
             },
         };
 

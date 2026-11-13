@@ -114,7 +114,7 @@ public sealed class VeterinariosService : IVeterinariosService
                     Data = dia.Data,
                     HorariosLivres = dia.HorariosLivres
                         .Select(hora => hora.ToString(FormatoHora, CultureInfo.InvariantCulture))
-                        .ToList()
+                        .ToList(),
                 })
                 .ToList(),
         };

@@ -398,7 +398,7 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
                     new
                     {
                         estado,
-                        observacao = (string?)null
+                        observacao = (string?)null,
                     }),
             };
 

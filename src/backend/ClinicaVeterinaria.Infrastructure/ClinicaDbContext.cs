@@ -374,6 +374,8 @@ public class ClinicaDbContext : DbContext
 
         // 6.1: NO ACTION em todas as chaves estrangeiras (DeleteBehavior.Restrict, 6.7)
         foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(t => t.GetForeignKeys()))
+        {
             fk.DeleteBehavior = DeleteBehavior.Restrict;
+        }
     }
 }

@@ -219,7 +219,8 @@ public sealed class ClientesService : IClientesService
         catch (DbUpdateException ex) when (ex.InnerException is SqlException
         {
             Number: ErroChaveDuplicada or ErroRestricaoUnica
-        } 
+        }
+
 sql)
         {
             var mensagem = sql.Message.Contains("UQ_Cliente_NIF", StringComparison.Ordinal)

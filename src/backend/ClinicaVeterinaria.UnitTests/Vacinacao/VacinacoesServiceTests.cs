@@ -80,10 +80,10 @@ public class VacinacoesServiceTests
         switch (campo)
         {
             case "tipo":
-                pedido.Tipo = "";
+                pedido.Tipo = string.Empty;
                 break;
             case "produto":
-                pedido.Produto = "";
+                pedido.Produto = string.Empty;
                 break;
             case "lote":
                 pedido.Lote = "   ";

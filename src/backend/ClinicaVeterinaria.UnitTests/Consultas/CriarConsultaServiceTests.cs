@@ -358,7 +358,6 @@ public class CriarConsultaServiceTests
         Assert.Equal(esperado, criada.Consulta.Motivo);
     }
 
-
     // ----- Auxiliares -----
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
@@ -454,7 +453,6 @@ public class CriarConsultaServiceTests
 
         return utilizador.Id;
     }
-
 
     private static async Task AdicionarMarcacaoAsync(
         ClinicaDbContext db,

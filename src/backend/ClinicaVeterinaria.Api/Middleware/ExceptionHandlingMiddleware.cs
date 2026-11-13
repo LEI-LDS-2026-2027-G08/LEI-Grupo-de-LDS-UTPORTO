@@ -64,7 +64,7 @@ public sealed partial class ExceptionHandlingMiddleware
         var detalhe = exception.Message;
         if (statusCode == HttpStatusCode.InternalServerError)
         {
-            detalhe = GetMessage(statusCode); //Adicionado a 12/11/2026 para tratar a mensagem interna do SQL
+            detalhe = GetMessage(statusCode); // Adicionado a 12/11/2026 para tratar a mensagem interna do SQL
         }
 
         var response = new

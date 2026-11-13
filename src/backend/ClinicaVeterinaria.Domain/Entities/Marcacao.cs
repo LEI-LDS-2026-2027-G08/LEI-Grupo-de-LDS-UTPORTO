@@ -27,5 +27,4 @@ public class Marcacao
     public DateTime? DataUltimaAlteracao { get; set; }
 
     public byte[] RowVersion { get; set; } = Array.Empty<byte>();
-
 }

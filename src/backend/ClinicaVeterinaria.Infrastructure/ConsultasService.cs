@@ -169,7 +169,7 @@ public sealed class ConsultasService : IConsultasService
                     Id = n.Id,
                     Texto = n.Descricao,
                     Autor = n.Autor,
-                    CriadaEm = Utc(n.DataRegisto)
+                    CriadaEm = Utc(n.DataRegisto),
                 })
                 .ToList(),
         };

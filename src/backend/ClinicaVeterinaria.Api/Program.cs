@@ -72,7 +72,7 @@ builder.Services.AddSwaggerGen(options =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
             },
             Array.Empty<string>()
         },
@@ -135,4 +135,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

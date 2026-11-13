@@ -85,7 +85,7 @@ public sealed class RegistosClinicosEndpointsTests :
 
         using var resposta = await cliente.PostAsJsonAsync(
             "/registos-clinicos",
-            new { consultaId = m3, notasClinicas = "   ", diagnostico = "", tratamentos = Array.Empty<object>(), prescricoes = Array.Empty<object>() });
+            new { consultaId = m3, notasClinicas = "   ", diagnostico = string.Empty, tratamentos = Array.Empty<object>(), prescricoes = Array.Empty<object>() });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
 
@@ -302,7 +302,7 @@ public sealed class RegistosClinicosEndpointsTests :
         var antes = await LerRegistoAsync(registoId);
         using var cliente = await ClienteDeAsync(EmailVetAna);
 
-        using var resposta = await cliente.PutAsJsonAsync($"/registos-clinicos/{registoId}", new { notasClinicas = "" });
+        using var resposta = await cliente.PutAsJsonAsync($"/registos-clinicos/{registoId}", new { notasClinicas = string.Empty });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
         using var documento = await LerAsync(resposta);

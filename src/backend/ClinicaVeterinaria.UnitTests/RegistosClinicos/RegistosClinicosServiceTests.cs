@@ -132,8 +132,8 @@ public class RegistosClinicosServiceTests
         var pedido = new CreateRegistoClinicoDto
         {
             ConsultaId = d.ConsultaConfirmada,
-            NotasClinicas = "",
-            Diagnostico = "",
+            NotasClinicas = string.Empty,
+            Diagnostico = string.Empty,
             Tratamentos = [],
             Prescricoes = [],
         };
@@ -169,13 +169,13 @@ public class RegistosClinicosServiceTests
         switch (campoEmFalta)
         {
             case "medicamento":
-                prescricao.Medicamento = "";
+                prescricao.Medicamento = string.Empty;
                 break;
             case "dosagem":
-                prescricao.Dosagem = "";
+                prescricao.Dosagem = string.Empty;
                 break;
             default:
-                prescricao.Frequencia = "";
+                prescricao.Frequencia = string.Empty;
                 break;
         }
 
@@ -222,7 +222,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
         var tratamento = Tratamento();
-        tratamento.Descricao = "";
+        tratamento.Descricao = string.Empty;
         var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Tratamentos = [tratamento] };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
@@ -516,7 +516,7 @@ public class RegistosClinicosServiceTests
         var pedido = new UpdateRegistoClinicoDto
         {
             Diagnostico = "Outro diagnóstico",
-            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = "", DataAplicacao = Hoje }],
+            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = string.Empty, DataAplicacao = Hoje }],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -537,7 +537,7 @@ public class RegistosClinicosServiceTests
         {
             Prescricoes =
             [
-                new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas X", Dosagem = "", Frequencia = "2 vezes por dia" }
+                new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas X", Dosagem = string.Empty, Frequencia = "2 vezes por dia" }
             ],
         };
 

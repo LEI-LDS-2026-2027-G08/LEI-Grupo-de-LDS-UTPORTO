@@ -135,7 +135,7 @@ public sealed class RegistoClinicoPersistenciaEndpointsTests :
                 },
                 prescricoes = new[]
                 {
-                    new { id = prescricaoId, medicamento = "Gotas auriculares X", dosagem = "2 gotas", frequencia = "2 vezes por dia", duracaoDias = 5 }
+                    new { id = prescricaoId, medicamento = "Gotas auriculares X", dosagem = "2 gotas", frequencia = "2 vezes por dia", duracaoDias = 5 },
                 },
             });
 

@@ -153,7 +153,7 @@ public class JwtTokenServiceTests
             {
                 [ClaimsClinica.UtilizadorId] = "1",
                 [ClaimsClinica.Perfil] = Perfis.Administrador,
-                [ClaimsClinica.Jti] = "sem-assinatura"
+                [ClaimsClinica.Jti] = "sem-assinatura",
             },
         });
 

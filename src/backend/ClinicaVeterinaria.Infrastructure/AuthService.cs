@@ -123,7 +123,7 @@ public sealed class AuthService : IAuthService
                 Nome = autenticado.Nome,
                 Email = autenticado.Email,
                 Perfil = autenticado.Perfil,
-                ClienteId = autenticado.ClienteId
+                ClienteId = autenticado.ClienteId,
             },
         };
     }

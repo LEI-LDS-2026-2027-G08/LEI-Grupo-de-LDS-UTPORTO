@@ -110,7 +110,7 @@ public sealed class ClinicaService : IClinicaService
                 {
                     DiaSemana = ValidadorHorario.NomeDia(p.DiaSemana),
                     Abertura = ValidadorHorario.FormatarHora(p.Abertura),
-                    Fecho = ValidadorHorario.FormatarHora(p.Fecho)
+                    Fecho = ValidadorHorario.FormatarHora(p.Fecho),
                 })
                 .ToList(),
         };

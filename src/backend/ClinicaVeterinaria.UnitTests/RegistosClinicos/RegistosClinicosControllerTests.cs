@@ -181,7 +181,7 @@ public class RegistosClinicosControllerTests
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext { User = utilizador }
+                HttpContext = new DefaultHttpContext { User = utilizador },
             },
         };
 

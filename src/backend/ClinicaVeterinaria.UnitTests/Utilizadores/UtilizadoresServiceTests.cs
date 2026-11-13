@@ -165,7 +165,7 @@ public class UtilizadoresServiceTests
     public void NomeVazioERecusado()
     {
         var pedido = PedidoRui();
-        pedido.Nome = "";
+        pedido.Nome = string.Empty;
 
         Assert.Equal("O nome é obrigatório.", ErroNoCampo(pedido, nameof(CreateUtilizadorDto.Nome)));
     }

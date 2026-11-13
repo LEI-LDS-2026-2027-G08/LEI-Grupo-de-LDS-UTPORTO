@@ -28,13 +28,13 @@ public class AdministracaoDtoValidacaoTests
         switch (campo)
         {
             case "tipo":
-                pedido.Tipo = "";
+                pedido.Tipo = string.Empty;
                 break;
             case "produto":
                 pedido.Produto = " ";
                 break;
             case "lote":
-                pedido.Lote = "";
+                pedido.Lote = string.Empty;
                 break;
             default:
                 pedido.DataAdministracao = null;
