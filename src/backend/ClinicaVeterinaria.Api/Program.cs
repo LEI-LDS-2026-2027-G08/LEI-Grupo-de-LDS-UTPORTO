@@ -91,13 +91,13 @@ if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
         try
         {
             using var scope = app.Services.CreateScope();
-            scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.Migrate();
+            await scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.MigrateAsync();
             break;
         }
         catch (Exception ex) when (tentativa < 12 && (ex is SqlException || ex.InnerException is SqlException))
         {
             avisoBaseIndisponivel(app.Logger, tentativa, ex);
-            Thread.Sleep(TimeSpan.FromSeconds(15));
+            await Task.Delay(TimeSpan.FromSeconds(15));
         }
     }
 }
@@ -124,4 +124,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
