@@ -6,6 +6,7 @@ namespace ClinicaVeterinaria.Application.DTOs.Comum;
 public class ClienteRefDto
 {
     public int Id { get; set; }
+
     public string Nome { get; set; } = string.Empty;
 
     /// <summary>Só é preenchido na ficha do animal (EP-016); nas consultas vem a <c>null</c>.</summary>

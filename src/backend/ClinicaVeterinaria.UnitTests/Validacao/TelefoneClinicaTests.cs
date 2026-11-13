@@ -15,7 +15,7 @@ public class TelefoneClinicaTests
             Telefone = telefone,
             Email = "geral@clinica.test",
             DuracaoConsultaMinutos = 30,
-            HorarioFuncionamento = []
+            HorarioFuncionamento = [],
         };
         return Validator.TryValidateObject(pedido, new ValidationContext(pedido), null, validateAllProperties: true);
     }

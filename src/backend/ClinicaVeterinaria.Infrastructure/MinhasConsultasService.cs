@@ -63,7 +63,7 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
                 AnimalId = p.Id,
                 AnimalNome = p.Nome,
                 Especie = e.Nome,
-                VeterinarioNome = f.Nome
+                VeterinarioNome = f.Nome,
             };
 
         if (query.AnimalId is int filtroAnimal)
@@ -90,11 +90,12 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
             .Select(l => new MinhaConsultaDto
             {
                 Id = l.Id,
+
                 // As colunas datetime2 guardam UTC (Modelo de Dados, D15), mas são lidas sem fuso.
                 DataHora = DateTime.SpecifyKind(l.DataHoraInicio, DateTimeKind.Utc),
                 Estado = l.Estado,
                 Animal = new AnimalRefDto { Id = l.AnimalId, Nome = l.AnimalNome, Especie = l.Especie },
-                Veterinario = l.VeterinarioNome
+                Veterinario = l.VeterinarioNome,
             })
             .ToList();
     }

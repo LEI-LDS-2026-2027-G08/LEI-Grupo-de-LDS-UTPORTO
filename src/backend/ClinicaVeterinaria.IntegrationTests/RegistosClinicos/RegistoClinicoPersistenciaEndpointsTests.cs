@@ -131,12 +131,12 @@ public sealed class RegistoClinicoPersistenciaEndpointsTests :
                 tratamentos = new object[]
                 {
                     new { id = tratamentoId, descricao = "Limpeza auricular (repetida)", dataAplicacao = "2026-11-03" },
-                    new { descricao = "Aplicação de pomada", dataAplicacao = "2026-11-03" }
+                    new { descricao = "Aplicação de pomada", dataAplicacao = "2026-11-03" },
                 },
                 prescricoes = new[]
                 {
                     new { id = prescricaoId, medicamento = "Gotas auriculares X", dosagem = "2 gotas", frequencia = "2 vezes por dia", duracaoDias = 5 }
-                }
+                },
             });
 
         Assert.Equal(HttpStatusCode.OK, atualizar.StatusCode);
@@ -213,14 +213,13 @@ public sealed class RegistoClinicoPersistenciaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static object CorpoCriacao(int consultaId) => new
     {
         consultaId,
         notasClinicas = "Kiko com prurido auricular; sem febre.",
         diagnostico = "Otite externa",
         tratamentos = new[] { new { descricao = "Limpeza auricular", dataAplicacao = "2026-11-03" } },
-        prescricoes = new[] { new { medicamento = "Gotas auriculares X", dosagem = "3 gotas", frequencia = "2 vezes por dia", duracaoDias = 7 } }
+        prescricoes = new[] { new { medicamento = "Gotas auriculares X", dosagem = "3 gotas", frequencia = "2 vezes por dia", duracaoDias = 7 } },
     };
 
     private static async Task<JsonDocument> LerAsync(HttpResponseMessage resposta) =>

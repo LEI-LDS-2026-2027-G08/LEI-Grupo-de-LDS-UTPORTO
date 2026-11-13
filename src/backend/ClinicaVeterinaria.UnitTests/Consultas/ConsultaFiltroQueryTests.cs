@@ -38,7 +38,7 @@ public class ConsultaFiltroQueryTests
         var erros = Validar(new ConsultaFiltroQuery
         {
             DataInicio = new DateOnly(2026, 10, 15),
-            DataFim = new DateOnly(2026, 10, 14)
+            DataFim = new DateOnly(2026, 10, 14),
         });
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemDataFimAnterior, Assert.Single(erros));

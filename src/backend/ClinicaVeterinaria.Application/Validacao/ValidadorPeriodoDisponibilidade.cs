@@ -15,10 +15,13 @@ public static class ValidadorPeriodoDisponibilidade
 
     public const string MensagemDataInicioObrigatoria =
         "A data de início (dataInicio) é obrigatória, no formato AAAA-MM-DD.";
+
     public const string MensagemDataFimAnterior =
         "A data de fim (dataFim) não pode ser anterior à data de início (dataInicio).";
+
     public const string MensagemPeriodoDemasiadoLongo =
         "O período não pode ter mais de 31 dias.";
+
     public const string MensagemForaDosLimites =
         "As datas têm de estar entre 2000-01-01 e 9998-12-31.";
 

@@ -58,7 +58,7 @@ public sealed partial class ExceptionHandlingMiddleware
             ConflitoException => HttpStatusCode.Conflict,
             PreconditionFailedException => HttpStatusCode.PreconditionFailed,
             UnprocessableEntityException => HttpStatusCode.UnprocessableEntity,
-            _ => HttpStatusCode.InternalServerError
+            _ => HttpStatusCode.InternalServerError,
         };
 
         var detalhe = exception.Message;
@@ -71,7 +71,7 @@ public sealed partial class ExceptionHandlingMiddleware
         {
             code = (int)statusCode,
             message = GetMessage(statusCode),
-            detail = detalhe
+            detail = detalhe,
         };
 
         context.Response.ContentType = "application/json";
@@ -92,7 +92,7 @@ public sealed partial class ExceptionHandlingMiddleware
             HttpStatusCode.Conflict => "Conflito ao processar o pedido.",
             HttpStatusCode.PreconditionFailed => "A pré-condição indicada não corresponde à versão atual do recurso.",
             HttpStatusCode.UnprocessableEntity => "Não foi possível processar os dados fornecidos.",
-            _ => "Ocorreu um erro interno no servidor."
+            _ => "Ocorreu um erro interno no servidor.",
         };
     }
 }

@@ -32,7 +32,6 @@ public sealed class ChegadaENotasPreparacaoEndpointsTests :
     }
 
     // ----- EP-028 -----
-
     [Fact(DisplayName = "IT-EP028-01 — marcação Confirmada sem chegada devolve 200 com chegadaEm")]
     public async Task ChegadaValidaDevolve200()
     {
@@ -129,7 +128,6 @@ public sealed class ChegadaENotasPreparacaoEndpointsTests :
     }
 
     // ----- EP-029 -----
-
     [Theory(DisplayName = "IT-EP029-01 — Auxiliar autorizado cria a nota (texto normal e com 1000 caracteres)")]
     [InlineData(17)]
     [InlineData(1000)]
@@ -244,7 +242,6 @@ public sealed class ChegadaENotasPreparacaoEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private sealed record RegistoClinicoResumo(string? NotasClinicas, string? Diagnostico, DateTime? AtualizadoEm);
 
     private static async Task<HttpResponseMessage> EnviarChegadaAsync(HttpClient cliente, int id, string? ifMatch = null)

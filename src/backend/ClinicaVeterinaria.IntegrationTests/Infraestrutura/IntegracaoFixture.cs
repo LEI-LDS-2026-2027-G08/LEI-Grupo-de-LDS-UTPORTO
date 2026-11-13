@@ -39,7 +39,7 @@ public sealed class IntegracaoFixture : IAsyncLifetime
             new SqlConnectionStringBuilder(_sqlServer.GetConnectionString())
             {
                 InitialCatalog = nomeBaseDados,
-                TrustServerCertificate = true
+                TrustServerCertificate = true,
             };
 
         ConnectionString = connectionStringBuilder.ConnectionString;
@@ -104,7 +104,7 @@ public sealed class IntegracaoFixture : IAsyncLifetime
                     new Table("ConfiguracaoSistema"),
                     new Table("Especie"),
                     new Table("Raca")
-                ]
+                ],
             });
     }
 
@@ -155,7 +155,7 @@ public sealed class IntegracaoFixture : IAsyncLifetime
             new SqlConnectionStringBuilder(connectionString)
             {
                 InitialCatalog = "master",
-                TrustServerCertificate = true
+                TrustServerCertificate = true,
             };
 
         await using var connection =

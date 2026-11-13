@@ -177,7 +177,6 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private sealed record Registo(
         int Id,
         int PacienteId,

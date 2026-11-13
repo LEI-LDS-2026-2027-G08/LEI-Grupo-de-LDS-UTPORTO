@@ -149,7 +149,6 @@ public class NotasPreparacaoServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static async Task<int> AdicionarAuxiliarAsync(ClinicaDbContext db, string nome, bool podeRegistarApoio)
@@ -160,7 +159,7 @@ public class NotasPreparacaoServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.AuxiliarVeterinario,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -169,7 +168,7 @@ public class NotasPreparacaoServiceTests
         {
             UtilizadorId = utilizador.Id,
             Nome = nome,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         });
         await db.SaveChangesAsync();
 
@@ -187,7 +186,7 @@ public class NotasPreparacaoServiceTests
             Estado = estado,
             CriadaPorId = 1,
             DataCriacao = Relogio.UtcDateTime,
-            RowVersion = [0, 0, 0, 0, 0, 0, 0, 1]
+            RowVersion = [0, 0, 0, 0, 0, 0, 0, 1],
         };
 
         db.Marcacoes.Add(marcacao);

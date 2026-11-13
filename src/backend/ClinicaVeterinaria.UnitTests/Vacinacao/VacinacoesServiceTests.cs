@@ -28,7 +28,6 @@ public class VacinacoesServiceTests
     private static readonly DateOnly Hoje = new(2026, 10, 14);
 
     // ----- EP-043 — Registar vacinação ou desparasitação -----
-
     [Fact(DisplayName = "UT-F006-008 — vacina com intervalo de 365 dias: registo do VET_A e próxima a 2027-10-14")]
     public async Task RegistaVacinaComIntervalo()
     {
@@ -209,7 +208,6 @@ public class VacinacoesServiceTests
     }
 
     // ----- RF056 — Atualizar vacinação ou desparasitação (I082, critério 4) -----
-
     [Fact(DisplayName = "I082 — atualizar a data de administração recalcula a próxima (2026-09-01 + 365 = 2027-09-01)")]
     public async Task AtualizarDataRecalculaProxima()
     {
@@ -307,7 +305,6 @@ public class VacinacoesServiceTests
     }
 
     // ----- I089 — casos além da I028 (critérios do Backlog de Projeto v03) -----
-
     [Theory(DisplayName = "I089 — vacinação sem intervalo e desparasitação com intervalo: a próxima depende só do intervalo, não do tipo")]
     [InlineData(TiposAdministracao.Vacina, null, null)]
     [InlineData(TiposAdministracao.Desparasitacao, 90, "2027-01-12")]
@@ -383,7 +380,6 @@ public class VacinacoesServiceTests
     }
 
     // ----- EP-042 — Consultar boletim do paciente (web) -----
-
     [Fact(DisplayName = "UT-F006-018 — administrações da mais recente para a mais antiga; próximas só com a vacina de 2027-10-14")]
     public async Task BoletimCompleto()
     {
@@ -501,7 +497,6 @@ public class VacinacoesServiceTests
     }
 
     // ----- EP-044 — Consultar boletim do meu animal (Cliente) -----
-
     [Fact(DisplayName = "UT-F006-022 — o Cliente vê o mesmo histórico e as mesmas próximas do boletim web")]
     public async Task BoletimDoCliente()
     {
@@ -557,7 +552,6 @@ public class VacinacoesServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static VacinacoesService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static DateOnly Data(string texto) => DateOnly.Parse(texto, CultureInfo.InvariantCulture);
@@ -574,7 +568,7 @@ public class VacinacoesServiceTests
             Produto = produto,
             Lote = lote,
             DataAdministracao = data ?? Hoje,
-            IntervaloDias = intervaloDias
+            IntervaloDias = intervaloDias,
         };
 
     /// <summary>
@@ -632,7 +626,7 @@ public class VacinacoesServiceTests
             Lote = lote,
             DataAdministracao = data,
             IntervaloDias = intervaloDias,
-            DataRegisto = Relogio.UtcDateTime.AddDays(-1)
+            DataRegisto = Relogio.UtcDateTime.AddDays(-1),
         };
 
     private static async Task<int> AdicionarFuncionarioAsync(ClinicaDbContext db, string nome)
@@ -643,7 +637,7 @@ public class VacinacoesServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Veterinario,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -662,7 +656,7 @@ public class VacinacoesServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -672,7 +666,7 @@ public class VacinacoesServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();

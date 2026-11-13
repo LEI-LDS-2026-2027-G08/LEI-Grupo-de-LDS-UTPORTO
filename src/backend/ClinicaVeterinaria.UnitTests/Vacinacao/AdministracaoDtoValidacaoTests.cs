@@ -95,7 +95,7 @@ public class AdministracaoDtoValidacaoTests
         Produto = "Desparasitante interno Y",
         Lote = "DP-0042",
         DataAdministracao = new DateOnly(2026, 10, 14),
-        IntervaloDias = 90
+        IntervaloDias = 90,
     };
 
     private static List<ValidationResult> Validar(object objeto)

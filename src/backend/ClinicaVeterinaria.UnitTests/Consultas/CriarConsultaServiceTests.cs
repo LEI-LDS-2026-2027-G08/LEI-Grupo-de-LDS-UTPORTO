@@ -26,7 +26,6 @@ public class CriarConsultaServiceTests
     private static readonly DateTimeOffset Relogio = new(2026, 10, 14, 8, 0, 0, TimeSpan.Zero);
 
     // ----- Caso válido -----
-
     [Fact(DisplayName = "UT-F003-019 — cria a marcação Pendente, com a duração configurada e a Rececionista como autora")]
     public async Task CriaMarcacaoPendente()
     {
@@ -56,7 +55,6 @@ public class CriarConsultaServiceTests
     }
 
     // ----- 400 — data e campos -----
-
     [Fact(DisplayName = "UT-F003-020 — data no passado (RELOGIO − 1 min) devolve 400")]
     public async Task DataNoPassadoDevolve400()
     {
@@ -92,7 +90,7 @@ public class CriarConsultaServiceTests
         {
             AnimalId = animalId,
             VeterinarioId = veterinarioId,
-            DataHora = Utc("2026-10-15T09:00:00Z")
+            DataHora = Utc("2026-10-15T09:00:00Z"),
         };
 
         await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarConsultaAsync(pedido, 1));
@@ -122,7 +120,6 @@ public class CriarConsultaServiceTests
     }
 
     // ----- 422 — horário de funcionamento -----
-
     [Fact(DisplayName = "UT-F003-023 — domingo (clínica fechada) devolve 422")]
     public async Task DomingoDevolve422()
     {
@@ -195,7 +192,7 @@ public class CriarConsultaServiceTests
         {
             Chave = "DuracaoPadraoConsultaMinutos",
             Valor = "45",
-            DataUltimaAlteracao = Relogio.UtcDateTime
+            DataUltimaAlteracao = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
         var servico = CriarServico(db);
@@ -208,7 +205,6 @@ public class CriarConsultaServiceTests
     }
 
     // ----- 422 — Veterinário indisponível -----
-
     [Fact(DisplayName = "UT-F003-027 — marcação Confirmada do mesmo Veterinário às 10:00 locais devolve 422")]
     public async Task MesmaHoraOcupadaDevolve422()
     {
@@ -288,7 +284,6 @@ public class CriarConsultaServiceTests
     }
 
     // ----- 404 -----
-
     [Fact(DisplayName = "UT-F003-031 — animal inexistente devolve 404")]
     public async Task AnimalInexistenteDevolve404()
     {
@@ -331,7 +326,6 @@ public class CriarConsultaServiceTests
     }
 
     // ----- Dados do pedido -----
-
     [Fact(DisplayName = "I073 — dataHora sem indicação de fuso é lida como UTC e os segundos fracionários são retirados")]
     public async Task DataSemFusoELidaComoUtc()
     {
@@ -341,7 +335,7 @@ public class CriarConsultaServiceTests
         {
             AnimalId = d.AnimalA1,
             VeterinarioId = d.VetA,
-            DataHora = new DateTime(2026, 10, 15, 9, 0, 0, 500, DateTimeKind.Unspecified)
+            DataHora = new DateTime(2026, 10, 15, 9, 0, 0, 500, DateTimeKind.Unspecified),
         };
 
         var criada = await CriarServico(db).CriarConsultaAsync(pedido, d.RecA);
@@ -366,7 +360,6 @@ public class CriarConsultaServiceTests
 
 
     // ----- Auxiliares -----
-
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static CreateConsultaDto Pedido(int animalId, int veterinarioId, string dataHoraUtc, string? motivo = null) =>
@@ -375,7 +368,7 @@ public class CriarConsultaServiceTests
             AnimalId = animalId,
             VeterinarioId = veterinarioId,
             DataHora = Utc(dataHoraUtc),
-            Motivo = motivo
+            Motivo = motivo,
         };
 
     private static DateTime Utc(string texto) => DateTime.Parse(
@@ -412,7 +405,7 @@ public class CriarConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -422,7 +415,7 @@ public class CriarConsultaServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -440,7 +433,7 @@ public class CriarConsultaServiceTests
         DiaSemana = dia,
         HoraAbertura = TimeOnly.Parse(abertura, CultureInfo.InvariantCulture),
         HoraFecho = TimeOnly.Parse(fecho, CultureInfo.InvariantCulture),
-        Ativo = true
+        Ativo = true,
     };
 
     private static async Task<int> AdicionarFuncionarioAsync(ClinicaDbContext db, string nome, string perfil)
@@ -451,7 +444,7 @@ public class CriarConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -480,7 +473,7 @@ public class CriarConsultaServiceTests
             DuracaoMinutos = duracaoMinutos,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
     }

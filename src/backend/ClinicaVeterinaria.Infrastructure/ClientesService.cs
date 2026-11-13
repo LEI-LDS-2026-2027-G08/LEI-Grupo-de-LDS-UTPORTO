@@ -79,7 +79,7 @@ public sealed class ClientesService : IClientesService
                     Nif = x.Cliente.NIF,
                     Telefone = x.Cliente.Telefone,
                     Email = x.Email,
-                    NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)
+                    NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id),
                 })
                 .ToListAsync();
         }
@@ -89,7 +89,7 @@ public sealed class ClientesService : IClientesService
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
@@ -123,7 +123,7 @@ public sealed class ClientesService : IClientesService
             Email = email,
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = agora
+            DataCriacao = agora,
         };
         utilizador.PasswordHash = _passwordHasher.HashPassword(utilizador, pedido.PasswordInicial);
 
@@ -133,7 +133,7 @@ public sealed class ClientesService : IClientesService
             NIF = nif,
             Telefone = pedido.Telefone.Trim(),
             Morada = NormalizarOpcional(pedido.Morada),
-            DataRegisto = agora
+            DataRegisto = agora,
         };
 
         // Utilizador e Cliente são criados juntos ou não é criado nenhum.
@@ -219,7 +219,8 @@ public sealed class ClientesService : IClientesService
         catch (DbUpdateException ex) when (ex.InnerException is SqlException
         {
             Number: ErroChaveDuplicada or ErroRestricaoUnica
-        } sql)
+        } 
+sql)
         {
             var mensagem = sql.Message.Contains("UQ_Cliente_NIF", StringComparison.Ordinal)
                 ? MensagemNifRegistado
@@ -249,7 +250,7 @@ public sealed class ClientesService : IClientesService
             Morada = cliente.Morada,
             UtilizadorId = utilizador.Id,
             EstadoConta = utilizador.Estado,
-            Animais = animais
+            Animais = animais,
         };
     }
 

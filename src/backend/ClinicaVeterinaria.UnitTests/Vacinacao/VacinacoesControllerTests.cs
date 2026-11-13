@@ -134,7 +134,7 @@ public class VacinacoesControllerTests
         var servico = new VacinacoesServiceDeTeste();
         var controlador = new MinhasVacinacoesController(servico)
         {
-            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente, clienteId: 7))
+            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente, clienteId: 7)),
         };
 
         var resposta = await controlador.ObterBoletim(3);
@@ -151,7 +151,7 @@ public class VacinacoesControllerTests
         var servico = new VacinacoesServiceDeTeste();
         var controlador = new MinhasVacinacoesController(servico)
         {
-            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente))
+            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente)),
         };
 
         await Assert.ThrowsAsync<ForbiddenException>(() => controlador.ObterBoletim(3));

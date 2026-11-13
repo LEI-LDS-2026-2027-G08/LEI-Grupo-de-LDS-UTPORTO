@@ -182,7 +182,7 @@ public class RegistosClinicosControllerTests
             ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext { User = utilizador }
-            }
+            },
         };
 
     private sealed class RegistosClinicosServiceDeTeste : IRegistosClinicosService

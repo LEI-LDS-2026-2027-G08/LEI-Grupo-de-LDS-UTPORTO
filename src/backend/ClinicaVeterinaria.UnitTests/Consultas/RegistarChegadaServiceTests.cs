@@ -91,7 +91,6 @@ public class RegistarChegadaServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     // A base em memória não verifica chaves estrangeiras: a chegada só lê a própria marcação.
@@ -109,7 +108,7 @@ public class RegistarChegadaServiceTests
             Estado = estado,
             CriadaPorId = 1,
             DataCriacao = Relogio.UtcDateTime,
-            RowVersion = rowVersion ?? [0, 0, 0, 0, 0, 0, 0, 1]
+            RowVersion = rowVersion ?? [0, 0, 0, 0, 0, 0, 0, 1],
         };
 
         db.Marcacoes.Add(marcacao);

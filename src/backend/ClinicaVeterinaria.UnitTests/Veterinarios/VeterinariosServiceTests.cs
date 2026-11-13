@@ -23,7 +23,6 @@ public class VeterinariosServiceTests
     private static readonly DateOnly Quinta = new(2026, 10, 15);
 
     // ----- EP-021 — Listar veterinários -----
-
     [Fact(DisplayName = "I071 — EP-021 lista só os Veterinários com conta ativa, por nome")]
     public async Task ListaSoVeterinariosAtivosPorNome()
     {
@@ -60,7 +59,6 @@ public class VeterinariosServiceTests
     }
 
     // ----- EP-022 — Consultar disponibilidade -----
-
     [Fact(DisplayName = "I071 — EP-022 devolve os horários livres em HH:mm, com a duração e o Veterinário")]
     public async Task DisponibilidadeDevolveHorariosEmTexto()
     {
@@ -119,15 +117,16 @@ public class VeterinariosServiceTests
         {
             Chave = "DuracaoPadraoConsultaMinutos",
             Valor = "45",
-            DataUltimaAlteracao = Relogio.UtcDateTime
+            DataUltimaAlteracao = Relogio.UtcDateTime,
         });
+
         // Período inativo ao domingo: não pode criar horários.
         db.HorariosFuncionamento.Add(new HorarioFuncionamento
         {
             DiaSemana = 7,
             HoraAbertura = new TimeOnly(9, 0),
             HoraFecho = new TimeOnly(13, 0),
-            Ativo = false
+            Ativo = false,
         });
         await db.SaveChangesAsync();
         var servico = CriarServico(db);
@@ -165,7 +164,7 @@ public class VeterinariosServiceTests
         var query = new DisponibilidadeQuery
         {
             DataInicio = dataInicio is null ? null : Data(dataInicio),
-            DataFim = Data(dataFim)
+            DataFim = Data(dataFim),
         };
 
         var excecao = await Assert.ThrowsAsync<ValidacaoException>(
@@ -221,7 +220,6 @@ public class VeterinariosServiceTests
     }
 
     // ----- Preparação dos dados -----
-
     private sealed record DadosBase(int VetA, int VetB, int VetBloqueado, int RecA);
 
     // Base em memória da I064 (I028, secção 4.2); o serviço não abre transações.
@@ -266,7 +264,7 @@ public class VeterinariosServiceTests
         DiaSemana = diaSemana,
         HoraAbertura = new TimeOnly(abertura, 0),
         HoraFecho = new TimeOnly(fecho, 0),
-        Ativo = true
+        Ativo = true,
     };
 
     private static async Task<int> AdicionarFuncionarioAsync(
@@ -281,7 +279,7 @@ public class VeterinariosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = estado,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -300,7 +298,7 @@ public class VeterinariosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -310,7 +308,7 @@ public class VeterinariosServiceTests
             UtilizadorId = utilizador.Id,
             Nome = "Aaron Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
     }
@@ -331,7 +329,7 @@ public class VeterinariosServiceTests
             DuracaoMinutos = duracaoMinutos,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
     }

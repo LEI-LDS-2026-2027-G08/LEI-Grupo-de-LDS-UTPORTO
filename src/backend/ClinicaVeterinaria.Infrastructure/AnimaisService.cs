@@ -48,7 +48,7 @@ public sealed class AnimaisService : IAnimaisService
                 Raca = _db.Racas
                     .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
                     .Select(r => r.Nome)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
             };
 
         if (filtro.ClienteId.HasValue)
@@ -98,7 +98,7 @@ public sealed class AnimaisService : IAnimaisService
                     x.Paciente.DataNascimento,
                     x.Paciente.Peso,
                     ClienteId = x.Cliente.Id,
-                    ClienteNome = x.Cliente.Nome
+                    ClienteNome = x.Cliente.Nome,
                 })
                 .ToListAsync();
 
@@ -115,7 +115,7 @@ public sealed class AnimaisService : IAnimaisService
                     {
                         Id = x.ClienteId,
                         Nome = x.ClienteNome
-                    }
+                    },
                 })
                 .ToList();
         }
@@ -125,7 +125,7 @@ public sealed class AnimaisService : IAnimaisService
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
@@ -146,7 +146,7 @@ public sealed class AnimaisService : IAnimaisService
                 Raca = _db.Racas
                     .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
                     .Select(r => r.Nome)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
             })
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
@@ -165,9 +165,9 @@ public sealed class AnimaisService : IAnimaisService
             {
                 Id = dados.Cliente.Id,
                 Nome = dados.Cliente.Nome,
-                Telefone = dados.Cliente.Telefone
+                Telefone = dados.Cliente.Telefone,
             },
-            AtualizadoEm = dados.Paciente.DataUltimaAlteracao
+            AtualizadoEm = dados.Paciente.DataUltimaAlteracao,
         };
     }
 
@@ -214,7 +214,7 @@ public sealed class AnimaisService : IAnimaisService
             Sexo = pedido.Sexo,
             DataNascimento = pedido.DataNascimento,
             Peso = pedido.Peso,
-            DataRegisto = agora
+            DataRegisto = agora,
         };
 
         _db.Pacientes.Add(paciente);
@@ -274,6 +274,7 @@ public sealed class AnimaisService : IAnimaisService
 
         return await ObterAsync(paciente.Id);
     }
+
     public async Task<IReadOnlyList<MeuAnimalListItemDto>> ListarDoClienteAsync(int clienteId)
     {
         var dados = await (
@@ -292,7 +293,7 @@ public sealed class AnimaisService : IAnimaisService
                     .Select(r => r.Nome)
                     .FirstOrDefault(),
                 p.DataNascimento,
-                p.Peso
+                p.Peso,
             })
             .ToListAsync();
 
@@ -304,7 +305,7 @@ public sealed class AnimaisService : IAnimaisService
                 Especie = x.Especie,
                 Raca = x.Raca,
                 IdadeAnos = CalcularIdade(x.DataNascimento),
-                Peso = x.Peso
+                Peso = x.Peso,
             })
             .ToList();
     }
@@ -328,7 +329,7 @@ public sealed class AnimaisService : IAnimaisService
                     .FirstOrDefault(),
                 p.Sexo,
                 p.DataNascimento,
-                p.Peso
+                p.Peso,
             })
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
@@ -349,7 +350,7 @@ public sealed class AnimaisService : IAnimaisService
             Sexo = dados.Sexo,
             DataNascimento = dados.DataNascimento,
             IdadeAnos = CalcularIdade(dados.DataNascimento),
-            Peso = dados.Peso
+            Peso = dados.Peso,
         };
     }
 
@@ -372,6 +373,7 @@ public sealed class AnimaisService : IAnimaisService
 
         return idade;
     }
+
     private void ValidarDadosAdministrativos(UpdateAnimalDto pedido)
     {
         if (pedido.Peso.HasValue && pedido.Peso.Value <= 0)

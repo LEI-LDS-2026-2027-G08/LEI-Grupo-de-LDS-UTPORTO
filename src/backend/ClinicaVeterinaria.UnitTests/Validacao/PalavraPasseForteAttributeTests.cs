@@ -77,7 +77,7 @@ public class PalavraPasseForteAttributeTests
             Email = "rui.lopes@clinica-g08.test",
             Telefone = "934567890",
             Perfil = Perfis.Rececionista,
-            PasswordInicial = palavraPasse!
+            PasswordInicial = palavraPasse!,
         };
         var erros = new List<ValidationResult>();
 

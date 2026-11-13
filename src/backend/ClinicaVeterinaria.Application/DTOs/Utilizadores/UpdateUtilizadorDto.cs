@@ -15,6 +15,7 @@ public class UpdateUtilizadorDto
     public string Nome { get; set; } = string.Empty;
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "O e-mail é obrigatório.")]
+
     // Regra R-EMAIL (I028): o [EmailAddress] do .NET aceitava, por exemplo, "joao@mail".
     [EmailValido]
     public string Email { get; set; } = string.Empty;

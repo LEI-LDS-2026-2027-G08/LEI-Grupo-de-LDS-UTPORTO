@@ -207,7 +207,7 @@ public sealed class VeterinariosEndpointsTests :
             ["animalId"] = await ObterAnimalIdAsync("Bobi"),
             ["veterinarioId"] = veterinarioId,
             ["dataHora"] = inicioUtc.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture),
-            ["motivo"] = "Teste de integração I093"
+            ["motivo"] = "Teste de integração I093",
         };
 
         return await cliente.PostAsJsonAsync("/consultas", corpo);

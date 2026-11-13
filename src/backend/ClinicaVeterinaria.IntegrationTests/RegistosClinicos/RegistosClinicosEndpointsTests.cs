@@ -39,7 +39,6 @@ public sealed class RegistosClinicosEndpointsTests :
     }
 
     // ----- EP-031 — Criar registo clínico -----
-
     [Fact(DisplayName = "IT-EP031-01 — cria o registo com tratamento e prescrição persistidos (201 e Location)")]
     public async Task CriaRegisto()
     {
@@ -167,7 +166,7 @@ public sealed class RegistosClinicosEndpointsTests :
             {
                 consultaId = m3,
                 tratamentos = new[] { new { descricao = "Limpeza auricular", dataAplicacao = "2026-11-03" } },
-                prescricoes = new[] { new { medicamento = "Gotas X", dosagem = "3 gotas" } }
+                prescricoes = new[] { new { medicamento = "Gotas X", dosagem = "3 gotas" } },
             });
         using var r409 = await cliente.PostAsJsonAsync("/registos-clinicos", CorpoExemplo(m1));
         using var r422 = await cliente.PostAsJsonAsync("/registos-clinicos", CorpoExemplo(m5));
@@ -265,7 +264,6 @@ public sealed class RegistosClinicosEndpointsTests :
     }
 
     // ----- EP-032 — Atualizar registo clínico -----
-
     [Fact(DisplayName = "IT-EP032-01 e IT-EP032-04 — atualiza o registo da M1 e regista atualizadoEm e o autor")]
     public async Task AtualizaRegisto()
     {
@@ -349,9 +347,9 @@ public sealed class RegistosClinicosEndpointsTests :
                 tratamentos = new object[]
                 {
                     new { id = tratamentoExistente, descricao = "Limpeza auricular (repetida)", dataAplicacao = "2026-10-14" },
-                    new { descricao = "Aplicação de pomada", dataAplicacao = "2026-10-15" }
+                    new { descricao = "Aplicação de pomada", dataAplicacao = "2026-10-15" },
                 },
-                prescricoes = Array.Empty<object>()
+                prescricoes = Array.Empty<object>(),
             });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
@@ -389,7 +387,7 @@ public sealed class RegistosClinicosEndpointsTests :
         notasClinicas = "Animal ativo; ligeira inflamação no ouvido esquerdo.",
         diagnostico = "Otite externa",
         tratamentos = new[] { new { descricao = "Limpeza auricular", dataAplicacao = "2026-11-03" } },
-        prescricoes = new[] { new { medicamento = "Gotas auriculares X", dosagem = "3 gotas", frequencia = "2 vezes por dia", duracaoDias = 7 } }
+        prescricoes = new[] { new { medicamento = "Gotas auriculares X", dosagem = "3 gotas", frequencia = "2 vezes por dia", duracaoDias = 7 } },
     };
 
     private static async Task<JsonDocument> LerAsync(HttpResponseMessage resposta) =>

@@ -34,7 +34,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-011 -----
-
     [Fact(DisplayName = "IT-EP011-01 — existem Clientes: 200 com envelope paginado")]
     public async Task ListarDevolveEnvelopePaginado()
     {
@@ -126,7 +125,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-012 -----
-
     [Fact(DisplayName = "IT-EP012-01 — Cliente existente com animais: 200 com os dados do Cliente e os animais associados")]
     public async Task ObterClienteComAnimais()
     {
@@ -161,7 +159,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-013 -----
-
     [Fact(DisplayName = "IT-EP013-01 — NIF e e-mail livres: 201 com Location e o Cliente e o Utilizador Cliente ficam persistidos")]
     public async Task CriarClienteValido()
     {
@@ -278,7 +275,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-014 -----
-
     [Fact(DisplayName = "IT-EP014-01 — Cliente existente: 200 e as alterações ficam persistidas")]
     public async Task AtualizarClienteExistente()
     {
@@ -292,7 +288,7 @@ public sealed class ClientesEndpointsTests :
             nif = "210000015",
             telefone = "961234000",
             email = EmailJoao,
-            morada = "Av. Central, 22, Porto"
+            morada = "Av. Central, 22, Porto",
         });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
@@ -419,7 +415,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- 401 e 403 (contrato da API v02) -----
-
     [Theory(DisplayName = "I092 — EP-011 e EP-012: Auxiliar Veterinário e Cliente recebem 403")]
     [InlineData("AuxiliarVeterinario")]
     [InlineData("Cliente")]
@@ -480,7 +475,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static Dictionary<string, object?> PedidoCriacao(string email, string? nif) => new()
     {
         ["nome"] = "Ana Pereira",
@@ -488,7 +482,7 @@ public sealed class ClientesEndpointsTests :
         ["telefone"] = "961234567",
         ["email"] = email,
         ["morada"] = "Rua Nova, 5, Maia",
-        ["passwordInicial"] = "Temp#2026x"
+        ["passwordInicial"] = "Temp#2026x",
     };
 
     private static Dictionary<string, object?> PedidoAtualizacao(
@@ -503,7 +497,7 @@ public sealed class ClientesEndpointsTests :
             ["nif"] = atual.Nif,
             ["telefone"] = atual.Telefone,
             ["email"] = email ?? atual.Email,
-            ["morada"] = atual.Morada
+            ["morada"] = atual.Morada,
         };
 
         if (campo is not null)

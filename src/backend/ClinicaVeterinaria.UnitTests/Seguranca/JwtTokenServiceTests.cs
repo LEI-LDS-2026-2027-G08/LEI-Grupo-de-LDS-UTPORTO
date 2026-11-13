@@ -154,7 +154,7 @@ public class JwtTokenServiceTests
                 [ClaimsClinica.UtilizadorId] = "1",
                 [ClaimsClinica.Perfil] = Perfis.Administrador,
                 [ClaimsClinica.Jti] = "sem-assinatura"
-            }
+            },
         });
 
         var resultado = await ValidarComConfiguracaoDaApiAsync(chave, semAssinatura);

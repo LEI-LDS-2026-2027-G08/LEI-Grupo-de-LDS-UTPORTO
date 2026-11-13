@@ -63,7 +63,7 @@ public class ErrosERegistosTests
             nameof(ArgumentException) => new ArgumentException("segredo interno"),
             nameof(InvalidOperationException) => new InvalidOperationException("segredo interno"),
             nameof(KeyNotFoundException) => new KeyNotFoundException("segredo interno"),
-            _ => new UnauthorizedAccessException("segredo interno")
+            _ => new UnauthorizedAccessException("segredo interno"),
         };
 
         var (estado, corpo) = await ExecutarComExcecaoAsync(excecao);
@@ -134,7 +134,7 @@ public class ErrosERegistosTests
         nameof(NaoEncontradoException) => new NaoEncontradoException(mensagem),
         nameof(ConflitoException) => new ConflitoException(mensagem),
         nameof(UnprocessableEntityException) => new UnprocessableEntityException(mensagem),
-        _ => throw new ArgumentOutOfRangeException(nameof(tipo), tipo, "Tipo de exceção sem caso de teste.")
+        _ => throw new ArgumentOutOfRangeException(nameof(tipo), tipo, "Tipo de exceção sem caso de teste."),
     };
 
     private static async Task<(int Estado, JsonElement Corpo)> ExecutarComExcecaoAsync(Exception excecao)

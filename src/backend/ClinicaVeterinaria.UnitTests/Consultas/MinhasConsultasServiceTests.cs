@@ -27,7 +27,6 @@ public class MinhasConsultasServiceTests
     private static readonly DateTime Criacao = new(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc);
 
     // ----- tipo = futuras -----
-
     [Fact(DisplayName = "UT-F003-056 — futuras: só marcações Pendentes ou Confirmadas futuras dos animais do Cliente, por data crescente")]
     public async Task FuturasSoDoClientePorDataCrescente()
     {
@@ -122,7 +121,6 @@ public class MinhasConsultasServiceTests
     }
 
     // ----- Casos próprios da I076 -----
-
     [Fact(DisplayName = "I076 — animalId inexistente também devolve 403, sem revelar se o animal existe")]
     public async Task AnimalInexistenteDevolve403()
     {
@@ -234,7 +232,6 @@ public class MinhasConsultasServiceTests
     }
 
     // ----- MinhasConsultasQuery (validação automática do pedido, 400) -----
-
     [Theory(DisplayName = "I076 — MinhasConsultasQuery aceita futuras, historico ou nada")]
     [InlineData(null)]
     [InlineData("futuras")]
@@ -263,7 +260,6 @@ public class MinhasConsultasServiceTests
     }
 
     // ----- Dados -----
-
     private static MinhasConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private sealed record DadosBase(int Vet, int ClienteA, int AnimalA1, int AnimalA2, int AnimalB1);
@@ -309,7 +305,7 @@ public class MinhasConsultasServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = "960000001",
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -323,7 +319,7 @@ public class MinhasConsultasServiceTests
         PasswordHash = "hash-nao-usado-nestes-testes",
         Perfil = perfil,
         Estado = EstadosUtilizador.Ativo,
-        DataCriacao = Criacao
+        DataCriacao = Criacao,
     };
 
     private static async Task<int> AdicionarAnimalAsync(ClinicaDbContext db, int clienteId, int especieId, string nome)
@@ -333,7 +329,7 @@ public class MinhasConsultasServiceTests
             ClienteId = clienteId,
             Nome = nome,
             EspecieId = especieId,
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Pacientes.Add(paciente);
         await db.SaveChangesAsync();
@@ -358,7 +354,7 @@ public class MinhasConsultasServiceTests
             Motivo = motivo,
             Estado = estado,
             CriadaPorId = veterinarioId,
-            DataCriacao = Criacao
+            DataCriacao = Criacao,
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();

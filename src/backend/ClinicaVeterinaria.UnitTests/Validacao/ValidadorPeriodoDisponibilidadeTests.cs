@@ -74,7 +74,7 @@ public class ValidadorPeriodoDisponibilidadeTests
         var erro = Assert.Single(Validar(new DisponibilidadeQuery
         {
             DataInicio = new DateOnly(2026, 10, 1),
-            DataFim = new DateOnly(2026, 11, 1)
+            DataFim = new DateOnly(2026, 11, 1),
         }));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemPeriodoDemasiadoLongo, erro.ErrorMessage);

@@ -33,7 +33,6 @@ public class RegistosClinicosLeituraServiceTests
     private static readonly DateTime InicioOutubro = new(2026, 10, 14, 8, 30, 0, DateTimeKind.Utc);
 
     // ----- EP-033 — Consultar registo clínico -----
-
     [Fact(DisplayName = "UT-F004-022 — devolve o RegistoClinicoDto completo (notas, diagnóstico, tratamentos e prescrições)")]
     public async Task ObterDevolveRegistoCompleto()
     {
@@ -83,7 +82,6 @@ public class RegistosClinicosLeituraServiceTests
     }
 
     // ----- EP-034 — Consultar histórico clínico do paciente -----
-
     [Fact(DisplayName = "UT-F004-023 — sem datas, devolve os dois registos do animal: primeiro o de 2026-10-14, depois o de 2026-09-02")]
     public async Task HistoricoPorOrdemDescendente()
     {
@@ -254,7 +252,7 @@ public class RegistosClinicosLeituraServiceTests
         var query = new HistoricoClinicoQuery
         {
             DataInicio = dataInicio is null ? null : DateOnly.Parse(dataInicio, CultureInfo.InvariantCulture),
-            DataFim = dataFim is null ? null : DateOnly.Parse(dataFim, CultureInfo.InvariantCulture)
+            DataFim = dataFim is null ? null : DateOnly.Parse(dataFim, CultureInfo.InvariantCulture),
         };
         var resultados = new List<ValidationResult>();
 
@@ -264,7 +262,6 @@ public class RegistosClinicosLeituraServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static RegistosClinicosService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     /// <summary>
@@ -289,7 +286,7 @@ public class RegistosClinicosLeituraServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -299,7 +296,7 @@ public class RegistosClinicosLeituraServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -340,7 +337,7 @@ public class RegistosClinicosLeituraServiceTests
             VeterinarioId = veterinarioId,
             NotasClinicas = "Canal auditivo esquerdo eritematoso.",
             Diagnostico = diagnostico,
-            CriadoEm = inicioUtc.AddMinutes(30)
+            CriadoEm = inicioUtc.AddMinutes(30),
         };
         db.RegistosClinicos.Add(registo);
         await db.SaveChangesAsync();
@@ -351,7 +348,7 @@ public class RegistosClinicosLeituraServiceTests
             {
                 RegistoClinicoId = registo.Id,
                 Descricao = "Limpeza auricular",
-                DataAplicacao = DateOnly.FromDateTime(inicioUtc)
+                DataAplicacao = DateOnly.FromDateTime(inicioUtc),
             });
         }
 
@@ -363,7 +360,7 @@ public class RegistosClinicosLeituraServiceTests
                 Medicamento = "Gotas auriculares X",
                 Dosagem = "3 gotas",
                 Frequencia = "2 vezes por dia",
-                DuracaoDias = 7
+                DuracaoDias = 7,
             });
         }
 
@@ -380,7 +377,7 @@ public class RegistosClinicosLeituraServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -406,7 +403,7 @@ public class RegistosClinicosLeituraServiceTests
             DuracaoMinutos = 30,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();

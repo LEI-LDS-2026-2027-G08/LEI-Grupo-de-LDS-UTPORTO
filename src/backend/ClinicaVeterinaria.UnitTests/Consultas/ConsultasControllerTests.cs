@@ -108,7 +108,7 @@ public class ConsultasControllerTests
                 10,
                 0,
                 0,
-                DateTimeKind.Utc)
+                DateTimeKind.Utc),
         };
 
         var resposta =
@@ -154,7 +154,7 @@ public class ConsultasControllerTests
                 {
                     new Claim(
                         ClaimsClinica.Perfil,
-                        Perfis.Rececionista)
+                        Perfis.Rececionista),
                 },
                 authenticationType: "Bearer",
                 nameType: ClaimsClinica.UtilizadorId,
@@ -216,7 +216,7 @@ public class ConsultasControllerTests
                 0,
                 0,
                 DateTimeKind.Utc),
-            Motivo = "Consulta reagendada"
+            Motivo = "Consulta reagendada",
         };
 
         const string ifMatch =
@@ -290,7 +290,7 @@ public class ConsultasControllerTests
 
         var pedido = new UpdateEstadoConsultaDto
         {
-            Estado = "Confirmada"
+            Estado = "Confirmada",
         };
 
         const string ifMatch =
@@ -362,7 +362,7 @@ public class ConsultasControllerTests
 
         var filtro = new ConsultaFiltroQuery
         {
-            VeterinarioId = 5
+            VeterinarioId = 5,
         };
 
         var resposta =
@@ -442,7 +442,7 @@ public class ConsultasControllerTests
                 {
                     User = utilizador
                 }
-            }
+            },
         };
 
     private sealed class ConsultasServiceDeTeste
@@ -451,7 +451,7 @@ public class ConsultasControllerTests
         public ConsultaDto Consulta { get; } =
             new()
             {
-                Id = 41
+                Id = 41,
             };
 
         public ConsultaFiltroQuery? UltimoFiltro
@@ -514,7 +514,7 @@ public class ConsultasControllerTests
                 new PagedResultDto<ConsultaListItemDto>
                 {
                     Pagina = 1,
-                    Tamanho = 20
+                    Tamanho = 20,
                 });
         }
 
@@ -596,7 +596,7 @@ public class ConsultasControllerTests
                 Id = 2,
                 ConsultaId = id,
                 Texto = pedido.Texto!,
-                Autor = "Carla Auxiliar"
+                Autor = "Carla Auxiliar",
             });
         }
     }

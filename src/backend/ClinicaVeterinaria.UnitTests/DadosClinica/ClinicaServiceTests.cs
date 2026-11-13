@@ -22,7 +22,6 @@ public class ClinicaServiceTests
     private const string ChaveDuracaoConsulta = "DuracaoPadraoConsultaMinutos";
 
     // ----- EP-009 — Consultar clínica -----
-
     [Fact(DisplayName = "UT-F001-100 — A clínica é devolvida com a duração de 30 minutos e os 11 períodos, com o dia 1 como Segunda")]
     public async Task ObterDevolveDuracaoEHorarioPadrao()
     {
@@ -46,7 +45,6 @@ public class ClinicaServiceTests
     }
 
     // ----- EP-010 — Atualizar clínica -----
-
     [Fact(DisplayName = "UT-F001-102 — Um pedido válido substitui os dados, a duração e o horário e devolve o ClinicaDto")]
     public async Task AtualizarSubstituiDadosDuracaoEHorario()
     {
@@ -163,7 +161,6 @@ public class ClinicaServiceTests
     }
 
     // ----- Apoio -----
-
     private static ClinicaService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static ClinicaDbContext CriarBaseComClinica(IEnumerable<HorarioFuncionamento> horario)
@@ -178,13 +175,13 @@ public class ClinicaServiceTests
             Morada = "Rua do Exemplo, 100, 4470-000 Maia",
             Telefone = "229000000",
             Email = "geral@clinica-g08.test",
-            DataUltimaAlteracao = Relogio.UtcDateTime.AddDays(-30)
+            DataUltimaAlteracao = Relogio.UtcDateTime.AddDays(-30),
         });
         db.ConfiguracaoSistema.Add(new ConfiguracaoSistema
         {
             Chave = ChaveDuracaoConsulta,
             Valor = "30",
-            DataUltimaAlteracao = Relogio.UtcDateTime.AddDays(-30)
+            DataUltimaAlteracao = Relogio.UtcDateTime.AddDays(-30),
         });
         db.HorariosFuncionamento.AddRange(horario);
         db.SaveChanges();
@@ -214,7 +211,7 @@ public class ClinicaServiceTests
         DiaSemana = dia,
         HoraAbertura = new TimeOnly(abertura, 0),
         HoraFecho = new TimeOnly(fecho, 0),
-        Ativo = true
+        Ativo = true,
     };
 
     private static List<PeriodoHorarioDto> HorarioPadraoDto()
@@ -244,7 +241,7 @@ public class ClinicaServiceTests
         Telefone = "229000000",
         Email = "geral@clinica-g08.test",
         DuracaoConsultaMinutos = 30,
-        HorarioFuncionamento = horario
+        HorarioFuncionamento = horario,
     };
 
     private static List<string> CamposComErro(object pedido)

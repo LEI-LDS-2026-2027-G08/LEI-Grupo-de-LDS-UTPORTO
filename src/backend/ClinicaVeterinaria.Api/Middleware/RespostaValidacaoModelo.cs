@@ -50,7 +50,7 @@ public static class RespostaValidacaoModelo
         {
             code = StatusCodes.Status400BadRequest,
             message = "Pedido inválido.",
-            detail = detalhe
+            detail = detalhe,
         });
     }
 }

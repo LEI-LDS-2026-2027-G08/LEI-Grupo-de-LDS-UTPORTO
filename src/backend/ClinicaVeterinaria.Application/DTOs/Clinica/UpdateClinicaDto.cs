@@ -22,6 +22,7 @@ public class UpdateClinicaDto
     public string Morada { get; set; } = string.Empty;
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "O telefone é obrigatório.")]
+
     // 9 a 20 caracteres no total (coluna Clinica.Telefone NVARCHAR(20)), contando o + e os espaços.
     [RegularExpression(@"^(?=.{9,20}$)\+?[0-9 ]+$",
         ErrorMessage = "O telefone deve ter entre 9 e 20 caracteres: dígitos, espaços e, opcionalmente, o indicativo + no início.")]

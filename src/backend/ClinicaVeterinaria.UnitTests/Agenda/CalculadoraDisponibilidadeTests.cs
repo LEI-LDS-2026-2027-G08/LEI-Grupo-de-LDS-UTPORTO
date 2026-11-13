@@ -233,7 +233,6 @@ public class CalculadoraDisponibilidadeTests
     }
 
     // --- Verificação de um intervalo qualquer (reutilizável por EP-025 e EP-026) ---
-
     [Theory(DisplayName = "I071 — Um intervalo livre e dentro de um período está disponível, mesmo fora da grelha")]
     [InlineData("2026-10-15T08:00:00Z", 30)] // 09:00–09:30
     [InlineData("2026-10-15T09:15:00Z", 30)] // 10:15–10:45 (fora da grelha de 30 minutos, PA-12)
@@ -276,7 +275,6 @@ public class CalculadoraDisponibilidadeTests
     }
 
     // --- Fuso horário da clínica (R-FUSO) ---
-
     [Theory(DisplayName = "I071 — A hora local de Lisboa é convertida para UTC conforme a hora de verão")]
     [InlineData("2026-10-15", "10:00", "2026-10-15T09:00:00Z")] // verão: UTC+1
     [InlineData("2026-10-26", "09:00", "2026-10-26T09:00:00Z")] // inverno: UTC
@@ -299,7 +297,6 @@ public class CalculadoraDisponibilidadeTests
     }
 
     // --- Preparação ---
-
     private static IReadOnlyList<DiaDisponivel> Calcular(DateOnly inicio, DateOnly fim) =>
         CalculadoraDisponibilidade.Calcular(inicio, fim, HorarioPadrao, 30, [], Relogio, Fuso);
 

@@ -33,7 +33,6 @@ public sealed class UtilizadoresEndpointsTests :
     }
 
     // ----- EP-007 -----
-
     [Fact(DisplayName = "IT-EP007-01 — funcionário existente com dados válidos devolve 200 e persiste as alterações")]
     public async Task AtualizaFuncionarioExistente()
     {
@@ -48,7 +47,7 @@ public sealed class UtilizadoresEndpointsTests :
             email = novoEmail,
             telefone = "934567890",
             perfil = "AuxiliarVeterinario",
-            podeRegistarApoio = true
+            podeRegistarApoio = true,
         });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
@@ -90,7 +89,7 @@ public sealed class UtilizadoresEndpointsTests :
             email,
             telefone = "934567890",
             perfil,
-            podeRegistarApoio = false
+            podeRegistarApoio = false,
         });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
@@ -126,7 +125,7 @@ public sealed class UtilizadoresEndpointsTests :
             email = EmailVetAna.ToUpperInvariant(),
             telefone = "934567890",
             perfil = "Rececionista",
-            podeRegistarApoio = false
+            podeRegistarApoio = false,
         });
 
         await AssertErroAsync(resposta, HttpStatusCode.Conflict);
@@ -146,7 +145,7 @@ public sealed class UtilizadoresEndpointsTests :
             email = EmailAdmin,
             telefone = "910000001",
             perfil = "Rececionista",
-            podeRegistarApoio = false
+            podeRegistarApoio = false,
         });
 
         await AssertErroAsync(resposta, HttpStatusCode.UnprocessableEntity);
@@ -167,7 +166,7 @@ public sealed class UtilizadoresEndpointsTests :
             nome = "Dra. Ana Veterinária",
             email = EmailVetAna,
             perfil = "Veterinario",
-            podeRegistarApoio = true
+            podeRegistarApoio = true,
         });
 
         // A Carla é Auxiliar com apoio: ao mudar para Rececionista tem de perder a autorização.
@@ -176,7 +175,7 @@ public sealed class UtilizadoresEndpointsTests :
             nome = "Carla Auxiliar",
             email = EmailAuxCarla,
             perfil = "Rececionista",
-            podeRegistarApoio = true
+            podeRegistarApoio = true,
         });
 
         await AssertErroAsync(veterinario, HttpStatusCode.UnprocessableEntity);
@@ -199,7 +198,7 @@ public sealed class UtilizadoresEndpointsTests :
             nome = "Rita Rececionista (demonstração)",
             email = EmailRececao,
             perfil = "Veterinario",
-            podeRegistarApoio = false
+            podeRegistarApoio = false,
         });
         Assert.Equal(HttpStatusCode.OK, atualizacao.StatusCode);
 
@@ -209,7 +208,6 @@ public sealed class UtilizadoresEndpointsTests :
     }
 
     // ----- EP-008 -----
-
     [Fact(DisplayName = "IT-EP008-01 — funcionário ativo é bloqueado: 204 e estado persistido como Bloqueado")]
     public async Task BloqueiaFuncionarioAtivo()
     {
@@ -309,7 +307,6 @@ public sealed class UtilizadoresEndpointsTests :
     }
 
     // ----- Autorização -----
-
     [Theory(DisplayName = "IT-EP007/EP-008 — perfis que não são Administrador recebem 403")]
     [InlineData("Rececionista")]
     [InlineData("Veterinario")]
@@ -349,13 +346,13 @@ public sealed class UtilizadoresEndpointsTests :
         email = DadosTeste.EmailUnico("rui.lopes"),
         telefone = "934567890",
         perfil = "Rececionista",
-        podeRegistarApoio = false
+        podeRegistarApoio = false,
     };
 
     private static object PedidoBloqueio() => new
     {
         estado = "Bloqueado",
-        motivo = "Funcionário deixou a clínica."
+        motivo = "Funcionário deixou a clínica.",
     };
 
     /// <summary>Formato único de erro da infraestrutura (I058): <c>code</c> igual ao código HTTP.</summary>

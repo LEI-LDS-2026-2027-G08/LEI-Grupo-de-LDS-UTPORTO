@@ -49,6 +49,7 @@ public sealed class AnimaisController : ControllerBase
     {
         return Ok(await _animaisService.ObterAsync(id));
     }
+
     /// <summary>EP-017 — Registar paciente.</summary>
     [HttpPost]
     [Authorize(Roles = PerfisPesquisa)]
