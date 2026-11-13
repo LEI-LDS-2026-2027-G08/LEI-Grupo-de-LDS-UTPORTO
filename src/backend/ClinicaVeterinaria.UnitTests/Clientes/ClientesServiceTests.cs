@@ -84,6 +84,24 @@ public class ClientesServiceTests
         Assert.Contains(nameof(CreateClienteDto.Telefone), CamposComErro(pedido));
     }
 
+    [Theory(DisplayName = "UT-F001-127 — Uma palavra-passe inicial fraca é recusada no pedido (400), com a regra dos funcionários")]
+    [InlineData("aaaaaaaa")]
+    [InlineData("12345678")]
+    [InlineData("Temp2026a")]
+    public void PalavraPasseFracaNaCriacaoEInvalida(string palavraPasse)
+    {
+        var pedido = PedidoCriacao(NifLivre, EmailLivre);
+        pedido.PasswordInicial = palavraPasse;
+
+        Assert.Contains(nameof(CreateClienteDto.PasswordInicial), CamposComErro(pedido));
+    }
+
+    [Fact(DisplayName = "UT-F001-128 — Uma palavra-passe inicial forte é aceite no pedido")]
+    public void PalavraPasseForteNaCriacaoEValida()
+    {
+        Assert.DoesNotContain(nameof(CreateClienteDto.PasswordInicial), CamposComErro(PedidoCriacao(NifLivre, EmailLivre)));
+    }
+
     [Fact(DisplayName = "UT-F001-117 — O NIF de outro Cliente devolve 409 e nada é gravado")]
     public async Task NifRepetidoDevolve409()
     {

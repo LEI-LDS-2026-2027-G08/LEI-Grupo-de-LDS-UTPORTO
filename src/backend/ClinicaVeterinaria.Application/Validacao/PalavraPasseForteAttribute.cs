@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace ClinicaVeterinaria.Application.Validacao;
 
 /// <summary>
-/// Política de palavra-passe das contas de funcionário (I065, critério 4):
+/// Política de palavra-passe das contas criadas pela clínica, de funcionário (I065, critério 4)
+/// e de Cliente (EP-013):
 /// entre <see cref="ComprimentoMinimo"/> e <see cref="ComprimentoMaximo"/> caracteres,
 /// com pelo menos uma letra minúscula, uma letra maiúscula, um algarismo e um símbolo.
 /// Um valor vazio é aceite; para o tornar obrigatório, juntar <c>[Required]</c>.

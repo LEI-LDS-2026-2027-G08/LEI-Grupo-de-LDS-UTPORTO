@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.Application.DTOs.Clientes;
 
@@ -6,7 +7,6 @@ namespace ClinicaVeterinaria.Application.DTOs.Clientes;
 public class CreateClienteDto : UpdateClienteDto
 {
     [Required(AllowEmptyStrings = false, ErrorMessage = "A palavra-passe inicial é obrigatória.")]
-    [StringLength(128, MinimumLength = 8,
-        ErrorMessage = "A palavra-passe inicial deve ter entre 8 e 128 caracteres.")]
+    [PalavraPasseForte]
     public string PasswordInicial { get; set; } = string.Empty;
 }
