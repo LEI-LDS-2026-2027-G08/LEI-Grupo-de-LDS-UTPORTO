@@ -690,6 +690,26 @@ public class UtilizadoresServiceTests
             (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).Estado);
     }
 
+    [Theory(DisplayName = "I066 — O motivo do bloqueio fica guardado sem espaços nas pontas; vazio ou em falta fica sem motivo")]
+    [InlineData("  Funcionário deixou a clínica.  ", "Funcionário deixou a clínica.")]
+    [InlineData("   ", null)]
+    [InlineData(null, null)]
+    public async Task MotivoDoBloqueioFicaGuardado(string? motivo, string? esperado)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await CriarServico(db).BloquearAsync(
+            rececionista.Id,
+            admin.Id,
+            new AlterarEstadoUtilizadorDto { Estado = EstadosUtilizador.Bloqueado, Motivo = motivo });
+
+        Assert.Equal(
+            esperado,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).MotivoBloqueio);
+    }
+
     [Theory(DisplayName = "UT-F001-093 — Um estado diferente de Bloqueado dá 400 e a conta mantém-se ativa")]
     [InlineData(EstadosUtilizador.Ativo)]
     [InlineData("Suspenso")]

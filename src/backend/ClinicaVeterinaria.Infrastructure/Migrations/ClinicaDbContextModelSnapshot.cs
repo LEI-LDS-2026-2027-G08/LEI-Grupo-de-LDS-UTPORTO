@@ -334,6 +334,10 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("PacienteId")
                         .HasColumnType("int");
 
@@ -736,6 +740,10 @@ namespace ClinicaVeterinaria.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasDefaultValue("Ativo", "DF_Utilizador_Estado");
+
+                    b.Property<string>("MotivoBloqueio")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

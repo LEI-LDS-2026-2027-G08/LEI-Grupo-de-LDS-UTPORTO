@@ -167,6 +167,86 @@ public class AtualizarEstadoConsultaServiceTests
                 null));
     }
 
+    [Fact(DisplayName = "I074 — EP-027 guarda a observação sem espaços nas pontas; a alteração seguinte substitui-a e vazia fica sem observação")]
+    public async Task AtualizarEstadoGuardaAObservacao()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+
+        var id = await AdicionarMarcacaoAsync(
+            db,
+            d.AnimalA1,
+            d.VetA,
+            "2026-10-15T09:00:00Z",
+            30,
+            EstadosConsulta.Pendente);
+
+        await CriarServico(db).AtualizarEstadoAsync(
+            id,
+            new UpdateEstadoConsultaDto
+            {
+                Estado = EstadosConsulta.Confirmada,
+                Observacao = "  Confirmada por telefone.  "
+            },
+            null);
+
+        Assert.Equal(
+            "Confirmada por telefone.",
+            (await db.Marcacoes.AsNoTracking().SingleAsync(m => m.Id == id)).Observacao);
+
+        await CriarServico(db).AtualizarEstadoAsync(
+            id,
+            new UpdateEstadoConsultaDto
+            {
+                Estado = EstadosConsulta.Cancelada,
+                Observacao = "   "
+            },
+            null);
+
+        var gravada = await db.Marcacoes.AsNoTracking()
+            .SingleAsync(m => m.Id == id);
+
+        Assert.Equal(
+            EstadosConsulta.Cancelada,
+            gravada.Estado);
+
+        Assert.Null(gravada.Observacao);
+    }
+
+    [Fact(DisplayName = "I074 — EP-027 recusa uma observação com mais de 500 caracteres (400) e não altera a marcação")]
+    public async Task ObservacaoDemasiadoLongaDevolve400()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+
+        var id = await AdicionarMarcacaoAsync(
+            db,
+            d.AnimalA1,
+            d.VetA,
+            "2026-10-15T09:00:00Z",
+            30,
+            EstadosConsulta.Pendente);
+
+        await Assert.ThrowsAsync<ValidacaoException>(
+            () => CriarServico(db).AtualizarEstadoAsync(
+                id,
+                new UpdateEstadoConsultaDto
+                {
+                    Estado = EstadosConsulta.Confirmada,
+                    Observacao = new string('x', 501)
+                },
+                null));
+
+        var gravada = await db.Marcacoes.AsNoTracking()
+            .SingleAsync(m => m.Id == id);
+
+        Assert.Equal(
+            EstadosConsulta.Pendente,
+            gravada.Estado);
+
+        Assert.Null(gravada.Observacao);
+    }
+
     // ----- Auxiliares -----
 
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));

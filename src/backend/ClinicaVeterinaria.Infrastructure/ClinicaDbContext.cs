@@ -47,6 +47,7 @@ public class ClinicaDbContext : DbContext
             e.Property(x => x.DataCriacao).HasColumnType("datetime2(0)")
                 .HasDefaultValueSql("SYSUTCDATETIME()", "DF_Utilizador_DataCriacao");
             e.Property(x => x.DataUltimoAcesso).HasColumnType("datetime2(0)");
+            e.Property(x => x.MotivoBloqueio).HasMaxLength(500);
             e.HasIndex(x => x.Email).IsUnique().HasDatabaseName("UQ_Utilizador_Email");
         });
 
@@ -235,6 +236,7 @@ public class ClinicaDbContext : DbContext
             e.HasKey(x => x.Id).HasName("PK_Marcacao");
             e.Property(x => x.DataHoraInicio).HasColumnType("datetime2(0)");
             e.Property(x => x.Motivo).HasMaxLength(250);
+            e.Property(x => x.Observacao).HasMaxLength(500);
             e.Property(x => x.Estado).HasConversion<string>().HasMaxLength(12).IsRequired()
                 .HasDefaultValue("Pendente", "DF_Marcacao_Estado");
             e.Property(x => x.DataHoraChegada).HasColumnType("datetime2(0)");

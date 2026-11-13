@@ -7,6 +7,7 @@ public class Utilizador
     public string PasswordHash { get; set; } = string.Empty;
     public string Perfil { get; set; } = string.Empty;
     public string Estado { get; set; } = "Ativo";
+    public string? MotivoBloqueio { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime? DataUltimoAcesso { get; set; }
 }

@@ -16,7 +16,9 @@ public class UpdateEstadoConsultaDto
     public string? Estado { get; set; }
 
     /// <summary>
-    /// Observação opcional associada à alteração de estado.
+    /// Observação opcional da alteração de estado. Fica guardada em Marcacao.Observacao
+    /// e é substituída na alteração de estado seguinte.
     /// </summary>
+    [MaxLength(500, ErrorMessage = "A observação não pode ter mais de 500 caracteres.")]
     public string? Observacao { get; set; }
 }

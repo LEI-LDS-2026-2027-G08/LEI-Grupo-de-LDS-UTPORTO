@@ -240,7 +240,7 @@ Regras verificadas em cada pedido:
 
 **Decisão sobre os tokens já emitidos (I066, critério 4):** o bloqueio e a mudança de perfil têm efeito imediato. Uma conta bloqueada deixa de iniciar sessão (EP-001 devolve `403`) e os tokens emitidos antes do bloqueio ou da mudança de perfil são rejeitados com `401` no pedido seguinte, porque cada pedido autenticado confirma o estado e o perfil atuais da conta (ver acima). Não é preciso revogar os tokens um a um na tabela `TokenRevogado`.
 
-**Divergência registada:** o campo `motivo` de EP-008 é aceite (até 500 caracteres), mas não é guardado, porque o Modelo de Dados (I016) não tem uma coluna para ele.
+**Motivo do bloqueio:** o campo opcional `motivo` de EP-008 (até 500 caracteres) fica guardado na coluna `Utilizador.MotivoBloqueio` (migração `ObservacaoEMotivoBloqueio`). Um motivo vazio ou só com espaços é guardado como `NULL`.
 
 ### Verificação manual
 
@@ -379,13 +379,11 @@ O estado `Pendente` não pode ser escolhido manualmente. Estados inexistentes de
 
 EP-026 e EP-027 suportam concorrência otimista através de `ETag`/`If-Match`. Um `If-Match` desatualizado devolve `412 Precondition Failed` sem alterar a marcação. Em caso de sucesso é emitido um novo `ETag`.
 
-### Divergência conhecida — `observacao` de EP-027
+### `observacao` de EP-027
 
-O corpo de EP-027 inclui o campo opcional `observacao`, representado por `UpdateEstadoConsultaDto.Observacao`.
+O corpo de EP-027 inclui o campo opcional `observacao` (até 500 caracteres; mais do que isso dá `400`), representado por `UpdateEstadoConsultaDto.Observacao`.
 
-O Modelo de Dados atualmente integrado e a entidade `Marcacao` não possuem, contudo, qualquer coluna ou propriedade destinada a persistir essa observação. Por esse motivo, a implementação atual aceita `observacao` no pedido para manter compatibilidade com o contrato de EP-027, mas o valor não é persistido nem devolvido posteriormente.
-
-Nesta Issue não foi criada qualquer alteração ao esquema nem migration para este campo. Caso a observação de mudança de estado deva ser persistente, essa decisão exige uma alteração explícita ao Modelo de Dados e respetiva tarefa de implementação/migração.
+A observação fica guardada na coluna `Marcacao.Observacao` (migração `ObservacaoEMotivoBloqueio`) e corresponde à última alteração de estado: cada pedido de EP-027 substitui a anterior, e uma observação vazia ou só com espaços é guardada como `NULL`. Por agora não é devolvida nas respostas de consulta da marcação.
 
 Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 

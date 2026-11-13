@@ -9,6 +9,7 @@ public class Marcacao
     public short DuracaoMinutos { get; set; }
     public string? Motivo { get; set; }
     public string Estado { get; set; } = "Pendente";
+    public string? Observacao { get; set; }
     public DateTime? DataHoraChegada { get; set; }
     public int CriadaPorId { get; set; }
     public DateTime DataCriacao { get; set; }

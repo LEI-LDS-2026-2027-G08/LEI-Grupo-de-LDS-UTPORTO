@@ -290,6 +290,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         }
 
         utilizador.Estado = EstadosUtilizador.Bloqueado;
+        utilizador.MotivoBloqueio = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim();
 
         // Efeito imediato: EP-001 passa a devolver 403 e os tokens já emitidos são
         // rejeitados com 401 no pedido seguinte, porque cada pedido confirma o estado da conta.

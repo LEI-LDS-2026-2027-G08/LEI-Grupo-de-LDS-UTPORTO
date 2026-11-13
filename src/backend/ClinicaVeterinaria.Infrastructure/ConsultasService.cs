@@ -451,6 +451,7 @@ public sealed class ConsultasService : IConsultasService
             novoEstado);
 
         marcacao.Estado = novoEstado;
+        marcacao.Observacao = string.IsNullOrWhiteSpace(pedido.Observacao) ? null : pedido.Observacao.Trim();
         marcacao.DataUltimaAlteracao =
             ParaUtcAoSegundo(_relogio.GetUtcNow().UtcDateTime);
 
@@ -466,9 +467,6 @@ public sealed class ConsultasService : IConsultasService
         }
 
         return VersaoMarcacao.ParaETag(marcacao.RowVersion);
-
-        // pedido.Observacao faz parte do contrato de EP-027,
-        // mas o Modelo de Dados atual não tem campo onde a persistir.
     }
 
     /// <summary>

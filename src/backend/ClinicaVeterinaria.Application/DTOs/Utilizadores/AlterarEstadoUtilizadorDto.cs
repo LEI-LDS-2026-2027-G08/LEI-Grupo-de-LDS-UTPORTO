@@ -12,8 +12,8 @@ public class AlterarEstadoUtilizadorDto
     public string Estado { get; set; } = string.Empty;
 
     /// <summary>
-    /// Motivo do bloqueio indicado pelo Administrador. O Modelo de Dados não tem coluna
-    /// para o guardar, por isso não é persistido (divergência registada no README).
+    /// Motivo do bloqueio indicado pelo Administrador (opcional). Fica guardado em
+    /// Utilizador.MotivoBloqueio.
     /// </summary>
     [MaxLength(500, ErrorMessage = "O motivo não pode ter mais de 500 caracteres.")]
     public string? Motivo { get; set; }
