@@ -36,6 +36,8 @@ export interface FuncionarioResumo {
 /** Conta de funcionário (EP-005 e resposta de EP-007). Nunca traz a palavra-passe. */
 export interface FuncionarioDetalhe extends FuncionarioResumo {
   telefone: string | null;
+  /** Motivo do bloqueio (EP-008), ou null numa conta ativa ou bloqueada sem motivo. */
+  motivoBloqueio: string | null;
   /** Data de criação, em ISO 8601 (UTC). */
   criadoEm: string;
 }

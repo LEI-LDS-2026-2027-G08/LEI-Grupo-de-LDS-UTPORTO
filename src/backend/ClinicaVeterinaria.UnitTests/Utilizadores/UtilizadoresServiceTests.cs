@@ -32,7 +32,6 @@ public class UtilizadoresServiceTests
     private static readonly DateTime DataCriacaoExistente = new(2026, 10, 1, 9, 0, 0, DateTimeKind.Unspecified);
 
     // ----- EP-006 — Criar conta de funcionário -----
-
     [Fact(DisplayName = "UT-F001-073 — Criar um Auxiliar com podeRegistarApoio cria a conta ativa e o Funcionario")]
     public async Task CriarAuxiliarComApoioCriaContaAtivaEFuncionario()
     {
@@ -258,7 +257,6 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-004 — Listar contas de funcionários -----
-
     [Fact(DisplayName = "UT-F001-098 — Filtrar por perfil Veterinario e estado Ativo devolve só os Veterinários ativos")]
     public async Task FiltroPorPerfilEEstadoDevolveSoVeterinariosAtivos()
     {
@@ -268,7 +266,7 @@ public class UtilizadoresServiceTests
         var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery
         {
             Perfil = Perfis.Veterinario,
-            Estado = EstadosUtilizador.Ativo
+            Estado = EstadosUtilizador.Ativo,
         });
 
         Assert.Equal(2, resultado.Total);
@@ -385,7 +383,6 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-005 — Consultar conta de funcionário -----
-
     [Fact(DisplayName = "I065 — A consulta devolve a conta de funcionário com a data de criação em UTC")]
     public async Task ConsultaDevolveTodosOsCampos()
     {
@@ -424,7 +421,6 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-007 — Atualizar conta de funcionário (I066) -----
-
     [Fact(DisplayName = "UT-F001-083 — Atualizar REC_A para Veterinario muda o perfil e os dados e devolve a conta")]
     public async Task AtualizarRececionistaParaVeterinario()
     {
@@ -656,7 +652,6 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-008 — Bloquear conta de funcionário (I066) -----
-
     [Fact(DisplayName = "UT-F001-092 — Bloquear REC_A ativo passa o estado a Bloqueado")]
     public async Task BloquearContaAtiva()
     {
@@ -708,6 +703,9 @@ public class UtilizadoresServiceTests
         Assert.Equal(
             esperado,
             (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).MotivoBloqueio);
+
+        // EP-005 devolve o motivo na ficha da conta.
+        Assert.Equal(esperado, (await CriarServico(db).ObterAsync(rececionista.Id)).MotivoBloqueio);
     }
 
     [Theory(DisplayName = "UT-F001-093 — Um estado diferente de Bloqueado dá 400 e a conta mantém-se ativa")]
@@ -805,10 +803,10 @@ public class UtilizadoresServiceTests
     }
 
     // ----- Preparação dos dados -----
-
     private static ClinicaDbContext CriarContexto() =>
         new(new DbContextOptionsBuilder<ClinicaDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture))
+
             // O InMemory não tem transações (I028, secção 4.2): a transação do serviço é ignorada.
             .ConfigureWarnings(avisos => avisos.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options);
@@ -824,7 +822,7 @@ public class UtilizadoresServiceTests
         Telefone = "934567890",
         Perfil = perfil,
         PodeRegistarApoio = podeRegistarApoio,
-        PasswordInicial = PasswordInicial
+        PasswordInicial = PasswordInicial,
     };
 
     /// <summary>Pedido de EP-007 com o telefone por omissão.</summary>
@@ -835,14 +833,14 @@ public class UtilizadoresServiceTests
             Email = email,
             Telefone = "934567890",
             Perfil = perfil,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         };
 
     /// <summary>Pedido do exemplo de EP-008 da Documentação da API.</summary>
     private static AlterarEstadoUtilizadorDto PedidoBloqueio() => new()
     {
         Estado = EstadosUtilizador.Bloqueado,
-        Motivo = "Funcionário deixou a clínica."
+        Motivo = "Funcionário deixou a clínica.",
     };
 
     private static AuthService CriarAuthService(ClinicaDbContext db) => new(
@@ -893,7 +891,7 @@ public class UtilizadoresServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = estado,
-            DataCriacao = DataCriacaoExistente
+            DataCriacao = DataCriacaoExistente,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -903,7 +901,7 @@ public class UtilizadoresServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = telefone,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         });
         await db.SaveChangesAsync();
 
@@ -918,7 +916,7 @@ public class UtilizadoresServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = DataCriacaoExistente
+            DataCriacao = DataCriacaoExistente,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -928,7 +926,7 @@ public class UtilizadoresServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = "960000001",
-            DataRegisto = DataCriacaoExistente
+            DataRegisto = DataCriacaoExistente,
         });
         await db.SaveChangesAsync();
 

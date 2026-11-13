@@ -126,7 +126,7 @@ public sealed class ConsultasService : IConsultasService
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
@@ -158,6 +158,7 @@ public sealed class ConsultasService : IConsultasService
             DuracaoMinutos = linha.DuracaoMinutos,
             Estado = linha.Estado,
             Motivo = linha.Motivo,
+            Observacao = linha.Observacao,
             Animal = Animal(linha),
             Cliente = Cliente(linha),
             Veterinario = Veterinario(linha),
@@ -170,7 +171,7 @@ public sealed class ConsultasService : IConsultasService
                     Autor = n.Autor,
                     CriadaEm = Utc(n.DataRegisto)
                 })
-                .ToList()
+                .ToList(),
         };
 
         return new ConsultaComVersao(consulta, VersaoMarcacao.ParaETag(linha.RowVersion));
@@ -266,7 +267,7 @@ public sealed class ConsultasService : IConsultasService
             Motivo = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim(),
             Estado = EstadosConsulta.Pendente,
             CriadaPorId = criadaPorId,
-            DataCriacao = ParaUtcAoSegundo(agoraUtc)
+            DataCriacao = ParaUtcAoSegundo(agoraUtc),
         };
 
         _db.Marcacoes.Add(marcacao);
@@ -487,6 +488,7 @@ public sealed class ConsultasService : IConsultasService
             DuracaoMinutos = m.DuracaoMinutos,
             Estado = m.Estado,
             Motivo = m.Motivo,
+            Observacao = m.Observacao,
             DataHoraChegada = m.DataHoraChegada,
             RowVersion = m.RowVersion,
             AnimalId = p.Id,
@@ -495,7 +497,7 @@ public sealed class ConsultasService : IConsultasService
             ClienteId = c.Id,
             ClienteNome = c.Nome,
             VeterinarioId = m.VeterinarioId,
-            VeterinarioNome = f.Nome
+            VeterinarioNome = f.Nome,
         };
 
     private static void Validar(object pedido)
@@ -515,7 +517,7 @@ public sealed class ConsultasService : IConsultasService
         var utc = valor.Kind switch
         {
             DateTimeKind.Local => valor.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(valor, DateTimeKind.Utc)
+            _ => DateTime.SpecifyKind(valor, DateTimeKind.Utc),
         };
 
         return new DateTime(utc.Ticks - (utc.Ticks % TimeSpan.TicksPerSecond), DateTimeKind.Utc);
@@ -531,7 +533,7 @@ public sealed class ConsultasService : IConsultasService
         Animal = Animal(linha),
         Cliente = Cliente(linha),
         Veterinario = Veterinario(linha),
-        ChegadaEm = Utc(linha.DataHoraChegada)
+        ChegadaEm = Utc(linha.DataHoraChegada),
     };
 
     private static AnimalRefDto Animal(LinhaMarcacao linha) =>
@@ -557,20 +559,36 @@ public sealed class ConsultasService : IConsultasService
     private sealed class LinhaMarcacao
     {
         public int Id { get; set; }
+
         public DateTime DataHoraInicio { get; set; }
+
         public short DuracaoMinutos { get; set; }
+
         public string Estado { get; set; } = string.Empty;
+
         public string? Motivo { get; set; }
+
+        public string? Observacao { get; set; }
+
         public DateTime? DataHoraChegada { get; set; }
+
         public byte[] RowVersion { get; set; } = [];
+
         public int AnimalId { get; set; }
+
         public string AnimalNome { get; set; } = string.Empty;
+
         public string Especie { get; set; } = string.Empty;
+
         public int ClienteId { get; set; }
+
         public string ClienteNome { get; set; } = string.Empty;
+
         public int VeterinarioId { get; set; }
+
         public string VeterinarioNome { get; set; } = string.Empty;
     }
+
     /// <summary>EP-028 — marcação que não está Confirmada (422).</summary>
     public const string MensagemChegadaNaoConfirmada = "Só é possível registar a chegada numa marcação Confirmada.";
 
@@ -674,7 +692,7 @@ public sealed class ConsultasService : IConsultasService
             MarcacaoId = id,
             AuxiliarId = auxiliarId,
             Descricao = pedido.Texto!.Trim(),
-            DataRegisto = agora
+            DataRegisto = agora,
         };
 
         _db.InformacoesApoio.Add(nota);
@@ -686,7 +704,7 @@ public sealed class ConsultasService : IConsultasService
             ConsultaId = id,
             Texto = nota.Descricao,
             Autor = auxiliar.Nome,
-            CriadaEm = agora
+            CriadaEm = agora,
         };
     }
 }

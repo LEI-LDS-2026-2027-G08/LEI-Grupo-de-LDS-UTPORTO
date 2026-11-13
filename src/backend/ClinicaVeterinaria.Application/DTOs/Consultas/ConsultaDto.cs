@@ -22,6 +22,9 @@ public class ConsultaDto
 
     public string? Motivo { get; set; }
 
+    /// <summary>Observação da última alteração de estado (EP-027); <c>null</c> sem observação.</summary>
+    public string? Observacao { get; set; }
+
     public AnimalRefDto Animal { get; set; } = new();
 
     public ClienteRefDto Cliente { get; set; } = new();

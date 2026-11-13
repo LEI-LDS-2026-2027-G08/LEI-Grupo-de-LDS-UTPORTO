@@ -27,6 +27,7 @@ function marcacaoEm(estado: EstadoConsulta): MarcacaoDetalhe {
     veterinario: { id: 5, nome: "Dra. Ana" },
     chegadaEm: null,
     notasPreparacao: [],
+    observacao: null,
   };
 }
 
@@ -372,6 +373,17 @@ describe("W11 — detalhe e estado da marcação", () => {
       estado: "Cancelada",
       observacao: "Pedido do tutor.",
     });
+  });
+
+  it("mostra a observação da última alteração de estado", async () => {
+    const servico = servicoFalso("Cancelada");
+    servico.obterConsulta.mockResolvedValue({
+      ...marcacaoEm("Cancelada"),
+      observacao: "Pedido do tutor.",
+    });
+    montar("/agenda/41", { servico });
+    expect(await screen.findByText("Pedido do tutor.")).toBeInTheDocument();
+    expect(screen.getByText("Observação do estado")).toBeInTheDocument();
   });
 
   it.each(["Realizada", "Cancelada"] as const)(

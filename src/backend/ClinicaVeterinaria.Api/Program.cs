@@ -12,7 +12,6 @@ var allowedOrigins =
     builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
 // Add services to the container.
-
 builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -49,6 +48,7 @@ builder.Services.AddCors(options =>
         }
     });
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -60,7 +60,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Introduza o token JWT."
+        Description = "Introduza o token JWT.",
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -75,7 +75,7 @@ builder.Services.AddSwaggerGen(options =>
                 }
             },
             Array.Empty<string>()
-        }
+        },
     });
 });
 
@@ -114,6 +114,7 @@ if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 // O Swagger fica ativo em Development e, com Swagger:Ativo = true, no ambiente
 // público de avaliação (I104, critério 1: iniciar sessão pelo Swagger).
@@ -135,4 +136,3 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { }

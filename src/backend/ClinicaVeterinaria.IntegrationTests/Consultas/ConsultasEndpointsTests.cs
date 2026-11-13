@@ -33,7 +33,6 @@ public sealed class ConsultasEndpointsTests :
     }
 
     // ----- EP-023 — Consultar agenda -----
-
     [Fact(DisplayName = "IT-EP023-01 — a Rececionista consulta a agenda do período, por data e hora")]
     public async Task RececionistaConsultaAgenda()
     {
@@ -132,7 +131,6 @@ public sealed class ConsultasEndpointsTests :
     }
 
     // ----- EP-024 — Consultar marcação -----
-
     [Fact(DisplayName = "IT-EP024-01 — a Rececionista lê a marcação com as notas de preparação")]
     public async Task RececionistaLeMarcacaoComNotas()
     {
@@ -217,7 +215,7 @@ public sealed class ConsultasEndpointsTests :
         // A M1 tem registo clínico, tratamento e prescrição na base (dados da I061): nada disso
         // pode aparecer na resposta.
         Assert.Equal(
-            "animal,chegadaEm,cliente,dataHora,duracaoMinutos,estado,id,motivo,notasPreparacao,veterinario",
+            "animal,chegadaEm,cliente,dataHora,duracaoMinutos,estado,id,motivo,notasPreparacao,observacao,veterinario",
             string.Join(',', documento.RootElement.EnumerateObject().Select(p => p.Name).Order(StringComparer.Ordinal)));
         Assert.DoesNotContain("Otite", corpo, StringComparison.Ordinal);
         Assert.DoesNotContain("eritematoso", corpo, StringComparison.Ordinal);
@@ -226,7 +224,6 @@ public sealed class ConsultasEndpointsTests :
     }
 
     // ----- 401 e 403 nos dois endpoints -----
-
     [Theory(DisplayName = "I072 — perfis sem acesso (Administrador e Cliente) recebem 403 nos dois endpoints")]
     [InlineData("Administrador")]
     [InlineData("Cliente")]
@@ -256,7 +253,6 @@ public sealed class ConsultasEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private sealed record MarcacaoDemo(int Id, byte[] RowVersion);
 
     private static List<JsonElement> Itens(JsonElement raiz) =>

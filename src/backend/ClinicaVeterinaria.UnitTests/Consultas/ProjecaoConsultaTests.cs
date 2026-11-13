@@ -28,7 +28,7 @@ public class ProjecaoConsultaTests
     [Fact(DisplayName = "I072 — ConsultaDto (EP-024): só dados administrativos e as notas de preparação")]
     public void ConsultaDtoSemDadosClinicos()
     {
-        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,NotasPreparacao,Veterinario", Campos(typeof(ConsultaDto)));
+        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,NotasPreparacao,Observacao,Veterinario", Campos(typeof(ConsultaDto)));
     }
 
     [Fact(DisplayName = "I072 — ConsultaListItemDto (EP-023): só dados administrativos")]

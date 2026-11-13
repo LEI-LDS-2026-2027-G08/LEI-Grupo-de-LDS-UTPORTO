@@ -224,6 +224,8 @@ function DetalheMarcacao({
         <dd>
           <strong>{marcacao.estado}</strong>
         </dd>
+        <dt>Observação do estado</dt>
+        <dd>{marcacao.observacao ?? "—"}</dd>
         <dt>Chegada</dt>
         <dd>
           {marcacao.chegadaEm

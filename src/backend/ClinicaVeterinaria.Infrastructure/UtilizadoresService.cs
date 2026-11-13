@@ -51,6 +51,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var consulta =
             from u in _db.Utilizadores.AsNoTracking()
             join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
+
             // Garante que uma conta de Cliente nunca aparece, mesmo com dados incoerentes.
             where u.Perfil != Perfis.Cliente
             select new { Utilizador = u, Funcionario = f };
@@ -95,7 +96,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                     Email = x.Utilizador.Email,
                     Perfil = x.Utilizador.Perfil,
                     Estado = x.Utilizador.Estado,
-                    PodeRegistarApoio = x.Funcionario.PodeRegistarApoio
+                    PodeRegistarApoio = x.Funcionario.PodeRegistarApoio,
                 })
                 .ToListAsync();
         }
@@ -105,7 +106,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
@@ -127,8 +128,9 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Telefone = dados.Funcionario.Telefone,
             Perfil = dados.Utilizador.Perfil,
             Estado = dados.Utilizador.Estado,
+            MotivoBloqueio = dados.Utilizador.MotivoBloqueio,
             PodeRegistarApoio = dados.Funcionario.PodeRegistarApoio,
-            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc)
+            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc),
         };
     }
 
@@ -160,7 +162,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Email = email,
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Agora()
+            DataCriacao = Agora(),
         };
         utilizador.PasswordHash = _passwordHasher.HashPassword(utilizador, pedido.PasswordInicial);
 
@@ -168,7 +170,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         {
             Nome = pedido.Nome.Trim(),
             Telefone = string.IsNullOrWhiteSpace(pedido.Telefone) ? null : pedido.Telefone.Trim(),
-            PodeRegistarApoio = pedido.PodeRegistarApoio
+            PodeRegistarApoio = pedido.PodeRegistarApoio,
         };
 
         // Utilizador e Funcionario são criados juntos ou não é criado nenhum.
@@ -190,7 +192,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Email = utilizador.Email,
             Perfil = utilizador.Perfil,
             Estado = utilizador.Estado,
-            PodeRegistarApoio = funcionario.PodeRegistarApoio
+            PodeRegistarApoio = funcionario.PodeRegistarApoio,
         };
     }
 
@@ -253,8 +255,9 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Telefone = dados.Funcionario.Telefone,
             Perfil = dados.Utilizador.Perfil,
             Estado = dados.Utilizador.Estado,
+            MotivoBloqueio = dados.Utilizador.MotivoBloqueio,
             PodeRegistarApoio = dados.Funcionario.PodeRegistarApoio,
-            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc)
+            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc),
         };
     }
 

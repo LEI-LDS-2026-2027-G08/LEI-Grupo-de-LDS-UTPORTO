@@ -15,6 +15,7 @@ const ana: FuncionarioDetalhe = {
   telefone: "912345678",
   perfil: "Veterinario",
   estado: "Ativo",
+  motivoBloqueio: null,
   podeRegistarApoio: false,
   criadoEm: "2026-10-01T09:00:00Z",
 };
@@ -271,6 +272,19 @@ describe("W03 — criar e editar funcionário", () => {
     );
     expect(
       screen.getByRole("link", { name: "Voltar à lista" }),
+    ).toBeInTheDocument();
+  });
+
+  it("numa conta bloqueada mostra o motivo do bloqueio", async () => {
+    const servico = servicoFalso();
+    servico.obter.mockResolvedValue({
+      ...ana,
+      estado: "Bloqueado",
+      motivoBloqueio: "Saiu da clínica.",
+    });
+    montar("/funcionarios/5", servico);
+    expect(
+      await screen.findByText(/Motivo do bloqueio: Saiu da clínica\./),
     ).toBeInTheDocument();
   });
 
