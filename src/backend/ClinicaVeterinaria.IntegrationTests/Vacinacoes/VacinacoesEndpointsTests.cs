@@ -41,7 +41,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- EP-042 — Consultar boletim do paciente (web) -----
-
     [Fact(DisplayName = "IT-EP042-01 — animal com administrações: 200 com o histórico (mais recente primeiro) e as próximas")]
     public async Task BoletimComHistoricoEProximas()
     {
@@ -131,7 +130,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- EP-043 — Registar vacinação ou desparasitação -----
-
     [Fact(DisplayName = "IT-EP043-01 e IT-EP043-02 — dados válidos com 90 dias: 201, persistido e dataProximaPrevista = data + 90 (também na coluna calculada)")]
     public async Task RegistaComIntervalo()
     {
@@ -247,7 +245,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- RF056 — Atualizar vacinação ou desparasitação (I082, critério 4) -----
-
     [Fact(DisplayName = "I082 — atualizar a data e o intervalo: 200 e a próxima é recalculada (resposta e coluna calculada)")]
     public async Task AtualizaERecalcula()
     {
@@ -342,7 +339,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- EP-044 — Consultar boletim do meu animal (Cliente) -----
-
     [Fact(DisplayName = "IT-EP044-01 — o João consulta o Bobi: 200 com o histórico e as próximas")]
     public async Task ClienteConsultaOSeuAnimal()
     {
@@ -422,7 +418,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- Perfis sem acesso e pedidos sem token (I082, critério 6) -----
-
     [Theory(DisplayName = "I082 — só o Veterinário: Rececionista, Auxiliar, Administrador e Cliente recebem 403 em EP-042, EP-043 e na atualização")]
     [InlineData("rececao@clinica-g08.test")]
     [InlineData("aux.carla@clinica-g08.test")]
@@ -475,7 +470,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static async Task<JsonDocument> LerAsync(HttpResponseMessage resposta) =>
         JsonDocument.Parse(await resposta.Content.ReadAsStringAsync());
 

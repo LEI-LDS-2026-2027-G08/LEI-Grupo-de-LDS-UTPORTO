@@ -80,7 +80,7 @@ public sealed class VacinacoesService : IVacinacoesService
         {
             Animal = animal,
             Administracoes = administracoes,
-            Proximas = Proximas(administracoes)
+            Proximas = Proximas(administracoes),
         };
     }
 
@@ -103,7 +103,7 @@ public sealed class VacinacoesService : IVacinacoesService
         var registo = new RegistoProfilaxia
         {
             PacienteId = animalId,
-            VeterinarioId = veterinarioId
+            VeterinarioId = veterinarioId,
         };
         Copiar(pedido, registo);
         registo.DataRegisto = AgoraAoSegundo();
@@ -178,10 +178,10 @@ public sealed class VacinacoesService : IVacinacoesService
                 {
                     Tipo = a.Tipo,
                     Produto = a.Produto,
-                    DataAdministracao = a.DataAdministracao
+                    DataAdministracao = a.DataAdministracao,
                 })
                 .ToList(),
-            Proximas = Proximas(administracoes)
+            Proximas = Proximas(administracoes),
         };
     }
 
@@ -224,7 +224,7 @@ public sealed class VacinacoesService : IVacinacoesService
             {
                 Tipo = a.Tipo,
                 Produto = a.Produto,
-                DataProximaPrevista = a.DataProximaPrevista!.Value
+                DataProximaPrevista = a.DataProximaPrevista!.Value,
             })
             .ToList();
     }
@@ -250,7 +250,7 @@ public sealed class VacinacoesService : IVacinacoesService
         DataAdministracao = registo.DataAdministracao,
         IntervaloDias = registo.IntervaloDias,
         DataProximaPrevista = CalculadoraProximaAdministracao.Calcular(registo.DataAdministracao, registo.IntervaloDias),
-        Veterinario = veterinario
+        Veterinario = veterinario,
     };
 
     // A coluna calculada DataProximaAdministracao não é escrita: o SQL Server calcula-a.

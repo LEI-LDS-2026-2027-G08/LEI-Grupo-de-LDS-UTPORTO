@@ -87,6 +87,7 @@ public sealed class ConsultasController : ControllerBase
     /// <response code="404">Animal inexistente, ou Veterinário inexistente ou não ativo.</response>
     /// <response code="422">Fora do horário de funcionamento ou Veterinário indisponível nesse horário.</response>
     [HttpPost]
+
     // Soma-se ao [Authorize] do controlador: dos três perfis da agenda, só a Rececionista cria.
     [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
     [ProducesResponseType<ConsultaDto>(StatusCodes.Status201Created)]

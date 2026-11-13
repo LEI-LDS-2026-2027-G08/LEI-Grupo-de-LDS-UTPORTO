@@ -28,7 +28,6 @@ public sealed class ClinicaEndpointsTests :
     }
 
     // ----- EP-009 -----
-
     [Fact(DisplayName = "IT-EP009-01 — configuração existente: 200 e o ClinicaDto coincide com a persistência")]
     public async Task ObterCoincideComPersistencia()
     {
@@ -73,7 +72,6 @@ public sealed class ClinicaEndpointsTests :
     }
 
     // ----- EP-010 -----
-
     [Fact(DisplayName = "IT-EP010-01 — dados e horário válidos: 200 e os dados ficam persistidos (relidos em EP-009)")]
     public async Task AtualizarDadosValidos()
     {
@@ -227,7 +225,6 @@ public sealed class ClinicaEndpointsTests :
     }
 
     // ----- 401 e 403 (contrato da API v02) -----
-
     [Theory(DisplayName = "I092 — EP-009 e EP-010: perfis que não são Administrador recebem 403 e nada é alterado")]
     [InlineData("Rececionista")]
     [InlineData("Veterinario")]
@@ -271,12 +268,11 @@ public sealed class ClinicaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static JsonObject Periodo(string diaSemana, string abertura, string fecho) => new()
     {
         ["diaSemana"] = diaSemana,
         ["abertura"] = abertura,
-        ["fecho"] = fecho
+        ["fecho"] = fecho,
     };
 
     private static string Periodos(JsonObject clinica) =>

@@ -87,7 +87,7 @@ public sealed class ClinicaService : IClinicaService
             DiaSemana = p.DiaSemana,
             HoraAbertura = p.Abertura,
             HoraFecho = p.Fecho,
-            Ativo = true
+            Ativo = true,
         }));
 
         // Um único SaveChanges: dados, configuração e horário na mesma transação.
@@ -112,7 +112,7 @@ public sealed class ClinicaService : IClinicaService
                     Abertura = ValidadorHorario.FormatarHora(p.Abertura),
                     Fecho = ValidadorHorario.FormatarHora(p.Fecho)
                 })
-                .ToList()
+                .ToList(),
         };
 
     private static int LerDuracao(string? valor) =>

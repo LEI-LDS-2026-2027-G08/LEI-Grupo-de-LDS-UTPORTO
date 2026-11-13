@@ -52,7 +52,7 @@ public class AcessoConsultasTests
         {
             new(ClaimsClinica.UtilizadorId, (veterinarioId ?? 1).ToString(CultureInfo.InvariantCulture)),
             new(ClaimsClinica.Perfil, perfil),
-            new(ClaimsClinica.Jti, "jti-de-teste")
+            new(ClaimsClinica.Jti, "jti-de-teste"),
         };
 
         if (veterinarioId is int id)

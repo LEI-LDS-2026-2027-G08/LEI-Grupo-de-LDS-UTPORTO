@@ -15,6 +15,7 @@ public class VersaoMarcacaoTests
 
         Assert.Equal("\"AAAAAAAAB9E=\"", VersaoMarcacao.ParaETag(rowVersion));
     }
+
     [Fact(DisplayName = "UT-F003-086 — If-Match com a versão atual corresponde")]
     public void IfMatchComVersaoAtualCorresponde()
     {

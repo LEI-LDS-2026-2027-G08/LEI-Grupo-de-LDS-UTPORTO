@@ -43,7 +43,7 @@ public sealed class JwtTokenService : IJwtTokenService
             [ClaimsClinica.UtilizadorId] = utilizador.Id.ToString(CultureInfo.InvariantCulture),
             [ClaimsClinica.Email] = utilizador.Email,
             [ClaimsClinica.Perfil] = utilizador.Perfil,
-            [ClaimsClinica.Jti] = jti
+            [ClaimsClinica.Jti] = jti,
         };
 
         if (utilizador.ClienteId is int clienteId)
@@ -65,7 +65,7 @@ public sealed class JwtTokenService : IJwtTokenService
             NotBefore = emitidoEm,
             Expires = expiraEm,
             Claims = claims,
-            SigningCredentials = _credenciais
+            SigningCredentials = _credenciais,
         };
 
         return new TokenEmitido(_handler.CreateToken(descritor), expiraEm, jti);

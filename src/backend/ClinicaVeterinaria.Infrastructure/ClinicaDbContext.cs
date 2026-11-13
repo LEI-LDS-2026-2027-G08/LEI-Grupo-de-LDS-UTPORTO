@@ -1,25 +1,42 @@
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+
 namespace ClinicaVeterinaria.Infrastructure;
 
 public class ClinicaDbContext : DbContext
 {
     public ClinicaDbContext(DbContextOptions<ClinicaDbContext> options) : base(options) { }
+
     public DbSet<Cliente> Clientes { get; set; } = null!;
+
     public DbSet<Clinica> Clinica { get; set; } = null!;
+
     public DbSet<ConfiguracaoSistema> ConfiguracaoSistema { get; set; } = null!;
+
     public DbSet<Especie> Especies { get; set; } = null!;
+
     public DbSet<Funcionario> Funcionarios { get; set; } = null!;
+
     public DbSet<HorarioFuncionamento> HorariosFuncionamento { get; set; } = null!;
+
     public DbSet<InformacaoApoio> InformacoesApoio { get; set; } = null!;
+
     public DbSet<Marcacao> Marcacoes { get; set; } = null!;
+
     public DbSet<Paciente> Pacientes { get; set; } = null!;
+
     public DbSet<Prescricao> Prescricoes { get; set; } = null!;
+
     public DbSet<Raca> Racas { get; set; } = null!;
+
     public DbSet<RegistoClinico> RegistosClinicos { get; set; } = null!;
+
     public DbSet<RegistoProfilaxia> RegistosProfilaxias { get; set; } = null!;
+
     public DbSet<TokenRevogado> TokensRevogados { get; set; } = null!;
+
     public DbSet<Tratamento> Tratamentos { get; set; } = null!;
+
     public DbSet<Utilizador> Utilizadores { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -101,7 +118,7 @@ public class ClinicaDbContext : DbContext
                 Morada = "Rua do Exemplo, 100, 4470-000 Maia",
                 Telefone = "229000000",
                 Email = "geral@clinica-g08.test",
-                DataUltimaAlteracao = dataReferencia
+                DataUltimaAlteracao = dataReferencia,
             });
         });
 
@@ -120,7 +137,7 @@ public class ClinicaDbContext : DbContext
                 Chave = "DuracaoPadraoConsultaMinutos",
                 Valor = "30",
                 Descricao = "Duração por omissão de uma consulta, em minutos (EP-009 e EP-010).",
-                DataUltimaAlteracao = dataReferencia
+                DataUltimaAlteracao = dataReferencia,
             });
         });
 
@@ -163,6 +180,7 @@ public class ClinicaDbContext : DbContext
             e.ToTable("Raca");
             e.HasKey(x => x.Id).HasName("PK_Raca");
             e.Property(x => x.Nome).HasMaxLength(80).IsRequired();
+
             // Chave alternativa para a FK composta de Paciente
             e.HasAlternateKey(x => new { x.EspecieId, x.Id }).HasName("UQ_Raca_Especie_Id");
             e.HasIndex(x => new { x.EspecieId, x.Nome }).IsUnique().HasDatabaseName("UQ_Raca_Especie_Nome");
@@ -199,6 +217,7 @@ public class ClinicaDbContext : DbContext
                 .HasConstraintName("FK_Paciente_Cliente_ClienteId");
             e.HasOne<Especie>().WithMany().HasForeignKey(x => x.EspecieId)
                 .HasConstraintName("FK_Paciente_Especie_EspecieId");
+
             // FK composta (EspecieId, RacaId) → Raca(EspecieId, Id)
             e.HasOne<Raca>().WithMany()
                 .HasForeignKey(x => new { x.EspecieId, x.RacaId })

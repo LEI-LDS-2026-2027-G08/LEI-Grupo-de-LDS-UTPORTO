@@ -7,10 +7,15 @@ namespace ClinicaVeterinaria.Application.DTOs.Animais;
 public class MeuAnimalDto
 {
     public int Id { get; set; }
+
     public string Nome { get; set; } = string.Empty;
+
     public string Especie { get; set; } = string.Empty;
+
     public string? Raca { get; set; }
+
     public string Sexo { get; set; } = string.Empty;
+
     public DateOnly? DataNascimento { get; set; }
 
     /// <summary>Vazio quando a data de nascimento não é conhecida (como em <see cref="AnimalDto"/>).</summary>

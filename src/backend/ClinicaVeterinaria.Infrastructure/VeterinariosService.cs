@@ -116,7 +116,7 @@ public sealed class VeterinariosService : IVeterinariosService
                         .Select(hora => hora.ToString(FormatoHora, CultureInfo.InvariantCulture))
                         .ToList()
                 })
-                .ToList()
+                .ToList(),
         };
     }
 

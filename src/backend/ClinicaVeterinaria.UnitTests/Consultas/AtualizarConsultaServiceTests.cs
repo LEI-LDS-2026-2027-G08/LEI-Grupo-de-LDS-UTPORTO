@@ -39,7 +39,7 @@ public class AtualizarConsultaServiceTests
             {
                 VeterinarioId = d.VetB,
                 DataHora = Utc("2026-10-15T10:00:00Z"),
-                Motivo = "Nova hora"
+                Motivo = "Nova hora",
             },
             null);
 
@@ -72,7 +72,7 @@ public class AtualizarConsultaServiceTests
             new UpdateConsultaDto
             {
                 VeterinarioId = d.VetA,
-                DataHora = Utc("2026-10-15T10:00:00Z")
+                DataHora = Utc("2026-10-15T10:00:00Z"),
             },
             null);
 
@@ -103,7 +103,7 @@ public class AtualizarConsultaServiceTests
                 new UpdateConsultaDto
                 {
                     VeterinarioId = d.VetA,
-                    DataHora = Utc("2026-10-15T10:00:00Z")
+                    DataHora = Utc("2026-10-15T10:00:00Z"),
                 },
                 null));
     }
@@ -136,7 +136,7 @@ public class AtualizarConsultaServiceTests
                 new UpdateConsultaDto
                 {
                     VeterinarioId = d.VetA,
-                    DataHora = Utc("2026-10-15T10:00:00Z")
+                    DataHora = Utc("2026-10-15T10:00:00Z"),
                 },
                 null));
 
@@ -164,7 +164,7 @@ public class AtualizarConsultaServiceTests
             new UpdateConsultaDto
             {
                 VeterinarioId = d.VetA,
-                DataHora = Utc("2026-10-15T09:15:00Z")
+                DataHora = Utc("2026-10-15T09:15:00Z"),
             },
             null);
 
@@ -193,7 +193,7 @@ public class AtualizarConsultaServiceTests
                 new UpdateConsultaDto
                 {
                     VeterinarioId = d.VetA,
-                    DataHora = Relogio.UtcDateTime.AddHours(-1)
+                    DataHora = Relogio.UtcDateTime.AddHours(-1),
                 },
                 null));
     }
@@ -210,7 +210,7 @@ public class AtualizarConsultaServiceTests
                 new UpdateConsultaDto
                 {
                     VeterinarioId = d.VetA,
-                    DataHora = Utc("2026-10-15T09:00:00Z")
+                    DataHora = Utc("2026-10-15T09:00:00Z"),
                 },
                 null));
     }
@@ -224,7 +224,7 @@ public class AtualizarConsultaServiceTests
         var versaoAtual = new byte[]
         {
         0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x07, 0xD2
+        0x00, 0x00, 0x07, 0xD2,
         };
 
         var id = await AdicionarMarcacaoAsync(
@@ -242,7 +242,7 @@ public class AtualizarConsultaServiceTests
                 new UpdateConsultaDto
                 {
                     VeterinarioId = d.VetB,
-                    DataHora = Utc("2026-10-15T10:00:00Z")
+                    DataHora = Utc("2026-10-15T10:00:00Z"),
                 },
                 "\"AAAAAAAAB9E=\""));
 
@@ -266,7 +266,7 @@ public class AtualizarConsultaServiceTests
         var versaoAtual = new byte[]
         {
         0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x07, 0xD2
+        0x00, 0x00, 0x07, 0xD2,
         };
 
         var id = await AdicionarMarcacaoAsync(
@@ -283,7 +283,7 @@ public class AtualizarConsultaServiceTests
             new UpdateConsultaDto
             {
                 VeterinarioId = d.VetB,
-                DataHora = Utc("2026-10-15T10:00:00Z")
+                DataHora = Utc("2026-10-15T10:00:00Z"),
             },
             "\"AAAAAAAAB9I=\"");
 
@@ -315,7 +315,7 @@ public class AtualizarConsultaServiceTests
             new UpdateConsultaDto
             {
                 VeterinarioId = d.VetA,
-                DataHora = Utc("2026-10-15T10:00:00Z")
+                DataHora = Utc("2026-10-15T10:00:00Z"),
             },
             null);
 
@@ -325,7 +325,6 @@ public class AtualizarConsultaServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static DateTime Utc(string texto) => DateTime.Parse(
@@ -358,7 +357,7 @@ public class AtualizarConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -368,7 +367,7 @@ public class AtualizarConsultaServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -378,14 +377,14 @@ public class AtualizarConsultaServiceTests
             ClienteId = cliente.Id,
             Nome = "Bobi",
             EspecieId = especie.Id,
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         var animalA2 = new Paciente
         {
             ClienteId = cliente.Id,
             Nome = "Mia",
             EspecieId = especie.Id,
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Pacientes.AddRange(animalA1, animalA2);
         await db.SaveChangesAsync();
@@ -398,7 +397,7 @@ public class AtualizarConsultaServiceTests
         DiaSemana = dia,
         HoraAbertura = TimeOnly.Parse(abertura, CultureInfo.InvariantCulture),
         HoraFecho = TimeOnly.Parse(fecho, CultureInfo.InvariantCulture),
-        Ativo = true
+        Ativo = true,
     };
 
     private static async Task<int> AdicionarFuncionarioAsync(ClinicaDbContext db, string nome, string perfil)
@@ -409,7 +408,7 @@ public class AtualizarConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -417,7 +416,7 @@ public class AtualizarConsultaServiceTests
         db.Funcionarios.Add(new Funcionario
         {
             UtilizadorId = utilizador.Id,
-            Nome = nome
+            Nome = nome,
         });
         await db.SaveChangesAsync();
 
@@ -442,7 +441,7 @@ public class AtualizarConsultaServiceTests
             Estado = estado,
             CriadaPorId = 1,
             DataCriacao = Relogio.UtcDateTime,
-            RowVersion = rowVersion ?? new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }
+            RowVersion = rowVersion ?? new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 },
         };
 
         db.Marcacoes.Add(marcacao);

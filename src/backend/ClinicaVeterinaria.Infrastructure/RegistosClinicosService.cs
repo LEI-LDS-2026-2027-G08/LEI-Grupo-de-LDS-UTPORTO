@@ -110,7 +110,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             VeterinarioId = veterinarioId,
             NotasClinicas = Normalizar(pedido.NotasClinicas),
             Diagnostico = Normalizar(pedido.Diagnostico),
-            CriadoEm = agora
+            CriadoEm = agora,
         };
 
         // (6) Registo, tratamentos e prescrições gravados juntos ou nada é gravado (IT-EP031-09).
@@ -289,7 +289,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                     Veterinario = v.Nome,
                     r.Diagnostico,
                     NumeroTratamentos = _db.Tratamentos.Count(t => t.RegistoClinicoId == r.Id),
-                    NumeroPrescricoes = _db.Prescricoes.Count(p => p.RegistoClinicoId == r.Id)
+                    NumeroPrescricoes = _db.Prescricoes.Count(p => p.RegistoClinicoId == r.Id),
                 })
             .ToListAsync();
 
@@ -302,7 +302,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 Veterinario = l.Veterinario,
                 Diagnostico = l.Diagnostico,
                 NumeroTratamentos = l.NumeroTratamentos,
-                NumeroPrescricoes = l.NumeroPrescricoes
+                NumeroPrescricoes = l.NumeroPrescricoes,
             })
             .ToList();
 
@@ -330,7 +330,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                     r.NotasClinicas,
                     r.Diagnostico,
                     r.AtualizadoEm,
-                    r.AtualizadoPorId
+                    r.AtualizadoPorId,
                 })
             .FirstAsync();
 
@@ -359,7 +359,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 Medicamento = p.Medicamento,
                 Dosagem = p.Dosagem,
                 Frequencia = p.Frequencia,
-                DuracaoDias = p.DuracaoDias
+                DuracaoDias = p.DuracaoDias,
             })
             .ToListAsync();
 
@@ -375,7 +375,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             Tratamentos = tratamentos,
             Prescricoes = prescricoes,
             AtualizadoEm = linha.AtualizadoEm is DateTime atualizado ? Utc(atualizado) : null,
-            AtualizadoPor = atualizadoPor
+            AtualizadoPor = atualizadoPor,
         };
     }
 
@@ -393,7 +393,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
     {
         RegistoClinicoId = registoId,
         Descricao = tratamento.Descricao.Trim(),
-        DataAplicacao = tratamento.DataAplicacao!.Value
+        DataAplicacao = tratamento.DataAplicacao!.Value,
     };
 
     private static Prescricao NovaPrescricao(int registoId, CreatePrescricaoDto prescricao) => new()
@@ -402,7 +402,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         Medicamento = prescricao.Medicamento.Trim(),
         Dosagem = prescricao.Dosagem.Trim(),
         Frequencia = prescricao.Frequencia.Trim(),
-        DuracaoDias = (short?)prescricao.DuracaoDias
+        DuracaoDias = (short?)prescricao.DuracaoDias,
     };
 
     // Texto só com espaços conta como vazio (UT-F004-007) e fica nulo na base de dados.

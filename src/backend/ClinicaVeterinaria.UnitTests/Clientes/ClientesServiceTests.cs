@@ -36,7 +36,6 @@ public class ClientesServiceTests
     private const string EmailLivre = "novo.cliente@clinica-g08.test";
 
     // ----- EP-013 — Criar Cliente -----
-
     [Fact(DisplayName = "UT-F001-112 — Criar um Cliente cria a conta Utilizador (Cliente, Ativo) e o Cliente ligado a ela; o e-mail fica só na conta")]
     public async Task CriarClienteCriaContaEClienteLigados()
     {
@@ -127,7 +126,6 @@ public class ClientesServiceTests
     }
 
     // ----- EP-014 — Atualizar Cliente -----
-
     [Fact(DisplayName = "UT-F001-119 — Um novo e-mail atualiza o Cliente e o e-mail da conta Utilizador")]
     public async Task NovoEmailAtualizaClienteEConta()
     {
@@ -176,7 +174,6 @@ public class ClientesServiceTests
     }
 
     // ----- EP-011 e EP-012 — Pesquisar e consultar -----
-
     [Fact(DisplayName = "UT-F001-124 — A pesquisa \"Costa\" devolve só o CLIENTE_A, com numeroAnimais = 2")]
     public async Task PesquisaPorNomeDevolveClienteComNumeroDeAnimais()
     {
@@ -239,13 +236,13 @@ public class ClientesServiceTests
     }
 
     // ----- Apoio -----
-
     private static ClientesService CriarServico(ClinicaDbContext db) =>
         new(db, new HasherDuplo(), new RelogioFixo(Relogio));
 
     private static ClinicaDbContext CriarContexto() =>
         new(new DbContextOptionsBuilder<ClinicaDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture))
+
             // O InMemory não tem transações (I028, secção 4.2): a transação do serviço é ignorada.
             .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options);
@@ -278,7 +275,7 @@ public class ClientesServiceTests
         Telefone = "960000003",
         Email = email,
         Morada = "Rua Fictícia, 3, 4470-003 Maia",
-        PasswordInicial = "Temp#2026"
+        PasswordInicial = "Temp#2026",
     };
 
     private static UpdateClienteDto PedidoAtualizacao(string? nif, string email) => new()
@@ -286,7 +283,7 @@ public class ClientesServiceTests
         Nome = "João Costa",
         Nif = nif,
         Telefone = "960000001",
-        Email = email
+        Email = email,
     };
 
     private static List<string> CamposComErro(object pedido)

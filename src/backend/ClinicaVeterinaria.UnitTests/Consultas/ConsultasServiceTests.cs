@@ -24,7 +24,6 @@ public class ConsultasServiceTests
     private static readonly byte[] VersaoD1 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD1];
 
     // ----- EP-023 — Consultar agenda -----
-
     [Fact(DisplayName = "UT-F003-050 — o Veterinário que envia o veterinarioId de outro só recebe as suas marcações")]
     public async Task VeterinarioIgnoraFiltroDeOutroVeterinario()
     {
@@ -168,7 +167,7 @@ public class ConsultasServiceTests
         {
             Estado = estado,
             DataInicio = dataInicio is null ? null : Data(dataInicio),
-            DataFim = dataFim is null ? null : Data(dataFim)
+            DataFim = dataFim is null ? null : Data(dataFim),
         };
 
         await Assert.ThrowsAsync<ValidacaoException>(
@@ -241,7 +240,6 @@ public class ConsultasServiceTests
     }
 
     // ----- EP-024 — Consultar marcação -----
-
     [Fact(DisplayName = "UT-F003-053 — o Auxiliar sem autorização de apoio lê a marcação com a nota de preparação")]
     public async Task AuxiliarSemApoioLeNotaDePreparacao()
     {
@@ -334,7 +332,6 @@ public class ConsultasServiceTests
     }
 
     // ----- Preparação dos dados -----
-
     private sealed record DadosBase(
         int VetA,
         int VetB,
@@ -389,7 +386,7 @@ public class ConsultasServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Criacao
+            DataCriacao = Criacao,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -398,7 +395,7 @@ public class ConsultasServiceTests
         {
             UtilizadorId = utilizador.Id,
             Nome = nome,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         });
         await db.SaveChangesAsync();
 
@@ -413,7 +410,7 @@ public class ConsultasServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Criacao
+            DataCriacao = Criacao,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -423,7 +420,7 @@ public class ConsultasServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = telefone,
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -438,7 +435,7 @@ public class ConsultasServiceTests
             ClienteId = clienteId,
             Nome = nome,
             EspecieId = especieId,
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Pacientes.Add(paciente);
         await db.SaveChangesAsync();
@@ -469,7 +466,7 @@ public class ConsultasServiceTests
             DataHoraChegada = chegada is null ? null : DateTime.SpecifyKind(Utc(chegada), DateTimeKind.Unspecified),
             CriadaPorId = 1,
             DataCriacao = Criacao,
-            RowVersion = rowVersion ?? new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }
+            RowVersion = rowVersion ?? new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 },
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();
@@ -489,7 +486,7 @@ public class ConsultasServiceTests
             MarcacaoId = marcacaoId,
             AuxiliarId = auxiliarId,
             Descricao = descricao,
-            DataRegisto = DateTime.SpecifyKind(Utc(registoUtc), DateTimeKind.Unspecified)
+            DataRegisto = DateTime.SpecifyKind(Utc(registoUtc), DateTimeKind.Unspecified),
         };
         db.InformacoesApoio.Add(nota);
         await db.SaveChangesAsync();

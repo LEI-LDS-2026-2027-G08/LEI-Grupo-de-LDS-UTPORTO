@@ -108,14 +108,14 @@ public static class AutenticacaoExtensions
             ClockSkew = TimeSpan.Zero,
 
             NameClaimType = ClaimsClinica.UtilizadorId,
-            RoleClaimType = ClaimsClinica.Perfil
+            RoleClaimType = ClaimsClinica.Perfil,
         };
 
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = ValidarSessaoAsync,
             OnChallenge = ResponderNaoAutenticadoAsync,
-            OnForbidden = ResponderSemPermissaoAsync
+            OnForbidden = ResponderSemPermissaoAsync,
         };
     }
 
@@ -152,7 +152,7 @@ public static class AutenticacaoExtensions
         {
             null => "É necessário apresentar um token JWT válido.",
             SecurityTokenExpiredException => "O token expirou. Inicie sessão novamente.",
-            _ => "O token apresentado é inválido ou a sessão já não é válida."
+            _ => "O token apresentado é inválido ou a sessão já não é válida.",
         };
 
         return EscreverErroAsync(
@@ -182,7 +182,7 @@ public static class AutenticacaoExtensions
         {
             code = codigo,
             message = mensagem,
-            detail = detalhe
+            detail = detalhe,
         });
     }
 }

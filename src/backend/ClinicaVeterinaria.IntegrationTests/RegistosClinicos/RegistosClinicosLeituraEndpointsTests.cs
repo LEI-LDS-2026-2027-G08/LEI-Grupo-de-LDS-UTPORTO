@@ -45,7 +45,6 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
     }
 
     // ----- EP-033 — Consultar registo clínico -----
-
     [Fact(DisplayName = "IT-EP033-01 — o Veterinário consulta o registo da M1: 200 com notas, diagnóstico, tratamentos e prescrições")]
     public async Task VeterinarioConsultaRegisto()
     {
@@ -137,7 +136,6 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
     }
 
     // ----- EP-034 — Consultar histórico clínico do paciente -----
-
     [Fact(DisplayName = "IT-EP034-01 — animal com vários registos: 200, do mais recente para o mais antigo")]
     public async Task HistoricoPorOrdemDescendente()
     {
@@ -240,7 +238,6 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
     }
 
     // ----- Perfis sem acesso e pedidos sem token (I078, critério 5) -----
-
     [Theory(DisplayName = "I078 — Rececionista, Administrador e Cliente recebem 403 em EP-033 e EP-034")]
     [InlineData(EmailRececao)]
     [InlineData("admin@clinica-g08.test")]
@@ -293,7 +290,7 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
             Motivo = "Check-up anual",
             Estado = "Realizada",
             CriadaPorId = rececao,
-            DataCriacao = InicioSetembro.AddDays(-7)
+            DataCriacao = InicioSetembro.AddDays(-7),
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();
@@ -303,7 +300,7 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
             MarcacaoId = marcacao.Id,
             VeterinarioId = vetBruno,
             Diagnostico = "Check-up sem alterações",
-            CriadoEm = InicioSetembro.AddMinutes(30)
+            CriadoEm = InicioSetembro.AddMinutes(30),
         };
         db.RegistosClinicos.Add(registo);
         await db.SaveChangesAsync();

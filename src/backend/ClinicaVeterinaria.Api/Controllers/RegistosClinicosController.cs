@@ -48,6 +48,7 @@ public sealed class RegistosClinicosController : ControllerBase
     /// <response code="409">A consulta já tem registo clínico.</response>
     /// <response code="422">Consulta Pendente ou Cancelada.</response>
     [HttpPost]
+
     // Soma-se ao [Authorize] do controlador: dos dois perfis de leitura, só o Veterinário regista.
     [Authorize(Policy = PoliticasAutorizacao.Veterinario)]
     [ProducesResponseType<RegistoClinicoDto>(StatusCodes.Status201Created)]
@@ -80,6 +81,7 @@ public sealed class RegistosClinicosController : ControllerBase
     /// <response code="403">Perfil sem permissão ou registo de outro Veterinário.</response>
     /// <response code="404">Registo inexistente.</response>
     [HttpPut("{id:int}")]
+
     // Soma-se ao [Authorize] do controlador: o Auxiliar Veterinário não altera registos.
     [Authorize(Policy = PoliticasAutorizacao.Veterinario)]
     [ProducesResponseType<RegistoClinicoDto>(StatusCodes.Status200OK)]

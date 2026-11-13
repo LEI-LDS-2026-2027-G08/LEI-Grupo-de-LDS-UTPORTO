@@ -32,7 +32,6 @@ public class AnimaisServiceTests
     private const int EspecieGato = 2;
 
     // ----- EP-017 — Registar paciente -----
-
     [Fact(DisplayName = "UT-F002-001 — Registar o Bobi cria o paciente do CLIENTE_A com DataRegisto = RELOGIO e idadeAnos = 4")]
     public async Task RegistarAnimalValido()
     {
@@ -184,7 +183,6 @@ public class AnimaisServiceTests
     }
 
     // ----- EP-018 — Atualizar paciente -----
-
     [Fact(DisplayName = "UT-F002-014 — Atualizar o peso do ANIMAL_A1 grava o novo peso e DataUltimaAlteracao = RELOGIO")]
     public async Task AtualizarPesoGravaAlteracao()
     {
@@ -230,7 +228,6 @@ public class AnimaisServiceTests
     }
 
     // ----- EP-015 e EP-016 — Pesquisar e consultar -----
-
     [Fact(DisplayName = "UT-F002-018 — A ficha do ANIMAL_A1 tem só dados administrativos e o telefone do Cliente")]
     public async Task FichaTemDadosAdministrativosETelefone()
     {
@@ -271,7 +268,6 @@ public class AnimaisServiceTests
     }
 
     // ----- EP-019 e EP-020 — Área do Cliente -----
-
     [Fact(DisplayName = "UT-F002-020 — Na área do Cliente, o CLIENTE_A vê só os seus animais")]
     public async Task ClienteVeSoOsSeusAnimais()
     {
@@ -322,7 +318,6 @@ public class AnimaisServiceTests
     }
 
     // ----- Idade do animal -----
-
     [Fact(DisplayName = "UT-F002-025 — Nascido a 2022-05-10, em 2026-10-14 tem 4 anos")]
     public async Task IdadeQuatroAnos()
     {
@@ -360,7 +355,6 @@ public class AnimaisServiceTests
     }
 
     // ----- Apoio -----
-
     private static AnimaisService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     /// <summary>Idade do ANIMAL_A1 com a data de nascimento e o dia de hoje indicados.</summary>
@@ -397,7 +391,7 @@ public class AnimaisServiceTests
                 Sexo = "Macho",
                 DataNascimento = new DateOnly(2022, 5, 10),
                 Peso = 28.4m,
-                DataRegisto = Relogio.UtcDateTime.AddDays(-30)
+                DataRegisto = Relogio.UtcDateTime.AddDays(-30),
             },
             new Paciente { Id = AnimalA2, ClienteId = ClienteA, Nome = "Mia", EspecieId = EspecieGato, RacaId = 2 },
             new Paciente { Id = AnimalB1, ClienteId = ClienteB, Nome = "Kiko", EspecieId = EspecieCao });
@@ -416,7 +410,7 @@ public class AnimaisServiceTests
         Sexo = "Macho",
         DataNascimento = new DateOnly(2022, 5, 10),
         Peso = 28.4m,
-        ClienteId = ClienteA
+        ClienteId = ClienteA,
     };
 
     private static List<string> CamposComErro(object pedido)

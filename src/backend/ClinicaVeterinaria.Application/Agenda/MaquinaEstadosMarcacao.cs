@@ -48,7 +48,7 @@ public static class MaquinaEstadosMarcacao
             (EstadosConsulta.Confirmada, EstadosConsulta.Realizada) => true,
             (EstadosConsulta.Confirmada, EstadosConsulta.Cancelada) => true,
 
-            _ => false
+            _ => false,
         };
     }
 

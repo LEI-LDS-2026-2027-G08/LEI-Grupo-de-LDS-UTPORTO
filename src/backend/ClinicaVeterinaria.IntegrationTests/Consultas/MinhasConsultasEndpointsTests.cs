@@ -216,7 +216,6 @@ public sealed class MinhasConsultasEndpointsTests :
     }
 
     // ----- Apoio -----
-
     private sealed record MarcacoesDeTeste(
         DateTime Inicio,
         int FuturaBobi,
@@ -258,7 +257,7 @@ public sealed class MinhasConsultasEndpointsTests :
                 Motivo = "Comichão no ouvido (teste I076)",
                 Estado = estado,
                 CriadaPorId = rececao,
-                DataCriacao = agora.AddDays(-60)
+                DataCriacao = agora.AddDays(-60),
             };
             db.Marcacoes.Add(marcacao);
             await db.SaveChangesAsync();

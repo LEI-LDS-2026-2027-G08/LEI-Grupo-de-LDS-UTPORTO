@@ -37,7 +37,6 @@ public class AuthServiceTests
     private const string MensagemCredenciaisInvalidas = "Credenciais inválidas.";
 
     // ----- EP-001 — Iniciar sessão -----
-
     [Fact(DisplayName = "UT-F001-001 — Login do Administrador devolve o token do IJwtTokenService e regista o último acesso")]
     public async Task LoginDoAdministradorDevolveTokenERegistaUltimoAcesso()
     {
@@ -194,7 +193,6 @@ public class AuthServiceTests
     }
 
     // ----- Validação da sessão em cada pedido autenticado -----
-
     [Fact(DisplayName = "UT-F001-013 — Conta ativa, com o perfil do token e jti não revogado: a sessão é válida")]
     public async Task SessaoDeContaAtivaEValida()
     {
@@ -240,7 +238,6 @@ public class AuthServiceTests
     }
 
     // ----- EP-003 — Consultar utilizador autenticado -----
-
     [Fact(DisplayName = "UT-F001-018 — Veterinário autenticado: nome do Funcionario, perfil Veterinario e sem clienteId")]
     public async Task VeterinarioAutenticadoTemNomeDoFuncionario()
     {
@@ -274,7 +271,6 @@ public class AuthServiceTests
     }
 
     // ----- Apoio -----
-
     private static LoginRequestDto Pedido(string email, string password) => new() { Email = email, Password = password };
 
     private static AuthService CriarServico(
@@ -321,6 +317,6 @@ public class AuthServiceTests
         PasswordHash = "hash-guardado",
         Perfil = perfil,
         Estado = estado,
-        DataCriacao = Relogio.UtcDateTime.AddDays(-30)
+        DataCriacao = Relogio.UtcDateTime.AddDays(-30),
     };
 }

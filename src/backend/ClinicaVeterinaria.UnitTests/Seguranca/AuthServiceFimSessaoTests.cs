@@ -184,7 +184,7 @@ public class AuthServiceFimSessaoTests
             Email = "rececao@clinica-g08.test",
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Rececionista,
-            Estado = EstadosUtilizador.Ativo
+            Estado = EstadosUtilizador.Ativo,
         });
         db.SaveChanges();
 
@@ -196,7 +196,7 @@ public class AuthServiceFimSessaoTests
         Jti = jti,
         UtilizadorId = RecA,
         DataExpiracao = dataExpiracao,
-        DataRevogacao = Relogio.UtcDateTime.AddHours(-1)
+        DataRevogacao = Relogio.UtcDateTime.AddHours(-1),
     };
 
     private static AuthService CriarServico(ClinicaDbContext db, DateTimeOffset agora) =>

@@ -35,7 +35,7 @@ internal static class AjudaSeguranca
         Key = chave,
         Issuer = Issuer,
         Audience = Audience,
-        ExpirationHours = 8
+        ExpirationHours = 8,
     };
 
     public static JwtTokenService CriarTokenService(string chave, TimeProvider relogio) =>
@@ -50,7 +50,7 @@ internal static class AjudaSeguranca
                 ["Jwt:Key"] = chave,
                 ["Jwt:Issuer"] = Issuer,
                 ["Jwt:Audience"] = Audience,
-                ["Jwt:ExpirationHours"] = "8"
+                ["Jwt:ExpirationHours"] = "8",
             })
             .Build();
 
@@ -67,7 +67,7 @@ internal static class AjudaSeguranca
         Nome = "Utilizador de teste",
         Email = "teste" + id.ToString(CultureInfo.InvariantCulture) + "@clinica-g08.test",
         Perfil = perfil,
-        ClienteId = clienteId
+        ClienteId = clienteId,
     };
 
     /// <summary>Utilizador autenticado tal como o JwtBearer o constrói a partir do token.</summary>
@@ -77,7 +77,7 @@ internal static class AjudaSeguranca
         {
             new(ClaimsClinica.UtilizadorId, "1"),
             new(ClaimsClinica.Perfil, perfil),
-            new(ClaimsClinica.Jti, "jti-de-teste")
+            new(ClaimsClinica.Jti, "jti-de-teste"),
         };
 
         if (clienteId is int id)

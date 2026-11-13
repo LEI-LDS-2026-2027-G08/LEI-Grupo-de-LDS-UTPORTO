@@ -124,7 +124,7 @@ public sealed class AuthService : IAuthService
                 Email = autenticado.Email,
                 Perfil = autenticado.Perfil,
                 ClienteId = autenticado.ClienteId
-            }
+            },
         };
     }
 
@@ -181,7 +181,7 @@ public sealed class AuthService : IAuthService
             Jti = jti,
             UtilizadorId = utilizadorId,
             DataExpiracao = dataExpiracao,
-            DataRevogacao = SemFracoesDeSegundo(_relogio.GetUtcNow().UtcDateTime)
+            DataRevogacao = SemFracoesDeSegundo(_relogio.GetUtcNow().UtcDateTime),
         });
 
         try
@@ -288,7 +288,7 @@ public sealed class AuthService : IAuthService
             Nome = nome,
             Email = utilizador.Email,
             Perfil = utilizador.Perfil,
-            ClienteId = clienteId
+            ClienteId = clienteId,
         };
     }
 }

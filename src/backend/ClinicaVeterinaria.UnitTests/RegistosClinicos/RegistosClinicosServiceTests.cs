@@ -38,7 +38,6 @@ public class RegistosClinicosServiceTests
     private const string MensagemPrescricaoSemDosagem = "A dosagem da prescrição é obrigatória.";
 
     // ----- EP-031 — Criar registo clínico -----
-
     [Fact(DisplayName = "UT-F004-001 — cria o registo com tratamento e prescrição; o estado da marcação não muda")]
     public async Task CriaRegistoCompleto()
     {
@@ -136,7 +135,7 @@ public class RegistosClinicosServiceTests
             NotasClinicas = "",
             Diagnostico = "",
             Tratamentos = [],
-            Prescricoes = []
+            Prescricoes = [],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
@@ -334,7 +333,7 @@ public class RegistosClinicosServiceTests
             ConsultaId = d.ConsultaConfirmada,
             NotasClinicas = "   ",
             Diagnostico = "  Otite externa ",
-            Tratamentos = [tratamento]
+            Tratamentos = [tratamento],
         };
 
         var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
@@ -345,7 +344,6 @@ public class RegistosClinicosServiceTests
     }
 
     // ----- EP-032 — Atualizar registo clínico -----
-
     [Fact(DisplayName = "UT-F004-018 — mantém T1 atualizado, acrescenta um novo, remove T2 e P1; regista autor e data")]
     public async Task AtualizaListasERegistaAutor()
     {
@@ -360,7 +358,7 @@ public class RegistosClinicosServiceTests
                 new CreateTratamentoDto { Id = d.T1, Descricao = "Limpeza auricular (repetida)", DataAplicacao = Hoje },
                 new CreateTratamentoDto { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
             ],
-            Prescricoes = []
+            Prescricoes = [],
         };
 
         var registo = await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
@@ -399,7 +397,7 @@ public class RegistosClinicosServiceTests
         var pedido = new UpdateRegistoClinicoDto
         {
             Diagnostico = "Otite externa",
-            Tratamentos = [new CreateTratamentoDto { Id = d.T9, Descricao = "Outro", DataAplicacao = Hoje }]
+            Tratamentos = [new CreateTratamentoDto { Id = d.T9, Descricao = "Outro", DataAplicacao = Hoje }],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -460,7 +458,7 @@ public class RegistosClinicosServiceTests
             [
                 new CreateTratamentoDto { Id = d.T1, Descricao = "A", DataAplicacao = Hoje },
                 new CreateTratamentoDto { Id = d.T1, Descricao = "B", DataAplicacao = Hoje }
-            ]
+            ],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -479,7 +477,7 @@ public class RegistosClinicosServiceTests
             Prescricoes =
             [
                 new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas auriculares X", Dosagem = "2 gotas", Frequencia = "1 vez por dia", DuracaoDias = 10 }
-            ]
+            ],
         };
 
         var registo = await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
@@ -492,7 +490,6 @@ public class RegistosClinicosServiceTests
     }
 
     // ----- I088 — critérios 3 e 4 do Backlog de Projeto v03 -----
-
     [Fact(DisplayName = "I088 (critério 3) — a atualização grava as notas clínicas e o diagnóstico novos")]
     public async Task AtualizacaoGravaNotasEDiagnostico()
     {
@@ -501,7 +498,7 @@ public class RegistosClinicosServiceTests
         var pedido = new UpdateRegistoClinicoDto
         {
             NotasClinicas = "Reavaliação: canal auditivo sem eritema.",
-            Diagnostico = "Otite externa resolvida"
+            Diagnostico = "Otite externa resolvida",
         };
 
         await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
@@ -519,7 +516,7 @@ public class RegistosClinicosServiceTests
         var pedido = new UpdateRegistoClinicoDto
         {
             Diagnostico = "Outro diagnóstico",
-            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = "", DataAplicacao = Hoje }]
+            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = "", DataAplicacao = Hoje }],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -541,7 +538,7 @@ public class RegistosClinicosServiceTests
             Prescricoes =
             [
                 new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas X", Dosagem = "", Frequencia = "2 vezes por dia" }
-            ]
+            ],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -568,7 +565,7 @@ public class RegistosClinicosServiceTests
             Prescricoes =
             [
                 new CreatePrescricaoDto { Medicamento = "Pomada Y", Dosagem = "1 aplicação", Frequencia = "1 vez por dia", DuracaoDias = 5 }
-            ]
+            ],
         };
 
         var registo = await CriarServico(db).AtualizarAsync(d.RegistoA, pedido, d.VetA);
@@ -592,7 +589,6 @@ public class RegistosClinicosServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static RegistosClinicosService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static CreateTratamentoDto Tratamento() =>
@@ -608,7 +604,7 @@ public class RegistosClinicosServiceTests
         NotasClinicas = "Animal ativo; ligeira inflamação no ouvido esquerdo.",
         Diagnostico = "Otite externa",
         Tratamentos = [Tratamento()],
-        Prescricoes = [Prescricao()]
+        Prescricoes = [Prescricao()],
     };
 
     /// <summary>
@@ -631,7 +627,7 @@ public class RegistosClinicosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -641,7 +637,7 @@ public class RegistosClinicosServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -663,14 +659,14 @@ public class RegistosClinicosServiceTests
             MarcacaoId = realizada,
             VeterinarioId = vetA,
             Diagnostico = "Otite externa",
-            CriadoEm = Relogio.UtcDateTime.AddDays(-1)
+            CriadoEm = Relogio.UtcDateTime.AddDays(-1),
         };
         var registoB = new RegistoClinico
         {
             MarcacaoId = realizadaVetB,
             VeterinarioId = vetB,
             Diagnostico = "Dermatite",
-            CriadoEm = Relogio.UtcDateTime.AddDays(-1)
+            CriadoEm = Relogio.UtcDateTime.AddDays(-1),
         };
         db.RegistosClinicos.AddRange(registoA, registoB);
         await db.SaveChangesAsync();
@@ -698,7 +694,7 @@ public class RegistosClinicosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -719,7 +715,7 @@ public class RegistosClinicosServiceTests
             DuracaoMinutos = 30,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();
