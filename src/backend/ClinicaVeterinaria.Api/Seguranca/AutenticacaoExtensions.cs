@@ -168,8 +168,6 @@ public static class AutenticacaoExtensions
             StatusCodes.Status403Forbidden,
             "Não tem permissão para executar esta operação.",
             "O perfil do utilizador autenticado não tem acesso a esta operação.");
-
-
     private static Task EscreverErroAsync(
         HttpResponse resposta,
         int codigo,
