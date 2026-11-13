@@ -30,22 +30,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        if (allowedOrigins.Length > 0)
-        {
-            policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders(HeaderNames.ETag);
-        }
-        else
-        {
-            policy
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders(HeaderNames.ETag);
-        }
+        // Só as origens configuradas em Cors:AllowedOrigins; sem configuração, nenhum site externo acede.
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithExposedHeaders(HeaderNames.ETag);
     });
 });
 
