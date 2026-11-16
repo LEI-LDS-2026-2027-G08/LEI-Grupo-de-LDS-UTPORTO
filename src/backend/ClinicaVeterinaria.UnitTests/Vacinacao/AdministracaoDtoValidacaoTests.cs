@@ -94,7 +94,7 @@ public class AdministracaoDtoValidacaoTests
         Tipo = "Desparasitacao",
         Produto = "Desparasitante interno Y",
         Lote = "DP-0042",
-        DataAdministracao = new DateOnly(2026, 10, 14),
+        DataAdministracao = DatasVacinacaoTeste.Hoje,
         IntervaloDias = 90,
     };
 

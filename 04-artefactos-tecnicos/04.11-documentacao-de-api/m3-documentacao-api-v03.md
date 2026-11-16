@@ -1084,6 +1084,8 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 
 ## 10. Endpoints — F006 Boletim de vacinas e desparasitações
 
+As variáveis de data nos exemplos desta secção representam deslocamentos em dias de calendário a partir de hoje em Lisboa. Nos pedidos, envia-se a data resultante no formato AAAA-MM-DD. A secção I082 do ficheiro ClinicaVeterinaria.Api.http calcula as datas para pedidos reais.
+
 ### EP-042 — Consultar boletim do paciente (web)
 
 | Campo | Valor |
@@ -1102,10 +1104,10 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 {
   "animal": { "id": 3, "nome": "Bobi", "especie": "Cão" },
   "administracoes": [
-    { "id": 21, "tipo": "Vacina", "produto": "Vacina antirrábica", "lote": "RB-2291", "dataAdministracao": "2026-10-14", "intervaloDias": 365, "dataProximaPrevista": "2027-10-14", "veterinario": "Dra. Marta Reis" },
-    { "id": 19, "tipo": "Desparasitacao", "produto": "Desparasitante externo Z", "lote": "DZ-101", "dataAdministracao": "2026-08-01", "intervaloDias": null, "dataProximaPrevista": null, "veterinario": "Dr. Paulo Santos" }
+    { "id": 21, "tipo": "Vacina", "produto": "Vacina antirrábica", "lote": "RB-2291", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 365, "dataProximaPrevista": "{{hojeMais335}}", "veterinario": "Dra. Marta Reis" },
+    { "id": 19, "tipo": "Desparasitacao", "produto": "Desparasitante externo Z", "lote": "DZ-101", "dataAdministracao": "{{hojeMenos60}}", "intervaloDias": null, "dataProximaPrevista": null, "veterinario": "Dr. Paulo Santos" }
   ],
-  "proximas": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "2027-10-14" } ]
+  "proximas": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "{{hojeMais335}}" } ]
 }
 ```
 
@@ -1125,12 +1127,12 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 
 **Pedido**
 ```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 90 }
 ```
 
 **Resposta 201**
 ```json
-{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90, "dataProximaPrevista": "2027-01-12", "veterinario": "Dra. Marta Reis" }
+{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 90, "dataProximaPrevista": "{{hojeMais60}}", "veterinario": "Dra. Marta Reis" }
 ```
 
 **Erros:** 400 — tipo, produto, lote ou data em falta, data de administração futura ou `intervaloDias` ≤ 0 quando indicado; 401; 403; 404 — animal inexistente.
@@ -1150,10 +1152,13 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 **Resposta 200**
 ```json
 {
-  "historico": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataAdministracao": "2026-10-14" } ],
+  "historico": [
+    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataAdministracao": "{{hojeMenos30}}" },
+    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataAdministracao": "{{hojeMenos30}}" }
+  ],
   "proximas": [
-    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataProximaPrevista": "2027-01-12" },
-    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "2027-10-14" }
+    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataProximaPrevista": "{{hojeMais60}}" },
+    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "{{hojeMais335}}" }
   ]
 }
 ```
@@ -1179,12 +1184,12 @@ Se não existirem registos, `historico` e `proximas` são listas vazias.
 
 **Pedido**
 ```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-15", "intervaloDias": 120 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos15}}", "intervaloDias": 120 }
 ```
 
 **Resposta 200**
 ```json
-{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-15", "intervaloDias": 120, "dataProximaPrevista": "2027-02-12", "veterinario": "Dra. Marta Reis" }
+{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos15}}", "intervaloDias": 120, "dataProximaPrevista": "{{hojeMais105}}", "veterinario": "Dra. Marta Reis" }
 ```
 
 **Erros:** 400 — tipo, produto, lote ou data em falta, data de administração futura ou `intervaloDias` ≤ 0 quando indicado; 401; 403 — perfil sem permissão ou administração registada por outro Veterinário; 404 — animal inexistente, ou administração inexistente neste animal.

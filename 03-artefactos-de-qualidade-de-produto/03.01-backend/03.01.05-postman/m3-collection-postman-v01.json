@@ -11060,7 +11060,38 @@
     },
     {
       "name": "09 · Boletim de vacinas e desparasitações (EP-042 a EP-044)",
-      "description": "I100. Regista uma vacinação e uma desparasitação no animal do Cliente da sessão, atualiza-as (RF056: PUT /animais/{id}/vacinacoes/{administracaoId}, ainda não descrito na API v02) e consulta o boletim no web (EP-042) e na aplicação móvel (EP-044) com dois Clientes. As datas de administração são fixas e passadas, para as datas previstas serem verificáveis.",
+      "description": "I100. Regista uma vacinação e uma desparasitação no animal do Cliente da sessão, atualiza-as (RF056: PUT /animais/{id}/vacinacoes/{administracaoId}, ainda não descrito na API v02) e consulta o boletim no web (EP-042) e na aplicação móvel (EP-044) com dois Clientes. As datas de administração e as próximas esperadas são calculadas a partir do dia da execução em Lisboa.",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Hora de Lisboa (R-FUSO). A mudança ocorre às 01:00 UTC no último domingo de março e outubro.",
+              "function ultimoDomingo(ano, mes) {",
+              "    const dia = new Date(Date.UTC(ano, mes + 1, 0, 1));",
+              "    dia.setUTCDate(dia.getUTCDate() - dia.getUTCDay());",
+              "    return dia;",
+              "}",
+              "const agora = new Date();",
+              "const ano = agora.getUTCFullYear();",
+              "const emHorarioDeVerao = agora >= ultimoDomingo(ano, 2) && agora < ultimoDomingo(ano, 9);",
+              "const hojeLisboa = emHorarioDeVerao ? new Date(agora.getTime() + 3600000) : agora;",
+              "function dataEmLisboaComDeslocamento(dias) {",
+              "    const data = new Date(hojeLisboa.getTime());",
+              "    data.setUTCDate(data.getUTCDate() + dias);",
+              "    return data.toISOString().slice(0, 10);",
+              "}",
+              "pm.variables.set(\"vacDataPassada\", dataEmLisboaComDeslocamento(-15));",
+              "pm.variables.set(\"vacDataAtualizacao\", dataEmLisboaComDeslocamento(-30));",
+              "pm.variables.set(\"vacDataFutura\", dataEmLisboaComDeslocamento(2));",
+              "pm.variables.set(\"vacProximaAnual\", dataEmLisboaComDeslocamento(365 - 15));",
+              "pm.variables.set(\"vacProximaAtualizacao\", dataEmLisboaComDeslocamento(90 - 30));",
+              "pm.variables.set(\"vacProximaMensal\", dataEmLisboaComDeslocamento(30 - 15));"
+            ]
+          }
+        }
+      ],
       "item": [
         {
           "name": "EP-043 · 201 — registar vacinação com intervalo",
@@ -11076,12 +11107,12 @@
                   "    pm.test(\"Vacinação registada com os dados enviados\", function () {",
                   "        pm.expect(corpo.tipo).to.eql(\"Vacina\");",
                   "        pm.expect(corpo.lote).to.eql(\"I100-VAC-01\");",
-                  "        pm.expect(corpo.dataAdministracao).to.eql(\"2026-10-14\");",
+                  "        pm.expect(corpo.dataAdministracao).to.eql(pm.variables.get(\"vacDataPassada\"));",
                   "        pm.expect(corpo.veterinario).to.be.a(\"string\").and.not.empty;",
                   "    });",
-                  "    pm.test(\"Próxima administração = data + intervalo (2026-10-14 + 365 dias)\", function () {",
+                  "    pm.test(\"Próxima administração = data + 365 dias\", function () {",
                   "        pm.expect(corpo.intervaloDias).to.eql(365);",
-                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2027-10-14\");",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(pm.variables.get(\"vacProximaAnual\"));",
                   "    });",
                   "    pm.test(\"Location indica a administração do animal\", function () {",
                   "        pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/animais/\" + pm.environment.get(\"animalClienteId\") + \"/vacinacoes/\" + corpo.id);",
@@ -11108,7 +11139,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11166,7 +11197,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"2026-10-14\"\n}",
+              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11215,7 +11246,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2099-01-01\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataFutura}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11264,7 +11295,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 0\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11313,7 +11344,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Antibiotico\",\n  \"produto\": \"Produto (I100)\",\n  \"dataAdministracao\": \"2026-10-14\"\n}",
+              "raw": "{\n  \"tipo\": \"Antibiotico\",\n  \"produto\": \"Produto (I100)\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11362,7 +11393,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11407,7 +11438,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11456,7 +11487,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11505,7 +11536,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11822,11 +11853,11 @@
                   "{",
                   "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
                   "    const corpo = pm.response.json();",
-                  "    pm.test(\"Próxima recalculada (2026-10-01 + 90 dias)\", function () {",
+                  "    pm.test(\"Próxima recalculada (data + 90 dias)\", function () {",
                   "        pm.expect(corpo.id).to.eql(pm.environment.get(\"administracaoVacinaId\"));",
-                  "        pm.expect(corpo.dataAdministracao).to.eql(\"2026-10-01\");",
+                  "        pm.expect(corpo.dataAdministracao).to.eql(pm.variables.get(\"vacDataAtualizacao\"));",
                   "        pm.expect(corpo.intervaloDias).to.eql(90);",
-                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2026-12-30\");",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(pm.variables.get(\"vacProximaAtualizacao\"));",
                   "    });",
                   "}"
                 ]
@@ -11847,7 +11878,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-01\",\n  \"intervaloDias\": 90\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataAtualizacao}}\",\n  \"intervaloDias\": 90\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11879,9 +11910,9 @@
                   "{",
                   "    pm.test(\"Devolve 200\", function () { pm.response.to.have.status(200); });",
                   "    const corpo = pm.response.json();",
-                  "    pm.test(\"Passa a ter próxima administração (2026-10-14 + 30 dias)\", function () {",
+                  "    pm.test(\"Passa a ter próxima administração (data + 30 dias)\", function () {",
                   "        pm.expect(corpo.intervaloDias).to.eql(30);",
-                  "        pm.expect(corpo.dataProximaPrevista).to.eql(\"2026-11-13\");",
+                  "        pm.expect(corpo.dataProximaPrevista).to.eql(pm.variables.get(\"vacProximaMensal\"));",
                   "    });",
                   "}"
                 ]
@@ -11902,7 +11933,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 30\n}",
+              "raw": "{\n  \"tipo\": \"Desparasitacao\",\n  \"produto\": \"Desparasitante interno Y (I100)\",\n  \"lote\": \"I100-DSP-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 30\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -11952,7 +11983,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2099-01-01\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataFutura}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12002,7 +12033,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12052,7 +12083,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12098,7 +12129,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -12148,7 +12179,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"2026-10-14\",\n  \"intervaloDias\": 365\n}",
+              "raw": "{\n  \"tipo\": \"Vacina\",\n  \"produto\": \"Vacina antirrábica (I100)\",\n  \"lote\": \"I100-VAC-01\",\n  \"dataAdministracao\": \"{{vacDataPassada}}\",\n  \"intervaloDias\": 365\n}",
               "options": {
                 "raw": {
                   "language": "json"

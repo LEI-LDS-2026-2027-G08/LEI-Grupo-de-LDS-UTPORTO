@@ -523,9 +523,7 @@ Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `Valida
 
 `POST /animais/{id}/vacinacoes` (EP-043) regista uma vacinação ou desparasitação e devolve `201` com a administração (`AdministracaoDto`) e o cabeçalho `Location: /animais/{id}/vacinacoes/{administracaoId}`. `GET /animais/{id}/vacinacoes` (EP-042) devolve o boletim do animal (`BoletimDto`). `PUT /animais/{id}/vacinacoes/{administracaoId}` atualiza uma administração (RF056; ver «Divergência» abaixo). As três operações são só do perfil Veterinário (política `Veterinario`): a Rececionista, o Auxiliar Veterinário, o Administrador e o Cliente recebem `403`. O Veterinário vem sempre da claim `veterinarioId` do token.
 
-```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
-```
+No exemplo executável da secção I082 do [HTTP Client](ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http), a desparasitação é registada com data de há 30 dias e um intervalo de 90 dias. A próxima data fica 60 dias à frente de hoje em Lisboa.
 
 - **400:** `tipo` em falta ou diferente de `Vacina`/`Desparasitacao`; `produto` ou `lote` em falta (texto só com espaços não conta) ou acima do tamanho das colunas (produto 150, lote 50); `dataAdministracao` em falta ou futura (hoje é aceite, em hora de Lisboa); `intervaloDias` indicado e fora de 1 a 32767.
 - **404:** animal inexistente.
