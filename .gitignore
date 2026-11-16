@@ -14,3 +14,5 @@ Thumbs.db
 # Test outputs
 **/TestResults/
 **/coverage/
+src/backend/.idea/.idea.ClinicaVeterinaria/.idea/discord.xml
+src/backend/.idea/.idea.ClinicaVeterinaria/.idea/indexLayout.xml
