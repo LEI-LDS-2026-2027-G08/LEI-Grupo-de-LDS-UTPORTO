@@ -74,13 +74,13 @@ public sealed class VacinacoesService : IVacinacoesService
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Administrações do animal (UT-F006-018) e, com tipo, só as desse tipo (UT-F006-019).
-        var administracoes = await ObterAdministracoesAsync(animalId, tipo);
+        var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo);
 
         return new BoletimDto
         {
             Animal = animal,
             Administracoes = administracoes,
-            Proximas = Proximas(administracoes),
+            Proximas = proximas,
         };
     }
 
@@ -169,7 +169,7 @@ public sealed class VacinacoesService : IVacinacoesService
         }
 
         // (3) O mesmo histórico e as mesmas próximas do boletim web (UT-F006-022), com menos campos.
-        var administracoes = await ObterAdministracoesAsync(animalId, tipo: null);
+        var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo: null);
 
         return new MeuBoletimDto
         {
@@ -181,7 +181,7 @@ public sealed class VacinacoesService : IVacinacoesService
                     DataAdministracao = a.DataAdministracao,
                 })
                 .ToList(),
-            Proximas = Proximas(administracoes),
+            Proximas = proximas,
         };
     }
 
@@ -189,8 +189,10 @@ public sealed class VacinacoesService : IVacinacoesService
     /// Administrações do animal com o nome do Veterinário, da mais recente para a mais antiga (e,
     /// no mesmo dia, da última registada para a primeira).
     /// </summary>
-    private async Task<List<AdministracaoDto>> ObterAdministracoesAsync(int animalId, string? tipo)
+    private async Task<(List<AdministracaoDto> Administracoes, List<ProximaAdministracaoDto> Proximas)>
+        ObterAdministracoesAsync(int animalId, string? tipo)
     {
+        var hoje = Hoje();
         var registos = _db.RegistosProfilaxias.AsNoTracking().Where(r => r.PacienteId == animalId);
 
         if (tipo is not null)
@@ -202,22 +204,21 @@ public sealed class VacinacoesService : IVacinacoesService
                 from r in registos
                 join v in _db.Funcionarios.AsNoTracking() on r.VeterinarioId equals v.UtilizadorId
                 orderby r.DataAdministracao descending, r.Id descending
-                select new { Registo = r, Veterinario = v.Nome })
+                select new
+                {
+                    Registo = r,
+                    Veterinario = v.Nome,
+                    EProxima = r.IntervaloDias.HasValue
+                        && r.DataAdministracao.AddDays(r.IntervaloDias.Value) >= hoje,
+                })
             .ToListAsync();
 
-        return linhas.Select(l => ParaDto(l.Registo, l.Veterinario)).ToList();
-    }
-
-    /// <summary>
-    /// Próximas administrações que ainda não passaram (data prevista igual ou posterior a hoje), da
-    /// mais próxima para a mais distante (UT-F006-018 e 021; PA-11 da I028).
-    /// </summary>
-    private List<ProximaAdministracaoDto> Proximas(List<AdministracaoDto> administracoes)
-    {
-        var hoje = Hoje();
-
-        return administracoes
-            .Where(a => a.DataProximaPrevista is DateOnly data && data >= hoje)
+        var administracoes = linhas
+            .Select(l => (Dto: ParaDto(l.Registo, l.Veterinario), l.EProxima))
+            .ToList();
+        var proximas = administracoes
+            .Where(l => l.EProxima)
+            .Select(l => l.Dto)
             .OrderBy(a => a.DataProximaPrevista)
             .ThenBy(a => a.Id)
             .Select(a => new ProximaAdministracaoDto
@@ -227,6 +228,8 @@ public sealed class VacinacoesService : IVacinacoesService
                 DataProximaPrevista = a.DataProximaPrevista!.Value,
             })
             .ToList();
+
+        return (administracoes.Select(l => l.Dto).ToList(), proximas);
     }
 
     private async Task<AdministracaoDto> ObterDtoAsync(int id)

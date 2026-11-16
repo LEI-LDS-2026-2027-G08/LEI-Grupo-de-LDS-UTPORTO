@@ -1,4 +1,4 @@
-namespace ClinicaVeterinaria.Application.DTOs.Clientes;
+namespace ClinicaVeterinaria.Api.DTOs.Clientes;
 
 public class ClienteListItemDto
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ClinicaVeterinaria.Application.DTOs.Clientes;
+namespace ClinicaVeterinaria.Api.DTOs.Clientes;
 
 /// <summary>Parâmetros de EP-011 (GET /clientes).</summary>
 public class ClienteFiltroQuery

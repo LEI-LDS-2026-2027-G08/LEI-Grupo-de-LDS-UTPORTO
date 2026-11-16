@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Validacao;
 
-namespace ClinicaVeterinaria.Application.DTOs.Clientes;
+namespace ClinicaVeterinaria.Api.DTOs.Clientes;
 
 /// <summary>Pedido de EP-014 (PUT /clientes/{id}); base do pedido de EP-013.</summary>
 public class UpdateClienteDto

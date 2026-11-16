@@ -412,10 +412,8 @@ jobs:
   # ---------------------------------------------------------------------------
   # 6. Formatação — QG-08 (zero ficheiros por formatar)
   #    dotnet format --verify-no-changes com o .editorconfig da I101. O
-  #    .editorconfig fixa end_of_line = crlf e o repositório guarda LF (o Git
-  #    converte para CRLF no checkout em Windows, onde o grupo trabalha). Para o
-  #    runner verificar o mesmo que um computador do grupo, a cópia de trabalho
-  #    é convertida para o final de linha de .github/quality-gates.json.
+  #    .editorconfig fixa end_of_line = crlf. Os ficheiros C# são uniformizados
+  #    na cópia de trabalho segundo o final de linha de .github/quality-gates.json.
   # ---------------------------------------------------------------------------
   formatacao:
     name: 6 · Formatação (QG-08)
@@ -432,9 +430,19 @@ jobs:
         run: |
           FINAL="$(jq -r '."QG-08".finalDeLinha' "$QUALITY_GATES")"
           if [ "$FINAL" = "crlf" ]; then
-            git config core.autocrlf true
-            git rm -r -q --cached .
-            git reset -q --hard HEAD
+            python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from subprocess import check_output
+
+          ficheiros = check_output(["git", "ls-files", "-z", "--", "src/backend/*.cs"])
+          for nome in ficheiros.split(b"\0")[:-1]:
+              caminho = Path(os.fsdecode(nome))
+              atual = caminho.read_bytes()
+              normalizado = atual.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+              if normalizado != atual:
+                  caminho.write_bytes(normalizado)
+          PY
             echo "Cópia de trabalho convertida para CRLF, como num checkout em Windows."
           else
             echo "Final de linha configurado: ${FINAL}; sem conversão."

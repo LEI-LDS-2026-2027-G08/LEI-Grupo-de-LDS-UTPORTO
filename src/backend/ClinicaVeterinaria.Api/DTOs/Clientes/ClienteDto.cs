@@ -1,6 +1,6 @@
 using ClinicaVeterinaria.Application.DTOs.Comum;
 
-namespace ClinicaVeterinaria.Application.DTOs.Clientes;
+namespace ClinicaVeterinaria.Api.DTOs.Clientes;
 
 public class ClienteDto
 {

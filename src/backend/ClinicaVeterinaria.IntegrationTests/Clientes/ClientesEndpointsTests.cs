@@ -248,6 +248,7 @@ public sealed class ClientesEndpointsTests :
     [Theory(DisplayName = "IT-EP013-04 — e-mail inválido devolve 400 e nada é persistido")]
     [InlineData("ana.pereira.sem.arroba")]
     [InlineData("ana.pereira@mail")] // regra R-EMAIL: sem ponto no domínio
+    [InlineData("Ana<ana.pereira@mail.pt>")]
     public async Task EmailInvalidoDevolve400(string email)
     {
         var antes = await ContarClientesAsync();

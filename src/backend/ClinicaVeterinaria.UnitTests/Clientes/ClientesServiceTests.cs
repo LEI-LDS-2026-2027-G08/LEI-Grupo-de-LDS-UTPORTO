@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Clientes;
+using ClinicaVeterinaria.Api.DTOs.Clientes;
+using ClinicaVeterinaria.Application.Clientes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
@@ -41,10 +42,10 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        var criado = await CriarServico(db).CriarAsync(PedidoCriacao(NifLivre, EmailLivre));
+        var criado = await CriarServico(db).CriarAsync(ComandoCriacao(NifLivre, EmailLivre));
 
         var conta = await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Email == EmailLivre);
-        var cliente = await db.Clientes.AsNoTracking().SingleAsync(c => c.Id == criado.Id);
+        var cliente = await db.Clientes.AsNoTracking().SingleAsync(c => c.Id == criado.Cliente.Id);
         Assert.Equal(Perfis.Cliente, conta.Perfil);
         Assert.Equal(EstadosUtilizador.Ativo, conta.Estado);
         Assert.Equal(HasherDuplo.NovoHash, conta.PasswordHash);
@@ -57,9 +58,9 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        var criado = await CriarServico(db).CriarAsync(PedidoCriacao(nif: null, EmailLivre));
+        var criado = await CriarServico(db).CriarAsync(ComandoCriacao(nif: null, EmailLivre));
 
-        Assert.Null((await db.Clientes.AsNoTracking().SingleAsync(c => c.Id == criado.Id)).NIF);
+        Assert.Null((await db.Clientes.AsNoTracking().SingleAsync(c => c.Id == criado.Cliente.Id)).NIF);
     }
 
     [Fact(DisplayName = "UT-F001-114 — Um NIF com o dígito de controlo errado é recusado no pedido (400)")]
@@ -107,7 +108,7 @@ public class ClientesServiceTests
         using var db = CriarBase();
 
         await Assert.ThrowsAsync<ConflitoException>(
-            () => CriarServico(db).CriarAsync(PedidoCriacao(NifClienteA, EmailLivre)));
+            () => CriarServico(db).CriarAsync(ComandoCriacao(NifClienteA, EmailLivre)));
 
         Assert.Equal(2, await db.Clientes.CountAsync());
         Assert.Equal(2, await db.Utilizadores.CountAsync());
@@ -119,7 +120,7 @@ public class ClientesServiceTests
         using var db = CriarBase();
 
         await Assert.ThrowsAsync<ConflitoException>(
-            () => CriarServico(db).CriarAsync(PedidoCriacao(NifLivre, EmailClienteA)));
+            () => CriarServico(db).CriarAsync(ComandoCriacao(NifLivre, EmailClienteA)));
 
         Assert.Equal(2, await db.Clientes.CountAsync());
         Assert.Equal(2, await db.Utilizadores.CountAsync());
@@ -130,8 +131,7 @@ public class ClientesServiceTests
     public async Task NovoEmailAtualizaClienteEConta()
     {
         using var db = CriarBase();
-        var pedido = PedidoAtualizacao(NifClienteA, "joao.costa.novo@clinica-g08.test");
-        pedido.Telefone = "960000999";
+        var pedido = ComandoAtualizacao(NifClienteA, "joao.costa.novo@clinica-g08.test") with { Telefone = "960000999" };
 
         await CriarServico(db).AtualizarAsync(ClienteA, pedido);
 
@@ -145,7 +145,7 @@ public class ClientesServiceTests
         using var db = CriarBase();
 
         await Assert.ThrowsAsync<ConflitoException>(
-            () => CriarServico(db).AtualizarAsync(ClienteA, PedidoAtualizacao(NifClienteB, EmailClienteA)));
+            () => CriarServico(db).AtualizarAsync(ClienteA, ComandoAtualizacao(NifClienteB, EmailClienteA)));
     }
 
     [Fact(DisplayName = "UT-F001-121 — Manter o próprio NIF não conta como conflito")]
@@ -153,9 +153,9 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        var atualizado = await CriarServico(db).AtualizarAsync(ClienteA, PedidoAtualizacao(NifClienteA, EmailClienteA));
+        var atualizado = await CriarServico(db).AtualizarAsync(ClienteA, ComandoAtualizacao(NifClienteA, EmailClienteA));
 
-        Assert.Equal(NifClienteA, atualizado.Nif);
+        Assert.Equal(NifClienteA, atualizado.Cliente.NIF);
     }
 
     [Fact(DisplayName = "UT-F001-122 — Um NIF com 5 algarismos é recusado no pedido de atualização (400)")]
@@ -170,7 +170,7 @@ public class ClientesServiceTests
         using var db = CriarBase();
 
         await Assert.ThrowsAsync<NaoEncontradoException>(
-            () => CriarServico(db).AtualizarAsync(999, PedidoAtualizacao(NifLivre, EmailLivre)));
+            () => CriarServico(db).AtualizarAsync(999, ComandoAtualizacao(NifLivre, EmailLivre)));
     }
 
     // ----- EP-011 e EP-012 — Pesquisar e consultar -----
@@ -179,14 +179,14 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
 
-        var resultado = await CriarServico(db).PesquisarAsync(new ClienteFiltroQuery { Pesquisa = "Costa" });
+        var resultado = await CriarServico(db).PesquisarAsync(new PesquisaClientes(Pesquisa: "Costa"));
 
         var cliente = Assert.Single(resultado.Itens);
         Assert.Equal(ClienteA, cliente.Id);
         Assert.Equal(2, cliente.NumeroAnimais);
     }
 
-    [Fact(DisplayName = "UT-F001-125 — O ClienteDto tem o e-mail da conta, o estado da conta e os dois animais")]
+    [Fact(DisplayName = "UT-F001-125 — A ficha do Cliente tem o e-mail da conta, o estado da conta e os dois animais")]
     public async Task ObterClienteTemContaEAnimais()
     {
         using var db = CriarBase();
@@ -210,7 +210,7 @@ public class ClientesServiceTests
 
         await db.SaveChangesAsync();
 
-        var pagina = await CriarServico(db).PesquisarAsync(new ClienteFiltroQuery { Pagina = 3, Tamanho = 20 });
+        var pagina = await CriarServico(db).PesquisarAsync(new PesquisaClientes(Pagina: 3, Tamanho: 20));
 
         Assert.Equal(17, pagina.Itens.Count);
         Assert.Equal(3, pagina.Pagina);
@@ -225,9 +225,9 @@ public class ClientesServiceTests
     {
         using var db = CriarBase();
         var servico = CriarServico(db);
-        var todos = await servico.PesquisarAsync(new ClienteFiltroQuery { Tamanho = 100 });
+        var todos = await servico.PesquisarAsync(new PesquisaClientes(Tamanho: 100));
 
-        var resultado = await servico.PesquisarAsync(new ClienteFiltroQuery { Pagina = pagina, Tamanho = tamanho });
+        var resultado = await servico.PesquisarAsync(new PesquisaClientes(Pagina: pagina, Tamanho: tamanho));
 
         Assert.Empty(resultado.Itens);
         Assert.Equal(pagina, resultado.Pagina);
@@ -267,6 +267,12 @@ public class ClientesServiceTests
 
         return db;
     }
+
+    private static NovoCliente ComandoCriacao(string? nif, string email) =>
+        new(new AlteracaoCliente("Novo Cliente", nif, "960000003", email, "Rua Fictícia, 3, 4470-003 Maia"), "Temp#2026");
+
+    private static AlteracaoCliente ComandoAtualizacao(string? nif, string email) =>
+        new("João Costa", nif, "960000001", email, Morada: null);
 
     private static CreateClienteDto PedidoCriacao(string? nif, string email) => new()
     {

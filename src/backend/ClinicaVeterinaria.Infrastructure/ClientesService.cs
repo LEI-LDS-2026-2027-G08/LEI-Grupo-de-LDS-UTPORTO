@@ -1,5 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.Clientes;
-using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Application.Clientes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -38,7 +37,7 @@ public sealed class ClientesService : IClientesService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<ClienteListItemDto>> PesquisarAsync(ClienteFiltroQuery filtro)
+    public async Task<PaginaClientes> PesquisarAsync(PesquisaClientes filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -63,7 +62,7 @@ public sealed class ClientesService : IClientesService
         // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<ClienteListItemDto> itens = [];
+        List<ResumoCliente> itens = [];
 
         if (salto < total)
         {
@@ -72,28 +71,20 @@ public sealed class ClientesService : IClientesService
                 .ThenBy(x => x.Cliente.Id)
                 .Skip((int)salto)
                 .Take(filtro.Tamanho)
-                .Select(x => new ClienteListItemDto
-                {
-                    Id = x.Cliente.Id,
-                    Nome = x.Cliente.Nome,
-                    Nif = x.Cliente.NIF,
-                    Telefone = x.Cliente.Telefone,
-                    Email = x.Email,
-                    NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id),
-                })
+                .Select(x => new ResumoCliente(
+                    x.Cliente.Id,
+                    x.Cliente.Nome,
+                    x.Cliente.NIF,
+                    x.Cliente.Telefone,
+                    x.Email,
+                    _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)))
                 .ToListAsync();
         }
 
-        return new PagedResultDto<ClienteListItemDto>
-        {
-            Itens = itens,
-            Pagina = filtro.Pagina,
-            Tamanho = filtro.Tamanho,
-            Total = total,
-        };
+        return new PaginaClientes(itens, filtro.Pagina, filtro.Tamanho, total);
     }
 
-    public async Task<ClienteDto> ObterAsync(int id)
+    public async Task<FichaCliente> ObterAsync(int id)
     {
         var dados = await (
                 from c in _db.Clientes.AsNoTracking()
@@ -103,15 +94,16 @@ public sealed class ClientesService : IClientesService
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
-        return await CriarClienteDtoAsync(dados.Cliente, dados.Utilizador);
+        return await CriarFichaAsync(dados.Cliente, dados.Utilizador);
     }
 
-    public async Task<ClienteDto> CriarAsync(CreateClienteDto pedido)
+    public async Task<FichaCliente> CriarAsync(NovoCliente pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
-        var email = NormalizarEmail(pedido.Email);
-        var nif = NormalizarNif(pedido.Nif);
+        var dados = pedido.Dados;
+        var email = NormalizarEmail(dados.Email);
+        var nif = NormalizarNif(dados.Nif);
 
         await GarantirEmailLivreAsync(email, utilizadorAtualId: null);
         await GarantirNifLivreAsync(nif, clienteAtualId: null);
@@ -129,10 +121,10 @@ public sealed class ClientesService : IClientesService
 
         var cliente = new Cliente
         {
-            Nome = pedido.Nome.Trim(),
+            Nome = dados.Nome.Trim(),
             NIF = nif,
-            Telefone = pedido.Telefone.Trim(),
-            Morada = NormalizarOpcional(pedido.Morada),
+            Telefone = dados.Telefone.Trim(),
+            Morada = NormalizarOpcional(dados.Morada),
             DataRegisto = agora,
         };
 
@@ -148,10 +140,10 @@ public sealed class ClientesService : IClientesService
 
         await transacao.CommitAsync();
 
-        return await CriarClienteDtoAsync(cliente, utilizador);
+        return await CriarFichaAsync(cliente, utilizador);
     }
 
-    public async Task<ClienteDto> AtualizarAsync(int id, UpdateClienteDto pedido)
+    public async Task<FichaCliente> AtualizarAsync(int id, AlteracaoCliente pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -175,7 +167,7 @@ public sealed class ClientesService : IClientesService
         // Um único SaveChanges: Cliente e e-mail da conta mudam na mesma transação.
         await GravarAsync();
 
-        return await CriarClienteDtoAsync(cliente, utilizador);
+        return await CriarFichaAsync(cliente, utilizador);
     }
 
     private async Task GarantirEmailLivreAsync(string email, int? utilizadorAtualId)
@@ -231,28 +223,17 @@ sql)
         }
     }
 
-    private async Task<ClienteDto> CriarClienteDtoAsync(Cliente cliente, Utilizador utilizador)
+    private async Task<FichaCliente> CriarFichaAsync(Cliente cliente, Utilizador utilizador)
     {
         var animais = await (
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.ClienteId == cliente.Id
                 orderby p.Nome, p.Id
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new AnimalDoCliente(p.Id, p.Nome, e.Nome))
             .ToListAsync();
 
-        return new ClienteDto
-        {
-            Id = cliente.Id,
-            Nome = cliente.Nome,
-            Nif = cliente.NIF,
-            Telefone = cliente.Telefone,
-            Email = utilizador.Email,
-            Morada = cliente.Morada,
-            UtilizadorId = utilizador.Id,
-            EstadoConta = utilizador.Estado,
-            Animais = animais,
-        };
+        return new FichaCliente(cliente, utilizador.Email, utilizador.Estado, animais);
     }
 
     private DateTime Agora()

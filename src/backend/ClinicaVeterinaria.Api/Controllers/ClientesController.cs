@@ -1,4 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Clientes;
+using ClinicaVeterinaria.Api.DTOs.Clientes;
+using ClinicaVeterinaria.Application.Clientes;
 using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -35,7 +36,23 @@ public sealed class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PagedResultDto<ClienteListItemDto>>> Pesquisar([FromQuery] ClienteFiltroQuery filtro)
     {
-        return Ok(await _clientesService.PesquisarAsync(filtro));
+        var pagina = await _clientesService.PesquisarAsync(new PesquisaClientes(filtro.Pesquisa, filtro.Pagina, filtro.Tamanho));
+
+        return Ok(new PagedResultDto<ClienteListItemDto>
+        {
+            Itens = pagina.Itens.Select(item => new ClienteListItemDto
+            {
+                Id = item.Id,
+                Nome = item.Nome,
+                Nif = item.Nif,
+                Telefone = item.Telefone,
+                Email = item.Email,
+                NumeroAnimais = item.NumeroAnimais,
+            }).ToArray(),
+            Pagina = pagina.Pagina,
+            Tamanho = pagina.Tamanho,
+            Total = pagina.Total,
+        });
     }
 
     /// <summary>EP-012 — Consultar cliente (Administrador, Rececionista, Veterinário).</summary>
@@ -51,7 +68,7 @@ public sealed class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ClienteDto>> Obter(int id)
     {
-        return Ok(await _clientesService.ObterAsync(id));
+        return Ok(ParaDto(await _clientesService.ObterAsync(id)));
     }
 
     /// <summary>EP-013 — Criar conta de Cliente (Administrador, Rececionista).</summary>
@@ -69,7 +86,8 @@ public sealed class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ClienteDto>> Criar(CreateClienteDto pedido)
     {
-        var cliente = await _clientesService.CriarAsync(pedido);
+        var comando = new NovoCliente(ParaAlteracao(pedido), pedido.PasswordInicial);
+        var cliente = ParaDto(await _clientesService.CriarAsync(comando));
         return CreatedAtAction(nameof(Obter), new { id = cliente.Id }, cliente);
     }
 
@@ -90,6 +108,27 @@ public sealed class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ClienteDto>> Atualizar(int id, UpdateClienteDto pedido)
     {
-        return Ok(await _clientesService.AtualizarAsync(id, pedido));
+        return Ok(ParaDto(await _clientesService.AtualizarAsync(id, ParaAlteracao(pedido))));
     }
+
+    private static AlteracaoCliente ParaAlteracao(UpdateClienteDto pedido) =>
+        new(pedido.Nome, pedido.Nif, pedido.Telefone, pedido.Email, pedido.Morada);
+
+    private static ClienteDto ParaDto(FichaCliente ficha) => new()
+    {
+        Id = ficha.Cliente.Id,
+        Nome = ficha.Cliente.Nome,
+        Nif = ficha.Cliente.NIF,
+        Telefone = ficha.Cliente.Telefone,
+        Email = ficha.Email,
+        Morada = ficha.Cliente.Morada,
+        UtilizadorId = ficha.Cliente.UtilizadorId,
+        EstadoConta = ficha.EstadoConta,
+        Animais = ficha.Animais.Select(animal => new AnimalRefDto
+        {
+            Id = animal.Id,
+            Nome = animal.Nome,
+            Especie = animal.Especie,
+        }).ToArray(),
+    };
 }
