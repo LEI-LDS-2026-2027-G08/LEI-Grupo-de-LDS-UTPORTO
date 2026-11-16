@@ -1,9 +1,10 @@
 <Project>
+  <Import Project="../../Directory.Build.props" />
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
   </PropertyGroup>
-  <ItemGroup>
+  <!-- Os analisadores adicionais podem ser executados à parte do perfil da CI. -->
+  <ItemGroup Condition="'$(AnalisadoresAdicionais)' == 'true'">
     <PackageReference Include="Roslynator.Analyzers" Version="4.*" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.*" PrivateAssets="all" />
   </ItemGroup>
