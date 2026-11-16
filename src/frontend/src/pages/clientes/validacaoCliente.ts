@@ -61,12 +61,20 @@ export function validarCliente(
   }
 
   if (aCriar) {
-    const tamanho = formulario.passwordInicial.length;
-    if (tamanho === 0) {
+    const palavraPasse = formulario.passwordInicial;
+    if (palavraPasse.length === 0) {
       erros.passwordInicial = "A palavra-passe inicial é obrigatória.";
-    } else if (tamanho < 8 || tamanho > 128) {
+    } else if (
+      palavraPasse.length < 8 ||
+      palavraPasse.length > 128 ||
+      /\p{Cs}/u.test(palavraPasse) ||
+      !/\p{Ll}/u.test(palavraPasse) ||
+      !/\p{Lu}/u.test(palavraPasse) ||
+      !/\p{Nd}/u.test(palavraPasse) ||
+      !/[\p{P}\p{S}]/u.test(palavraPasse)
+    ) {
       erros.passwordInicial =
-        "A palavra-passe inicial deve ter entre 8 e 128 caracteres.";
+        "A palavra-passe deve ter entre 8 e 128 caracteres, com pelo menos uma letra minúscula, uma letra maiúscula, um algarismo e um carácter de pontuação ou símbolo.";
     }
   }
 

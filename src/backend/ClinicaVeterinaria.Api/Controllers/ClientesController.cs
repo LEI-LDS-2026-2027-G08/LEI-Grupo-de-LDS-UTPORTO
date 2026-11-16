@@ -56,7 +56,7 @@ public sealed class ClientesController : ControllerBase
 
     /// <summary>EP-013 — Criar conta de Cliente (Administrador, Rececionista).</summary>
     /// <response code="201">Cliente e conta de acesso criados; Location indica a ficha.</response>
-    /// <response code="400">Campos em falta, NIF ou e-mail inválido.</response>
+    /// <response code="400">Campos em falta, NIF ou e-mail inválido, ou palavra-passe inicial fraca.</response>
     /// <response code="401">Token ausente ou inválido.</response>
     /// <response code="403">Perfil sem permissão.</response>
     /// <response code="409">NIF ou e-mail já registado.</response>

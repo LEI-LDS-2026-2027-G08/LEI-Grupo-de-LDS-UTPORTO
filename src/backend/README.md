@@ -240,7 +240,7 @@ Regras verificadas em cada pedido:
 
 **Decisão sobre os tokens já emitidos (I066, critério 4):** o bloqueio e a mudança de perfil têm efeito imediato. Uma conta bloqueada deixa de iniciar sessão (EP-001 devolve `403`) e os tokens emitidos antes do bloqueio ou da mudança de perfil são rejeitados com `401` no pedido seguinte, porque cada pedido autenticado confirma o estado e o perfil atuais da conta (ver acima). Não é preciso revogar os tokens um a um na tabela `TokenRevogado`.
 
-**Motivo do bloqueio:** o campo opcional `motivo` de EP-008 (até 500 caracteres) fica guardado na coluna `Utilizador.MotivoBloqueio` (migração `ObservacaoEMotivoBloqueio`). Um motivo vazio ou só com espaços é guardado como `NULL`.
+**Motivo do bloqueio.** O campo opcional `motivo` de EP-008 (até 500 caracteres) fica guardado na coluna `Utilizador.MotivoBloqueio` (migração `ObservacaoEMotivoBloqueio`) e pode ser consultado em EP-005. Um motivo vazio ou só com espaços é guardado como `NULL`. Em pedidos simultâneos, o SQL Server só atualiza a conta enquanto estiver ativa. O primeiro bloqueio gravado devolve `204` e mantém o seu motivo. O pedido seguinte devolve `422`.
 
 ### Verificação manual
 
@@ -383,7 +383,7 @@ EP-026 e EP-027 suportam concorrência otimista através de `ETag`/`If-Match`. U
 
 O corpo de EP-027 inclui o campo opcional `observacao` (até 500 caracteres; mais do que isso dá `400`), representado por `UpdateEstadoConsultaDto.Observacao`.
 
-A observação fica guardada na coluna `Marcacao.Observacao` (migração `ObservacaoEMotivoBloqueio`) e corresponde à última alteração de estado: cada pedido de EP-027 substitui a anterior, e uma observação vazia ou só com espaços é guardada como `NULL`. Por agora não é devolvida nas respostas de consulta da marcação.
+A observação fica guardada na coluna `Marcacao.Observacao` (migração `ObservacaoEMotivoBloqueio`) e é devolvida no detalhe da marcação (EP-024). Cada alteração de estado aceite substitui a observação anterior. Uma observação vazia ou só com espaços é guardada como `NULL`.
 
 Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 

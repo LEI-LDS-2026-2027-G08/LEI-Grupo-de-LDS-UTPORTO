@@ -228,7 +228,7 @@ describe("W05 — registar Cliente", () => {
     expect(screen.getByText("O e-mail é obrigatório.")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "A palavra-passe inicial deve ter entre 8 e 128 caracteres.",
+        /A palavra-passe deve ter entre 8 e 128 caracteres,.*pontuação ou símbolo/,
       ),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Nome")).toHaveAttribute(

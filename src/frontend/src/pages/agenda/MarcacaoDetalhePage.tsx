@@ -290,7 +290,7 @@ function DetalheMarcacao({
                 </label>
                 <input
                   id={`${idCampos}-obs`}
-                  maxLength={250}
+                  maxLength={500}
                   value={observacao}
                   onChange={(e) => setObservacao(e.target.value)}
                 />

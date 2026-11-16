@@ -20,6 +20,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
     private const string MensagemNaoEncontrado = "A conta de funcionário indicada não existe.";
     private const string MensagemEmailRegistado = "Já existe uma conta registada com este e-mail.";
     private const string MensagemEmailUsado = "O e-mail indicado já é usado por outra conta.";
+    private const string MensagemJaBloqueada = "A conta já está bloqueada.";
 
     // Violação de índice único no SQL Server (UQ_Utilizador_Email).
     private const int ErroChaveDuplicada = 2601;
@@ -289,14 +290,31 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         if (utilizador.Estado == EstadosUtilizador.Bloqueado)
         {
-            throw new UnprocessableEntityException("A conta já está bloqueada.");
+            throw new UnprocessableEntityException(MensagemJaBloqueada);
         }
 
-        utilizador.Estado = EstadosUtilizador.Bloqueado;
-        utilizador.MotivoBloqueio = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim();
+        var motivo = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim();
 
-        // Efeito imediato: EP-001 passa a devolver 403 e os tokens já emitidos são
-        // rejeitados com 401 no pedido seguinte, porque cada pedido confirma o estado da conta.
+        if (_db.Database.IsRelational())
+        {
+            // O estado e o motivo são gravados juntos. Apenas o primeiro pedido encontra a conta ativa.
+            var alterados = await _db.Utilizadores
+                .Where(u => u.Id == id && u.Estado == EstadosUtilizador.Ativo)
+                .ExecuteUpdateAsync(campos => campos
+                    .SetProperty(u => u.Estado, EstadosUtilizador.Bloqueado)
+                    .SetProperty(u => u.MotivoBloqueio, motivo));
+
+            if (alterados == 0)
+            {
+                throw new UnprocessableEntityException(MensagemJaBloqueada);
+            }
+
+            return;
+        }
+
+        // O fornecedor em memória usado pelos testes unitários só suporta SaveChangesAsync.
+        utilizador.Estado = EstadosUtilizador.Bloqueado;
+        utilizador.MotivoBloqueio = motivo;
         await _db.SaveChangesAsync();
     }
 

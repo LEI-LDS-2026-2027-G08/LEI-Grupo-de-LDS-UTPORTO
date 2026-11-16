@@ -222,6 +222,30 @@ public sealed class UtilizadoresEndpointsTests :
         Assert.Equal("Bloqueado", (await LerContaAsync(id)).Estado);
     }
 
+    [Fact(DisplayName = "EP-008 — dois pedidos em paralelo só gravam o motivo do que devolve 204")]
+    public async Task BloqueiosConcorrentesGravamSoOMotivoDoPedidoAceite()
+    {
+        var id = await ObterIdAsync(EmailVetAna);
+        var rota = $"/utilizadores/{id}/estado";
+        const string primeiroMotivo = "Primeiro pedido";
+        const string segundoMotivo = "Segundo pedido";
+        using var cliente = await Fixture.CriarClienteAutenticadoAsync("Administrador");
+
+        var respostas = await Task.WhenAll(
+            cliente.PatchAsJsonAsync(rota, new { estado = "Bloqueado", motivo = primeiroMotivo }),
+            cliente.PatchAsJsonAsync(rota, new { estado = "Bloqueado", motivo = segundoMotivo }));
+        using var primeira = respostas[0];
+        using var segunda = respostas[1];
+
+        var primeiraAceite = primeira.StatusCode == HttpStatusCode.NoContent;
+        Assert.Equal(HttpStatusCode.NoContent, (primeiraAceite ? primeira : segunda).StatusCode);
+        await AssertErroAsync(primeiraAceite ? segunda : primeira, HttpStatusCode.UnprocessableEntity);
+
+        var detalhe = await cliente.GetFromJsonAsync<JsonElement>($"/utilizadores/{id}");
+        Assert.Equal("Bloqueado", detalhe.GetProperty("estado").GetString());
+        Assert.Equal(primeiraAceite ? primeiroMotivo : segundoMotivo, detalhe.GetProperty("motivoBloqueio").GetString());
+    }
+
     [Theory(DisplayName = "IT-EP008-02 — estado diferente de Bloqueado, ou em falta, devolve 400")]
     [InlineData("Ativo")]
     [InlineData("Suspenso")]

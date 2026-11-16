@@ -211,6 +211,24 @@ public sealed class ClientesEndpointsTests :
         Assert.Equal(0, await ContarContasAsync(email));
     }
 
+    [Theory(DisplayName = "EP-013 — palavra-passe sem símbolo ou pontuação devolve 400 e nada é persistido")]
+    [InlineData("Abcdef12")]
+    [InlineData("Abcdef1\u0000")]
+    public async Task PalavraPasseSemSimboloDevolve400(string palavraPasse)
+    {
+        var email = DadosTeste.EmailUnico("cliente.senha");
+        var pedido = PedidoCriacao(email, NifLivre());
+        pedido["passwordInicial"] = palavraPasse;
+        var antes = await ContarClientesAsync();
+        using var cliente = await Fixture.CriarClienteAutenticadoAsync("Rececionista");
+
+        using var resposta = await cliente.PostAsJsonAsync("/clientes", pedido);
+
+        await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
+        Assert.Equal(antes, await ContarClientesAsync());
+        Assert.Equal(0, await ContarContasAsync(email));
+    }
+
     [Theory(DisplayName = "IT-EP013-03 — NIF inválido devolve 400 e nada é persistido")]
     [InlineData("123456780")]
     [InlineData("12345678")]

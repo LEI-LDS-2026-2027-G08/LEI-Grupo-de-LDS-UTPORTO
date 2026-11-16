@@ -92,6 +92,22 @@ public class PalavraPasseForteAttributeTests
         Assert.False(PalavraPasseForteAttribute.EForte("Temp 2026"));
     }
 
+    [Theory(DisplayName = "R-PWD — só as categorias Unicode de pontuação e símbolo satisfazem a quarta condição")]
+    [InlineData("Abcdef1\u0000", false)]
+    [InlineData("Abcdef1\u0301", false)]
+    [InlineData("Abcdef1#", true)]
+    [InlineData("Abcdef1🐾", true)]
+    public void DistingueSimbolosDeOutrosCaracteres(string palavraPasse, bool valida)
+    {
+        Assert.Equal(valida, PalavraPasseForteAttribute.EForte(palavraPasse));
+    }
+
+    [Fact(DisplayName = "R-PWD — uma sequência Unicode inválida é recusada")]
+    public void RecusaSequenciaUnicodeInvalida()
+    {
+        Assert.False(PalavraPasseForteAttribute.EForte("Abcdef1#" + '\uD800'));
+    }
+
     [Fact(DisplayName = "I065 — Uma palavra-passe forte pode ter espaços")]
     public void PalavraPasseForteComEspacosEValida()
     {
