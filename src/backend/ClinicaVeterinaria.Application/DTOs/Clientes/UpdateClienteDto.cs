@@ -21,7 +21,9 @@ public class UpdateClienteDto
     public string Telefone { get; set; } = string.Empty;
 
     [Required(AllowEmptyStrings = false, ErrorMessage = "O e-mail é obrigatório.")]
-    [EmailAddress(ErrorMessage = "O e-mail é inválido.")]
+
+    // Regra R-EMAIL (I028), a mesma das contas de funcionário: o [EmailAddress] do .NET aceitava "joao@mail".
+    [EmailValido]
     [MaxLength(256, ErrorMessage = "O e-mail não pode ter mais de 256 caracteres.")]
     public string Email { get; set; } = string.Empty;
 

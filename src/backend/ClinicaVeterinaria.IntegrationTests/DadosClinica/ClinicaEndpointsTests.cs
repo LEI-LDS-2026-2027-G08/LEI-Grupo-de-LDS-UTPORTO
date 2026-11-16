@@ -110,6 +110,7 @@ public sealed class ClinicaEndpointsTests :
     [InlineData("nif", "123456780")]
     [InlineData("telefone", "abc")]
     [InlineData("email", "geral-sem-arroba")]
+    [InlineData("email", "geral@clinica")] // regra R-EMAIL: sem ponto no domínio
     [InlineData("duracaoConsultaMinutos", "0")]
     [InlineData("diaSemana", "Feriado")]
     [InlineData("abertura", "9h")]

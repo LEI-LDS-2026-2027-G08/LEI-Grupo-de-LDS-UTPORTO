@@ -245,14 +245,16 @@ public sealed class ClientesEndpointsTests :
         Assert.Equal(0, await ContarContasAsync(email));
     }
 
-    [Fact(DisplayName = "IT-EP013-04 — e-mail inválido devolve 400 e nada é persistido")]
-    public async Task EmailInvalidoDevolve400()
+    [Theory(DisplayName = "IT-EP013-04 — e-mail inválido devolve 400 e nada é persistido")]
+    [InlineData("ana.pereira.sem.arroba")]
+    [InlineData("ana.pereira@mail")] // regra R-EMAIL: sem ponto no domínio
+    public async Task EmailInvalidoDevolve400(string email)
     {
         var antes = await ContarClientesAsync();
 
         using var cliente = await Fixture.CriarClienteAutenticadoAsync("Rececionista");
 
-        using var resposta = await cliente.PostAsJsonAsync("/clientes", PedidoCriacao("ana.pereira.sem.arroba", NifLivre()));
+        using var resposta = await cliente.PostAsJsonAsync("/clientes", PedidoCriacao(email, NifLivre()));
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
         Assert.Equal(antes, await ContarClientesAsync());
@@ -345,6 +347,7 @@ public sealed class ClientesEndpointsTests :
     [InlineData("nif", "123456780")]
     [InlineData("telefone", "abc")]
     [InlineData("email", "joao.sem.arroba")]
+    [InlineData("email", "joao@mail")] // regra R-EMAIL: sem ponto no domínio
     public async Task DadosInvalidosDevolvem400(string campo, string valor)
     {
         var id = await ObterClienteIdAsync(EmailJoao);
