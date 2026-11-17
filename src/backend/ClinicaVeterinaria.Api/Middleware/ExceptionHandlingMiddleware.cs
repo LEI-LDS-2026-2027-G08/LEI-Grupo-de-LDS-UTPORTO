@@ -51,28 +51,35 @@ public sealed partial class ExceptionHandlingMiddleware
     {
         var statusCode = exception switch
         {
-            ArgumentException => HttpStatusCode.BadRequest,
-            UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+            ValidacaoException => HttpStatusCode.BadRequest,
+            NaoAutenticadoException => HttpStatusCode.Unauthorized,
             ForbiddenException => HttpStatusCode.Forbidden,
-            KeyNotFoundException => HttpStatusCode.NotFound,
-            InvalidOperationException => HttpStatusCode.Conflict,
+            NaoEncontradoException => HttpStatusCode.NotFound,
+            ConflitoException => HttpStatusCode.Conflict,
             PreconditionFailedException => HttpStatusCode.PreconditionFailed,
             UnprocessableEntityException => HttpStatusCode.UnprocessableEntity,
-            _ => HttpStatusCode.InternalServerError
+            _ => HttpStatusCode.InternalServerError,
         };
+
+        var detalhe = exception.Message;
+        if (statusCode == HttpStatusCode.InternalServerError)
+        {
+            detalhe = GetMessage(statusCode); // Adicionado a 12/11/2026 para tratar a mensagem interna do SQL
+        }
 
         var response = new
         {
             code = (int)statusCode,
             message = GetMessage(statusCode),
-            detail = exception.Message
+            detail = detalhe,
         };
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
 
         await context.Response.WriteAsync(
-            JsonSerializer.Serialize(response));
+            JsonSerializer.Serialize(response),
+            context.RequestAborted);
     }
 
     private static string GetMessage(HttpStatusCode statusCode)
@@ -86,7 +93,7 @@ public sealed partial class ExceptionHandlingMiddleware
             HttpStatusCode.Conflict => "Conflito ao processar o pedido.",
             HttpStatusCode.PreconditionFailed => "A pré-condição indicada não corresponde à versão atual do recurso.",
             HttpStatusCode.UnprocessableEntity => "Não foi possível processar os dados fornecidos.",
-            _ => "Ocorreu um erro interno no servidor."
+            _ => "Ocorreu um erro interno no servidor.",
         };
     }
 }

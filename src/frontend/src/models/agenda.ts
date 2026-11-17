@@ -93,6 +93,8 @@ export interface MarcacaoResumo {
 /** Marcação (EP-024, e resposta de EP-025 e EP-026). */
 export interface MarcacaoDetalhe extends MarcacaoResumo {
   notasPreparacao: NotaPreparacao[];
+  /** Observação da última alteração de estado (EP-027), ou null. */
+  observacao: string | null;
 }
 
 /** Parâmetros de EP-023: dias de Lisboa (aaaa-mm-dd), ambos incluídos. */

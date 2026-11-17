@@ -1,5 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
@@ -12,7 +12,7 @@ public interface IConsultasService
     /// identificador. Para um Veterinário, só as que lhe estão atribuídas, qualquer que seja o
     /// <c>veterinarioId</c> do filtro. Filtro inválido: 400.
     /// </summary>
-    Task<PagedResultDto<ConsultaListItemDto>> ObterConsultasAsync(ConsultaFiltroQuery filtro, AcessoConsultas acesso);
+    Task<PaginaResultados<ResumoConsulta>> ObterConsultasAsync(PesquisaConsultas filtro, AcessoConsultas acesso);
 
     /// <summary>
     /// EP-024 — marcação com as notas de preparação e a versão (<c>ETag</c>). Inexistente: 404;
@@ -29,7 +29,7 @@ public interface IConsultasService
     /// </summary>
     /// <param name="pedido">Animal, Veterinário, data e hora (UTC) e motivo.</param>
     /// <param name="criadaPorId">Utilizador autenticado (Rececionista) que cria a marcação.</param>
-    Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId);
+    Task<ConsultaComVersao> CriarConsultaAsync(NovaConsulta pedido, int criadaPorId);
 
     /// <summary>
     /// EP-026 — altera o Veterinário, a data/hora e o motivo de uma marcação Pendente ou Confirmada.
@@ -38,7 +38,7 @@ public interface IConsultasService
     /// </summary>
     Task<ConsultaComVersao> AtualizarConsultaAsync(
         int id,
-        UpdateConsultaDto pedido,
+        AlteracaoConsulta pedido,
         string? ifMatch);
 
     /// <summary>
@@ -47,7 +47,7 @@ public interface IConsultasService
     /// </summary>
     Task<string> AtualizarEstadoAsync(
         int id,
-        UpdateEstadoConsultaDto pedido,
+        AlteracaoEstadoConsulta pedido,
         string? ifMatch);
 
     /// <summary>
@@ -61,5 +61,5 @@ public interface IConsultasService
     /// base de dados no momento do pedido. Sem autorização: 403; inexistente: 404; Cancelada: 422.
     /// Não altera a marcação nem o registo clínico.
     /// </summary>
-    Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(int id, CreateNotaPreparacaoDto pedido, int auxiliarId);
+    Task<NotaPreparacao> CriarNotaPreparacaoAsync(int id, NovaNotaPreparacao pedido, int auxiliarId);
 }

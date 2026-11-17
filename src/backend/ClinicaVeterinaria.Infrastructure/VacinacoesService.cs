@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Vacinacoes;
 using ClinicaVeterinaria.Application.Vacinacao;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +51,7 @@ public sealed class VacinacoesService : IVacinacoesService
         _relogio = relogio;
     }
 
-    public async Task<BoletimDto> ObterBoletimAsync(int animalId, BoletimQuery query)
+    public async Task<BoletimProfilaxia> ObterBoletimAsync(int animalId, FiltroBoletim query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -61,7 +61,7 @@ public sealed class VacinacoesService : IVacinacoesService
 
         if (tipo is not null && !TiposAdministracao.Todos.Contains(tipo, StringComparer.Ordinal))
         {
-            throw new ArgumentException(TiposAdministracao.MensagemTipoInvalido);
+            throw new ValidacaoException(TiposAdministracao.MensagemTipoInvalido);
         }
 
         // (2) Animal existe → 404.
@@ -69,22 +69,22 @@ public sealed class VacinacoesService : IVacinacoesService
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.Id == animalId
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new ReferenciaAnimal { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Administrações do animal (UT-F006-018) e, com tipo, só as desse tipo (UT-F006-019).
-        var administracoes = await ObterAdministracoesAsync(animalId, tipo);
+        var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo);
 
-        return new BoletimDto
+        return new BoletimProfilaxia
         {
             Animal = animal,
             Administracoes = administracoes,
-            Proximas = Proximas(administracoes)
+            Proximas = proximas,
         };
     }
 
-    public async Task<AdministracaoDto> RegistarAsync(int animalId, CreateAdministracaoDto pedido, int veterinarioId)
+    public async Task<AdministracaoRegistada> RegistarAsync(int animalId, DadosAdministracao pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -95,7 +95,7 @@ public sealed class VacinacoesService : IVacinacoesService
         // (2) Animal existe → 404 (UT-F006-017).
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // (3) Grava o registo; a próxima administração é calculada (coluna calculada no SQL Server e
@@ -103,7 +103,7 @@ public sealed class VacinacoesService : IVacinacoesService
         var registo = new RegistoProfilaxia
         {
             PacienteId = animalId,
-            VeterinarioId = veterinarioId
+            VeterinarioId = veterinarioId,
         };
         Copiar(pedido, registo);
         registo.DataRegisto = AgoraAoSegundo();
@@ -111,13 +111,13 @@ public sealed class VacinacoesService : IVacinacoesService
         _db.RegistosProfilaxias.Add(registo);
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<AdministracaoDto> AtualizarAsync(
+    public async Task<AdministracaoRegistada> AtualizarAsync(
         int animalId,
         int administracaoId,
-        UpdateAdministracaoDto pedido,
+        DadosAdministracao pedido,
         int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -129,13 +129,13 @@ public sealed class VacinacoesService : IVacinacoesService
         // (2) Animal existe → 404.
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // (3) O registo existe e é deste animal → 404 (o registo não muda de animal).
         var registo = await _db.RegistosProfilaxias
                 .FirstOrDefaultAsync(r => r.Id == administracaoId && r.PacienteId == animalId)
-            ?? throw new KeyNotFoundException(MensagemAdministracaoNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemAdministracaoNaoEncontrada);
 
         // (4) Só o Veterinário que fez o registo o altera → 403 (como em EP-032, I077). A tabela
         // não guarda o autor das alterações, por isso o Veterinário do registo nunca muda.
@@ -148,10 +148,10 @@ public sealed class VacinacoesService : IVacinacoesService
         Copiar(pedido, registo);
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<MeuBoletimDto> ObterBoletimDoClienteAsync(int clienteId, int animalId)
+    public async Task<BoletimDoCliente> ObterBoletimDoClienteAsync(int clienteId, int animalId)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(clienteId);
 
@@ -161,7 +161,7 @@ public sealed class VacinacoesService : IVacinacoesService
                 .Where(p => p.Id == animalId)
                 .Select(p => (int?)p.ClienteId)
                 .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         if (donoId != clienteId)
         {
@@ -169,19 +169,19 @@ public sealed class VacinacoesService : IVacinacoesService
         }
 
         // (3) O mesmo histórico e as mesmas próximas do boletim web (UT-F006-022), com menos campos.
-        var administracoes = await ObterAdministracoesAsync(animalId, tipo: null);
+        var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo: null);
 
-        return new MeuBoletimDto
+        return new BoletimDoCliente
         {
             Historico = administracoes
-                .Select(a => new HistoricoAdministracaoDto
+                .Select(a => new AdministracaoAnterior
                 {
                     Tipo = a.Tipo,
                     Produto = a.Produto,
-                    DataAdministracao = a.DataAdministracao
+                    DataAdministracao = a.DataAdministracao,
                 })
                 .ToList(),
-            Proximas = Proximas(administracoes)
+            Proximas = proximas,
         };
     }
 
@@ -189,8 +189,10 @@ public sealed class VacinacoesService : IVacinacoesService
     /// Administrações do animal com o nome do Veterinário, da mais recente para a mais antiga (e,
     /// no mesmo dia, da última registada para a primeira).
     /// </summary>
-    private async Task<List<AdministracaoDto>> ObterAdministracoesAsync(int animalId, string? tipo)
+    private async Task<(List<AdministracaoRegistada> Administracoes, List<AdministracaoPrevista> Proximas)>
+        ObterAdministracoesAsync(int animalId, string? tipo)
     {
+        var hoje = Hoje();
         var registos = _db.RegistosProfilaxias.AsNoTracking().Where(r => r.PacienteId == animalId);
 
         if (tipo is not null)
@@ -202,34 +204,35 @@ public sealed class VacinacoesService : IVacinacoesService
                 from r in registos
                 join v in _db.Funcionarios.AsNoTracking() on r.VeterinarioId equals v.UtilizadorId
                 orderby r.DataAdministracao descending, r.Id descending
-                select new { Registo = r, Veterinario = v.Nome })
+                select new
+                {
+                    Registo = r,
+                    Veterinario = v.Nome,
+                    EProxima = r.IntervaloDias.HasValue
+                        && r.DataAdministracao.AddDays(r.IntervaloDias.Value) >= hoje,
+                })
             .ToListAsync();
 
-        return linhas.Select(l => ParaDto(l.Registo, l.Veterinario)).ToList();
-    }
-
-    /// <summary>
-    /// Próximas administrações que ainda não passaram (data prevista igual ou posterior a hoje), da
-    /// mais próxima para a mais distante (UT-F006-018 e 021; PA-11 da I028).
-    /// </summary>
-    private List<ProximaAdministracaoDto> Proximas(List<AdministracaoDto> administracoes)
-    {
-        var hoje = Hoje();
-
-        return administracoes
-            .Where(a => a.DataProximaPrevista is DateOnly data && data >= hoje)
+        var administracoes = linhas
+            .Select(l => (Modelo: ParaModelo(l.Registo, l.Veterinario), l.EProxima))
+            .ToList();
+        var proximas = administracoes
+            .Where(l => l.EProxima)
+            .Select(l => l.Modelo)
             .OrderBy(a => a.DataProximaPrevista)
             .ThenBy(a => a.Id)
-            .Select(a => new ProximaAdministracaoDto
+            .Select(a => new AdministracaoPrevista
             {
                 Tipo = a.Tipo,
                 Produto = a.Produto,
-                DataProximaPrevista = a.DataProximaPrevista!.Value
+                DataProximaPrevista = a.DataProximaPrevista!.Value,
             })
             .ToList();
+
+        return (administracoes.Select(l => l.Modelo).ToList(), proximas);
     }
 
-    private async Task<AdministracaoDto> ObterDtoAsync(int id)
+    private async Task<AdministracaoRegistada> ObterModeloAsync(int id)
     {
         var linha = await (
                 from r in _db.RegistosProfilaxias.AsNoTracking()
@@ -238,10 +241,10 @@ public sealed class VacinacoesService : IVacinacoesService
                 select new { Registo = r, Veterinario = v.Nome })
             .FirstAsync();
 
-        return ParaDto(linha.Registo, linha.Veterinario);
+        return ParaModelo(linha.Registo, linha.Veterinario);
     }
 
-    private static AdministracaoDto ParaDto(RegistoProfilaxia registo, string veterinario) => new()
+    private static AdministracaoRegistada ParaModelo(RegistoProfilaxia registo, string veterinario) => new()
     {
         Id = registo.Id,
         Tipo = registo.Tipo,
@@ -250,11 +253,11 @@ public sealed class VacinacoesService : IVacinacoesService
         DataAdministracao = registo.DataAdministracao,
         IntervaloDias = registo.IntervaloDias,
         DataProximaPrevista = CalculadoraProximaAdministracao.Calcular(registo.DataAdministracao, registo.IntervaloDias),
-        Veterinario = veterinario
+        Veterinario = veterinario,
     };
 
     // A coluna calculada DataProximaAdministracao não é escrita: o SQL Server calcula-a.
-    private static void Copiar(UpdateAdministracaoDto pedido, RegistoProfilaxia registo)
+    private static void Copiar(DadosAdministracao pedido, RegistoProfilaxia registo)
     {
         registo.Tipo = pedido.Tipo.Trim();
         registo.Produto = pedido.Produto.Trim();
@@ -266,7 +269,7 @@ public sealed class VacinacoesService : IVacinacoesService
     /// <summary>
     /// Regras das anotações do pedido (tipo, produto, lote, data e intervalo) e data não futura.
     /// </summary>
-    private void Validar(UpdateAdministracaoDto pedido)
+    private void Validar(DadosAdministracao pedido)
     {
         var erros = new List<ValidationResult>();
         Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true);
@@ -284,7 +287,7 @@ public sealed class VacinacoesService : IVacinacoesService
 
         if (mensagens.Count > 0)
         {
-            throw new ArgumentException(string.Join(" ", mensagens));
+            throw new ValidacaoException(string.Join(" ", mensagens));
         }
     }
 

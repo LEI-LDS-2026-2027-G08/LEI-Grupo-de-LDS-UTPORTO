@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using ClinicaVeterinaria.Api.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -32,8 +34,7 @@ public class RegistosClinicosLeituraServiceTests
     private static readonly DateTime InicioOutubro = new(2026, 10, 14, 8, 30, 0, DateTimeKind.Utc);
 
     // ----- EP-033 — Consultar registo clínico -----
-
-    [Fact(DisplayName = "UT-F004-022 — devolve o RegistoClinicoDto completo (notas, diagnóstico, tratamentos e prescrições)")]
+    [Fact(DisplayName = "UT-F004-022 — devolve o DetalheRegistoClinico completo (notas, diagnóstico, tratamentos e prescrições)")]
     public async Task ObterDevolveRegistoCompleto()
     {
         using var db = AjudaBaseDados.CriarContexto();
@@ -60,7 +61,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(999));
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterAsync(999));
 
         Assert.Equal(RegistosClinicosService.MensagemRegistoNaoEncontrado, erro.Message);
     }
@@ -82,14 +83,13 @@ public class RegistosClinicosLeituraServiceTests
     }
 
     // ----- EP-034 — Consultar histórico clínico do paciente -----
-
     [Fact(DisplayName = "UT-F004-023 — sem datas, devolve os dois registos do animal: primeiro o de 2026-10-14, depois o de 2026-09-02")]
     public async Task HistoricoPorOrdemDescendente()
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery());
+        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico());
 
         Assert.Equal(d.Bobi, historico.Animal.Id);
         Assert.Equal("Bobi", historico.Animal.Nome);
@@ -105,7 +105,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery());
+        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico());
 
         var outubro = historico.Registos.Single(r => r.Id == d.RegistoOutubro);
         Assert.Equal(d.ConsultaOutubro, outubro.ConsultaId);
@@ -129,7 +129,7 @@ public class RegistosClinicosLeituraServiceTests
 
         var historico = await CriarServico(db).ObterHistoricoAsync(
             d.Bobi,
-            new HistoricoClinicoQuery { DataInicio = dia, DataFim = dia });
+            new PeriodoHistoricoClinico { DataInicio = dia, DataFim = dia });
 
         Assert.Equal(d.RegistoOutubro, Assert.Single(historico.Registos).Id);
     }
@@ -138,9 +138,9 @@ public class RegistosClinicosLeituraServiceTests
     public async Task IntervaloInvalidoDevolve400()
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var query = new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 10, 14), DataFim = new DateOnly(2026, 9, 1) };
+        var query = new PeriodoHistoricoClinico { DataInicio = new DateOnly(2026, 10, 14), DataFim = new DateOnly(2026, 9, 1) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemDataFimAnterior, erro.Message);
     }
@@ -151,8 +151,8 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<KeyNotFoundException>(
-            () => CriarServico(db).ObterHistoricoAsync(999, new HistoricoClinicoQuery()));
+        var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
+            () => CriarServico(db).ObterHistoricoAsync(999, new PeriodoHistoricoClinico()));
 
         Assert.Equal(RegistosClinicosService.MensagemAnimalNaoEncontrado, erro.Message);
     }
@@ -163,7 +163,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var historico = await CriarServico(db).ObterHistoricoAsync(d.Kiko, new HistoricoClinicoQuery());
+        var historico = await CriarServico(db).ObterHistoricoAsync(d.Kiko, new PeriodoHistoricoClinico());
 
         Assert.Equal("Kiko", historico.Animal.Nome);
         Assert.Empty(historico.Registos);
@@ -175,7 +175,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery());
+        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico());
 
         Assert.Equal(2, historico.Registos.Count);
         Assert.DoesNotContain(historico.Registos, r => r.Id == d.RegistoMia);
@@ -188,7 +188,7 @@ public class RegistosClinicosLeituraServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery());
+        var historico = await CriarServico(db).ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico());
 
         Assert.Contains(historico.Registos, r => r.Veterinario == "Ana Vet");
         Assert.Contains(historico.Registos, r => r.Veterinario == "Bruno Vet");
@@ -205,10 +205,10 @@ public class RegistosClinicosLeituraServiceTests
 
         var dia13 = await servico.ObterHistoricoAsync(
             d.Kiko,
-            new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 10, 13), DataFim = new DateOnly(2026, 10, 13) });
+            new PeriodoHistoricoClinico { DataInicio = new DateOnly(2026, 10, 13), DataFim = new DateOnly(2026, 10, 13) });
         var dia14 = await servico.ObterHistoricoAsync(
             d.Kiko,
-            new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 10, 14), DataFim = new DateOnly(2026, 10, 14) });
+            new PeriodoHistoricoClinico { DataInicio = new DateOnly(2026, 10, 14), DataFim = new DateOnly(2026, 10, 14) });
 
         Assert.Empty(dia13.Registos);
         var resumo = Assert.Single(dia14.Registos);
@@ -223,8 +223,8 @@ public class RegistosClinicosLeituraServiceTests
         var d = await CriarBaseAsync(db);
         var servico = CriarServico(db);
 
-        var desde = await servico.ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery { DataInicio = new DateOnly(2026, 10, 1) });
-        var ate = await servico.ObterHistoricoAsync(d.Bobi, new HistoricoClinicoQuery { DataFim = new DateOnly(2026, 9, 30) });
+        var desde = await servico.ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico { DataInicio = new DateOnly(2026, 10, 1) });
+        var ate = await servico.ObterHistoricoAsync(d.Bobi, new PeriodoHistoricoClinico { DataFim = new DateOnly(2026, 9, 30) });
 
         Assert.Equal(d.RegistoOutubro, Assert.Single(desde.Registos).Id);
         Assert.Equal(d.RegistoSetembro, Assert.Single(ate.Registos).Id);
@@ -234,9 +234,9 @@ public class RegistosClinicosLeituraServiceTests
     public async Task DataForaDosLimitesDevolve400()
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var query = new HistoricoClinicoQuery { DataFim = new DateOnly(9999, 12, 31) };
+        var query = new PeriodoHistoricoClinico { DataFim = new DateOnly(9999, 12, 31) };
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterHistoricoAsync(1, query));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemForaDosLimites, erro.Message);
     }
@@ -253,7 +253,7 @@ public class RegistosClinicosLeituraServiceTests
         var query = new HistoricoClinicoQuery
         {
             DataInicio = dataInicio is null ? null : DateOnly.Parse(dataInicio, CultureInfo.InvariantCulture),
-            DataFim = dataFim is null ? null : DateOnly.Parse(dataFim, CultureInfo.InvariantCulture)
+            DataFim = dataFim is null ? null : DateOnly.Parse(dataFim, CultureInfo.InvariantCulture),
         };
         var resultados = new List<ValidationResult>();
 
@@ -263,7 +263,6 @@ public class RegistosClinicosLeituraServiceTests
     }
 
     // ----- Auxiliares -----
-
     private static RegistosClinicosService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     /// <summary>
@@ -288,7 +287,7 @@ public class RegistosClinicosLeituraServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -298,7 +297,7 @@ public class RegistosClinicosLeituraServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -339,7 +338,7 @@ public class RegistosClinicosLeituraServiceTests
             VeterinarioId = veterinarioId,
             NotasClinicas = "Canal auditivo esquerdo eritematoso.",
             Diagnostico = diagnostico,
-            CriadoEm = inicioUtc.AddMinutes(30)
+            CriadoEm = inicioUtc.AddMinutes(30),
         };
         db.RegistosClinicos.Add(registo);
         await db.SaveChangesAsync();
@@ -350,7 +349,7 @@ public class RegistosClinicosLeituraServiceTests
             {
                 RegistoClinicoId = registo.Id,
                 Descricao = "Limpeza auricular",
-                DataAplicacao = DateOnly.FromDateTime(inicioUtc)
+                DataAplicacao = DateOnly.FromDateTime(inicioUtc),
             });
         }
 
@@ -362,7 +361,7 @@ public class RegistosClinicosLeituraServiceTests
                 Medicamento = "Gotas auriculares X",
                 Dosagem = "3 gotas",
                 Frequencia = "2 vezes por dia",
-                DuracaoDias = 7
+                DuracaoDias = 7,
             });
         }
 
@@ -379,7 +378,7 @@ public class RegistosClinicosLeituraServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -405,7 +404,7 @@ public class RegistosClinicosLeituraServiceTests
             DuracaoMinutos = 30,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();

@@ -224,6 +224,8 @@ function DetalheMarcacao({
         <dd>
           <strong>{marcacao.estado}</strong>
         </dd>
+        <dt>Observação do estado</dt>
+        <dd>{marcacao.observacao ?? "—"}</dd>
         <dt>Chegada</dt>
         <dd>
           {marcacao.chegadaEm
@@ -288,7 +290,7 @@ function DetalheMarcacao({
                 </label>
                 <input
                   id={`${idCampos}-obs`}
-                  maxLength={250}
+                  maxLength={500}
                   value={observacao}
                   onChange={(e) => setObservacao(e.target.value)}
                 />

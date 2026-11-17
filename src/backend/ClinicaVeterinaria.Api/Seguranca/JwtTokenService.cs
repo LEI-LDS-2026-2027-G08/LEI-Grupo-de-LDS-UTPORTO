@@ -1,6 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -28,7 +28,7 @@ public sealed class JwtTokenService : IJwtTokenService
         _relogio = relogio;
     }
 
-    public TokenEmitido GerarToken(UtilizadorAutenticadoDto utilizador)
+    public TokenEmitido GerarToken(UtilizadorAutenticado utilizador)
     {
         ArgumentNullException.ThrowIfNull(utilizador);
 
@@ -43,7 +43,7 @@ public sealed class JwtTokenService : IJwtTokenService
             [ClaimsClinica.UtilizadorId] = utilizador.Id.ToString(CultureInfo.InvariantCulture),
             [ClaimsClinica.Email] = utilizador.Email,
             [ClaimsClinica.Perfil] = utilizador.Perfil,
-            [ClaimsClinica.Jti] = jti
+            [ClaimsClinica.Jti] = jti,
         };
 
         if (utilizador.ClienteId is int clienteId)
@@ -65,7 +65,7 @@ public sealed class JwtTokenService : IJwtTokenService
             NotBefore = emitidoEm,
             Expires = expiraEm,
             Claims = claims,
-            SigningCredentials = _credenciais
+            SigningCredentials = _credenciais,
         };
 
         return new TokenEmitido(_handler.CreateToken(descritor), expiraEm, jti);

@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -64,7 +64,7 @@ public sealed class AuthService : IAuthService
         _relogio = relogio;
     }
 
-    public async Task<LoginResponseDto> LoginAsync(LoginRequestDto pedido)
+    public async Task<SessaoIniciada> LoginAsync(Credenciais pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -80,7 +80,7 @@ public sealed class AuthService : IAuthService
         {
             _passwordHasher.VerifyHashedPassword(UtilizadorReferencia, HashReferencia, password);
             LogTentativaFalhada(_logger, email, "e-mail não registado", null);
-            throw new UnauthorizedAccessException(MensagemCredenciaisInvalidas);
+            throw new NaoAutenticadoException(MensagemCredenciaisInvalidas);
         }
 
         var resultado = _passwordHasher.VerifyHashedPassword(
@@ -89,7 +89,7 @@ public sealed class AuthService : IAuthService
         if (resultado == PasswordVerificationResult.Failed)
         {
             LogTentativaFalhada(_logger, email, "palavra-passe incorreta", null);
-            throw new UnauthorizedAccessException(MensagemCredenciaisInvalidas);
+            throw new NaoAutenticadoException(MensagemCredenciaisInvalidas);
         }
 
         // Só depois de confirmar a palavra-passe, para que uma palavra-passe
@@ -113,22 +113,22 @@ public sealed class AuthService : IAuthService
 
         LogSessaoIniciada(_logger, utilizador.Id, utilizador.Perfil, null);
 
-        return new LoginResponseDto
+        return new SessaoIniciada
         {
             Token = token.Token,
             ExpiraEm = token.ExpiraEm,
-            Utilizador = new UtilizadorResumoDto
+            Utilizador = new IdentidadeSessao
             {
                 Id = autenticado.Id,
                 Nome = autenticado.Nome,
                 Email = autenticado.Email,
                 Perfil = autenticado.Perfil,
-                ClienteId = autenticado.ClienteId
-            }
+                ClienteId = autenticado.ClienteId,
+            },
         };
     }
 
-    public async Task<UtilizadorAutenticadoDto> ObterAutenticadoAsync(int utilizadorId)
+    public async Task<UtilizadorAutenticado> ObterAutenticadoAsync(int utilizadorId)
     {
         var utilizador = await _db.Utilizadores
             .AsNoTracking()
@@ -136,7 +136,7 @@ public sealed class AuthService : IAuthService
 
         if (utilizador is null || utilizador.Estado != EstadosUtilizador.Ativo)
         {
-            throw new UnauthorizedAccessException(MensagemSessaoInvalida);
+            throw new NaoAutenticadoException(MensagemSessaoInvalida);
         }
 
         return await CriarUtilizadorAutenticadoAsync(utilizador);
@@ -181,7 +181,7 @@ public sealed class AuthService : IAuthService
             Jti = jti,
             UtilizadorId = utilizadorId,
             DataExpiracao = dataExpiracao,
-            DataRevogacao = SemFracoesDeSegundo(_relogio.GetUtcNow().UtcDateTime)
+            DataRevogacao = SemFracoesDeSegundo(_relogio.GetUtcNow().UtcDateTime),
         });
 
         try
@@ -250,11 +250,11 @@ public sealed class AuthService : IAuthService
                 emFalta.Add("A palavra-passe é obrigatória.");
             }
 
-            throw new ArgumentException(string.Join(" ", emFalta));
+            throw new ValidacaoException(string.Join(" ", emFalta));
         }
     }
 
-    private async Task<UtilizadorAutenticadoDto> CriarUtilizadorAutenticadoAsync(Utilizador utilizador)
+    private async Task<UtilizadorAutenticado> CriarUtilizadorAutenticadoAsync(Utilizador utilizador)
     {
         var nome = string.Empty;
         int? clienteId = null;
@@ -282,13 +282,13 @@ public sealed class AuthService : IAuthService
                 .FirstOrDefaultAsync() ?? string.Empty;
         }
 
-        return new UtilizadorAutenticadoDto
+        return new UtilizadorAutenticado
         {
             Id = utilizador.Id,
             Nome = nome,
             Email = utilizador.Email,
             Perfil = utilizador.Perfil,
-            ClienteId = clienteId
+            ClienteId = clienteId,
         };
     }
 }

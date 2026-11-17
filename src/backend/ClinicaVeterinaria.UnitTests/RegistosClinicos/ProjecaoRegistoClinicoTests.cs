@@ -1,6 +1,6 @@
 using System.Reflection;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 
 namespace ClinicaVeterinaria.UnitTests.RegistosClinicos;
 
@@ -39,14 +39,14 @@ public class ProjecaoRegistoClinicoTests
     {
         Assert.Equal(
             "ConsultaId,Data,Diagnostico,Id,NumeroPrescricoes,NumeroTratamentos,Veterinario",
-            Campos(typeof(RegistoClinicoResumoDto)));
-        Assert.Equal("Animal,Registos", Campos(typeof(HistoricoClinicoDto)));
+            Campos(typeof(ResumoRegistoClinico)));
+        Assert.Equal("Animal,Registos", Campos(typeof(HistoricoClinico)));
     }
 
     [Fact(DisplayName = "I088 (critério 5) — o resumo do histórico (EP-034) não expõe as notas clínicas nem o detalhe dos tratamentos e prescrições")]
     public void ResumoSemDetalheClinico()
     {
-        Assert.Empty(NomesDosCampos(typeof(RegistoClinicoResumoDto)).Intersect(DetalheClinico, StringComparer.OrdinalIgnoreCase));
+        Assert.Empty(NomesDosCampos(typeof(ResumoRegistoClinico)).Intersect(DetalheClinico, StringComparer.OrdinalIgnoreCase));
     }
 
     [Fact(DisplayName = "I088 (critério 5, PA-08) — o registo de EP-033 tem os campos do contrato v02")]
@@ -54,9 +54,9 @@ public class ProjecaoRegistoClinicoTests
     {
         Assert.Equal(
             "AnimalId,AtualizadoEm,AtualizadoPor,ConsultaId,CriadoEm,Diagnostico,Id,NotasClinicas,Prescricoes,Tratamentos,Veterinario",
-            Campos(typeof(RegistoClinicoDto)));
-        Assert.Equal("DataAplicacao,Descricao,Id", Campos(typeof(TratamentoDto)));
-        Assert.Equal("Dosagem,DuracaoDias,Frequencia,Id,Medicamento", Campos(typeof(PrescricaoDto)));
+            Campos(typeof(DetalheRegistoClinico)));
+        Assert.Equal("DataAplicacao,Descricao,Id", Campos(typeof(TratamentoRegistado)));
+        Assert.Equal("Dosagem,DuracaoDias,Frequencia,Id,Medicamento", Campos(typeof(PrescricaoRegistada)));
     }
 
     [Fact(DisplayName = "I088 (critério 5, PA-08) — a leitura não depende do perfil: o serviço não recebe o utilizador em EP-033 nem em EP-034")]
@@ -68,7 +68,7 @@ public class ProjecaoRegistoClinicoTests
             new[] { typeof(int) },
             Parametros(servico, nameof(IRegistosClinicosService.ObterAsync)));
         Assert.Equal(
-            new[] { typeof(int), typeof(HistoricoClinicoQuery) },
+            new[] { typeof(int), typeof(PeriodoHistoricoClinico) },
             Parametros(servico, nameof(IRegistosClinicosService.ObterHistoricoAsync)));
     }
 

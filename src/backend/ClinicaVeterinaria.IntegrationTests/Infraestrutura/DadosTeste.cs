@@ -1,3 +1,5 @@
+using ClinicaVeterinaria.Application.Agenda;
+
 namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
 
 /// <summary>
@@ -5,6 +7,9 @@ namespace ClinicaVeterinaria.IntegrationTests.Infraestrutura;
 /// </summary>
 public static class DadosTeste
 {
+    public static DateOnly HojeEmLisboa() =>
+        DateOnly.FromDateTime(FusoHorarioClinica.ParaLocal(TimeProvider.System.GetUtcNow().UtcDateTime, FusoHorarioClinica.Obter()));
+
     public static string EmailUnico(string prefixo = "teste")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(prefixo);

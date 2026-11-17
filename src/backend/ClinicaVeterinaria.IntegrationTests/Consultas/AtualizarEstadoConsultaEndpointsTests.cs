@@ -289,7 +289,6 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private sealed record MarcacaoDemo(int Id);
 
     private sealed record VersaoDemo(
@@ -399,8 +398,8 @@ public sealed class AtualizarEstadoConsultaEndpointsTests :
                     new
                     {
                         estado,
-                        observacao = (string?)null
-                    })
+                        observacao = (string?)null,
+                    }),
             };
 
         if (ifMatch is not null)

@@ -181,7 +181,6 @@ public sealed partial class MatrizSegurancaEndpointsTests :
         PerfilRecebe403Async(Perfis.Veterinario, Operacoes("EP-025", "EP-026", "EP-027", "EP-028"));
 
     // ----- Auxiliares -----
-
     [GeneratedRegex(@"\{[^}]+\}")]
     private static partial Regex ParametroDeRota();
 

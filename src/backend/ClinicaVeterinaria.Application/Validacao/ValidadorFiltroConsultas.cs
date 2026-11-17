@@ -1,4 +1,5 @@
 using ClinicaVeterinaria.Application.Agenda;
+using ClinicaVeterinaria.Application.Exceptions;
 
 namespace ClinicaVeterinaria.Application.Validacao;
 
@@ -33,7 +34,7 @@ public static class ValidadorFiltroConsultas
     /// Valor de <c>EstadoConsulta</c> correspondente ao texto recebido, sem distinguir maiúsculas
     /// nem espaços nos extremos; <c>null</c> quando o filtro não foi indicado.
     /// </summary>
-    /// <exception cref="ArgumentException">O texto não é um estado válido.</exception>
+    /// <exception cref="ValidacaoException">O texto não é um estado válido.</exception>
     public static string? NormalizarEstado(string? estado)
     {
         if (string.IsNullOrWhiteSpace(estado))
@@ -44,7 +45,7 @@ public static class ValidadorFiltroConsultas
         var texto = estado.Trim();
 
         return EstadosConsulta.Todos.FirstOrDefault(e => string.Equals(e, texto, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException(MensagemEstadoInvalido(texto));
+            ?? throw new ValidacaoException(MensagemEstadoInvalido(texto));
     }
 
     /// <summary>Indica se o texto é vazio (sem filtro) ou um estado válido.</summary>

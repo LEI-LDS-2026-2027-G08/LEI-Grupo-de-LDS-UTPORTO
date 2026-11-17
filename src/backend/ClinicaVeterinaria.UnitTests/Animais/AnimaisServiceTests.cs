@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Animais;
+using ClinicaVeterinaria.Api.DTOs.Animais;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Animais;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
 using ClinicaVeterinaria.UnitTests.Seguranca;
@@ -13,7 +14,7 @@ namespace ClinicaVeterinaria.UnitTests.Animais;
 /// UT-F002-030 da Especificação de Testes Unitários (I028, secções 7.2.1 e 7.2.2). A idade
 /// (casos 025 a 030) é calculada dentro do serviço, por isso é verificada através da ficha do
 /// animal com o relógio injetado. As regras de formato do pedido (clienteId e nome) estão no
-/// <see cref="UpdateAnimalDto"/> e dão 400 na validação automática do [ApiController].
+/// <see cref="DadosAnimal"/> e dão 400 na validação automática do [ApiController].
 /// </summary>
 public class AnimaisServiceTests
 {
@@ -32,7 +33,6 @@ public class AnimaisServiceTests
     private const int EspecieGato = 2;
 
     // ----- EP-017 — Registar paciente -----
-
     [Fact(DisplayName = "UT-F002-001 — Registar o Bobi cria o paciente do CLIENTE_A com DataRegisto = RELOGIO e idadeAnos = 4")]
     public async Task RegistarAnimalValido()
     {
@@ -66,7 +66,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-003 — clienteId = 0 (em falta) é recusado no pedido (400)")]
     public void ClienteIdEmFaltaEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.ClienteId = 0;
 
         Assert.Contains(nameof(CreateAnimalDto.ClienteId), CamposComErro(pedido));
@@ -79,7 +79,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.ClienteId = 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Equal(3, await db.Pacientes.CountAsync());
     }
@@ -87,7 +87,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-005 — Sem nome, o pedido é recusado (400)")]
     public void NomeVazioEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.Nome = string.Empty;
 
         Assert.Contains(nameof(CreateAnimalDto.Nome), CamposComErro(pedido));
@@ -96,7 +96,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-006 — Um nome com 81 caracteres é recusado (máximo 80)")]
     public void NomeCom81CaracteresEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.Nome = new string('B', 81);
 
         Assert.Contains(nameof(CreateAnimalDto.Nome), CamposComErro(pedido));
@@ -109,7 +109,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = 0m;
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Equal("O peso deve ser superior a 0.", erro.Message);
     }
@@ -133,7 +133,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = -3m;
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
     }
 
     [Fact(DisplayName = "UT-F002-010 — Data de nascimento de amanhã (2026-10-15) devolve 400")]
@@ -143,7 +143,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.DataNascimento = new DateOnly(2026, 10, 15);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
     }
 
     [Fact(DisplayName = "UT-F002-011 — Data de nascimento de hoje é aceite e a idade é 0")]
@@ -166,7 +166,7 @@ public class AnimaisServiceTests
         pedido.Especie = "Dragão";
         pedido.Raca = null;
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Contains("espécie", erro.Message, StringComparison.Ordinal);
     }
@@ -178,13 +178,12 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Raca = "Siamês";
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).CriarAsync(pedido));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido));
 
         Assert.Contains("raça", erro.Message, StringComparison.Ordinal);
     }
 
     // ----- EP-018 — Atualizar paciente -----
-
     [Fact(DisplayName = "UT-F002-014 — Atualizar o peso do ANIMAL_A1 grava o novo peso e DataUltimaAlteracao = RELOGIO")]
     public async Task AtualizarPesoGravaAlteracao()
     {
@@ -206,7 +205,7 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.Peso = 0m;
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
 
         Assert.Equal(28.4m, (await db.Pacientes.AsNoTracking().SingleAsync(p => p.Id == AnimalA1)).Peso);
     }
@@ -216,7 +215,7 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(999, PedidoBobi()));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(999, PedidoBobi()));
     }
 
     [Fact(DisplayName = "UT-F002-017 — Atualizar para um Cliente inexistente devolve 404")]
@@ -226,11 +225,10 @@ public class AnimaisServiceTests
         var pedido = PedidoBobi();
         pedido.ClienteId = 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(AnimalA1, pedido));
     }
 
     // ----- EP-015 e EP-016 — Pesquisar e consultar -----
-
     [Fact(DisplayName = "UT-F002-018 — A ficha do ANIMAL_A1 tem só dados administrativos e o telefone do Cliente")]
     public async Task FichaTemDadosAdministrativosETelefone()
     {
@@ -248,13 +246,29 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        var resultado = await CriarServico(db).PesquisarAsync(new AnimalFiltroQuery { ClienteId = ClienteA });
+        var resultado = await CriarServico(db).PesquisarAsync(new PesquisaAnimais { ClienteId = ClienteA });
 
         Assert.Equal([AnimalA1, AnimalA2], resultado.Itens.Select(a => a.Id));
     }
 
-    // ----- EP-019 e EP-020 — Área do Cliente -----
+    [Theory(DisplayName = "UT-F002-031 — Depois do fim, ou numa página muito alta (int.MaxValue), a lista fica vazia, sem erro, e o total mantém-se")]
+    [InlineData(2, 20)]
+    [InlineData(int.MaxValue, 100)]
+    public async Task PaginaDepoisDoFimDevolveListaVazia(int pagina, int tamanho)
+    {
+        using var db = CriarBase();
+        var servico = CriarServico(db);
+        var todos = await servico.PesquisarAsync(new PesquisaAnimais { Tamanho = 100 });
 
+        var resultado = await servico.PesquisarAsync(new PesquisaAnimais { Pagina = pagina, Tamanho = tamanho });
+
+        Assert.Empty(resultado.Itens);
+        Assert.Equal(pagina, resultado.Pagina);
+        Assert.NotEqual(0, todos.Total);
+        Assert.Equal(todos.Total, resultado.Total);
+    }
+
+    // ----- EP-019 e EP-020 — Área do Cliente -----
     [Fact(DisplayName = "UT-F002-020 — Na área do Cliente, o CLIENTE_A vê só os seus animais")]
     public async Task ClienteVeSoOsSeusAnimais()
     {
@@ -275,7 +289,7 @@ public class AnimaisServiceTests
         Assert.Empty(animais);
     }
 
-    [Fact(DisplayName = "UT-F002-022 — O CLIENTE_A consulta o ANIMAL_A1 e recebe o MeuAnimalDto")]
+    [Fact(DisplayName = "UT-F002-022 — O CLIENTE_A consulta o ANIMAL_A1 e recebe o DetalheMeuAnimal")]
     public async Task ClienteConsultaAnimalProprio()
     {
         using var db = CriarBase();
@@ -301,11 +315,10 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterDoClienteAsync(ClienteA, 999));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterDoClienteAsync(ClienteA, 999));
     }
 
     // ----- Idade do animal -----
-
     [Fact(DisplayName = "UT-F002-025 — Nascido a 2022-05-10, em 2026-10-14 tem 4 anos")]
     public async Task IdadeQuatroAnos()
     {
@@ -343,7 +356,6 @@ public class AnimaisServiceTests
     }
 
     // ----- Apoio -----
-
     private static AnimaisService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     /// <summary>Idade do ANIMAL_A1 com a data de nascimento e o dia de hoje indicados.</summary>
@@ -380,7 +392,7 @@ public class AnimaisServiceTests
                 Sexo = "Macho",
                 DataNascimento = new DateOnly(2022, 5, 10),
                 Peso = 28.4m,
-                DataRegisto = Relogio.UtcDateTime.AddDays(-30)
+                DataRegisto = Relogio.UtcDateTime.AddDays(-30),
             },
             new Paciente { Id = AnimalA2, ClienteId = ClienteA, Nome = "Mia", EspecieId = EspecieGato, RacaId = 2 },
             new Paciente { Id = AnimalB1, ClienteId = ClienteB, Nome = "Kiko", EspecieId = EspecieCao });
@@ -391,7 +403,7 @@ public class AnimaisServiceTests
     }
 
     /// <summary>Pedido do exemplo de EP-017 da Documentação da API, para o CLIENTE_A.</summary>
-    private static CreateAnimalDto PedidoBobi() => new()
+    private static DadosAnimal PedidoBobi() => new()
     {
         Nome = "Bobi",
         Especie = "Cão",
@@ -399,8 +411,23 @@ public class AnimaisServiceTests
         Sexo = "Macho",
         DataNascimento = new DateOnly(2022, 5, 10),
         Peso = 28.4m,
-        ClienteId = ClienteA
+        ClienteId = ClienteA,
     };
+
+    private static CreateAnimalDto PedidoBobiHttp()
+    {
+        var dados = PedidoBobi();
+        return new CreateAnimalDto
+        {
+            Nome = dados.Nome,
+            Especie = dados.Especie,
+            Raca = dados.Raca,
+            Sexo = dados.Sexo,
+            DataNascimento = dados.DataNascimento,
+            Peso = dados.Peso,
+            ClienteId = dados.ClienteId,
+        };
+    }
 
     private static List<string> CamposComErro(object pedido)
     {

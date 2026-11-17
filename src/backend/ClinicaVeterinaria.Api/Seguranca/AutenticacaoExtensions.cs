@@ -108,14 +108,14 @@ public static class AutenticacaoExtensions
             ClockSkew = TimeSpan.Zero,
 
             NameClaimType = ClaimsClinica.UtilizadorId,
-            RoleClaimType = ClaimsClinica.Perfil
+            RoleClaimType = ClaimsClinica.Perfil,
         };
 
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = ValidarSessaoAsync,
             OnChallenge = ResponderNaoAutenticadoAsync,
-            OnForbidden = ResponderSemPermissaoAsync
+            OnForbidden = ResponderSemPermissaoAsync,
         };
     }
 
@@ -152,7 +152,7 @@ public static class AutenticacaoExtensions
         {
             null => "É necessário apresentar um token JWT válido.",
             SecurityTokenExpiredException => "O token expirou. Inicie sessão novamente.",
-            _ => "O token apresentado é inválido ou a sessão já não é válida."
+            _ => "O token apresentado é inválido ou a sessão já não é válida.",
         };
 
         return EscreverErroAsync(
@@ -168,8 +168,6 @@ public static class AutenticacaoExtensions
             StatusCodes.Status403Forbidden,
             "Não tem permissão para executar esta operação.",
             "O perfil do utilizador autenticado não tem acesso a esta operação.");
-
-    // Mesmo formato do ExceptionHandlingMiddleware (I058).
     private static Task EscreverErroAsync(
         HttpResponse resposta,
         int codigo,
@@ -178,11 +176,13 @@ public static class AutenticacaoExtensions
     {
         resposta.StatusCode = codigo;
 
-        return resposta.WriteAsJsonAsync(new
-        {
-            code = codigo,
-            message = mensagem,
-            detail = detalhe
-        });
+        return resposta.WriteAsJsonAsync(
+            new
+            {
+                code = codigo,
+                message = mensagem,
+                detail = detalhe,
+            },
+            resposta.HttpContext.RequestAborted);
     }
 }

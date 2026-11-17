@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Auth;
-using ClinicaVeterinaria.Application.DTOs.Utilizadores;
+using ClinicaVeterinaria.Api.DTOs.Utilizadores;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Auth;
+using ClinicaVeterinaria.Application.Models.Utilizadores;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -16,7 +17,7 @@ namespace ClinicaVeterinaria.UnitTests.Utilizadores;
 
 /// <summary>
 /// I065 e I066 — contas de funcionário (EP-004 a EP-008). Inclui os casos UT-F001-073 a
-/// UT-F001-099 e UT-TRV-001 da Especificação de Testes Unitários (I028, secções 7.1.8 e 7.6.1). As regras de formato (casos 078 a 082) estão no <see cref="CreateUtilizadorDto"/>
+/// UT-F001-099 e UT-TRV-001 da Especificação de Testes Unitários (I028, secções 7.1.8 e 7.6.1). As regras de formato (casos 078 a 082) estão no <see cref="NovoUtilizador"/>
 /// e dão 400 na validação automática do [ApiController]; por isso são verificadas no DTO.
 /// </summary>
 public class UtilizadoresServiceTests
@@ -32,7 +33,6 @@ public class UtilizadoresServiceTests
     private static readonly DateTime DataCriacaoExistente = new(2026, 10, 1, 9, 0, 0, DateTimeKind.Unspecified);
 
     // ----- EP-006 — Criar conta de funcionário -----
-
     [Fact(DisplayName = "UT-F001-073 — Criar um Auxiliar com podeRegistarApoio cria a conta ativa e o Funcionario")]
     public async Task CriarAuxiliarComApoioCriaContaAtivaEFuncionario()
     {
@@ -138,7 +138,7 @@ public class UtilizadoresServiceTests
         await AdicionarFuncionarioAsync(db, "Rui Lopes", Perfis.Veterinario, email: EmailRui);
         var servico = CriarServico(db);
 
-        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => servico.CriarAsync(PedidoRui()));
+        var excecao = await Assert.ThrowsAsync<ConflitoException>(() => servico.CriarAsync(PedidoRui()));
 
         Assert.Equal("Já existe uma conta registada com este e-mail.", excecao.Message);
         Assert.Single(await db.Utilizadores.AsNoTracking().ToListAsync());
@@ -158,15 +158,15 @@ public class UtilizadoresServiceTests
         var criado = await servico.CriarAsync(pedido);
 
         Assert.Equal(EmailRui, criado.Email);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => servico.CriarAsync(repetido));
+        await Assert.ThrowsAsync<ConflitoException>(() => servico.CriarAsync(repetido));
         Assert.Equal(EmailRui, Assert.Single(await db.Utilizadores.AsNoTracking().ToListAsync()).Email);
     }
 
     [Fact(DisplayName = "UT-F001-078 — Um nome vazio dá 400 com o erro no campo nome")]
     public void NomeVazioERecusado()
     {
-        var pedido = PedidoRui();
-        pedido.Nome = "";
+        var pedido = PedidoRuiHttp();
+        pedido.Nome = string.Empty;
 
         Assert.Equal("O nome é obrigatório.", ErroNoCampo(pedido, nameof(CreateUtilizadorDto.Nome)));
     }
@@ -174,7 +174,7 @@ public class UtilizadoresServiceTests
     [Fact(DisplayName = "UT-F001-079 — Um e-mail sem formato válido dá 400 com o erro no campo email")]
     public void EmailInvalidoERecusado()
     {
-        var pedido = PedidoRui();
+        var pedido = PedidoRuiHttp();
         pedido.Email = "rui.lopes";
 
         Assert.NotNull(ErroNoCampo(pedido, nameof(CreateUtilizadorDto.Email)));
@@ -183,7 +183,7 @@ public class UtilizadoresServiceTests
     [Fact(DisplayName = "UT-F001-080 — Uma palavra-passe fraca dá 400 com o erro no campo passwordInicial")]
     public void PalavraPasseFracaERecusada()
     {
-        var pedido = PedidoRui();
+        var pedido = PedidoRuiHttp();
         pedido.PasswordInicial = "12345678";
 
         Assert.NotNull(ErroNoCampo(pedido, nameof(CreateUtilizadorDto.PasswordInicial)));
@@ -193,11 +193,13 @@ public class UtilizadoresServiceTests
     public async Task NomeCom150CaracteresEAceite()
     {
         using var db = CriarContexto();
-        var pedido = PedidoRui();
+        var pedido = PedidoRuiHttp();
         pedido.Nome = new string('N', 150);
 
         Assert.Empty(ErrosDeValidacao(pedido));
-        await CriarServico(db).CriarAsync(pedido);
+        var dados = PedidoRui();
+        dados.Nome = pedido.Nome;
+        await CriarServico(db).CriarAsync(dados);
 
         Assert.Equal(150, Assert.Single(await db.Funcionarios.AsNoTracking().ToListAsync()).Nome.Length);
     }
@@ -205,7 +207,7 @@ public class UtilizadoresServiceTests
     [Fact(DisplayName = "UT-F001-082 — Um nome com 151 caracteres dá 400")]
     public void NomeCom151CaracteresERecusado()
     {
-        var pedido = PedidoRui();
+        var pedido = PedidoRuiHttp();
         pedido.Nome = new string('N', 151);
 
         Assert.Equal(
@@ -221,7 +223,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var servico = CriarServico(db);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => servico.CriarAsync(PedidoRui(perfil, podeRegistarApoio: false)));
 
         await NadaFoiGravadoAsync(db);
@@ -239,7 +241,7 @@ public class UtilizadoresServiceTests
             NullLogger<AuthService>.Instance,
             new RelogioFixo(Relogio));
 
-        var sessao = await authService.LoginAsync(new LoginRequestDto { Email = EmailRui, Password = PasswordInicial });
+        var sessao = await authService.LoginAsync(new Credenciais { Email = EmailRui, Password = PasswordInicial });
 
         Assert.False(string.IsNullOrEmpty(sessao.Token));
         Assert.Equal(Perfis.Veterinario, sessao.Utilizador.Perfil);
@@ -249,7 +251,7 @@ public class UtilizadoresServiceTests
     [Fact(DisplayName = "I065 — Os DTOs de resposta não têm campos de palavra-passe nem de hash (critério 4)")]
     public void DtosDeRespostaNaoTemCamposDePalavraPasse()
     {
-        foreach (var tipo in new[] { typeof(UtilizadorListItemDto), typeof(UtilizadorDto) })
+        foreach (var tipo in new[] { typeof(ResumoUtilizador), typeof(DetalheUtilizador) })
         {
             Assert.DoesNotContain(tipo.GetProperties(), propriedade =>
                 propriedade.Name.Contains("Password", StringComparison.OrdinalIgnoreCase)
@@ -258,17 +260,16 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-004 — Listar contas de funcionários -----
-
     [Fact(DisplayName = "UT-F001-098 — Filtrar por perfil Veterinario e estado Ativo devolve só os Veterinários ativos")]
     public async Task FiltroPorPerfilEEstadoDevolveSoVeterinariosAtivos()
     {
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores
         {
             Perfil = Perfis.Veterinario,
-            Estado = EstadosUtilizador.Ativo
+            Estado = EstadosUtilizador.Ativo,
         });
 
         Assert.Equal(2, resultado.Total);
@@ -285,8 +286,8 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Perfil = "Gestor" }));
+        await Assert.ThrowsAsync<ValidacaoException>(
+            () => CriarServico(db).ListarAsync(new PesquisaUtilizadores { Perfil = "Gestor" }));
     }
 
     [Fact(DisplayName = "I065 — Um estado fora da enumeração dá 400")]
@@ -294,8 +295,8 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Estado = "Suspenso" }));
+        await Assert.ThrowsAsync<ValidacaoException>(
+            () => CriarServico(db).ListarAsync(new PesquisaUtilizadores { Estado = "Suspenso" }));
     }
 
     [Fact(DisplayName = "I065 — Sem filtros, lista todas as contas de funcionário por nome e nunca as de Cliente")]
@@ -304,7 +305,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery());
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores());
 
         Assert.Equal(8, resultado.Total);
         Assert.Equal(
@@ -319,7 +320,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Perfil = Perfis.Cliente });
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores { Perfil = Perfis.Cliente });
 
         Assert.Empty(resultado.Itens);
         Assert.Equal(0, resultado.Total);
@@ -334,7 +335,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Pesquisa = pesquisa });
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores { Pesquisa = pesquisa });
 
         Assert.Equal(esperados, Nomes(resultado.Itens));
     }
@@ -348,8 +349,8 @@ public class UtilizadoresServiceTests
         await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var servico = CriarServico(db);
 
-        var pagina1 = await servico.ListarAsync(new UtilizadorFiltroQuery { Pagina = 1, Tamanho = 2 });
-        var pagina2 = await servico.ListarAsync(new UtilizadorFiltroQuery { Pagina = 2, Tamanho = 2 });
+        var pagina1 = await servico.ListarAsync(new PesquisaUtilizadores { Pagina = 1, Tamanho = 2 });
+        var pagina2 = await servico.ListarAsync(new PesquisaUtilizadores { Pagina = 2, Tamanho = 2 });
 
         Assert.Equal("Ana Admin", pagina1.Itens[0].Nome);
         Assert.Equal(primeira.Id, pagina1.Itens[1].Id);
@@ -362,7 +363,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery());
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores());
 
         Assert.Equal(1, resultado.Pagina);
         Assert.Equal(20, resultado.Tamanho);
@@ -378,14 +379,13 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         await CriarBaseComTodosOsPerfisAsync(db);
 
-        var resultado = await CriarServico(db).ListarAsync(new UtilizadorFiltroQuery { Pagina = pagina, Tamanho = tamanho });
+        var resultado = await CriarServico(db).ListarAsync(new PesquisaUtilizadores { Pagina = pagina, Tamanho = tamanho });
 
         Assert.Equal(esperados, Nomes(resultado.Itens));
         Assert.Equal(8, resultado.Total);
     }
 
     // ----- EP-005 — Consultar conta de funcionário -----
-
     [Fact(DisplayName = "I065 — A consulta devolve a conta de funcionário com a data de criação em UTC")]
     public async Task ConsultaDevolveTodosOsCampos()
     {
@@ -411,7 +411,7 @@ public class UtilizadoresServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(999));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterAsync(999));
     }
 
     [Fact(DisplayName = "I065 — Uma conta de Cliente dá 404 (EP-005 só consulta contas de funcionário)")]
@@ -420,11 +420,10 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).ObterAsync(cliente.Id));
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).ObterAsync(cliente.Id));
     }
 
     // ----- EP-007 — Atualizar conta de funcionário (I066) -----
-
     [Fact(DisplayName = "UT-F001-083 — Atualizar REC_A para Veterinario muda o perfil e os dados e devolve a conta")]
     public async Task AtualizarRececionistaParaVeterinario()
     {
@@ -462,7 +461,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, Perfis.Cliente)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -558,7 +557,7 @@ public class UtilizadoresServiceTests
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
         var vet = await AdicionarFuncionarioAsync(db, "Vera Vet", Perfis.Veterinario);
 
-        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+        var excecao = await Assert.ThrowsAsync<ConflitoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Lopes", vet.Email.ToUpperInvariant(), Perfis.Rececionista)));
 
         Assert.Equal("O e-mail indicado já é usado por outra conta.", excecao.Message);
@@ -573,7 +572,7 @@ public class UtilizadoresServiceTests
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ConflitoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", cliente.Email, Perfis.Rececionista)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -599,7 +598,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(
             999, admin.Id, PedidoAtualizacao("Rita Lopes", "rita.lopes" + Dominio, Perfis.Rececionista)));
     }
 
@@ -610,7 +609,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var cliente = await AdicionarClienteAsync(db, "Joao Costa", "joao.costa" + Dominio);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<NaoEncontradoException>(() => CriarServico(db).AtualizarAsync(
             cliente.Id, admin.Id, PedidoAtualizacao("Joao Costa", cliente.Email, Perfis.Rececionista)));
 
         Assert.Equal(Perfis.Cliente, (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == cliente.Id)).Perfil);
@@ -619,7 +618,12 @@ public class UtilizadoresServiceTests
     [Fact(DisplayName = "UT-F001-091 — Um e-mail sem formato válido dá 400 com o erro no campo email")]
     public void EmailInvalidoNaAtualizacaoERecusado()
     {
-        var pedido = PedidoAtualizacao("Rita Lopes", "rec", Perfis.Rececionista);
+        var pedido = new UpdateUtilizadorDto
+        {
+            Nome = "Rita Lopes",
+            Email = "rec",
+            Perfil = Perfis.Rececionista,
+        };
 
         var erro = Assert.Single(ErrosDeValidacao(pedido));
         Assert.Contains(nameof(UpdateUtilizadorDto.Email), erro.MemberNames);
@@ -634,7 +638,7 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).AtualizarAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(
             rececionista.Id, admin.Id, PedidoAtualizacao("Rita Rececao", rececionista.Email, perfil)));
 
         await ContaFicouInalteradaAsync(db, rececionista, "Rita Rececao");
@@ -656,7 +660,6 @@ public class UtilizadoresServiceTests
     }
 
     // ----- EP-008 — Bloquear conta de funcionário (I066) -----
-
     [Fact(DisplayName = "UT-F001-092 — Bloquear REC_A ativo passa o estado a Bloqueado")]
     public async Task BloquearContaAtiva()
     {
@@ -683,11 +686,34 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await CriarServico(db).BloquearAsync(rececionista.Id, admin.Id, new AlterarEstadoUtilizadorDto { Estado = estado });
+        await CriarServico(db).BloquearAsync(rececionista.Id, admin.Id, new BloqueioUtilizador { Estado = estado });
 
         Assert.Equal(
             EstadosUtilizador.Bloqueado,
             (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).Estado);
+    }
+
+    [Theory(DisplayName = "I066 — O motivo do bloqueio fica guardado sem espaços nas pontas; vazio ou em falta fica sem motivo")]
+    [InlineData("  Funcionário deixou a clínica.  ", "Funcionário deixou a clínica.")]
+    [InlineData("   ", null)]
+    [InlineData(null, null)]
+    public async Task MotivoDoBloqueioFicaGuardado(string? motivo, string? esperado)
+    {
+        using var db = CriarContexto();
+        var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
+        var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
+
+        await CriarServico(db).BloquearAsync(
+            rececionista.Id,
+            admin.Id,
+            new BloqueioUtilizador { Estado = EstadosUtilizador.Bloqueado, Motivo = motivo });
+
+        Assert.Equal(
+            esperado,
+            (await db.Utilizadores.AsNoTracking().SingleAsync(u => u.Id == rececionista.Id)).MotivoBloqueio);
+
+        // EP-005 devolve o motivo na ficha da conta.
+        Assert.Equal(esperado, (await CriarServico(db).ObterAsync(rececionista.Id)).MotivoBloqueio);
     }
 
     [Theory(DisplayName = "UT-F001-093 — Um estado diferente de Bloqueado dá 400 e a conta mantém-se ativa")]
@@ -699,8 +725,8 @@ public class UtilizadoresServiceTests
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
         var rececionista = await AdicionarFuncionarioAsync(db, "Rita Rececao", Perfis.Rececionista);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).BloquearAsync(
-            rececionista.Id, admin.Id, new AlterarEstadoUtilizadorDto { Estado = estado }));
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).BloquearAsync(
+            rececionista.Id, admin.Id, new BloqueioUtilizador { Estado = estado }));
 
         Assert.Equal(
             EstadosUtilizador.Ativo,
@@ -763,7 +789,7 @@ public class UtilizadoresServiceTests
         using var db = CriarContexto();
         var admin = await AdicionarFuncionarioAsync(db, "Ana Admin", Perfis.Administrador);
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).BloquearAsync(999, admin.Id, PedidoBloqueio()));
     }
 
@@ -780,15 +806,15 @@ public class UtilizadoresServiceTests
         await CriarServico(db).BloquearAsync(rui.Id, admin.Id, PedidoBloqueio());
 
         await Assert.ThrowsAsync<ForbiddenException>(() =>
-            authService.LoginAsync(new LoginRequestDto { Email = EmailRui, Password = PasswordInicial }));
+            authService.LoginAsync(new Credenciais { Email = EmailRui, Password = PasswordInicial }));
         Assert.False(await authService.SessaoValidaAsync(rui.Id, Perfis.Rececionista, "jti-emitido"));
     }
 
     // ----- Preparação dos dados -----
-
     private static ClinicaDbContext CriarContexto() =>
         new(new DbContextOptionsBuilder<ClinicaDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture))
+
             // O InMemory não tem transações (I028, secção 4.2): a transação do serviço é ignorada.
             .ConfigureWarnings(avisos => avisos.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options);
@@ -797,32 +823,32 @@ public class UtilizadoresServiceTests
         new(db, new PasswordHasher<Utilizador>(), new RelogioFixo(Relogio));
 
     /// <summary>Pedido do exemplo de EP-006 da Documentação da API, com um e-mail do domínio de teste.</summary>
-    private static CreateUtilizadorDto PedidoRui(string perfil = Perfis.AuxiliarVeterinario, bool podeRegistarApoio = true) => new()
+    private static NovoUtilizador PedidoRui(string perfil = Perfis.AuxiliarVeterinario, bool podeRegistarApoio = true) => new()
     {
         Nome = "Rui Lopes",
         Email = EmailRui,
         Telefone = "934567890",
         Perfil = perfil,
         PodeRegistarApoio = podeRegistarApoio,
-        PasswordInicial = PasswordInicial
+        PasswordInicial = PasswordInicial,
     };
 
     /// <summary>Pedido de EP-007 com o telefone por omissão.</summary>
-    private static UpdateUtilizadorDto PedidoAtualizacao(
+    private static AlteracaoUtilizador PedidoAtualizacao(
         string nome, string email, string perfil, bool podeRegistarApoio = false) => new()
         {
             Nome = nome,
             Email = email,
             Telefone = "934567890",
             Perfil = perfil,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         };
 
     /// <summary>Pedido do exemplo de EP-008 da Documentação da API.</summary>
-    private static AlterarEstadoUtilizadorDto PedidoBloqueio() => new()
+    private static BloqueioUtilizador PedidoBloqueio() => new()
     {
         Estado = EstadosUtilizador.Bloqueado,
-        Motivo = "Funcionário deixou a clínica."
+        Motivo = "Funcionário deixou a clínica.",
     };
 
     private static AuthService CriarAuthService(ClinicaDbContext db) => new(
@@ -873,7 +899,7 @@ public class UtilizadoresServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = estado,
-            DataCriacao = DataCriacaoExistente
+            DataCriacao = DataCriacaoExistente,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -883,7 +909,7 @@ public class UtilizadoresServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = telefone,
-            PodeRegistarApoio = podeRegistarApoio
+            PodeRegistarApoio = podeRegistarApoio,
         });
         await db.SaveChangesAsync();
 
@@ -898,7 +924,7 @@ public class UtilizadoresServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = DataCriacaoExistente
+            DataCriacao = DataCriacaoExistente,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -908,7 +934,7 @@ public class UtilizadoresServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = "960000001",
-            DataRegisto = DataCriacaoExistente
+            DataRegisto = DataCriacaoExistente,
         });
         await db.SaveChangesAsync();
 
@@ -920,6 +946,16 @@ public class UtilizadoresServiceTests
         Assert.Empty(await db.Utilizadores.AsNoTracking().ToListAsync());
         Assert.Empty(await db.Funcionarios.AsNoTracking().ToListAsync());
     }
+
+    private static CreateUtilizadorDto PedidoRuiHttp() => new()
+    {
+        Nome = "Rui Lopes",
+        Email = EmailRui,
+        Telefone = "934567890",
+        Perfil = Perfis.AuxiliarVeterinario,
+        PodeRegistarApoio = true,
+        PasswordInicial = PasswordInicial,
+    };
 
     private static List<ValidationResult> ErrosDeValidacao(UpdateUtilizadorDto pedido)
     {
@@ -936,6 +972,6 @@ public class UtilizadoresServiceTests
         return erro.ErrorMessage;
     }
 
-    private static string Nomes(IEnumerable<UtilizadorListItemDto> itens) =>
+    private static string Nomes(IEnumerable<ResumoUtilizador> itens) =>
         string.Join('|', itens.Select(item => item.Nome));
 }

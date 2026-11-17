@@ -1,5 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Animais;
-using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Animais;
+using ClinicaVeterinaria.Api.DTOs.Comum;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -35,7 +36,8 @@ public sealed class AnimaisController : ControllerBase
     public async Task<ActionResult<PagedResultDto<AnimalListItemDto>>> Pesquisar(
         [FromQuery] AnimalFiltroQuery filtro)
     {
-        return Ok(await _animaisService.PesquisarAsync(filtro));
+        var pagina = await _animaisService.PesquisarAsync(filtro.ParaModelo());
+        return Ok(pagina.ParaDto(item => item.ParaDto()));
     }
 
     /// <summary>EP-016 — Consultar ficha administrativa do paciente.</summary>
@@ -47,8 +49,10 @@ public sealed class AnimaisController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AnimalDto>> Obter(int id)
     {
-        return Ok(await _animaisService.ObterAsync(id));
+        var resultado = await _animaisService.ObterAsync(id);
+        return Ok(resultado.ParaDto());
     }
+
     /// <summary>EP-017 — Registar paciente.</summary>
     [HttpPost]
     [Authorize(Roles = PerfisPesquisa)]
@@ -59,12 +63,12 @@ public sealed class AnimaisController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AnimalDto>> Criar(CreateAnimalDto pedido)
     {
-        var animal = await _animaisService.CriarAsync(pedido);
+        var animal = await _animaisService.CriarAsync(pedido.ParaModelo());
 
         return CreatedAtAction(
             nameof(Obter),
             new { id = animal.Id },
-            animal);
+            animal.ParaDto());
     }
 
     /// <summary>EP-018 — Atualizar dados administrativos do paciente.</summary>
@@ -79,6 +83,7 @@ public sealed class AnimaisController : ControllerBase
         int id,
         UpdateAnimalDto pedido)
     {
-        return Ok(await _animaisService.AtualizarAsync(id, pedido));
+        var resultado = await _animaisService.AtualizarAsync(id, pedido.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 }

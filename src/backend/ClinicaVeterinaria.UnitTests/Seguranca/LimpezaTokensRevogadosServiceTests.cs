@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -155,10 +155,10 @@ public class LimpezaTokensRevogadosServiceTests
                 : Task.FromResult(3);
         }
 
-        public Task<LoginResponseDto> LoginAsync(LoginRequestDto pedido) =>
+        public Task<SessaoIniciada> LoginAsync(Credenciais pedido) =>
             throw new NotSupportedException();
 
-        public Task<UtilizadorAutenticadoDto> ObterAutenticadoAsync(int utilizadorId) =>
+        public Task<UtilizadorAutenticado> ObterAutenticadoAsync(int utilizadorId) =>
             throw new NotSupportedException();
 
         public Task<bool> SessaoValidaAsync(int utilizadorId, string perfil, string jti) =>

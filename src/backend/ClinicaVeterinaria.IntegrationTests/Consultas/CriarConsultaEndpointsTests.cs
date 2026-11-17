@@ -70,7 +70,7 @@ public sealed class CriarConsultaEndpointsTests :
         {
             ["animalId"] = await ObterAnimalIdAsync("Bobi"),
             ["veterinarioId"] = await ObterUtilizadorIdAsync(EmailVetAna),
-            ["dataHora"] = Texto(InicioUtc(QuartaFeiraFutura(), 10, 0))
+            ["dataHora"] = Texto(InicioUtc(QuartaFeiraFutura(), 10, 0)),
         };
         corpo.Remove(campoEmFalta);
         using var cliente = await ClienteDeAsync(EmailRececao);
@@ -258,14 +258,13 @@ public sealed class CriarConsultaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static Dictionary<string, object?> Corpo(int animalId, int veterinarioId, DateTime dataHoraUtc, string? motivo = null) =>
         new()
         {
             ["animalId"] = animalId,
             ["veterinarioId"] = veterinarioId,
             ["dataHora"] = Texto(dataHoraUtc),
-            ["motivo"] = motivo
+            ["motivo"] = motivo,
         };
 
     /// <summary>Quarta-feira pelo menos 28 dias depois de hoje (hora de Lisboa), como nos testes da I071.</summary>

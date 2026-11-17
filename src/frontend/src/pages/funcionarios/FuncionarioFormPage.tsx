@@ -200,6 +200,12 @@ export function FuncionarioFormPage({
         <p className="detalhe-conta">
           Estado: <strong>{funcionario.estado}</strong> · Conta criada em{" "}
           {dataHora(funcionario.criadoEm)}
+          {funcionario.estado === "Bloqueado" ? (
+            <>
+              <br />
+              Motivo do bloqueio: {funcionario.motivoBloqueio ?? "não indicado"}
+            </>
+          ) : null}
         </p>
       ) : null}
 

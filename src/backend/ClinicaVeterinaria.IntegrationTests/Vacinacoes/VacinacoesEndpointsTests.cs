@@ -19,12 +19,8 @@ namespace ClinicaVeterinaria.IntegrationTests.Vacinacoes;
 /// e a matriz de perfis (401 e 403).
 /// </summary>
 /// <remarks>
-/// Dados da I061 (todos registados pela vet.ana): Bobi (João) com a vacina antirrábica de
-/// 2025-10-14 (365 dias), a vacina polivalente de 2026-10-14 (365 dias, próxima 2027-10-14) e o
-/// desparasitante interno de 2026-10-14 (90 dias, próxima 2027-01-12); Kiko (Maria) com o
-/// desparasitante externo de 2026-08-01, sem intervalo; Mia (João) sem registos. Estes testes correm
-/// com o relógio real, por isso as datas «futuras» são calculadas a partir de hoje e as próximas
-/// administrações verificadas são as de 2027.
+/// Os dados da I061 incluem duas vacinas e uma desparasitação do Bobi, uma desparasitação
+/// do Kiko sem intervalo e a Mia sem registos. O script calcula as datas à data de carga.
 /// </remarks>
 public sealed class VacinacoesEndpointsTests :
     TesteIntegracaoBase,
@@ -41,7 +37,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- EP-042 — Consultar boletim do paciente (web) -----
-
     [Fact(DisplayName = "IT-EP042-01 — animal com administrações: 200 com o histórico (mais recente primeiro) e as próximas")]
     public async Task BoletimComHistoricoEProximas()
     {
@@ -57,22 +52,20 @@ public sealed class VacinacoesEndpointsTests :
 
         var administracoes = raiz.GetProperty("administracoes").EnumerateArray().ToList();
         Assert.Equal(3, administracoes.Count);
-        Assert.Equal("2026-10-14", administracoes[0].GetProperty("dataAdministracao").GetString());
-        Assert.Equal("2025-10-14", administracoes[2].GetProperty("dataAdministracao").GetString());
+        var dataAdministracao = administracoes[0].GetProperty("dataAdministracao").Deserialize<DateOnly>();
+        Assert.Equal("RB-2291", administracoes[2].GetProperty("lote").GetString());
+        Assert.True(administracoes[2].GetProperty("dataAdministracao").Deserialize<DateOnly>() < dataAdministracao);
         Assert.Equal("Dra. Ana Veterinária (demonstração)", administracoes[0].GetProperty("veterinario").GetString());
 
         var desparasitante = administracoes.Single(a => a.GetProperty("lote").GetString() == "DP-0042");
         Assert.Equal("Desparasitacao", desparasitante.GetProperty("tipo").GetString());
         Assert.Equal(90, desparasitante.GetProperty("intervaloDias").GetInt32());
-        Assert.Equal("2027-01-12", desparasitante.GetProperty("dataProximaPrevista").GetString());
+        Assert.Equal(dataAdministracao.AddDays(90), desparasitante.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
 
         // As próximas que ainda não passaram, da mais próxima para a mais distante.
         var proximas = raiz.GetProperty("proximas").EnumerateArray()
-            .Select(p => p.GetProperty("dataProximaPrevista").GetString())
-            .ToList();
-        Assert.Contains("2027-01-12", proximas);
-        Assert.Contains("2027-10-14", proximas);
-        Assert.Equal(proximas.Order(StringComparer.Ordinal), proximas);
+            .Select(p => p.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
+        Assert.Equal([dataAdministracao.AddDays(90), dataAdministracao.AddDays(365)], proximas);
     }
 
     [Theory(DisplayName = "IT-EP042-02 e IT-EP042-03 — tipo=Vacina e tipo=Desparasitacao filtram o boletim")]
@@ -90,9 +83,8 @@ public sealed class VacinacoesEndpointsTests :
         var administracoes = documento.RootElement.GetProperty("administracoes").EnumerateArray().ToList();
         Assert.Equal(esperadas, administracoes.Count);
         Assert.All(administracoes, a => Assert.Equal(tipo, a.GetProperty("tipo").GetString()));
-        Assert.All(
-            documento.RootElement.GetProperty("proximas").EnumerateArray(),
-            p => Assert.Equal(tipo, p.GetProperty("tipo").GetString()));
+        var proxima = Assert.Single(documento.RootElement.GetProperty("proximas").EnumerateArray());
+        Assert.Equal(tipo, proxima.GetProperty("tipo").GetString());
     }
 
     [Fact(DisplayName = "IT-EP042-04 — tipo inválido devolve 400")]
@@ -131,17 +123,17 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- EP-043 — Registar vacinação ou desparasitação -----
-
     [Fact(DisplayName = "IT-EP043-01 e IT-EP043-02 — dados válidos com 90 dias: 201, persistido e dataProximaPrevista = data + 90 (também na coluna calculada)")]
     public async Task RegistaComIntervalo()
     {
         var mia = await ObterAnimalIdAsync("Mia");
         var vetAna = await ObterUtilizadorIdAsync(EmailVetAna);
+        var dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30);
         using var cliente = await ClienteDeAsync(EmailVetAna);
 
         using var resposta = await cliente.PostAsJsonAsync(
             $"/animais/{mia}/vacinacoes",
-            new { tipo = "Desparasitacao", produto = "Desparasitante interno Y", lote = "DP-0042", dataAdministracao = "2026-10-14", intervaloDias = 90 });
+            new { tipo = "Desparasitacao", produto = "Desparasitante interno Y", lote = "DP-0042", dataAdministracao, intervaloDias = 90 });
 
         Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
@@ -149,9 +141,9 @@ public sealed class VacinacoesEndpointsTests :
         var id = raiz.GetProperty("id").GetInt32();
         Assert.Equal($"/animais/{mia}/vacinacoes/{id}", resposta.Headers.Location!.OriginalString);
         Assert.Equal("Desparasitacao", raiz.GetProperty("tipo").GetString());
-        Assert.Equal("2026-10-14", raiz.GetProperty("dataAdministracao").GetString());
+        Assert.Equal(dataAdministracao, raiz.GetProperty("dataAdministracao").Deserialize<DateOnly>());
         Assert.Equal(90, raiz.GetProperty("intervaloDias").GetInt32());
-        Assert.Equal("2027-01-12", raiz.GetProperty("dataProximaPrevista").GetString());
+        Assert.Equal(dataAdministracao.AddDays(90), raiz.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
         Assert.Equal("Dra. Ana Veterinária (demonstração)", raiz.GetProperty("veterinario").GetString());
 
         using var scope = Fixture.Factory.Services.CreateScope();
@@ -160,7 +152,7 @@ public sealed class VacinacoesEndpointsTests :
         Assert.Equal(mia, gravado.PacienteId);
         Assert.Equal(vetAna, gravado.VeterinarioId);
         Assert.Equal("DP-0042", gravado.Lote);
-        Assert.Equal(new DateOnly(2027, 1, 12), gravado.DataProximaAdministracao);
+        Assert.Equal(dataAdministracao.AddDays(90), gravado.DataProximaAdministracao);
     }
 
     [Fact(DisplayName = "IT-EP043-03 — sem intervalo: 201 com dataProximaPrevista = null")]
@@ -171,7 +163,7 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PostAsJsonAsync(
             $"/animais/{mia}/vacinacoes",
-            new { tipo = "Vacina", produto = "Vacina felina (fictícia)", lote = "VF-0001", dataAdministracao = "2026-10-20" });
+            new { tipo = "Vacina", produto = "Vacina felina (fictícia)", lote = "VF-0001", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-10) });
 
         Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
@@ -185,19 +177,23 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     [Theory(DisplayName = "IT-EP043-04 — tipo, produto, lote ou data em falta (ou tipo inválido) devolvem 400")]
-    [InlineData("""{ "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }""")]
-    [InlineData("""{ "tipo": "Vacina", "lote": "L1", "dataAdministracao": "2026-10-14" }""")]
-    [InlineData("""{ "tipo": "Vacina", "produto": "Vacina X", "dataAdministracao": "2026-10-14" }""")]
-    [InlineData("""{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1" }""")]
-    [InlineData("""{ "tipo": "Vacinas", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }""")]
-    public async Task CampoEmFaltaDevolve400(string corpo)
+    [InlineData("tipo", """{ "produto": "Vacina X", "lote": "L1" }""")]
+    [InlineData("produto", """{ "tipo": "Vacina", "lote": "L1" }""")]
+    [InlineData("lote", """{ "tipo": "Vacina", "produto": "Vacina X" }""")]
+    [InlineData("dataAdministracao", """{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1" }""")]
+    [InlineData("tipo", """{ "tipo": "Vacinas", "produto": "Vacina X", "lote": "L1" }""")]
+    public async Task CampoEmFaltaDevolve400(string campo, string corpo)
     {
         var mia = await ObterAnimalIdAsync("Mia");
         var antes = await ContarAsync();
         using var cliente = await ClienteDeAsync(EmailVetAna);
-        using var conteudo = new StringContent(corpo, System.Text.Encoding.UTF8, "application/json");
+        var pedido = JsonSerializer.Deserialize<Dictionary<string, object>>(corpo)!;
+        if (campo != "dataAdministracao")
+        {
+            pedido["dataAdministracao"] = DadosTeste.HojeEmLisboa().AddDays(-30);
+        }
 
-        using var resposta = await cliente.PostAsync($"/animais/{mia}/vacinacoes", conteudo);
+        using var resposta = await cliente.PostAsJsonAsync($"/animais/{mia}/vacinacoes", pedido);
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
         Assert.Equal(antes, await ContarAsync());
@@ -208,7 +204,7 @@ public sealed class VacinacoesEndpointsTests :
     {
         var mia = await ObterAnimalIdAsync("Mia");
         var antes = await ContarAsync();
-        var depoisDeAmanha = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(2).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        var depoisDeAmanha = DadosTeste.HojeEmLisboa().AddDays(2);
         using var cliente = await ClienteDeAsync(EmailVetAna);
 
         using var resposta = await cliente.PostAsJsonAsync(
@@ -229,7 +225,7 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PostAsJsonAsync(
             $"/animais/{mia}/vacinacoes",
-            new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = "2026-10-14", intervaloDias });
+            new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30), intervaloDias });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
     }
@@ -241,35 +237,35 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PostAsJsonAsync(
             "/animais/999999/vacinacoes",
-            new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = "2026-10-14", intervaloDias = 365 });
+            new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30), intervaloDias = 365 });
 
         await AssertErroAsync(resposta, HttpStatusCode.NotFound);
     }
 
     // ----- RF056 — Atualizar vacinação ou desparasitação (I082, critério 4) -----
-
     [Fact(DisplayName = "I082 — atualizar a data e o intervalo: 200 e a próxima é recalculada (resposta e coluna calculada)")]
     public async Task AtualizaERecalcula()
     {
         var bobi = await ObterAnimalIdAsync("Bobi");
         var id = await ObterAdministracaoIdAsync(bobi, "DP-0042");
+        var dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-10);
         using var cliente = await ClienteDeAsync(EmailVetAna);
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{id}",
-            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao = "2026-10-20", intervaloDias = 30 });
+            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao, intervaloDias = 30 });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
         Assert.Equal(id, documento.RootElement.GetProperty("id").GetInt32());
-        Assert.Equal("2026-10-20", documento.RootElement.GetProperty("dataAdministracao").GetString());
-        Assert.Equal("2026-11-19", documento.RootElement.GetProperty("dataProximaPrevista").GetString());
+        Assert.Equal(dataAdministracao, documento.RootElement.GetProperty("dataAdministracao").Deserialize<DateOnly>());
+        Assert.Equal(dataAdministracao.AddDays(30), documento.RootElement.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
 
         using var scope = Fixture.Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ClinicaDbContext>();
         var gravado = await db.RegistosProfilaxias.AsNoTracking().SingleAsync(r => r.Id == id);
-        Assert.Equal(new DateOnly(2026, 10, 20), gravado.DataAdministracao);
-        Assert.Equal(new DateOnly(2026, 11, 19), gravado.DataProximaAdministracao);
+        Assert.Equal(dataAdministracao, gravado.DataAdministracao);
+        Assert.Equal(dataAdministracao.AddDays(30), gravado.DataProximaAdministracao);
         Assert.Equal(bobi, gravado.PacienteId);
     }
 
@@ -282,7 +278,7 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{id}",
-            new { tipo = "Vacina", produto = "Vacina polivalente (fictícia)", lote = "PV-1187", dataAdministracao = "2026-10-14" });
+            new { tipo = "Vacina", produto = "Vacina polivalente (fictícia)", lote = "PV-1187", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30) });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
@@ -302,7 +298,7 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{id}",
-            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao = "2026-10-14", intervaloDias = 0 });
+            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30), intervaloDias = 0 });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
 
@@ -318,7 +314,7 @@ public sealed class VacinacoesEndpointsTests :
         var kiko = await ObterAnimalIdAsync("Kiko");
         var doKiko = await ObterAdministracaoIdAsync(kiko, "DE-0310");
         using var cliente = await ClienteDeAsync(EmailVetAna);
-        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = "2026-10-14" };
+        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30) };
 
         using var deOutroAnimal = await cliente.PutAsJsonAsync($"/animais/{bobi}/vacinacoes/{doKiko}", corpo);
         using var inexistente = await cliente.PutAsJsonAsync($"/animais/{bobi}/vacinacoes/999999", corpo);
@@ -336,13 +332,12 @@ public sealed class VacinacoesEndpointsTests :
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{id}",
-            new { tipo = "Desparasitacao", produto = "Outro", lote = "DP-0042", dataAdministracao = "2026-10-14", intervaloDias = 90 });
+            new { tipo = "Desparasitacao", produto = "Outro", lote = "DP-0042", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30), intervaloDias = 90 });
 
         await AssertErroAsync(resposta, HttpStatusCode.Forbidden);
     }
 
     // ----- EP-044 — Consultar boletim do meu animal (Cliente) -----
-
     [Fact(DisplayName = "IT-EP044-01 — o João consulta o Bobi: 200 com o histórico e as próximas")]
     public async Task ClienteConsultaOSeuAnimal()
     {
@@ -355,17 +350,16 @@ public sealed class VacinacoesEndpointsTests :
         using var documento = await LerAsync(resposta);
         var historico = documento.RootElement.GetProperty("historico").EnumerateArray().ToList();
         Assert.Equal(3, historico.Count);
-        Assert.Equal("2026-10-14", historico[0].GetProperty("dataAdministracao").GetString());
+        var dataAdministracao = historico[0].GetProperty("dataAdministracao").Deserialize<DateOnly>();
+        Assert.True(historico[2].GetProperty("dataAdministracao").Deserialize<DateOnly>() < dataAdministracao);
 
         // O Cliente vê só tipo, produto e data (MeuBoletimDto): sem lote nem Veterinário.
         Assert.False(historico[0].TryGetProperty("lote", out _));
         Assert.False(historico[0].TryGetProperty("veterinario", out _));
 
         var proximas = documento.RootElement.GetProperty("proximas").EnumerateArray()
-            .Select(p => p.GetProperty("dataProximaPrevista").GetString())
-            .ToList();
-        Assert.Contains("2027-01-12", proximas);
-        Assert.Contains("2027-10-14", proximas);
+            .Select(p => p.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
+        Assert.Equal([dataAdministracao.AddDays(90), dataAdministracao.AddDays(365)], proximas);
     }
 
     [Fact(DisplayName = "IT-EP044-01 — a Maria consulta o Kiko: só o histórico do Kiko, sem próximas")]
@@ -379,7 +373,8 @@ public sealed class VacinacoesEndpointsTests :
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
         var historico = Assert.Single(documento.RootElement.GetProperty("historico").EnumerateArray().ToList());
-        Assert.Equal("2026-08-01", historico.GetProperty("dataAdministracao").GetString());
+        var hoje = DadosTeste.HojeEmLisboa();
+        Assert.InRange(historico.GetProperty("dataAdministracao").Deserialize<DateOnly>(), hoje.AddDays(-61), hoje.AddDays(-60));
         Assert.Empty(documento.RootElement.GetProperty("proximas").EnumerateArray());
     }
 
@@ -422,7 +417,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- Perfis sem acesso e pedidos sem token (I082, critério 6) -----
-
     [Theory(DisplayName = "I082 — só o Veterinário: Rececionista, Auxiliar, Administrador e Cliente recebem 403 em EP-042, EP-043 e na atualização")]
     [InlineData("rececao@clinica-g08.test")]
     [InlineData("aux.carla@clinica-g08.test")]
@@ -434,7 +428,7 @@ public sealed class VacinacoesEndpointsTests :
         var id = await ObterAdministracaoIdAsync(bobi, "DP-0042");
         var antes = await ContarAsync();
         using var cliente = await ClienteDeAsync(email);
-        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = "2026-10-14", intervaloDias = 365 };
+        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30), intervaloDias = 365 };
 
         using var boletim = await cliente.GetAsync($"/animais/{bobi}/vacinacoes");
         using var registar = await cliente.PostAsJsonAsync($"/animais/{bobi}/vacinacoes", corpo);
@@ -461,7 +455,7 @@ public sealed class VacinacoesEndpointsTests :
     public async Task SemTokenDevolve401()
     {
         using var cliente = Fixture.Factory.CreateClient();
-        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = "2026-10-14" };
+        var corpo = new { tipo = "Vacina", produto = "Vacina X", lote = "L1", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30) };
 
         using var boletim = await cliente.GetAsync("/animais/1/vacinacoes");
         using var registar = await cliente.PostAsJsonAsync("/animais/1/vacinacoes", corpo);
@@ -475,7 +469,6 @@ public sealed class VacinacoesEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static async Task<JsonDocument> LerAsync(HttpResponseMessage resposta) =>
         JsonDocument.Parse(await resposta.Content.ReadAsStringAsync());
 

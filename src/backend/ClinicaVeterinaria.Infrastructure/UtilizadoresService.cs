@@ -1,7 +1,7 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Utilizadores;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Utilizadores;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +20,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
     private const string MensagemNaoEncontrado = "A conta de funcionário indicada não existe.";
     private const string MensagemEmailRegistado = "Já existe uma conta registada com este e-mail.";
     private const string MensagemEmailUsado = "O e-mail indicado já é usado por outra conta.";
+    private const string MensagemJaBloqueada = "A conta já está bloqueada.";
 
     // Violação de índice único no SQL Server (UQ_Utilizador_Email).
     private const int ErroChaveDuplicada = 2601;
@@ -41,7 +42,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<UtilizadorListItemDto>> ListarAsync(UtilizadorFiltroQuery filtro)
+    public async Task<PaginaResultados<ResumoUtilizador>> ListarAsync(PesquisaUtilizadores filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -51,6 +52,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var consulta =
             from u in _db.Utilizadores.AsNoTracking()
             join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
+
             // Garante que uma conta de Cliente nunca aparece, mesmo com dados incoerentes.
             where u.Perfil != Perfis.Cliente
             select new { Utilizador = u, Funcionario = f };
@@ -78,7 +80,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<UtilizadorListItemDto> itens = [];
+        List<ResumoUtilizador> itens = [];
 
         if (salto < total)
         {
@@ -88,28 +90,28 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 .ThenBy(x => x.Utilizador.Id)
                 .Skip((int)salto)
                 .Take(filtro.Tamanho)
-                .Select(x => new UtilizadorListItemDto
+                .Select(x => new ResumoUtilizador
                 {
                     Id = x.Utilizador.Id,
                     Nome = x.Funcionario.Nome,
                     Email = x.Utilizador.Email,
                     Perfil = x.Utilizador.Perfil,
                     Estado = x.Utilizador.Estado,
-                    PodeRegistarApoio = x.Funcionario.PodeRegistarApoio
+                    PodeRegistarApoio = x.Funcionario.PodeRegistarApoio,
                 })
                 .ToListAsync();
         }
 
-        return new PagedResultDto<UtilizadorListItemDto>
+        return new PaginaResultados<ResumoUtilizador>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
-    public async Task<UtilizadorDto> ObterAsync(int id)
+    public async Task<DetalheUtilizador> ObterAsync(int id)
     {
         var dados = await (
                 from u in _db.Utilizadores.AsNoTracking()
@@ -117,9 +119,9 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 where u.Id == id && u.Perfil != Perfis.Cliente
                 select new { Utilizador = u, Funcionario = f })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
-        return new UtilizadorDto
+        return new DetalheUtilizador
         {
             Id = dados.Utilizador.Id,
             Nome = dados.Funcionario.Nome,
@@ -127,17 +129,18 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Telefone = dados.Funcionario.Telefone,
             Perfil = dados.Utilizador.Perfil,
             Estado = dados.Utilizador.Estado,
+            MotivoBloqueio = dados.Utilizador.MotivoBloqueio,
             PodeRegistarApoio = dados.Funcionario.PodeRegistarApoio,
-            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc)
+            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc),
         };
     }
 
-    public async Task<UtilizadorListItemDto> CriarAsync(CreateUtilizadorDto pedido)
+    public async Task<ResumoUtilizador> CriarAsync(NovoUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
         var perfil = NormalizarFiltro(pedido.Perfil, Perfis.Todos, "perfil")
-            ?? throw new ArgumentException("O perfil é obrigatório.");
+            ?? throw new ValidacaoException("O perfil é obrigatório.");
 
         // Regras de negócio do contrato (422), verificadas antes da unicidade do e-mail.
         if (perfil == Perfis.Cliente)
@@ -152,7 +155,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         if (await _db.Utilizadores.AnyAsync(u => u.Email == email))
         {
-            throw new InvalidOperationException(MensagemEmailRegistado);
+            throw new ConflitoException(MensagemEmailRegistado);
         }
 
         var utilizador = new Utilizador
@@ -160,7 +163,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Email = email,
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Agora()
+            DataCriacao = Agora(),
         };
         utilizador.PasswordHash = _passwordHasher.HashPassword(utilizador, pedido.PasswordInicial);
 
@@ -168,7 +171,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         {
             Nome = pedido.Nome.Trim(),
             Telefone = string.IsNullOrWhiteSpace(pedido.Telefone) ? null : pedido.Telefone.Trim(),
-            PodeRegistarApoio = pedido.PodeRegistarApoio
+            PodeRegistarApoio = pedido.PodeRegistarApoio,
         };
 
         // Utilizador e Funcionario são criados juntos ou não é criado nenhum.
@@ -183,28 +186,28 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         await transacao.CommitAsync();
 
-        return new UtilizadorListItemDto
+        return new ResumoUtilizador
         {
             Id = utilizador.Id,
             Nome = funcionario.Nome,
             Email = utilizador.Email,
             Perfil = utilizador.Perfil,
             Estado = utilizador.Estado,
-            PodeRegistarApoio = funcionario.PodeRegistarApoio
+            PodeRegistarApoio = funcionario.PodeRegistarApoio,
         };
     }
 
-    public async Task<UtilizadorDto> AtualizarAsync(int id, int administradorId, UpdateUtilizadorDto pedido)
+    public async Task<DetalheUtilizador> AtualizarAsync(int id, int administradorId, AlteracaoUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
         var perfil = NormalizarFiltro(pedido.Perfil, Perfis.Todos, "perfil")
-            ?? throw new ArgumentException("O perfil é obrigatório.");
+            ?? throw new ValidacaoException("O perfil é obrigatório.");
 
         // Em EP-007 o contrato prevê 400 para o perfil Cliente (em EP-006 é 422).
         if (perfil == Perfis.Cliente)
         {
-            throw new ArgumentException(
+            throw new ValidacaoException(
                 "O perfil Cliente não pode ser atribuído a uma conta de funcionário; as contas de Cliente são geridas em /clientes.");
         }
 
@@ -214,7 +217,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 where u.Id == id && u.Perfil != Perfis.Cliente
                 select new { Utilizador = u, Funcionario = f })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         // Regras de negócio do contrato (422), verificadas antes da unicidade do e-mail.
         if (id == administradorId && perfil != Perfis.Administrador)
@@ -232,7 +235,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // O próprio e-mail não conta como conflito.
         if (await _db.Utilizadores.AnyAsync(u => u.Email == email && u.Id != id))
         {
-            throw new InvalidOperationException(MensagemEmailUsado);
+            throw new ConflitoException(MensagemEmailUsado);
         }
 
         dados.Utilizador.Email = email;
@@ -245,7 +248,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // Um token emitido com o perfil antigo deixa de ser aceite no pedido seguinte (EP-003).
         await GravarAsync(MensagemEmailUsado);
 
-        return new UtilizadorDto
+        return new DetalheUtilizador
         {
             Id = dados.Utilizador.Id,
             Nome = dados.Funcionario.Nome,
@@ -253,24 +256,25 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Telefone = dados.Funcionario.Telefone,
             Perfil = dados.Utilizador.Perfil,
             Estado = dados.Utilizador.Estado,
+            MotivoBloqueio = dados.Utilizador.MotivoBloqueio,
             PodeRegistarApoio = dados.Funcionario.PodeRegistarApoio,
-            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc)
+            CriadoEm = DateTime.SpecifyKind(dados.Utilizador.DataCriacao, DateTimeKind.Utc),
         };
     }
 
-    public async Task BloquearAsync(int id, int administradorId, AlterarEstadoUtilizadorDto pedido)
+    public async Task BloquearAsync(int id, int administradorId, BloqueioUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
         // EP-008 só bloqueia; o desbloqueio não faz parte do contrato.
         if (!string.Equals(pedido.Estado?.Trim(), EstadosUtilizador.Bloqueado, StringComparison.OrdinalIgnoreCase))
         {
-            throw new ArgumentException(
+            throw new ValidacaoException(
                 $"O estado '{pedido.Estado?.Trim()}' é inválido. Neste endpoint só é aceite {EstadosUtilizador.Bloqueado}.");
         }
 
         var utilizador = await _db.Utilizadores.FirstOrDefaultAsync(u => u.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         // Ao contrário de EP-005 e EP-007, uma conta de Cliente existe e dá 422 (contrato de EP-008).
         if (utilizador.Perfil == Perfis.Cliente)
@@ -286,13 +290,31 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         if (utilizador.Estado == EstadosUtilizador.Bloqueado)
         {
-            throw new UnprocessableEntityException("A conta já está bloqueada.");
+            throw new UnprocessableEntityException(MensagemJaBloqueada);
         }
 
-        utilizador.Estado = EstadosUtilizador.Bloqueado;
+        var motivo = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim();
 
-        // Efeito imediato: EP-001 passa a devolver 403 e os tokens já emitidos são
-        // rejeitados com 401 no pedido seguinte, porque cada pedido confirma o estado da conta.
+        if (_db.Database.IsRelational())
+        {
+            // O estado e o motivo são gravados juntos. Apenas o primeiro pedido encontra a conta ativa.
+            var alterados = await _db.Utilizadores
+                .Where(u => u.Id == id && u.Estado == EstadosUtilizador.Ativo)
+                .ExecuteUpdateAsync(campos => campos
+                    .SetProperty(u => u.Estado, EstadosUtilizador.Bloqueado)
+                    .SetProperty(u => u.MotivoBloqueio, motivo));
+
+            if (alterados == 0)
+            {
+                throw new UnprocessableEntityException(MensagemJaBloqueada);
+            }
+
+            return;
+        }
+
+        // O fornecedor em memória usado pelos testes unitários só suporta SaveChangesAsync.
+        utilizador.Estado = EstadosUtilizador.Bloqueado;
+        utilizador.MotivoBloqueio = motivo;
         await _db.SaveChangesAsync();
     }
 
@@ -320,7 +342,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         var texto = valor.Trim();
 
         return permitidos.FirstOrDefault(p => string.Equals(p, texto, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException($"O {campo} '{texto}' é inválido. Valores permitidos: {string.Join(", ", permitidos)}.");
+            ?? throw new ValidacaoException($"O {campo} '{texto}' é inválido. Valores permitidos: {string.Join(", ", permitidos)}.");
     }
 
     /// <summary>
@@ -338,7 +360,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             Number: ErroChaveDuplicada or ErroRestricaoUnica
         })
         {
-            throw new InvalidOperationException(mensagemConflito, ex);
+            throw new ConflitoException(mensagemConflito, ex);
         }
     }
 

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -55,8 +55,8 @@ public sealed class ConsultasService : IConsultasService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<ConsultaListItemDto>> ObterConsultasAsync(
-        ConsultaFiltroQuery filtro,
+    public async Task<PaginaResultados<ResumoConsulta>> ObterConsultasAsync(
+        PesquisaConsultas filtro,
         AcessoConsultas acesso)
     {
         ArgumentNullException.ThrowIfNull(filtro);
@@ -109,7 +109,7 @@ public sealed class ConsultasService : IConsultasService
         // Em long, como em EP-004: uma página muito alta não pode dar um salto negativo.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<ConsultaListItemDto> itens = [];
+        List<ResumoConsulta> itens = [];
 
         if (salto < total)
         {
@@ -121,12 +121,12 @@ public sealed class ConsultasService : IConsultasService
             itens = linhas.Select(ParaItem).ToList();
         }
 
-        return new PagedResultDto<ConsultaListItemDto>
+        return new PaginaResultados<ResumoConsulta>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
@@ -136,7 +136,7 @@ public sealed class ConsultasService : IConsultasService
 
         var linha = await ComDetalhes(_db.Marcacoes.AsNoTracking().Where(m => m.Id == id))
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (acesso.VeterinarioId is int veterinarioId && linha.VeterinarioId != veterinarioId)
         {
@@ -151,32 +151,33 @@ public sealed class ConsultasService : IConsultasService
                 select new { i.Id, i.Descricao, Autor = f.Nome, i.DataRegisto })
             .ToListAsync();
 
-        var consulta = new ConsultaDto
+        var consulta = new DetalheConsulta
         {
             Id = linha.Id,
             DataHora = Utc(linha.DataHoraInicio),
             DuracaoMinutos = linha.DuracaoMinutos,
             Estado = linha.Estado,
             Motivo = linha.Motivo,
+            Observacao = linha.Observacao,
             Animal = Animal(linha),
             Cliente = Cliente(linha),
             Veterinario = Veterinario(linha),
             ChegadaEm = Utc(linha.DataHoraChegada),
             NotasPreparacao = notas
-                .Select(n => new NotaPreparacaoDto
+                .Select(n => new NotaPreparacao
                 {
                     Id = n.Id,
                     Texto = n.Descricao,
                     Autor = n.Autor,
-                    CriadaEm = Utc(n.DataRegisto)
+                    CriadaEm = Utc(n.DataRegisto),
                 })
-                .ToList()
+                .ToList(),
         };
 
         return new ConsultaComVersao(consulta, VersaoMarcacao.ParaETag(linha.RowVersion));
     }
 
-    public async Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId)
+    public async Task<ConsultaComVersao> CriarConsultaAsync(NovaConsulta pedido, int criadaPorId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(criadaPorId);
@@ -193,12 +194,12 @@ public sealed class ConsultasService : IConsultasService
         // Estritamente futura: a hora atual já não serve (UT-F003-020, UT-F003-021).
         if (inicioUtc <= agoraUtc)
         {
-            throw new ArgumentException(MensagemDataNaoFutura);
+            throw new ValidacaoException(MensagemDataNaoFutura);
         }
 
         if (!await _db.Pacientes.AsNoTracking().AnyAsync(p => p.Id == animalId))
         {
-            throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
         }
 
         // Mesma regra de EP-021 e EP-022: conta ativa, perfil Veterinário e registo de funcionário.
@@ -213,7 +214,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!veterinarioAtivo)
         {
-            throw new KeyNotFoundException(MensagemVeterinarioNaoEncontrado);
+            throw new NaoEncontradoException(MensagemVeterinarioNaoEncontrado);
         }
 
         var duracaoMinutos = DuracaoConsulta.Ler(await _db.ConfiguracaoSistema.AsNoTracking()
@@ -266,7 +267,7 @@ public sealed class ConsultasService : IConsultasService
             Motivo = string.IsNullOrWhiteSpace(pedido.Motivo) ? null : pedido.Motivo.Trim(),
             Estado = EstadosConsulta.Pendente,
             CriadaPorId = criadaPorId,
-            DataCriacao = ParaUtcAoSegundo(agoraUtc)
+            DataCriacao = ParaUtcAoSegundo(agoraUtc),
         };
 
         _db.Marcacoes.Add(marcacao);
@@ -283,7 +284,7 @@ public sealed class ConsultasService : IConsultasService
 
     public async Task<ConsultaComVersao> AtualizarConsultaAsync(
     int id,
-    UpdateConsultaDto pedido,
+    AlteracaoConsulta pedido,
     string? ifMatch)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -296,12 +297,12 @@ public sealed class ConsultasService : IConsultasService
 
         if (inicioUtc <= agoraUtc)
         {
-            throw new ArgumentException(MensagemDataNaoFutura);
+            throw new ValidacaoException(MensagemDataNaoFutura);
         }
 
         var marcacao = await _db.Marcacoes
             .FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         // If-Match é opcional. Quando vem indicado, tem de corresponder
         // fortemente à RowVersion atual.
@@ -334,7 +335,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!veterinarioAtivo)
         {
-            throw new KeyNotFoundException(MensagemVeterinarioNaoEncontrado);
+            throw new NaoEncontradoException(MensagemVeterinarioNaoEncontrado);
         }
 
         var horario = await _db.HorariosFuncionamento.AsNoTracking()
@@ -424,7 +425,7 @@ public sealed class ConsultasService : IConsultasService
 
     public async Task<string> AtualizarEstadoAsync(
         int id,
-        UpdateEstadoConsultaDto pedido,
+        AlteracaoEstadoConsulta pedido,
         string? ifMatch)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -436,7 +437,7 @@ public sealed class ConsultasService : IConsultasService
 
         var marcacao = await _db.Marcacoes
             .FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (!VersaoMarcacao.CorrespondeIfMatch(
                 marcacao.RowVersion,
@@ -451,6 +452,7 @@ public sealed class ConsultasService : IConsultasService
             novoEstado);
 
         marcacao.Estado = novoEstado;
+        marcacao.Observacao = string.IsNullOrWhiteSpace(pedido.Observacao) ? null : pedido.Observacao.Trim();
         marcacao.DataUltimaAlteracao =
             ParaUtcAoSegundo(_relogio.GetUtcNow().UtcDateTime);
 
@@ -466,9 +468,6 @@ public sealed class ConsultasService : IConsultasService
         }
 
         return VersaoMarcacao.ParaETag(marcacao.RowVersion);
-
-        // pedido.Observacao faz parte do contrato de EP-027,
-        // mas o Modelo de Dados atual não tem campo onde a persistir.
     }
 
     /// <summary>
@@ -489,6 +488,7 @@ public sealed class ConsultasService : IConsultasService
             DuracaoMinutos = m.DuracaoMinutos,
             Estado = m.Estado,
             Motivo = m.Motivo,
+            Observacao = m.Observacao,
             DataHoraChegada = m.DataHoraChegada,
             RowVersion = m.RowVersion,
             AnimalId = p.Id,
@@ -497,7 +497,7 @@ public sealed class ConsultasService : IConsultasService
             ClienteId = c.Id,
             ClienteNome = c.Nome,
             VeterinarioId = m.VeterinarioId,
-            VeterinarioNome = f.Nome
+            VeterinarioNome = f.Nome,
         };
 
     private static void Validar(object pedido)
@@ -506,7 +506,7 @@ public sealed class ConsultasService : IConsultasService
 
         if (!Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true))
         {
-            throw new ArgumentException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
+            throw new ValidacaoException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
         }
     }
 
@@ -517,13 +517,13 @@ public sealed class ConsultasService : IConsultasService
         var utc = valor.Kind switch
         {
             DateTimeKind.Local => valor.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(valor, DateTimeKind.Utc)
+            _ => DateTime.SpecifyKind(valor, DateTimeKind.Utc),
         };
 
         return new DateTime(utc.Ticks - (utc.Ticks % TimeSpan.TicksPerSecond), DateTimeKind.Utc);
     }
 
-    private static ConsultaListItemDto ParaItem(LinhaMarcacao linha) => new()
+    private static ResumoConsulta ParaItem(LinhaMarcacao linha) => new()
     {
         Id = linha.Id,
         DataHora = Utc(linha.DataHoraInicio),
@@ -533,17 +533,17 @@ public sealed class ConsultasService : IConsultasService
         Animal = Animal(linha),
         Cliente = Cliente(linha),
         Veterinario = Veterinario(linha),
-        ChegadaEm = Utc(linha.DataHoraChegada)
+        ChegadaEm = Utc(linha.DataHoraChegada),
     };
 
-    private static AnimalRefDto Animal(LinhaMarcacao linha) =>
+    private static ReferenciaAnimal Animal(LinhaMarcacao linha) =>
         new() { Id = linha.AnimalId, Nome = linha.AnimalNome, Especie = linha.Especie };
 
     // O telefone do proprietário só é devolvido na ficha do animal (EP-016).
-    private static ClienteRefDto Cliente(LinhaMarcacao linha) =>
+    private static ReferenciaCliente Cliente(LinhaMarcacao linha) =>
         new() { Id = linha.ClienteId, Nome = linha.ClienteNome };
 
-    private static VeterinarioRefDto Veterinario(LinhaMarcacao linha) =>
+    private static ReferenciaVeterinario Veterinario(LinhaMarcacao linha) =>
         new() { Id = linha.VeterinarioId, Nome = linha.VeterinarioNome };
 
     // As colunas datetime2 guardam UTC (Modelo de Dados, D15), mas são lidas sem indicação de fuso.
@@ -559,20 +559,36 @@ public sealed class ConsultasService : IConsultasService
     private sealed class LinhaMarcacao
     {
         public int Id { get; set; }
+
         public DateTime DataHoraInicio { get; set; }
+
         public short DuracaoMinutos { get; set; }
+
         public string Estado { get; set; } = string.Empty;
+
         public string? Motivo { get; set; }
+
+        public string? Observacao { get; set; }
+
         public DateTime? DataHoraChegada { get; set; }
+
         public byte[] RowVersion { get; set; } = [];
+
         public int AnimalId { get; set; }
+
         public string AnimalNome { get; set; } = string.Empty;
+
         public string Especie { get; set; } = string.Empty;
+
         public int ClienteId { get; set; }
+
         public string ClienteNome { get; set; } = string.Empty;
+
         public int VeterinarioId { get; set; }
+
         public string VeterinarioNome { get; set; } = string.Empty;
     }
+
     /// <summary>EP-028 — marcação que não está Confirmada (422).</summary>
     public const string MensagemChegadaNaoConfirmada = "Só é possível registar a chegada numa marcação Confirmada.";
 
@@ -590,7 +606,7 @@ public sealed class ConsultasService : IConsultasService
     public async Task<ChegadaComVersao> RegistarChegadaAsync(int id, string? ifMatch)
     {
         var marcacao = await _db.Marcacoes.FirstOrDefaultAsync(m => m.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         if (!VersaoMarcacao.CorrespondeIfMatch(marcacao.RowVersion, ifMatch))
         {
@@ -627,13 +643,13 @@ public sealed class ConsultasService : IConsultasService
         }
 
         return new ChegadaComVersao(
-            new ChegadaDto { Id = marcacao.Id, ChegadaEm = agora },
+            new ChegadaRegistada { Id = marcacao.Id, ChegadaEm = agora },
             VersaoMarcacao.ParaETag(marcacao.RowVersion));
     }
 
-    public async Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(
+    public async Task<NotaPreparacao> CriarNotaPreparacaoAsync(
         int id,
-        CreateNotaPreparacaoDto pedido,
+        NovaNotaPreparacao pedido,
         int auxiliarId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -661,7 +677,7 @@ public sealed class ConsultasService : IConsultasService
             .Where(m => m.Id == id)
             .Select(m => m.Estado)
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrada);
 
         // Só Cancelada impede o registo; Realizada é aceite.
         if (estado == EstadosConsulta.Cancelada)
@@ -676,19 +692,19 @@ public sealed class ConsultasService : IConsultasService
             MarcacaoId = id,
             AuxiliarId = auxiliarId,
             Descricao = pedido.Texto!.Trim(),
-            DataRegisto = agora
+            DataRegisto = agora,
         };
 
         _db.InformacoesApoio.Add(nota);
         await _db.SaveChangesAsync();
 
-        return new NotaPreparacaoDto
+        return new NotaPreparacao
         {
             Id = nota.Id,
             ConsultaId = id,
             Texto = nota.Descricao,
             Autor = auxiliar.Nome,
-            CriadaEm = agora
+            CriadaEm = agora,
         };
     }
 }

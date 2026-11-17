@@ -15,7 +15,7 @@ public static class MaquinaEstadosMarcacao
     {
         if (string.IsNullOrWhiteSpace(estado))
         {
-            throw new ArgumentException("O estado é obrigatório.");
+            throw new ValidacaoException("O estado é obrigatório.");
         }
 
         var texto = estado.Trim();
@@ -25,14 +25,14 @@ public static class MaquinaEstadosMarcacao
 
         if (normalizado is null)
         {
-            throw new ArgumentException(
+            throw new ValidacaoException(
                 $"O estado '{texto}' é inválido. Valores permitidos: " +
                 $"{EstadosConsulta.Confirmada}, {EstadosConsulta.Realizada}, {EstadosConsulta.Cancelada}.");
         }
 
         if (normalizado == EstadosConsulta.Pendente)
         {
-            throw new ArgumentException(MensagemPendenteNaoPermitido);
+            throw new ValidacaoException(MensagemPendenteNaoPermitido);
         }
 
         return normalizado;
@@ -48,7 +48,7 @@ public static class MaquinaEstadosMarcacao
             (EstadosConsulta.Confirmada, EstadosConsulta.Realizada) => true,
             (EstadosConsulta.Confirmada, EstadosConsulta.Cancelada) => true,
 
-            _ => false
+            _ => false,
         };
     }
 

@@ -139,15 +139,16 @@ Resumo das regras que a API aplica aos campos de pedido (RNF004). Uma violação
 
 | Campos | Regra |
 |---|---|
-| `pagina`, `tamanho` | `pagina` ≥ 1 (por omissão 1); `tamanho` entre 1 e 100 (por omissão 20) |
+| `pagina`, `tamanho` | `pagina` entre 1 e 2 147 483 647 (por omissão 1), `tamanho` entre 1 e 100 (por omissão 20). EP-011 e EP-015 devolvem lista vazia e preservam o total quando a página é válida e está além do fim da lista. |
 | `pesquisa` | Até 100 caracteres |
 | `nome` | Até 150 caracteres (funcionário, Cliente e clínica) e até 80 (animal) |
 | `email` | Até 256 caracteres |
 | `telefone` | 9 a 20 caracteres, só algarismos e espaços, com `+` inicial opcional (obrigatório em Cliente e clínica; opcional em funcionário) |
 | `nif` (EP-010, EP-013, EP-014) | 9 algarismos com dígito de controlo correto |
 | `morada` | Até 250 caracteres |
-| `passwordInicial` | EP-006: 8 a 128 caracteres, com letra minúscula, letra maiúscula, algarismo e símbolo. EP-013: 8 a 128 caracteres |
+| `passwordInicial` (EP-006, EP-013) | 8 a 128 unidades UTF-16. Exige pelo menos uma letra minúscula, uma letra maiúscula, um algarismo decimal e um carácter de pontuação ou símbolo Unicode. |
 | `motivo` (EP-008) | Até 500 caracteres |
+| `observacao` (EP-027) | Até 500 caracteres |
 | `duracaoConsultaMinutos` (EP-010) | Entre 5 e 240 |
 | `horarioFuncionamento` (EP-010) | `diaSemana` da enumeração `DiaSemana`; `abertura` e `fecho` em `HH:mm`; `fecho` posterior a `abertura`; sem sobreposição no mesmo dia |
 | Animal (EP-017, EP-018) | `especie` até 50 e `raca` até 80 caracteres; `sexo` `Macho`, `Femea` ou `Desconhecido`; `peso` entre 0,01 e 9999,99; `dataNascimento` não pode ser futura; `clienteId` ≥ 1 |
@@ -220,7 +221,7 @@ Todos os erros (400, 401, 403, 404, 409, 412, 422 e 500) seguem o mesmo formato 
 |---|---|
 | `code` | Código HTTP do erro (inteiro) |
 | `message` | Mensagem curta e fixa para cada código (lista a seguir à tabela de códigos) |
-| `detail` | Explicação específica do erro, em português |
+| `detail` | Explicação do erro, em português. Nos erros 500, repete a mensagem genérica de `message`. |
 
 ```json
 {
@@ -376,7 +377,7 @@ Quando dois utilizadores (por exemplo, dois Rececionistas) abrem a mesma marcaç
 
 **Resposta 200**
 ```json
-{ "id": 5, "nome": "Dra. Marta Reis", "email": "marta.reis@clinica-g08.pt", "telefone": "912345678", "perfil": "Veterinario", "estado": "Ativo", "podeRegistarApoio": false, "criadoEm": "2026-10-01T09:00:00Z" }
+{ "id": 5, "nome": "Dra. Marta Reis", "email": "marta.reis@clinica-g08.pt", "telefone": "912345678", "perfil": "Veterinario", "estado": "Ativo", "motivoBloqueio": null, "podeRegistarApoio": false, "criadoEm": "2026-10-01T09:00:00Z" }
 ```
 
 **Erros:** 401; 403; 404 — utilizador inexistente.
@@ -442,8 +443,9 @@ Quando dois utilizadores (por exemplo, dois Rececionistas) abrem a mesma marcaç
 { "estado": "Bloqueado", "motivo": "Funcionário deixou a clínica." }
 ```
 
-**Resposta 204:** sem corpo.
-**Erros:** 400 — estado diferente de `Bloqueado`; 401; 403; 404; 422 — a conta já está bloqueada, o Administrador tenta bloquear a própria conta ou a conta indicada é de um Cliente.
+**Resposta 204:** sem corpo. O motivo fica disponível em EP-005 como `motivoBloqueio`. Um motivo ausente ou em branco fica a `null`.
+
+**Erros:** 400 — estado diferente de `Bloqueado` ou motivo com mais de 500 caracteres. Também se aplicam 401, 403 e 404. A API devolve 422 quando a conta já está bloqueada, incluindo por um pedido concorrente, quando o Administrador tenta bloquear a própria conta ou quando a conta pertence a um Cliente.
 
 ### EP-009 — Consultar dados gerais, configurações e horário da clínica
 
@@ -564,7 +566,7 @@ Quando dois utilizadores (por exemplo, dois Rececionistas) abrem a mesma marcaç
 ```
 
 **Resposta 201** (`Location: /clientes/7`): cliente criado (formato de EP-012).
-**Erros:** 400 — campos em falta, NIF ou e-mail inválido; 401; 403; 409 — NIF ou e-mail já registado.
+**Erros:** 400 — campos em falta, NIF ou e-mail inválido ou palavra-passe fraca. Também se aplicam 401 e 403. Um NIF ou e-mail já registado devolve 409.
 
 ### EP-014 — Atualizar conta de Cliente
 
@@ -835,6 +837,7 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 {
   "id": 41, "dataHora": "2026-10-14T09:30:00Z", "duracaoMinutos": 30, "estado": "Confirmada",
   "motivo": "Consulta de rotina",
+  "observacao": null,
   "animal": { "id": 3, "nome": "Bobi", "especie": "Cão" }, "cliente": { "id": 7, "nome": "João Costa" },
   "veterinario": { "id": 5, "nome": "Dra. Marta Reis" }, "chegadaEm": "2026-10-14T09:22:00Z",
   "notasPreparacao": [ { "id": 2, "texto": "Sala 2 preparada; tutor pediu corte de unhas.", "autor": "Rui Lopes", "criadaEm": "2026-10-14T09:25:00Z" } ]
@@ -907,8 +910,9 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 { "estado": "Cancelada", "observacao": "Pedido do tutor por telefone." }
 ```
 
-**Resposta 204:** sem corpo, com o novo `ETag`.
-**Erros:** 400 — estado inexistente ou `Pendente`; 401; 403; 404; 412 — o `If-Match` enviado já não corresponde à versão atual ou duas gravações simultâneas da mesma marcação; 422 — transição inválida.
+**Resposta 204:** sem corpo, com o novo `ETag`. A observação da última mudança de estado fica disponível em EP-024. Uma observação ausente ou em branco fica a `null`.
+
+**Erros:** 400 — estado inexistente ou `Pendente`, ou observação com mais de 500 caracteres. Também se aplicam 401, 403 e 404. Um `If-Match` desatualizado ou um conflito entre gravações devolve 412. Uma transição inválida devolve 422.
 
 ### EP-028 — Registar chegada
 
@@ -1080,6 +1084,8 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 
 ## 10. Endpoints — F006 Boletim de vacinas e desparasitações
 
+As variáveis de data nos exemplos desta secção representam deslocamentos em dias de calendário a partir de hoje em Lisboa. Nos pedidos, envia-se a data resultante no formato AAAA-MM-DD. A secção I082 do ficheiro ClinicaVeterinaria.Api.http calcula as datas para pedidos reais.
+
 ### EP-042 — Consultar boletim do paciente (web)
 
 | Campo | Valor |
@@ -1098,10 +1104,10 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 {
   "animal": { "id": 3, "nome": "Bobi", "especie": "Cão" },
   "administracoes": [
-    { "id": 21, "tipo": "Vacina", "produto": "Vacina antirrábica", "lote": "RB-2291", "dataAdministracao": "2026-10-14", "intervaloDias": 365, "dataProximaPrevista": "2027-10-14", "veterinario": "Dra. Marta Reis" },
-    { "id": 19, "tipo": "Desparasitacao", "produto": "Desparasitante externo Z", "lote": "DZ-101", "dataAdministracao": "2026-08-01", "intervaloDias": null, "dataProximaPrevista": null, "veterinario": "Dr. Paulo Santos" }
+    { "id": 21, "tipo": "Vacina", "produto": "Vacina antirrábica", "lote": "RB-2291", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 365, "dataProximaPrevista": "{{hojeMais335}}", "veterinario": "Dra. Marta Reis" },
+    { "id": 19, "tipo": "Desparasitacao", "produto": "Desparasitante externo Z", "lote": "DZ-101", "dataAdministracao": "{{hojeMenos60}}", "intervaloDias": null, "dataProximaPrevista": null, "veterinario": "Dr. Paulo Santos" }
   ],
-  "proximas": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "2027-10-14" } ]
+  "proximas": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "{{hojeMais335}}" } ]
 }
 ```
 
@@ -1121,12 +1127,12 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 
 **Pedido**
 ```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 90 }
 ```
 
 **Resposta 201**
 ```json
-{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90, "dataProximaPrevista": "2027-01-12", "veterinario": "Dra. Marta Reis" }
+{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos30}}", "intervaloDias": 90, "dataProximaPrevista": "{{hojeMais60}}", "veterinario": "Dra. Marta Reis" }
 ```
 
 **Erros:** 400 — tipo, produto, lote ou data em falta, data de administração futura ou `intervaloDias` ≤ 0 quando indicado; 401; 403; 404 — animal inexistente.
@@ -1146,10 +1152,13 @@ Se o Cliente não tiver animais, é devolvida uma lista vazia (`[]`).
 **Resposta 200**
 ```json
 {
-  "historico": [ { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataAdministracao": "2026-10-14" } ],
+  "historico": [
+    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataAdministracao": "{{hojeMenos30}}" },
+    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataAdministracao": "{{hojeMenos30}}" }
+  ],
   "proximas": [
-    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataProximaPrevista": "2027-01-12" },
-    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "2027-10-14" }
+    { "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "dataProximaPrevista": "{{hojeMais60}}" },
+    { "tipo": "Vacina", "produto": "Vacina antirrábica", "dataProximaPrevista": "{{hojeMais335}}" }
   ]
 }
 ```
@@ -1175,12 +1184,12 @@ Se não existirem registos, `historico` e `proximas` são listas vazias.
 
 **Pedido**
 ```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-15", "intervaloDias": 120 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos15}}", "intervaloDias": 120 }
 ```
 
 **Resposta 200**
 ```json
-{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-15", "intervaloDias": 120, "dataProximaPrevista": "2027-02-12", "veterinario": "Dra. Marta Reis" }
+{ "id": 22, "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{hojeMenos15}}", "intervaloDias": 120, "dataProximaPrevista": "{{hojeMais105}}", "veterinario": "Dra. Marta Reis" }
 ```
 
 **Erros:** 400 — tipo, produto, lote ou data em falta, data de administração futura ou `intervaloDias` ≤ 0 quando indicado; 401; 403 — perfil sem permissão ou administração registada por outro Veterinário; 404 — animal inexistente, ou administração inexistente neste animal.

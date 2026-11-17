@@ -1,4 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Clinica;
+using ClinicaVeterinaria.Api.DTOs.Clinica;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,8 @@ public sealed class ClinicaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ClinicaDto>> Obter()
     {
-        return Ok(await _clinicaService.ObterAsync());
+        var resultado = await _clinicaService.ObterAsync();
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-010 — Atualizar dados gerais, configurações e horário da clínica (Administrador).</summary>
@@ -44,6 +46,7 @@ public sealed class ClinicaController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ClinicaDto>> Atualizar(UpdateClinicaDto pedido)
     {
-        return Ok(await _clinicaService.AtualizarAsync(pedido));
+        var resultado = await _clinicaService.AtualizarAsync(pedido.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 }

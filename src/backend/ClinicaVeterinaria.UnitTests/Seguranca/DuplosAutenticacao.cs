@@ -1,5 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -39,9 +39,9 @@ internal sealed class TokenServiceDuplo : IJwtTokenService
 
     public static readonly DateTime ExpiraEm = new(2026, 10, 14, 16, 0, 0, DateTimeKind.Utc);
 
-    public List<UtilizadorAutenticadoDto> Pedidos { get; } = [];
+    public List<UtilizadorAutenticado> Pedidos { get; } = [];
 
-    public TokenEmitido GerarToken(UtilizadorAutenticadoDto utilizador)
+    public TokenEmitido GerarToken(UtilizadorAutenticado utilizador)
     {
         Pedidos.Add(utilizador);
         return new TokenEmitido(Token, ExpiraEm, "jti-do-duplo");

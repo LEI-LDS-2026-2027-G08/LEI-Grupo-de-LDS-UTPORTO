@@ -47,6 +47,7 @@ const detalheBobi: MarcacaoDetalhe = {
       criadaEm: "2026-11-20T09:40:00Z",
     },
   ],
+  observacao: null,
 };
 const fichaBobi: PacienteDetalhe = {
   id: 3,

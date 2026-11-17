@@ -59,4 +59,20 @@ describe("validacaoCliente", () => {
     );
     expect(validarCliente(semPassword, false).passwordInicial).toBeUndefined();
   });
+
+  it.each(["Abcdef12", "Abcdef1\u0000", "Abcdef1\u0301"])(
+    "recusa uma palavra-passe sem pontuação ou símbolo (%j)",
+    (passwordInicial) => {
+      expect(
+        validarCliente({ ...valido, passwordInicial }, true).passwordInicial,
+      ).toMatch(/pontuação ou símbolo/);
+    },
+  );
+
+  it("aceita um símbolo Unicode na palavra-passe", () => {
+    expect(
+      validarCliente({ ...valido, passwordInicial: "Abcdef1🐾" }, true)
+        .passwordInicial,
+    ).toBeUndefined();
+  });
 });

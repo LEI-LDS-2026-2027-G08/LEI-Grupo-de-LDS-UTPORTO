@@ -46,6 +46,8 @@
 | `RegistoClinico`, `Tratamento`, `Prescricao` | 1 + 1 + 1 | Consulta M1 (otite externa) |
 | `RegistoProfilaxia` | 4 | Boletim do Bobi (duas vacinas e uma desparasitação, com próxima administração calculada) e desparasitação do Kiko |
 
+O boletim usa o dia da primeira carga em Lisboa. A vacina anterior do Bobi é de há 400 dias e já passou da data prevista. As duas administrações recentes são de há 30 dias e ficam com próximas a 60 e 335 dias de distância. A desparasitação do Kiko é de há 60 dias e fica sem próxima. Os registos são autónomos em relação às marcações de exemplo da agenda. Ao voltar a correr o script, os registos existentes conservam as suas datas.
+
 As datas são fixas e em UTC (outubro e novembro de 2026), para que uma reexecução nunca duplique dados. Todos os nomes têm «(demonstração)» ou «(fictício)», os e-mails usam o domínio reservado `.test` e os NIF e telefones são fictícios.
 
 ## 4. Execução

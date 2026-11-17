@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicaVeterinaria.Infrastructure;
@@ -29,7 +29,7 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
         _relogio = relogio;
     }
 
-    public async Task<IReadOnlyList<MinhaConsultaDto>> ListarAsync(int clienteId, MinhasConsultasQuery query)
+    public async Task<IReadOnlyList<MinhaConsulta>> ListarAsync(int clienteId, PesquisaMinhasConsultas query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -63,7 +63,7 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
                 AnimalId = p.Id,
                 AnimalNome = p.Nome,
                 Especie = e.Nome,
-                VeterinarioNome = f.Nome
+                VeterinarioNome = f.Nome,
             };
 
         if (query.AnimalId is int filtroAnimal)
@@ -87,14 +87,15 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
         var resultado = await linhas.ToListAsync();
 
         return resultado
-            .Select(l => new MinhaConsultaDto
+            .Select(l => new MinhaConsulta
             {
                 Id = l.Id,
+
                 // As colunas datetime2 guardam UTC (Modelo de Dados, D15), mas são lidas sem fuso.
                 DataHora = DateTime.SpecifyKind(l.DataHoraInicio, DateTimeKind.Utc),
                 Estado = l.Estado,
-                Animal = new AnimalRefDto { Id = l.AnimalId, Nome = l.AnimalNome, Especie = l.Especie },
-                Veterinario = l.VeterinarioNome
+                Animal = new ReferenciaAnimal { Id = l.AnimalId, Nome = l.AnimalNome, Especie = l.Especie },
+                Veterinario = l.VeterinarioNome,
             })
             .ToList();
     }
@@ -105,7 +106,7 @@ public sealed class MinhasConsultasService : IMinhasConsultasService
 
         if (!Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true))
         {
-            throw new ArgumentException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
+            throw new ValidacaoException(string.Join(" ", erros.Select(e => e.ErrorMessage)));
         }
     }
 }
