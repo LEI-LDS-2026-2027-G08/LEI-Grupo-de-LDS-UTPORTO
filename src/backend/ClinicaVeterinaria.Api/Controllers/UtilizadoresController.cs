@@ -1,5 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Utilizadores;
+using ClinicaVeterinaria.Api.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Utilizadores;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -33,7 +34,8 @@ public sealed class UtilizadoresController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PagedResultDto<UtilizadorListItemDto>>> Listar([FromQuery] UtilizadorFiltroQuery filtro)
     {
-        return Ok(await _utilizadoresService.ListarAsync(filtro));
+        var pagina = await _utilizadoresService.ListarAsync(filtro.ParaModelo());
+        return Ok(pagina.ParaDto(item => item.ParaDto()));
     }
 
     /// <summary>EP-005 — Consultar conta de funcionário (Administrador).</summary>
@@ -48,7 +50,8 @@ public sealed class UtilizadoresController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UtilizadorDto>> Obter(int id)
     {
-        return Ok(await _utilizadoresService.ObterAsync(id));
+        var resultado = await _utilizadoresService.ObterAsync(id);
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-006 — Criar conta de funcionário (Administrador).</summary>
@@ -67,8 +70,8 @@ public sealed class UtilizadoresController : ControllerBase
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<UtilizadorListItemDto>> Criar(CreateUtilizadorDto pedido)
     {
-        var utilizador = await _utilizadoresService.CriarAsync(pedido);
-        return CreatedAtAction(nameof(Obter), new { id = utilizador.Id }, utilizador);
+        var utilizador = await _utilizadoresService.CriarAsync(pedido.ParaModelo());
+        return CreatedAtAction(nameof(Obter), new { id = utilizador.Id }, utilizador.ParaDto());
     }
 
     /// <summary>EP-007 — Atualizar conta de funcionário e atribuir perfil (Administrador).</summary>
@@ -92,7 +95,8 @@ public sealed class UtilizadoresController : ControllerBase
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult<UtilizadorDto>> Atualizar(int id, UpdateUtilizadorDto pedido)
     {
-        return Ok(await _utilizadoresService.AtualizarAsync(id, AdministradorId(), pedido));
+        var resultado = await _utilizadoresService.AtualizarAsync(id, AdministradorId(), pedido.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-008 — Bloquear conta de funcionário (Administrador).</summary>
@@ -115,7 +119,7 @@ public sealed class UtilizadoresController : ControllerBase
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> AlterarEstado(int id, AlterarEstadoUtilizadorDto pedido)
     {
-        await _utilizadoresService.BloquearAsync(id, AdministradorId(), pedido);
+        await _utilizadoresService.BloquearAsync(id, AdministradorId(), pedido.ParaModelo());
         return NoContent();
     }
 

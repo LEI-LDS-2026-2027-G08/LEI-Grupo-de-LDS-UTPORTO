@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Application.Models.Vacinacoes;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
@@ -14,7 +14,7 @@ public interface IVacinacoesService
     /// e as próximas previstas a partir de hoje (da mais próxima para a mais distante), opcionalmente
     /// só de um tipo. Tipo inválido: 400; animal inexistente: 404.
     /// </summary>
-    Task<BoletimDto> ObterBoletimAsync(int animalId, BoletimQuery query);
+    Task<BoletimProfilaxia> ObterBoletimAsync(int animalId, FiltroBoletim query);
 
     /// <summary>
     /// EP-043 — regista uma vacinação ou desparasitação do animal, feita pelo Veterinário
@@ -25,14 +25,14 @@ public interface IVacinacoesService
     /// <param name="animalId">Animal da rota.</param>
     /// <param name="pedido">Tipo, produto, lote, data de administração e intervalo opcional.</param>
     /// <param name="veterinarioId">Veterinário autenticado (claim <c>veterinarioId</c>).</param>
-    Task<AdministracaoDto> RegistarAsync(int animalId, CreateAdministracaoDto pedido, int veterinarioId);
+    Task<AdministracaoRegistada> RegistarAsync(int animalId, DadosAdministracao pedido, int veterinarioId);
 
     /// <summary>
     /// RF056 (I082, critério 4) — atualiza uma vacinação ou desparasitação do animal e recalcula
     /// <c>dataProximaPrevista</c>. Mesmas regras de EP-043 (400); animal inexistente, ou registo
     /// inexistente ou de outro animal: 404; registo feito por outro Veterinário: 403.
     /// </summary>
-    Task<AdministracaoDto> AtualizarAsync(int animalId, int administracaoId, UpdateAdministracaoDto pedido, int veterinarioId);
+    Task<AdministracaoRegistada> AtualizarAsync(int animalId, int administracaoId, DadosAdministracao pedido, int veterinarioId);
 
     /// <summary>
     /// EP-044 — boletim de um animal do Cliente autenticado: o histórico e as próximas previstas a
@@ -40,5 +40,5 @@ public interface IVacinacoesService
     /// </summary>
     /// <param name="clienteId">Cliente autenticado (claim <c>clienteId</c>; nunca do pedido).</param>
     /// <param name="animalId">Animal da rota.</param>
-    Task<MeuBoletimDto> ObterBoletimDoClienteAsync(int clienteId, int animalId);
+    Task<BoletimDoCliente> ObterBoletimDoClienteAsync(int clienteId, int animalId);
 }

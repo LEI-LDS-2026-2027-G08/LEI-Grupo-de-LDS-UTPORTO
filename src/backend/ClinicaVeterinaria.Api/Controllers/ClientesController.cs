@@ -1,7 +1,7 @@
 using ClinicaVeterinaria.Api.DTOs.Clientes;
-using ClinicaVeterinaria.Application.Clientes;
-using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Comum;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Clientes;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

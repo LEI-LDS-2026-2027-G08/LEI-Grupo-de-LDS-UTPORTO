@@ -1,5 +1,6 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
+using ClinicaVeterinaria.Application.Models.Veterinarios;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.UnitTests.Agenda;

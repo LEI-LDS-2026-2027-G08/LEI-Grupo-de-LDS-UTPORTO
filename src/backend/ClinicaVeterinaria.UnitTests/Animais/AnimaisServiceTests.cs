@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Animais;
+using ClinicaVeterinaria.Api.DTOs.Animais;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Animais;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
 using ClinicaVeterinaria.UnitTests.Seguranca;
@@ -13,7 +14,7 @@ namespace ClinicaVeterinaria.UnitTests.Animais;
 /// UT-F002-030 da Especificação de Testes Unitários (I028, secções 7.2.1 e 7.2.2). A idade
 /// (casos 025 a 030) é calculada dentro do serviço, por isso é verificada através da ficha do
 /// animal com o relógio injetado. As regras de formato do pedido (clienteId e nome) estão no
-/// <see cref="UpdateAnimalDto"/> e dão 400 na validação automática do [ApiController].
+/// <see cref="DadosAnimal"/> e dão 400 na validação automática do [ApiController].
 /// </summary>
 public class AnimaisServiceTests
 {
@@ -65,7 +66,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-003 — clienteId = 0 (em falta) é recusado no pedido (400)")]
     public void ClienteIdEmFaltaEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.ClienteId = 0;
 
         Assert.Contains(nameof(CreateAnimalDto.ClienteId), CamposComErro(pedido));
@@ -86,7 +87,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-005 — Sem nome, o pedido é recusado (400)")]
     public void NomeVazioEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.Nome = string.Empty;
 
         Assert.Contains(nameof(CreateAnimalDto.Nome), CamposComErro(pedido));
@@ -95,7 +96,7 @@ public class AnimaisServiceTests
     [Fact(DisplayName = "UT-F002-006 — Um nome com 81 caracteres é recusado (máximo 80)")]
     public void NomeCom81CaracteresEInvalido()
     {
-        var pedido = PedidoBobi();
+        var pedido = PedidoBobiHttp();
         pedido.Nome = new string('B', 81);
 
         Assert.Contains(nameof(CreateAnimalDto.Nome), CamposComErro(pedido));
@@ -245,7 +246,7 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
 
-        var resultado = await CriarServico(db).PesquisarAsync(new AnimalFiltroQuery { ClienteId = ClienteA });
+        var resultado = await CriarServico(db).PesquisarAsync(new PesquisaAnimais { ClienteId = ClienteA });
 
         Assert.Equal([AnimalA1, AnimalA2], resultado.Itens.Select(a => a.Id));
     }
@@ -257,9 +258,9 @@ public class AnimaisServiceTests
     {
         using var db = CriarBase();
         var servico = CriarServico(db);
-        var todos = await servico.PesquisarAsync(new AnimalFiltroQuery { Tamanho = 100 });
+        var todos = await servico.PesquisarAsync(new PesquisaAnimais { Tamanho = 100 });
 
-        var resultado = await servico.PesquisarAsync(new AnimalFiltroQuery { Pagina = pagina, Tamanho = tamanho });
+        var resultado = await servico.PesquisarAsync(new PesquisaAnimais { Pagina = pagina, Tamanho = tamanho });
 
         Assert.Empty(resultado.Itens);
         Assert.Equal(pagina, resultado.Pagina);
@@ -288,7 +289,7 @@ public class AnimaisServiceTests
         Assert.Empty(animais);
     }
 
-    [Fact(DisplayName = "UT-F002-022 — O CLIENTE_A consulta o ANIMAL_A1 e recebe o MeuAnimalDto")]
+    [Fact(DisplayName = "UT-F002-022 — O CLIENTE_A consulta o ANIMAL_A1 e recebe o DetalheMeuAnimal")]
     public async Task ClienteConsultaAnimalProprio()
     {
         using var db = CriarBase();
@@ -402,7 +403,7 @@ public class AnimaisServiceTests
     }
 
     /// <summary>Pedido do exemplo de EP-017 da Documentação da API, para o CLIENTE_A.</summary>
-    private static CreateAnimalDto PedidoBobi() => new()
+    private static DadosAnimal PedidoBobi() => new()
     {
         Nome = "Bobi",
         Especie = "Cão",
@@ -412,6 +413,21 @@ public class AnimaisServiceTests
         Peso = 28.4m,
         ClienteId = ClienteA,
     };
+
+    private static CreateAnimalDto PedidoBobiHttp()
+    {
+        var dados = PedidoBobi();
+        return new CreateAnimalDto
+        {
+            Nome = dados.Nome,
+            Especie = dados.Especie,
+            Raca = dados.Raca,
+            Sexo = dados.Sexo,
+            DataNascimento = dados.DataNascimento,
+            Peso = dados.Peso,
+            ClienteId = dados.ClienteId,
+        };
+    }
 
     private static List<string> CamposComErro(object pedido)
     {

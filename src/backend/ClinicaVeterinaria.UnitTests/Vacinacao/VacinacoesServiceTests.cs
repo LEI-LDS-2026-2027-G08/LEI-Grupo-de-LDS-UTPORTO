@@ -1,6 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Vacinacoes;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Vacinacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -357,7 +357,7 @@ public class VacinacoesServiceTests
             intervaloDias: 90);
 
         var administracao = await servico.AtualizarAsync(d.AnimalA1, d.DesparasitacaoA1, pedido, d.VetB);
-        var boletim = await servico.ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var boletim = await servico.ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
 
         Assert.Equal(Hoje.AddDays(16), administracao.DataProximaPrevista);
         Assert.Contains(
@@ -389,7 +389,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
 
         Assert.Equal(d.AnimalA1, boletim.Animal.Id);
         Assert.Equal("Bobi", boletim.Animal.Nome);
@@ -415,7 +415,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery { Tipo = tipo });
+        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new FiltroBoletim { Tipo = tipo });
 
         Assert.NotEmpty(boletim.Administracoes);
         Assert.All(boletim.Administracoes, a => Assert.Equal(tipo, a.Tipo));
@@ -429,7 +429,7 @@ public class VacinacoesServiceTests
         var d = await CriarBaseAsync(db);
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery { Tipo = "Vacinas" }));
+            () => CriarServico(db).ObterBoletimAsync(d.AnimalA1, new FiltroBoletim { Tipo = "Vacinas" }));
 
         Assert.Equal(TiposAdministracao.MensagemTipoInvalido, erro.Message);
     }
@@ -440,7 +440,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
 
         var vencida = boletim.Administracoes.Single(a => a.Id == d.VacinaVencidaA1);
         Assert.Equal(Hoje.AddDays(-1), vencida.DataProximaPrevista);
@@ -456,7 +456,7 @@ public class VacinacoesServiceTests
         await servico.RegistarAsync(d.AnimalA1, Pedido(tipo: TiposAdministracao.Desparasitacao, produto: "Desparasitante interno Y", data: Hoje.AddDays(-13), intervaloDias: 13), d.VetA);
         await servico.RegistarAsync(d.AnimalA1, Pedido(tipo: TiposAdministracao.Desparasitacao, produto: "Desparasitante interno Y", data: Hoje, intervaloDias: 90), d.VetA);
 
-        var boletim = await servico.ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var boletim = await servico.ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
 
         Assert.Equal(
             new[] { Hoje, Hoje.AddDays(90), Hoje.AddDays(365) },
@@ -469,7 +469,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA2, new BoletimQuery());
+        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA2, new FiltroBoletim());
 
         Assert.Equal("Mia", boletim.Animal.Nome);
         Assert.Empty(boletim.Administracoes);
@@ -483,7 +483,7 @@ public class VacinacoesServiceTests
         await CriarBaseAsync(db);
 
         var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
-            () => CriarServico(db).ObterBoletimAsync(999, new BoletimQuery()));
+            () => CriarServico(db).ObterBoletimAsync(999, new FiltroBoletim()));
 
         Assert.Equal(VacinacoesService.MensagemAnimalNaoEncontrado, erro.Message);
     }
@@ -494,7 +494,7 @@ public class VacinacoesServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var boletim = await CriarServico(db).ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
 
         Assert.DoesNotContain(boletim.Administracoes, a => a.Id == d.VacinaB1);
     }
@@ -507,7 +507,7 @@ public class VacinacoesServiceTests
         var d = await CriarBaseAsync(db);
         var servico = CriarServico(db);
 
-        var web = await servico.ObterBoletimAsync(d.AnimalA1, new BoletimQuery());
+        var web = await servico.ObterBoletimAsync(d.AnimalA1, new FiltroBoletim());
         var meu = await servico.ObterBoletimDoClienteAsync(d.ClienteA, d.AnimalA1);
 
         Assert.Equal(
@@ -558,7 +558,7 @@ public class VacinacoesServiceTests
     private static VacinacoesService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     /// <summary>O pedido do exemplo UT-F006-008, com os campos que cada caso altera.</summary>
-    private static CreateAdministracaoDto Pedido(
+    private static DadosAdministracao Pedido(
         string tipo = TiposAdministracao.Vacina,
         string produto = "Vacina antirrábica",
         string lote = "RB-2291",

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using ClinicaVeterinaria.Api.DTOs.Clientes;
-using ClinicaVeterinaria.Application.Clientes;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Clientes;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;

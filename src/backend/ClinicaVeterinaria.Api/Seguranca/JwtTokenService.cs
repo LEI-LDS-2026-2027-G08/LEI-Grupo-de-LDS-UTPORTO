@@ -1,6 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -28,7 +28,7 @@ public sealed class JwtTokenService : IJwtTokenService
         _relogio = relogio;
     }
 
-    public TokenEmitido GerarToken(UtilizadorAutenticadoDto utilizador)
+    public TokenEmitido GerarToken(UtilizadorAutenticado utilizador)
     {
         ArgumentNullException.ThrowIfNull(utilizador);
 

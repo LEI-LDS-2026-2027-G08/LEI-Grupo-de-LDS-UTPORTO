@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Utilizadores;
+using ClinicaVeterinaria.Api.DTOs.Utilizadores;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 

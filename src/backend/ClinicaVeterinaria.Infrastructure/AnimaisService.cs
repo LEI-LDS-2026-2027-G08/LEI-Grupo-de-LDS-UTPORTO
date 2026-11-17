@@ -1,7 +1,7 @@
-using ClinicaVeterinaria.Application.DTOs.Animais;
-using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Animais;
+using ClinicaVeterinaria.Application.Models.Comum;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,8 +29,8 @@ public sealed class AnimaisService : IAnimaisService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<AnimalListItemDto>> PesquisarAsync(
-        AnimalFiltroQuery filtro)
+    public async Task<PaginaResultados<ResumoAnimal>> PesquisarAsync(
+        PesquisaAnimais filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -80,7 +80,7 @@ public sealed class AnimaisService : IAnimaisService
         // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<AnimalListItemDto> itens = [];
+        List<ResumoAnimal> itens = [];
 
         if (salto < total)
         {
@@ -103,7 +103,7 @@ public sealed class AnimaisService : IAnimaisService
                 .ToListAsync();
 
             itens = dados
-                .Select(x => new AnimalListItemDto
+                .Select(x => new ResumoAnimal
                 {
                     Id = x.Id,
                     Nome = x.Nome,
@@ -111,7 +111,7 @@ public sealed class AnimaisService : IAnimaisService
                     Raca = x.Raca,
                     IdadeAnos = CalcularIdade(x.DataNascimento),
                     Peso = x.Peso,
-                    Cliente = new ClienteResumoDto
+                    Cliente = new DonoAnimal
                     {
                         Id = x.ClienteId,
                         Nome = x.ClienteNome,
@@ -120,7 +120,7 @@ public sealed class AnimaisService : IAnimaisService
                 .ToList();
         }
 
-        return new PagedResultDto<AnimalListItemDto>
+        return new PaginaResultados<ResumoAnimal>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
@@ -129,7 +129,7 @@ public sealed class AnimaisService : IAnimaisService
         };
     }
 
-    public async Task<AnimalDto> ObterAsync(int id)
+    public async Task<DetalheAnimal> ObterAsync(int id)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -151,7 +151,7 @@ public sealed class AnimaisService : IAnimaisService
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
-        return new AnimalDto
+        return new DetalheAnimal
         {
             Id = dados.Paciente.Id,
             Nome = dados.Paciente.Nome,
@@ -161,7 +161,7 @@ public sealed class AnimaisService : IAnimaisService
             DataNascimento = dados.Paciente.DataNascimento,
             IdadeAnos = CalcularIdade(dados.Paciente.DataNascimento),
             Peso = dados.Paciente.Peso,
-            Cliente = new ClienteDetalheDto
+            Cliente = new ContactoDonoAnimal
             {
                 Id = dados.Cliente.Id,
                 Nome = dados.Cliente.Nome,
@@ -171,7 +171,7 @@ public sealed class AnimaisService : IAnimaisService
         };
     }
 
-    public async Task<AnimalDto> CriarAsync(CreateAnimalDto pedido)
+    public async Task<DetalheAnimal> CriarAsync(DadosAnimal pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -223,9 +223,9 @@ public sealed class AnimaisService : IAnimaisService
         return await ObterAsync(paciente.Id);
     }
 
-    public async Task<AnimalDto> AtualizarAsync(
+    public async Task<DetalheAnimal> AtualizarAsync(
         int id,
-        UpdateAnimalDto pedido)
+        DadosAnimal pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -275,7 +275,7 @@ public sealed class AnimaisService : IAnimaisService
         return await ObterAsync(paciente.Id);
     }
 
-    public async Task<IReadOnlyList<MeuAnimalListItemDto>> ListarDoClienteAsync(int clienteId)
+    public async Task<IReadOnlyList<ResumoMeuAnimal>> ListarDoClienteAsync(int clienteId)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -298,7 +298,7 @@ public sealed class AnimaisService : IAnimaisService
             .ToListAsync();
 
         return dados
-            .Select(x => new MeuAnimalListItemDto
+            .Select(x => new ResumoMeuAnimal
             {
                 Id = x.Id,
                 Nome = x.Nome,
@@ -310,7 +310,7 @@ public sealed class AnimaisService : IAnimaisService
             .ToList();
     }
 
-    public async Task<MeuAnimalDto> ObterDoClienteAsync(int clienteId, int animalId)
+    public async Task<DetalheMeuAnimal> ObterDoClienteAsync(int clienteId, int animalId)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -341,7 +341,7 @@ public sealed class AnimaisService : IAnimaisService
             throw new ForbiddenException(MensagemAnimalDeOutroCliente);
         }
 
-        return new MeuAnimalDto
+        return new DetalheMeuAnimal
         {
             Id = dados.Id,
             Nome = dados.Nome,
@@ -374,7 +374,7 @@ public sealed class AnimaisService : IAnimaisService
         return idade;
     }
 
-    private void ValidarDadosAdministrativos(UpdateAnimalDto pedido)
+    private void ValidarDadosAdministrativos(DadosAnimal pedido)
     {
         if (pedido.Peso.HasValue && pedido.Peso.Value <= 0)
         {

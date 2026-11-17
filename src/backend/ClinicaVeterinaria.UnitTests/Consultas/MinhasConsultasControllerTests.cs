@@ -2,9 +2,10 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.Claims;
 using ClinicaVeterinaria.Api.Controllers;
+using ClinicaVeterinaria.Api.DTOs.Consultas;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -66,9 +67,9 @@ public class MinhasConsultasControllerTests
         var resposta = await controlador.Listar(query);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Lista, ok.Value);
+        Assert.Equivalent(servico.Lista, Assert.IsType<MinhaConsultaDto[]>(ok.Value), strict: true);
         Assert.Equal(7, servico.UltimoClienteId);
-        Assert.Same(query, servico.UltimaQuery);
+        Assert.Equivalent(query, servico.UltimaQuery);
     }
 
     private static ClaimsPrincipal PrincipalCliente(int clienteId) =>
@@ -85,13 +86,13 @@ public class MinhasConsultasControllerTests
 
     private sealed class MinhasConsultasServiceDeTeste : IMinhasConsultasService
     {
-        public IReadOnlyList<MinhaConsultaDto> Lista { get; } = [new MinhaConsultaDto { Id = 33 }];
+        public IReadOnlyList<MinhaConsulta> Lista { get; } = [new MinhaConsulta { Id = 33 }];
 
         public int? UltimoClienteId { get; private set; }
 
-        public MinhasConsultasQuery? UltimaQuery { get; private set; }
+        public PesquisaMinhasConsultas? UltimaQuery { get; private set; }
 
-        public Task<IReadOnlyList<MinhaConsultaDto>> ListarAsync(int clienteId, MinhasConsultasQuery query)
+        public Task<IReadOnlyList<MinhaConsulta>> ListarAsync(int clienteId, PesquisaMinhasConsultas query)
         {
             UltimoClienteId = clienteId;
             UltimaQuery = query;

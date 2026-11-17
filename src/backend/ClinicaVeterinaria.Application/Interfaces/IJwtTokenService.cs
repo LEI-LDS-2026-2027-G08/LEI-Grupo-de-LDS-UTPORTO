@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
+using ClinicaVeterinaria.Application.Models.Auth;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
@@ -8,5 +8,5 @@ namespace ClinicaVeterinaria.Application.Interfaces;
 /// </summary>
 public interface IJwtTokenService
 {
-    TokenEmitido GerarToken(UtilizadorAutenticadoDto utilizador);
+    TokenEmitido GerarToken(UtilizadorAutenticado utilizador);
 }

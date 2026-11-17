@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Api.DTOs.Vacinacoes;
 
 namespace ClinicaVeterinaria.UnitTests.Vacinacao;
 

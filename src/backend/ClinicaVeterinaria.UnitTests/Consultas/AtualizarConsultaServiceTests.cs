@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -35,7 +35,7 @@ public class AtualizarConsultaServiceTests
 
         var resultado = await CriarServico(db).AtualizarConsultaAsync(
             id,
-            new UpdateConsultaDto
+            new AlteracaoConsulta
             {
                 VeterinarioId = d.VetB,
                 DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -69,7 +69,7 @@ public class AtualizarConsultaServiceTests
 
         var resultado = await CriarServico(db).AtualizarConsultaAsync(
             id,
-            new UpdateConsultaDto
+            new AlteracaoConsulta
             {
                 VeterinarioId = d.VetA,
                 DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -100,7 +100,7 @@ public class AtualizarConsultaServiceTests
         await Assert.ThrowsAsync<UnprocessableEntityException>(
             () => CriarServico(db).AtualizarConsultaAsync(
                 id,
-                new UpdateConsultaDto
+                new AlteracaoConsulta
                 {
                     VeterinarioId = d.VetA,
                     DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -133,7 +133,7 @@ public class AtualizarConsultaServiceTests
         var erro = await Assert.ThrowsAsync<UnprocessableEntityException>(
             () => CriarServico(db).AtualizarConsultaAsync(
                 id,
-                new UpdateConsultaDto
+                new AlteracaoConsulta
                 {
                     VeterinarioId = d.VetA,
                     DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -161,7 +161,7 @@ public class AtualizarConsultaServiceTests
 
         var resultado = await CriarServico(db).AtualizarConsultaAsync(
             id,
-            new UpdateConsultaDto
+            new AlteracaoConsulta
             {
                 VeterinarioId = d.VetA,
                 DataHora = Utc("2026-10-15T09:15:00Z"),
@@ -190,7 +190,7 @@ public class AtualizarConsultaServiceTests
         await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarConsultaAsync(
                 id,
-                new UpdateConsultaDto
+                new AlteracaoConsulta
                 {
                     VeterinarioId = d.VetA,
                     DataHora = Relogio.UtcDateTime.AddHours(-1),
@@ -207,7 +207,7 @@ public class AtualizarConsultaServiceTests
         await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarConsultaAsync(
                 999,
-                new UpdateConsultaDto
+                new AlteracaoConsulta
                 {
                     VeterinarioId = d.VetA,
                     DataHora = Utc("2026-10-15T09:00:00Z"),
@@ -239,7 +239,7 @@ public class AtualizarConsultaServiceTests
         await Assert.ThrowsAsync<PreconditionFailedException>(
             () => CriarServico(db).AtualizarConsultaAsync(
                 id,
-                new UpdateConsultaDto
+                new AlteracaoConsulta
                 {
                     VeterinarioId = d.VetB,
                     DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -280,7 +280,7 @@ public class AtualizarConsultaServiceTests
 
         var resultado = await CriarServico(db).AtualizarConsultaAsync(
             id,
-            new UpdateConsultaDto
+            new AlteracaoConsulta
             {
                 VeterinarioId = d.VetB,
                 DataHora = Utc("2026-10-15T10:00:00Z"),
@@ -312,7 +312,7 @@ public class AtualizarConsultaServiceTests
 
         var resultado = await CriarServico(db).AtualizarConsultaAsync(
             id,
-            new UpdateConsultaDto
+            new AlteracaoConsulta
             {
                 VeterinarioId = d.VetA,
                 DataHora = Utc("2026-10-15T10:00:00Z"),

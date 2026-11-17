@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -64,7 +64,7 @@ public sealed class AuthService : IAuthService
         _relogio = relogio;
     }
 
-    public async Task<LoginResponseDto> LoginAsync(LoginRequestDto pedido)
+    public async Task<SessaoIniciada> LoginAsync(Credenciais pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -113,11 +113,11 @@ public sealed class AuthService : IAuthService
 
         LogSessaoIniciada(_logger, utilizador.Id, utilizador.Perfil, null);
 
-        return new LoginResponseDto
+        return new SessaoIniciada
         {
             Token = token.Token,
             ExpiraEm = token.ExpiraEm,
-            Utilizador = new UtilizadorResumoDto
+            Utilizador = new IdentidadeSessao
             {
                 Id = autenticado.Id,
                 Nome = autenticado.Nome,
@@ -128,7 +128,7 @@ public sealed class AuthService : IAuthService
         };
     }
 
-    public async Task<UtilizadorAutenticadoDto> ObterAutenticadoAsync(int utilizadorId)
+    public async Task<UtilizadorAutenticado> ObterAutenticadoAsync(int utilizadorId)
     {
         var utilizador = await _db.Utilizadores
             .AsNoTracking()
@@ -254,7 +254,7 @@ public sealed class AuthService : IAuthService
         }
     }
 
-    private async Task<UtilizadorAutenticadoDto> CriarUtilizadorAutenticadoAsync(Utilizador utilizador)
+    private async Task<UtilizadorAutenticado> CriarUtilizadorAutenticadoAsync(Utilizador utilizador)
     {
         var nome = string.Empty;
         int? clienteId = null;
@@ -282,7 +282,7 @@ public sealed class AuthService : IAuthService
                 .FirstOrDefaultAsync() ?? string.Empty;
         }
 
-        return new UtilizadorAutenticadoDto
+        return new UtilizadorAutenticado
         {
             Id = utilizador.Id,
             Nome = nome,

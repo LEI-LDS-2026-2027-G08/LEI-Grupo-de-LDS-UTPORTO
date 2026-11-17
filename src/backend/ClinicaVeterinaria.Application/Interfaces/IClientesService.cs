@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.Clientes;
+using ClinicaVeterinaria.Application.Models.Clientes;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 

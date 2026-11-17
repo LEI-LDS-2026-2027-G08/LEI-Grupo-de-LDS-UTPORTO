@@ -1,6 +1,6 @@
-using ClinicaVeterinaria.Application.Clientes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Clientes;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;

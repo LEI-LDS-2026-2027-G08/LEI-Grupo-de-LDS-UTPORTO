@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 
 namespace ClinicaVeterinaria.Application.Validacao;
 
@@ -27,8 +27,8 @@ public static class ValidadorRegistoClinico
     public static IEnumerable<ValidationResult> ValidarElementoClinico(
         string? notasClinicas,
         string? diagnostico,
-        IReadOnlyList<CreateTratamentoDto>? tratamentos,
-        IReadOnlyList<CreatePrescricaoDto>? prescricoes)
+        IReadOnlyList<int?>? tratamentos,
+        IReadOnlyList<int?>? prescricoes)
     {
         var temElemento = !string.IsNullOrWhiteSpace(notasClinicas)
             || !string.IsNullOrWhiteSpace(diagnostico)
@@ -42,21 +42,21 @@ public static class ValidadorRegistoClinico
             yield return new ValidationResult(
                 MensagemSemElementoClinico,
                 [
-                    nameof(UpdateRegistoClinicoDto.NotasClinicas),
-                    nameof(UpdateRegistoClinicoDto.Diagnostico),
-                    nameof(UpdateRegistoClinicoDto.Tratamentos),
-                    nameof(UpdateRegistoClinicoDto.Prescricoes)
+                    nameof(AlteracaoRegistoClinico.NotasClinicas),
+                    nameof(AlteracaoRegistoClinico.Diagnostico),
+                    nameof(AlteracaoRegistoClinico.Tratamentos),
+                    nameof(AlteracaoRegistoClinico.Prescricoes)
                 ]);
         }
 
-        if (TemIdRepetido(tratamentos?.Select(t => t.Id)))
+        if (TemIdRepetido(tratamentos))
         {
-            yield return new ValidationResult(MensagemTratamentoRepetido, [nameof(UpdateRegistoClinicoDto.Tratamentos)]);
+            yield return new ValidationResult(MensagemTratamentoRepetido, [nameof(AlteracaoRegistoClinico.Tratamentos)]);
         }
 
-        if (TemIdRepetido(prescricoes?.Select(p => p.Id)))
+        if (TemIdRepetido(prescricoes))
         {
-            yield return new ValidationResult(MensagemPrescricaoRepetida, [nameof(UpdateRegistoClinicoDto.Prescricoes)]);
+            yield return new ValidationResult(MensagemPrescricaoRepetida, [nameof(AlteracaoRegistoClinico.Prescricoes)]);
         }
     }
 
@@ -64,7 +64,7 @@ public static class ValidadorRegistoClinico
     /// Todas as mensagens de erro do pedido (campos, listas e elemento clínico); vazia se o pedido
     /// é válido. Usada pelo serviço, que também pode ser chamado sem passar pelo ASP.NET Core.
     /// </summary>
-    public static IReadOnlyList<string> ObterErros(UpdateRegistoClinicoDto pedido)
+    public static IReadOnlyList<string> ObterErros(AlteracaoRegistoClinico pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 

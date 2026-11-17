@@ -1,5 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -271,7 +271,7 @@ public class AuthServiceTests
     }
 
     // ----- Apoio -----
-    private static LoginRequestDto Pedido(string email, string password) => new() { Email = email, Password = password };
+    private static Credenciais Pedido(string email, string password) => new() { Email = email, Password = password };
 
     private static AuthService CriarServico(
         ClinicaDbContext db,

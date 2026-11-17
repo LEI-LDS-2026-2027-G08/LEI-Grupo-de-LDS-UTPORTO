@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -26,7 +26,7 @@ public class NotasPreparacaoServiceTests
         var id = await AdicionarMarcacaoAsync(db, EstadosConsulta.Confirmada);
 
         var nota = await CriarServico(db).CriarNotaPreparacaoAsync(
-            id, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux);
+            id, new NovaNotaPreparacao { Texto = "Sala 2 preparada." }, aux);
 
         Assert.Equal(id, nota.ConsultaId);
         Assert.Equal("Sala 2 preparada.", nota.Texto);
@@ -47,7 +47,7 @@ public class NotasPreparacaoServiceTests
 
         await Assert.ThrowsAsync<ForbiddenException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
-                id, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux));
+                id, new NovaNotaPreparacao { Texto = "Sala 2 preparada." }, aux));
 
         Assert.Empty(db.InformacoesApoio);
     }
@@ -64,7 +64,7 @@ public class NotasPreparacaoServiceTests
 
         await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
-                id, new CreateNotaPreparacaoDto { Texto = texto }, aux));
+                id, new NovaNotaPreparacao { Texto = texto }, aux));
 
         Assert.Empty(db.InformacoesApoio);
     }
@@ -77,7 +77,7 @@ public class NotasPreparacaoServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var aux = await AdicionarAuxiliarAsync(db, "Carla Auxiliar", podeRegistarApoio: true);
         var id = await AdicionarMarcacaoAsync(db, EstadosConsulta.Confirmada);
-        var pedido = new CreateNotaPreparacaoDto { Texto = new string('a', comprimento) };
+        var pedido = new NovaNotaPreparacao { Texto = new string('a', comprimento) };
 
         if (aceite)
         {
@@ -101,7 +101,7 @@ public class NotasPreparacaoServiceTests
 
         await Assert.ThrowsAsync<UnprocessableEntityException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
-                id, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux));
+                id, new NovaNotaPreparacao { Texto = "Sala 2 preparada." }, aux));
 
         Assert.Empty(db.InformacoesApoio);
     }
@@ -114,7 +114,7 @@ public class NotasPreparacaoServiceTests
         var id = await AdicionarMarcacaoAsync(db, EstadosConsulta.Realizada);
 
         await CriarServico(db).CriarNotaPreparacaoAsync(
-            id, new CreateNotaPreparacaoDto { Texto = "Tutor pediu corte de unhas." }, aux);
+            id, new NovaNotaPreparacao { Texto = "Tutor pediu corte de unhas." }, aux);
 
         Assert.Single(db.InformacoesApoio);
     }
@@ -127,7 +127,7 @@ public class NotasPreparacaoServiceTests
 
         await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).CriarNotaPreparacaoAsync(
-                999, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux));
+                999, new NovaNotaPreparacao { Texto = "Sala 2 preparada." }, aux));
     }
 
     [Fact(DisplayName = "I075 — EP-029 não altera a marcação")]
@@ -139,7 +139,7 @@ public class NotasPreparacaoServiceTests
         var antes = await db.Marcacoes.AsNoTracking().SingleAsync(m => m.Id == id);
 
         await CriarServico(db).CriarNotaPreparacaoAsync(
-            id, new CreateNotaPreparacaoDto { Texto = "Sala 2 preparada." }, aux);
+            id, new NovaNotaPreparacao { Texto = "Sala 2 preparada." }, aux);
 
         var depois = await db.Marcacoes.AsNoTracking().SingleAsync(m => m.Id == id);
         Assert.Equal(antes.Estado, depois.Estado);

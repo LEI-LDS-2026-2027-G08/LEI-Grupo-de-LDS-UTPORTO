@@ -1,9 +1,8 @@
-using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Veterinarios;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,6 @@ namespace ClinicaVeterinaria.Infrastructure;
 public sealed class VeterinariosService : IVeterinariosService
 {
     private const string MensagemNaoEncontrado = "O veterinário indicado não existe ou não está ativo.";
-    private const string FormatoHora = "HH:mm";
 
     private readonly ClinicaDbContext _db;
     private readonly TimeProvider _relogio;
@@ -30,18 +28,18 @@ public sealed class VeterinariosService : IVeterinariosService
         _relogio = relogio;
     }
 
-    public async Task<IReadOnlyList<VeterinarioRefDto>> ListarAsync()
+    public async Task<IReadOnlyList<ReferenciaVeterinario>> ListarAsync()
     {
         return await (
                 from u in _db.Utilizadores.AsNoTracking()
                 join f in _db.Funcionarios.AsNoTracking() on u.Id equals f.UtilizadorId
                 where u.Perfil == Perfis.Veterinario && u.Estado == EstadosUtilizador.Ativo
                 orderby f.Nome, u.Id
-                select new VeterinarioRefDto { Id = u.Id, Nome = f.Nome })
+                select new ReferenciaVeterinario { Id = u.Id, Nome = f.Nome })
             .ToListAsync();
     }
 
-    public async Task<DisponibilidadeDto> ObterDisponibilidadeAsync(int veterinarioId, DisponibilidadeQuery query)
+    public async Task<DisponibilidadeVeterinario> ObterDisponibilidadeAsync(int veterinarioId, PeriodoDisponibilidade query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -104,19 +102,11 @@ public sealed class VeterinariosService : IVeterinariosService
             _relogio.GetUtcNow().UtcDateTime,
             fuso);
 
-        return new DisponibilidadeDto
+        return new DisponibilidadeVeterinario
         {
             VeterinarioId = veterinarioId,
             DuracaoConsultaMinutos = duracaoMinutos,
-            Dias = dias
-                .Select(dia => new DiaDisponivelDto
-                {
-                    Data = dia.Data,
-                    HorariosLivres = dia.HorariosLivres
-                        .Select(hora => hora.ToString(FormatoHora, CultureInfo.InvariantCulture))
-                        .ToList(),
-                })
-                .ToList(),
+            Dias = dias,
         };
     }
 

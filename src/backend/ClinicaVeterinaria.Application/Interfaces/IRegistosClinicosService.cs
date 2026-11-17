@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
@@ -17,7 +17,7 @@ public interface IRegistosClinicosService
     /// </summary>
     /// <param name="pedido">Consulta, notas, diagnóstico, tratamentos e prescrições.</param>
     /// <param name="veterinarioId">Veterinário autenticado (claim <c>veterinarioId</c>).</param>
-    Task<RegistoClinicoDto> CriarAsync(CreateRegistoClinicoDto pedido, int veterinarioId);
+    Task<DetalheRegistoClinico> CriarAsync(NovoRegistoClinico pedido, int veterinarioId);
 
     /// <summary>
     /// EP-032 — atualiza o registo: as listas substituem as anteriores (um elemento existente
@@ -25,13 +25,13 @@ public interface IRegistosClinicosService
     /// consulta e o paciente não mudam. Pedido inválido ou <c>id</c> de outro registo: 400;
     /// registo inexistente: 404; registo de outro Veterinário: 403.
     /// </summary>
-    Task<RegistoClinicoDto> AtualizarAsync(int id, UpdateRegistoClinicoDto pedido, int veterinarioId);
+    Task<DetalheRegistoClinico> AtualizarAsync(int id, AlteracaoRegistoClinico pedido, int veterinarioId);
 
     /// <summary>
     /// EP-033 — devolve o registo clínico completo (notas, diagnóstico, tratamentos e prescrições),
     /// no formato da resposta de EP-031. Registo inexistente: 404.
     /// </summary>
-    Task<RegistoClinicoDto> ObterAsync(int id);
+    Task<DetalheRegistoClinico> ObterAsync(int id);
 
     /// <summary>
     /// EP-034 — devolve o animal e os resumos dos seus registos clínicos, do mais recente para o
@@ -39,5 +39,5 @@ public interface IRegistosClinicosService
     /// <c>dataFim</c> (dias em hora de Lisboa, os dois incluídos). Intervalo inválido: 400; animal
     /// inexistente: 404. Um animal sem registos tem a lista vazia.
     /// </summary>
-    Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query);
+    Task<HistoricoClinico> ObterHistoricoAsync(int animalId, PeriodoHistoricoClinico query);
 }

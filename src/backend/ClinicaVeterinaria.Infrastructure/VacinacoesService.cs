@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Vacinacoes;
 using ClinicaVeterinaria.Application.Vacinacao;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +51,7 @@ public sealed class VacinacoesService : IVacinacoesService
         _relogio = relogio;
     }
 
-    public async Task<BoletimDto> ObterBoletimAsync(int animalId, BoletimQuery query)
+    public async Task<BoletimProfilaxia> ObterBoletimAsync(int animalId, FiltroBoletim query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -69,14 +69,14 @@ public sealed class VacinacoesService : IVacinacoesService
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.Id == animalId
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new ReferenciaAnimal { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Administrações do animal (UT-F006-018) e, com tipo, só as desse tipo (UT-F006-019).
         var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo);
 
-        return new BoletimDto
+        return new BoletimProfilaxia
         {
             Animal = animal,
             Administracoes = administracoes,
@@ -84,7 +84,7 @@ public sealed class VacinacoesService : IVacinacoesService
         };
     }
 
-    public async Task<AdministracaoDto> RegistarAsync(int animalId, CreateAdministracaoDto pedido, int veterinarioId)
+    public async Task<AdministracaoRegistada> RegistarAsync(int animalId, DadosAdministracao pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -111,13 +111,13 @@ public sealed class VacinacoesService : IVacinacoesService
         _db.RegistosProfilaxias.Add(registo);
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<AdministracaoDto> AtualizarAsync(
+    public async Task<AdministracaoRegistada> AtualizarAsync(
         int animalId,
         int administracaoId,
-        UpdateAdministracaoDto pedido,
+        DadosAdministracao pedido,
         int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -148,10 +148,10 @@ public sealed class VacinacoesService : IVacinacoesService
         Copiar(pedido, registo);
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<MeuBoletimDto> ObterBoletimDoClienteAsync(int clienteId, int animalId)
+    public async Task<BoletimDoCliente> ObterBoletimDoClienteAsync(int clienteId, int animalId)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(clienteId);
 
@@ -171,10 +171,10 @@ public sealed class VacinacoesService : IVacinacoesService
         // (3) O mesmo histórico e as mesmas próximas do boletim web (UT-F006-022), com menos campos.
         var (administracoes, proximas) = await ObterAdministracoesAsync(animalId, tipo: null);
 
-        return new MeuBoletimDto
+        return new BoletimDoCliente
         {
             Historico = administracoes
-                .Select(a => new HistoricoAdministracaoDto
+                .Select(a => new AdministracaoAnterior
                 {
                     Tipo = a.Tipo,
                     Produto = a.Produto,
@@ -189,7 +189,7 @@ public sealed class VacinacoesService : IVacinacoesService
     /// Administrações do animal com o nome do Veterinário, da mais recente para a mais antiga (e,
     /// no mesmo dia, da última registada para a primeira).
     /// </summary>
-    private async Task<(List<AdministracaoDto> Administracoes, List<ProximaAdministracaoDto> Proximas)>
+    private async Task<(List<AdministracaoRegistada> Administracoes, List<AdministracaoPrevista> Proximas)>
         ObterAdministracoesAsync(int animalId, string? tipo)
     {
         var hoje = Hoje();
@@ -214,14 +214,14 @@ public sealed class VacinacoesService : IVacinacoesService
             .ToListAsync();
 
         var administracoes = linhas
-            .Select(l => (Dto: ParaDto(l.Registo, l.Veterinario), l.EProxima))
+            .Select(l => (Modelo: ParaModelo(l.Registo, l.Veterinario), l.EProxima))
             .ToList();
         var proximas = administracoes
             .Where(l => l.EProxima)
-            .Select(l => l.Dto)
+            .Select(l => l.Modelo)
             .OrderBy(a => a.DataProximaPrevista)
             .ThenBy(a => a.Id)
-            .Select(a => new ProximaAdministracaoDto
+            .Select(a => new AdministracaoPrevista
             {
                 Tipo = a.Tipo,
                 Produto = a.Produto,
@@ -229,10 +229,10 @@ public sealed class VacinacoesService : IVacinacoesService
             })
             .ToList();
 
-        return (administracoes.Select(l => l.Dto).ToList(), proximas);
+        return (administracoes.Select(l => l.Modelo).ToList(), proximas);
     }
 
-    private async Task<AdministracaoDto> ObterDtoAsync(int id)
+    private async Task<AdministracaoRegistada> ObterModeloAsync(int id)
     {
         var linha = await (
                 from r in _db.RegistosProfilaxias.AsNoTracking()
@@ -241,10 +241,10 @@ public sealed class VacinacoesService : IVacinacoesService
                 select new { Registo = r, Veterinario = v.Nome })
             .FirstAsync();
 
-        return ParaDto(linha.Registo, linha.Veterinario);
+        return ParaModelo(linha.Registo, linha.Veterinario);
     }
 
-    private static AdministracaoDto ParaDto(RegistoProfilaxia registo, string veterinario) => new()
+    private static AdministracaoRegistada ParaModelo(RegistoProfilaxia registo, string veterinario) => new()
     {
         Id = registo.Id,
         Tipo = registo.Tipo,
@@ -257,7 +257,7 @@ public sealed class VacinacoesService : IVacinacoesService
     };
 
     // A coluna calculada DataProximaAdministracao não é escrita: o SQL Server calcula-a.
-    private static void Copiar(UpdateAdministracaoDto pedido, RegistoProfilaxia registo)
+    private static void Copiar(DadosAdministracao pedido, RegistoProfilaxia registo)
     {
         registo.Tipo = pedido.Tipo.Trim();
         registo.Produto = pedido.Produto.Trim();
@@ -269,7 +269,7 @@ public sealed class VacinacoesService : IVacinacoesService
     /// <summary>
     /// Regras das anotações do pedido (tipo, produto, lote, data e intervalo) e data não futura.
     /// </summary>
-    private void Validar(UpdateAdministracaoDto pedido)
+    private void Validar(DadosAdministracao pedido)
     {
         var erros = new List<ValidationResult>();
         Validator.TryValidateObject(pedido, new ValidationContext(pedido), erros, validateAllProperties: true);

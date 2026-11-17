@@ -1,9 +1,10 @@
 using System.Reflection;
 using System.Security.Claims;
 using ClinicaVeterinaria.Api.Controllers;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Api.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.UnitTests.Consultas;
 using Microsoft.AspNetCore.Authorization;
@@ -116,8 +117,8 @@ public class RegistosClinicosControllerTests
 
         var criado = Assert.IsType<CreatedResult>(resposta.Result);
         Assert.Equal("/registos-clinicos/18", criado.Location);
-        Assert.Same(servico.Registo, criado.Value);
-        Assert.Same(pedido, servico.UltimoPedido);
+        Assert.Equivalent(servico.Registo, Assert.IsType<RegistoClinicoDto>(criado.Value), strict: true);
+        Assert.Equivalent(pedido, servico.UltimoPedido);
         Assert.Equal(4, servico.UltimoVeterinarioId);
     }
 
@@ -131,9 +132,9 @@ public class RegistosClinicosControllerTests
         var resposta = await controlador.Atualizar(18, pedido);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Registo, ok.Value);
+        Assert.Equivalent(servico.Registo, Assert.IsType<RegistoClinicoDto>(ok.Value), strict: true);
         Assert.Equal(18, servico.UltimoId);
-        Assert.Same(pedido, servico.UltimoPedido);
+        Assert.Equivalent(pedido, servico.UltimoPedido);
         Assert.Equal(4, servico.UltimoVeterinarioId);
     }
 
@@ -157,7 +158,7 @@ public class RegistosClinicosControllerTests
         var resposta = await controlador.Obter(18);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Registo, ok.Value);
+        Assert.Equivalent(servico.Registo, Assert.IsType<RegistoClinicoDto>(ok.Value), strict: true);
         Assert.Equal(18, servico.UltimoId);
     }
 
@@ -171,9 +172,9 @@ public class RegistosClinicosControllerTests
         var resposta = await controlador.ObterHistorico(3, query);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Historico, ok.Value);
+        Assert.Equivalent(servico.Historico, Assert.IsType<HistoricoClinicoDto>(ok.Value), strict: true);
         Assert.Equal(3, servico.UltimoId);
-        Assert.Same(query, servico.UltimaQuery);
+        Assert.Equivalent(query, servico.UltimaQuery);
     }
 
     private static RegistosClinicosController CriarControlador(RegistosClinicosServiceDeTeste servico, ClaimsPrincipal utilizador) =>
@@ -187,19 +188,19 @@ public class RegistosClinicosControllerTests
 
     private sealed class RegistosClinicosServiceDeTeste : IRegistosClinicosService
     {
-        public RegistoClinicoDto Registo { get; } = new() { Id = 18, ConsultaId = 41 };
+        public DetalheRegistoClinico Registo { get; } = new() { Id = 18, ConsultaId = 41 };
 
-        public HistoricoClinicoDto Historico { get; } = new();
+        public HistoricoClinico Historico { get; } = new();
 
-        public HistoricoClinicoQuery? UltimaQuery { get; private set; }
+        public PeriodoHistoricoClinico? UltimaQuery { get; private set; }
 
-        public UpdateRegistoClinicoDto? UltimoPedido { get; private set; }
+        public AlteracaoRegistoClinico? UltimoPedido { get; private set; }
 
         public int? UltimoId { get; private set; }
 
         public int? UltimoVeterinarioId { get; private set; }
 
-        public Task<RegistoClinicoDto> CriarAsync(CreateRegistoClinicoDto pedido, int veterinarioId)
+        public Task<DetalheRegistoClinico> CriarAsync(NovoRegistoClinico pedido, int veterinarioId)
         {
             UltimoPedido = pedido;
             UltimoVeterinarioId = veterinarioId;
@@ -207,7 +208,7 @@ public class RegistosClinicosControllerTests
             return Task.FromResult(Registo);
         }
 
-        public Task<RegistoClinicoDto> AtualizarAsync(int id, UpdateRegistoClinicoDto pedido, int veterinarioId)
+        public Task<DetalheRegistoClinico> AtualizarAsync(int id, AlteracaoRegistoClinico pedido, int veterinarioId)
         {
             UltimoId = id;
             UltimoPedido = pedido;
@@ -216,14 +217,14 @@ public class RegistosClinicosControllerTests
             return Task.FromResult(Registo);
         }
 
-        public Task<RegistoClinicoDto> ObterAsync(int id)
+        public Task<DetalheRegistoClinico> ObterAsync(int id)
         {
             UltimoId = id;
 
             return Task.FromResult(Registo);
         }
 
-        public Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query)
+        public Task<HistoricoClinico> ObterHistoricoAsync(int animalId, PeriodoHistoricoClinico query)
         {
             UltimoId = animalId;
             UltimaQuery = query;

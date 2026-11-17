@@ -1,6 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Clinica;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Clinica;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +27,7 @@ public sealed class ClinicaService : IClinicaService
         _relogio = relogio;
     }
 
-    public async Task<ClinicaDto> ObterAsync()
+    public async Task<DadosClinica> ObterAsync()
     {
         var clinica = await _db.Clinica.AsNoTracking().FirstOrDefaultAsync(c => c.Id == IdClinica)
             ?? new Clinica { Id = IdClinica };
@@ -44,10 +44,10 @@ public sealed class ClinicaService : IClinicaService
             .Select(h => new PeriodoValidado(h.DiaSemana, h.HoraAbertura, h.HoraFecho))
             .ToListAsync();
 
-        return CriarDto(clinica, LerDuracao(duracao), horario);
+        return CriarModelo(clinica, LerDuracao(duracao), horario);
     }
 
-    public async Task<ClinicaDto> AtualizarAsync(UpdateClinicaDto pedido)
+    public async Task<DadosClinica> AtualizarAsync(AlteracaoClinica pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -93,10 +93,10 @@ public sealed class ClinicaService : IClinicaService
         // Um único SaveChanges: dados, configuração e horário na mesma transação.
         await _db.SaveChangesAsync();
 
-        return CriarDto(clinica, pedido.DuracaoConsultaMinutos, horario);
+        return CriarModelo(clinica, pedido.DuracaoConsultaMinutos, horario);
     }
 
-    private static ClinicaDto CriarDto(Clinica clinica, int duracaoConsultaMinutos, IReadOnlyList<PeriodoValidado> horario) =>
+    private static DadosClinica CriarModelo(Clinica clinica, int duracaoConsultaMinutos, IReadOnlyList<PeriodoValidado> horario) =>
         new()
         {
             Nome = clinica.Nome,
@@ -106,7 +106,7 @@ public sealed class ClinicaService : IClinicaService
             Email = clinica.Email,
             DuracaoConsultaMinutos = duracaoConsultaMinutos,
             HorarioFuncionamento = horario
-                .Select(p => new PeriodoHorarioDto
+                .Select(p => new PeriodoHorario
                 {
                     DiaSemana = ValidadorHorario.NomeDia(p.DiaSemana),
                     Abertura = ValidadorHorario.FormatarHora(p.Abertura),

@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Auth;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +61,7 @@ internal static class AjudaSeguranca
         return servicos.BuildServiceProvider();
     }
 
-    public static UtilizadorAutenticadoDto Utilizador(int id, string perfil, int? clienteId = null) => new()
+    public static UtilizadorAutenticado Utilizador(int id, string perfil, int? clienteId = null) => new()
     {
         Id = id,
         Nome = "Utilizador de teste",

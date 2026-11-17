@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -33,7 +33,7 @@ public class ConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.VetB, "2026-10-15T10:00:00Z", EstadosConsulta.Pendente);
         var a2 = await AdicionarMarcacaoAsync(db, d.AnimalA2, d.VetA, "2026-10-15T13:00:00Z", EstadosConsulta.Pendente);
 
-        var filtro = new ConsultaFiltroQuery { DataInicio = Quinta, DataFim = Quinta, VeterinarioId = d.VetB };
+        var filtro = new PesquisaConsultas { DataInicio = Quinta, DataFim = Quinta, VeterinarioId = d.VetB };
         var agenda = await CriarServico(db).ObterConsultasAsync(filtro, AcessoConsultas.Veterinario(d.VetA));
 
         Assert.Equal(new[] { a1, a2 }, agenda.Itens.Select(c => c.Id));
@@ -51,7 +51,7 @@ public class ConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA2, d.VetA, "2026-10-15T11:00:00Z", EstadosConsulta.Pendente);
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.VetB, "2026-10-15T12:00:00Z", EstadosConsulta.Cancelada);
 
-        var filtro = new ConsultaFiltroQuery { DataInicio = Quinta, DataFim = Quinta, Estado = EstadosConsulta.Confirmada };
+        var filtro = new PesquisaConsultas { DataInicio = Quinta, DataFim = Quinta, Estado = EstadosConsulta.Confirmada };
         var agenda = await CriarServico(db).ObterConsultasAsync(filtro, AcessoConsultas.Rececionista);
 
         Assert.Equal(new[] { a, b }, agenda.Itens.Select(c => c.Id));
@@ -63,7 +63,7 @@ public class ConsultasServiceTests
     public async Task DataFimAnteriorDevolve400()
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var filtro = new ConsultaFiltroQuery { DataInicio = Quinta, DataFim = Quinta.AddDays(-1) };
+        var filtro = new PesquisaConsultas { DataInicio = Quinta, DataFim = Quinta.AddDays(-1) };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterConsultasAsync(filtro, AcessoConsultas.Rececionista));
@@ -86,7 +86,7 @@ public class ConsultasServiceTests
 
         var dia = new DateOnly(2026, 10, 25);
         var agenda = await CriarServico(db).ObterConsultasAsync(
-            new ConsultaFiltroQuery { DataInicio = dia, DataFim = dia },
+            new PesquisaConsultas { DataInicio = dia, DataFim = dia },
             AcessoConsultas.Rececionista);
 
         Assert.Equal(new[] { primeira, ultima }, agenda.Itens.Select(c => c.Id));
@@ -102,9 +102,9 @@ public class ConsultasServiceTests
         var depois = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetA, "2026-11-20T09:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        var desde = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { DataInicio = Quinta }, AcessoConsultas.Rececionista);
-        var ate = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { DataFim = Quinta }, AcessoConsultas.Rececionista);
-        var tudo = await servico.ObterConsultasAsync(new ConsultaFiltroQuery(), AcessoConsultas.Rececionista);
+        var desde = await servico.ObterConsultasAsync(new PesquisaConsultas { DataInicio = Quinta }, AcessoConsultas.Rececionista);
+        var ate = await servico.ObterConsultasAsync(new PesquisaConsultas { DataFim = Quinta }, AcessoConsultas.Rececionista);
+        var tudo = await servico.ObterConsultasAsync(new PesquisaConsultas(), AcessoConsultas.Rececionista);
 
         Assert.Equal(new[] { durante, depois }, desde.Itens.Select(c => c.Id));
         Assert.Equal(new[] { antes, durante }, ate.Itens.Select(c => c.Id));
@@ -121,8 +121,8 @@ public class ConsultasServiceTests
         var b1 = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetB, "2026-10-15T11:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        var doVetA = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { VeterinarioId = d.VetA }, AcessoConsultas.Rececionista);
-        var doAnimal = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { AnimalId = d.AnimalA1 }, AcessoConsultas.Rececionista);
+        var doVetA = await servico.ObterConsultasAsync(new PesquisaConsultas { VeterinarioId = d.VetA }, AcessoConsultas.Rececionista);
+        var doAnimal = await servico.ObterConsultasAsync(new PesquisaConsultas { AnimalId = d.AnimalA1 }, AcessoConsultas.Rececionista);
 
         Assert.Equal(new[] { a1, a2 }, doVetA.Itens.Select(c => c.Id));
         Assert.Equal(new[] { a1, b1 }, doAnimal.Itens.Select(c => c.Id));
@@ -136,7 +136,7 @@ public class ConsultasServiceTests
         var a = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetA, "2026-10-15T09:00:00Z", EstadosConsulta.Pendente);
         var b = await AdicionarMarcacaoAsync(db, d.AnimalB1, d.VetB, "2026-10-15T10:00:00Z", EstadosConsulta.Pendente);
 
-        var agenda = await CriarServico(db).ObterConsultasAsync(new ConsultaFiltroQuery(), AcessoConsultas.AuxiliarVeterinario);
+        var agenda = await CriarServico(db).ObterConsultasAsync(new PesquisaConsultas(), AcessoConsultas.AuxiliarVeterinario);
 
         Assert.Equal(new[] { a, b }, agenda.Itens.Select(c => c.Id));
     }
@@ -151,7 +151,7 @@ public class ConsultasServiceTests
         var confirmada = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetA, "2026-10-15T09:00:00Z", EstadosConsulta.Confirmada);
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetA, "2026-10-15T10:00:00Z", EstadosConsulta.Pendente);
 
-        var agenda = await CriarServico(db).ObterConsultasAsync(new ConsultaFiltroQuery { Estado = estado }, AcessoConsultas.Rececionista);
+        var agenda = await CriarServico(db).ObterConsultasAsync(new PesquisaConsultas { Estado = estado }, AcessoConsultas.Rececionista);
 
         Assert.Equal(confirmada, Assert.Single(agenda.Itens).Id);
     }
@@ -163,7 +163,7 @@ public class ConsultasServiceTests
     public async Task FiltroInvalidoDevolve400(string? estado, string? dataInicio, string? dataFim)
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var filtro = new ConsultaFiltroQuery
+        var filtro = new PesquisaConsultas
         {
             Estado = estado,
             DataInicio = dataInicio is null ? null : Data(dataInicio),
@@ -185,8 +185,8 @@ public class ConsultasServiceTests
         var noite = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetB, "2026-10-15T17:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        var pagina1 = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { Tamanho = 2 }, AcessoConsultas.Rececionista);
-        var pagina2 = await servico.ObterConsultasAsync(new ConsultaFiltroQuery { Tamanho = 2, Pagina = 2 }, AcessoConsultas.Rececionista);
+        var pagina1 = await servico.ObterConsultasAsync(new PesquisaConsultas { Tamanho = 2 }, AcessoConsultas.Rececionista);
+        var pagina2 = await servico.ObterConsultasAsync(new PesquisaConsultas { Tamanho = 2, Pagina = 2 }, AcessoConsultas.Rececionista);
 
         // Às 09:00 há duas marcações: a criada primeiro (id menor) vem antes.
         Assert.Equal(new[] { manhaB, manhaA }, pagina1.Itens.Select(c => c.Id));
@@ -205,7 +205,7 @@ public class ConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.VetA, "2026-10-15T09:00:00Z", EstadosConsulta.Pendente);
 
         var agenda = await CriarServico(db).ObterConsultasAsync(
-            new ConsultaFiltroQuery { Pagina = int.MaxValue, Tamanho = 100 },
+            new PesquisaConsultas { Pagina = int.MaxValue, Tamanho = 100 },
             AcessoConsultas.Rececionista);
 
         Assert.Empty(agenda.Itens);
@@ -221,7 +221,7 @@ public class ConsultasServiceTests
             db, d.AnimalA1, d.VetA, "2026-10-15T09:00:00Z", EstadosConsulta.Confirmada,
             motivo: "Vacinação anual", chegada: "2026-10-15T08:52:00Z");
 
-        var item = Assert.Single((await CriarServico(db).ObterConsultasAsync(new ConsultaFiltroQuery(), AcessoConsultas.Rececionista)).Itens);
+        var item = Assert.Single((await CriarServico(db).ObterConsultasAsync(new PesquisaConsultas(), AcessoConsultas.Rececionista)).Itens);
 
         Assert.Equal(Utc("2026-10-15T09:00:00Z"), item.DataHora);
         Assert.Equal(DateTimeKind.Utc, item.DataHora.Kind);

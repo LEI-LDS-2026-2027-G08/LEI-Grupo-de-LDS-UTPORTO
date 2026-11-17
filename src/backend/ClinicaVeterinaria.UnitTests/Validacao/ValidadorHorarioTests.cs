@@ -1,12 +1,12 @@
-using ClinicaVeterinaria.Application.DTOs.Clinica;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Clinica;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.UnitTests.Validacao;
 
 public class ValidadorHorarioTests
 {
-    private static PeriodoHorarioDto P(string dia, string abertura, string fecho) =>
+    private static PeriodoHorario P(string dia, string abertura, string fecho) =>
         new() { DiaSemana = dia, Abertura = abertura, Fecho = fecho };
 
     [Fact]

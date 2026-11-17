@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Api.DTOs.Veterinarios;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.UnitTests.Validacao;

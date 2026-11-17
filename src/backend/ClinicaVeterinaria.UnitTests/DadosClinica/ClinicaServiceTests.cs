@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Clinica;
+using ClinicaVeterinaria.Api.DTOs.Clinica;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Clinica;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
 using ClinicaVeterinaria.UnitTests.Seguranca;
@@ -12,7 +13,7 @@ namespace ClinicaVeterinaria.UnitTests.DadosClinica;
 /// I086 — dados gerais, configurações e horário da clínica (EP-009, EP-010) no
 /// <see cref="ClinicaService"/>: casos UT-F001-100 a UT-F001-111 da Especificação de Testes
 /// Unitários (I028, secção 7.1.9). As regras de formato do pedido (duração e NIF) estão no
-/// <see cref="UpdateClinicaDto"/> e dão 400 na validação automática do [ApiController].
+/// <see cref="AlteracaoClinica"/> e dão 400 na validação automática do [ApiController].
 /// </summary>
 public class ClinicaServiceTests
 {
@@ -45,11 +46,11 @@ public class ClinicaServiceTests
     }
 
     // ----- EP-010 — Atualizar clínica -----
-    [Fact(DisplayName = "UT-F001-102 — Um pedido válido substitui os dados, a duração e o horário e devolve o ClinicaDto")]
+    [Fact(DisplayName = "UT-F001-102 — Um pedido válido substitui os dados, a duração e o horário e devolve o DadosClinica")]
     public async Task AtualizarSubstituiDadosDuracaoEHorario()
     {
         using var db = CriarBaseComClinica([Periodo(7, 10, 12)]);
-        var pedido = PedidoValido(HorarioPadraoDto());
+        var pedido = PedidoValido(HorarioPadraoModelo());
         pedido.Nome = "Clínica Veterinária G08 — Maia";
         pedido.DuracaoConsultaMinutos = 20;
 
@@ -67,7 +68,7 @@ public class ClinicaServiceTests
         using var db = CriarBaseComClinica(HorarioPadrao());
 
         await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", "09:00", "09:00")])));
+            () => CriarServico(db).AtualizarAsync(PedidoValido([Periodo("Segunda", "09:00", "09:00")])));
 
         Assert.Equal(11, await db.HorariosFuncionamento.CountAsync());
     }
@@ -78,14 +79,14 @@ public class ClinicaServiceTests
         using var db = CriarBaseComClinica(HorarioPadrao());
 
         await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", "14:00", "13:00")])));
+            () => CriarServico(db).AtualizarAsync(PedidoValido([Periodo("Segunda", "14:00", "13:00")])));
     }
 
     [Fact(DisplayName = "UT-F001-105 — Períodos sobrepostos no mesmo dia (09:00–13:00 e 12:00–15:00) devolvem 400")]
     public async Task PeriodosSobrepostosDevolvem400()
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
-        var pedido = PedidoValido([PeriodoDto("Segunda", "09:00", "13:00"), PeriodoDto("Segunda", "12:00", "15:00")]);
+        var pedido = PedidoValido([Periodo("Segunda", "09:00", "13:00"), Periodo("Segunda", "12:00", "15:00")]);
 
         await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).AtualizarAsync(pedido));
     }
@@ -94,7 +95,7 @@ public class ClinicaServiceTests
     public async Task PeriodosContiguosSaoAceites()
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
-        var pedido = PedidoValido([PeriodoDto("Segunda", "09:00", "13:00"), PeriodoDto("Segunda", "13:00", "15:00")]);
+        var pedido = PedidoValido([Periodo("Segunda", "09:00", "13:00"), Periodo("Segunda", "13:00", "15:00")]);
 
         var clinica = await CriarServico(db).AtualizarAsync(pedido);
 
@@ -105,7 +106,7 @@ public class ClinicaServiceTests
     public async Task MesmasHorasEmDiasDiferentesSaoAceites()
     {
         using var db = CriarBaseComClinica(HorarioPadrao());
-        var pedido = PedidoValido([PeriodoDto("Segunda", "09:00", "13:00"), PeriodoDto("Terca", "09:00", "13:00")]);
+        var pedido = PedidoValido([Periodo("Segunda", "09:00", "13:00"), Periodo("Terca", "09:00", "13:00")]);
 
         var clinica = await CriarServico(db).AtualizarAsync(pedido);
 
@@ -120,13 +121,13 @@ public class ClinicaServiceTests
         using var db = CriarBaseComClinica(HorarioPadrao());
 
         await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).AtualizarAsync(PedidoValido([PeriodoDto("Segunda", abertura, fecho)])));
+            () => CriarServico(db).AtualizarAsync(PedidoValido([Periodo("Segunda", abertura, fecho)])));
     }
 
     [Fact(DisplayName = "UT-F001-109 — duracaoConsultaMinutos = 0 é recusada na validação do pedido (400)")]
     public void DuracaoZeroEInvalida()
     {
-        var pedido = PedidoValido(HorarioPadraoDto());
+        var pedido = PedidoValidoHttp();
         pedido.DuracaoConsultaMinutos = 0;
 
         Assert.Contains(nameof(UpdateClinicaDto.DuracaoConsultaMinutos), CamposComErro(pedido));
@@ -145,7 +146,7 @@ public class ClinicaServiceTests
     [Fact(DisplayName = "UT-F001-111 — Um NIF com o dígito de controlo errado é recusado na validação do pedido (400)")]
     public void NifInvalidoEInvalido()
     {
-        var pedido = PedidoValido(HorarioPadraoDto());
+        var pedido = PedidoValidoHttp();
         pedido.Nif = "501234567";
 
         Assert.Contains(nameof(UpdateClinicaDto.Nif), CamposComErro(pedido));
@@ -154,7 +155,7 @@ public class ClinicaServiceTests
     [Fact(DisplayName = "I067 — Sem a lista do horário (null), o pedido é recusado (400)")]
     public void HorarioEmFaltaEInvalido()
     {
-        var pedido = PedidoValido(HorarioPadraoDto());
+        var pedido = PedidoValidoHttp();
         pedido.HorarioFuncionamento = null;
 
         Assert.Contains(nameof(UpdateClinicaDto.HorarioFuncionamento), CamposComErro(pedido));
@@ -214,26 +215,26 @@ public class ClinicaServiceTests
         Ativo = true,
     };
 
-    private static List<PeriodoHorarioDto> HorarioPadraoDto()
+    private static List<PeriodoHorario> HorarioPadraoModelo()
     {
         string[] dias = ["Segunda", "Terca", "Quarta", "Quinta", "Sexta"];
-        var periodos = new List<PeriodoHorarioDto>();
+        var periodos = new List<PeriodoHorario>();
 
         foreach (var dia in dias)
         {
-            periodos.Add(PeriodoDto(dia, "09:00", "13:00"));
-            periodos.Add(PeriodoDto(dia, "14:00", "19:00"));
+            periodos.Add(Periodo(dia, "09:00", "13:00"));
+            periodos.Add(Periodo(dia, "14:00", "19:00"));
         }
 
-        periodos.Add(PeriodoDto("Sabado", "09:00", "13:00"));
+        periodos.Add(Periodo("Sabado", "09:00", "13:00"));
 
         return periodos;
     }
 
-    private static PeriodoHorarioDto PeriodoDto(string dia, string abertura, string fecho) =>
+    private static PeriodoHorario Periodo(string dia, string abertura, string fecho) =>
         new() { DiaSemana = dia, Abertura = abertura, Fecho = fecho };
 
-    private static UpdateClinicaDto PedidoValido(List<PeriodoHorarioDto> horario) => new()
+    private static AlteracaoClinica PedidoValido(List<PeriodoHorario> horario) => new()
     {
         Nome = "Clínica Veterinária G08",
         Nif = "501234560",
@@ -243,6 +244,21 @@ public class ClinicaServiceTests
         DuracaoConsultaMinutos = 30,
         HorarioFuncionamento = horario,
     };
+
+    private static UpdateClinicaDto PedidoValidoHttp()
+    {
+        var dados = PedidoValido([]);
+        return new UpdateClinicaDto
+        {
+            Nome = dados.Nome,
+            Nif = dados.Nif,
+            Morada = dados.Morada,
+            Telefone = dados.Telefone,
+            Email = dados.Email,
+            DuracaoConsultaMinutos = dados.DuracaoConsultaMinutos,
+            HorarioFuncionamento = [],
+        };
+    }
 
     private static List<string> CamposComErro(object pedido)
     {

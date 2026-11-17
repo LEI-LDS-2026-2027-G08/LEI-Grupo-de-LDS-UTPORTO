@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -30,8 +30,8 @@ public class RegistosClinicosServiceTests
 
     private static readonly DateOnly Hoje = new(2026, 10, 14);
 
-    // Mensagens das DataAnnotations dos DTOs (CreatePrescricaoDto, CreateTratamentoDto e
-    // UpdateRegistoClinicoDto): cada pedido destes casos tem um único erro.
+    // Mensagens das DataAnnotations dos DTOs (DadosPrescricao, DadosTratamento e
+    // AlteracaoRegistoClinico): cada pedido destes casos tem um único erro.
     private const string MensagemDuracaoInvalida = "A duração da prescrição, quando indicada, deve ser superior a 0 dias.";
     private const string MensagemTratamentoSemDescricao = "A descrição do tratamento é obrigatória.";
     private const string MensagemDiagnosticoLongo = "O diagnóstico não pode ter mais de 1000 caracteres.";
@@ -77,7 +77,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [Prescricao()] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Prescricoes = [Prescricao()] };
 
         var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
 
@@ -92,7 +92,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Tratamentos = [Tratamento()] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Tratamentos = [Tratamento()] };
 
         var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
 
@@ -117,7 +117,7 @@ public class RegistosClinicosServiceTests
     public async Task ConsultaIdInvalidoDevolve400(int? consultaId)
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = consultaId, Diagnostico = "Otite externa" };
+        var pedido = new NovoRegistoClinico { ConsultaId = consultaId, Diagnostico = "Otite externa" };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, 1));
 
@@ -129,7 +129,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateRegistoClinicoDto
+        var pedido = new NovoRegistoClinico
         {
             ConsultaId = d.ConsultaConfirmada,
             NotasClinicas = string.Empty,
@@ -149,7 +149,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, NotasClinicas = "   " };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, NotasClinicas = "   " };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
@@ -179,7 +179,7 @@ public class RegistosClinicosServiceTests
                 break;
         }
 
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
@@ -194,7 +194,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var prescricao = Prescricao();
         prescricao.DuracaoDias = 0;
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
@@ -209,7 +209,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var prescricao = Prescricao();
         prescricao.DuracaoDias = null;
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Prescricoes = [prescricao] };
 
         var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
 
@@ -223,7 +223,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var tratamento = Tratamento();
         tratamento.Descricao = string.Empty;
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Tratamentos = [tratamento] };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Tratamentos = [tratamento] };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
@@ -236,7 +236,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Diagnostico = new string('x', 1001) };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Diagnostico = new string('x', 1001) };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).CriarAsync(pedido, d.VetA));
 
@@ -250,7 +250,7 @@ public class RegistosClinicosServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
         var diagnostico = new string('x', 1000);
-        var pedido = new CreateRegistoClinicoDto { ConsultaId = d.ConsultaConfirmada, Diagnostico = diagnostico };
+        var pedido = new NovoRegistoClinico { ConsultaId = d.ConsultaConfirmada, Diagnostico = diagnostico };
 
         var registo = await CriarServico(db).CriarAsync(pedido, d.VetA);
 
@@ -328,7 +328,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
         var tratamento = Tratamento();
         tratamento.Descricao = "  Limpeza auricular  ";
-        var pedido = new CreateRegistoClinicoDto
+        var pedido = new NovoRegistoClinico
         {
             ConsultaId = d.ConsultaConfirmada,
             NotasClinicas = "   ",
@@ -349,14 +349,14 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             NotasClinicas = "Melhoria evidente.",
             Diagnostico = "Otite externa (em resolução)",
             Tratamentos =
             [
-                new CreateTratamentoDto { Id = d.T1, Descricao = "Limpeza auricular (repetida)", DataAplicacao = Hoje },
-                new CreateTratamentoDto { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
+                new DadosTratamento { Id = d.T1, Descricao = "Limpeza auricular (repetida)", DataAplicacao = Hoje },
+                new DadosTratamento { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
             ],
             Prescricoes = [],
         };
@@ -394,10 +394,10 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Diagnostico = "Otite externa",
-            Tratamentos = [new CreateTratamentoDto { Id = d.T9, Descricao = "Outro", DataAplicacao = Hoje }],
+            Tratamentos = [new DadosTratamento { Id = d.T9, Descricao = "Outro", DataAplicacao = Hoje }],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -414,7 +414,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).AtualizarAsync(d.RegistoA, new UpdateRegistoClinicoDto(), d.VetA));
+            () => CriarServico(db).AtualizarAsync(d.RegistoA, new AlteracaoRegistoClinico(), d.VetA));
 
         Assert.Equal(ValidadorRegistoClinico.MensagemSemElementoClinico, erro.Message);
         var gravado = await db.RegistosClinicos.AsNoTracking().SingleAsync(r => r.Id == d.RegistoA);
@@ -429,7 +429,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
 
         var erro = await Assert.ThrowsAsync<NaoEncontradoException>(
-            () => CriarServico(db).AtualizarAsync(999, new UpdateRegistoClinicoDto { Diagnostico = "x" }, d.VetA));
+            () => CriarServico(db).AtualizarAsync(999, new AlteracaoRegistoClinico { Diagnostico = "x" }, d.VetA));
 
         Assert.Equal(RegistosClinicosService.MensagemRegistoNaoEncontrado, erro.Message);
     }
@@ -441,7 +441,7 @@ public class RegistosClinicosServiceTests
         var d = await CriarBaseAsync(db);
 
         var erro = await Assert.ThrowsAsync<ForbiddenException>(() => CriarServico(db).AtualizarAsync(
-            d.RegistoA, new UpdateRegistoClinicoDto { Diagnostico = "Outro" }, d.VetB));
+            d.RegistoA, new AlteracaoRegistoClinico { Diagnostico = "Outro" }, d.VetB));
 
         Assert.Equal(RegistosClinicosService.MensagemRegistoDeOutroVeterinario, erro.Message);
         Assert.Equal("Otite externa", (await db.RegistosClinicos.AsNoTracking().SingleAsync(r => r.Id == d.RegistoA)).Diagnostico);
@@ -452,12 +452,12 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Tratamentos =
             [
-                new CreateTratamentoDto { Id = d.T1, Descricao = "A", DataAplicacao = Hoje },
-                new CreateTratamentoDto { Id = d.T1, Descricao = "B", DataAplicacao = Hoje }
+                new DadosTratamento { Id = d.T1, Descricao = "A", DataAplicacao = Hoje },
+                new DadosTratamento { Id = d.T1, Descricao = "B", DataAplicacao = Hoje }
             ],
         };
 
@@ -472,11 +472,11 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Prescricoes =
             [
-                new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas auriculares X", Dosagem = "2 gotas", Frequencia = "1 vez por dia", DuracaoDias = 10 }
+                new DadosPrescricao { Id = d.P1, Medicamento = "Gotas auriculares X", Dosagem = "2 gotas", Frequencia = "1 vez por dia", DuracaoDias = 10 }
             ],
         };
 
@@ -495,7 +495,7 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             NotasClinicas = "Reavaliação: canal auditivo sem eritema.",
             Diagnostico = "Otite externa resolvida",
@@ -513,10 +513,10 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Diagnostico = "Outro diagnóstico",
-            Tratamentos = [new CreateTratamentoDto { Id = d.T1, Descricao = string.Empty, DataAplicacao = Hoje }],
+            Tratamentos = [new DadosTratamento { Id = d.T1, Descricao = string.Empty, DataAplicacao = Hoje }],
         };
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
@@ -533,11 +533,11 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Prescricoes =
             [
-                new CreatePrescricaoDto { Id = d.P1, Medicamento = "Gotas X", Dosagem = string.Empty, Frequencia = "2 vezes por dia" }
+                new DadosPrescricao { Id = d.P1, Medicamento = "Gotas X", Dosagem = string.Empty, Frequencia = "2 vezes por dia" }
             ],
         };
 
@@ -555,16 +555,16 @@ public class RegistosClinicosServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new UpdateRegistoClinicoDto
+        var pedido = new AlteracaoRegistoClinico
         {
             Tratamentos =
             [
-                new CreateTratamentoDto { Id = d.T1, Descricao = "Limpeza auricular", DataAplicacao = Hoje },
-                new CreateTratamentoDto { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
+                new DadosTratamento { Id = d.T1, Descricao = "Limpeza auricular", DataAplicacao = Hoje },
+                new DadosTratamento { Descricao = "Aplicação de pomada", DataAplicacao = Hoje }
             ],
             Prescricoes =
             [
-                new CreatePrescricaoDto { Medicamento = "Pomada Y", Dosagem = "1 aplicação", Frequencia = "1 vez por dia", DuracaoDias = 5 }
+                new DadosPrescricao { Medicamento = "Pomada Y", Dosagem = "1 aplicação", Frequencia = "1 vez por dia", DuracaoDias = 5 }
             ],
         };
 
@@ -591,14 +591,14 @@ public class RegistosClinicosServiceTests
     // ----- Auxiliares -----
     private static RegistosClinicosService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
-    private static CreateTratamentoDto Tratamento() =>
+    private static DadosTratamento Tratamento() =>
         new() { Descricao = "Limpeza auricular", DataAplicacao = Hoje };
 
-    private static CreatePrescricaoDto Prescricao() =>
+    private static DadosPrescricao Prescricao() =>
         new() { Medicamento = "Gotas auriculares X", Dosagem = "3 gotas", Frequencia = "2 vezes por dia", DuracaoDias = 7 };
 
     /// <summary>O pedido de exemplo da Documentação de API (EP-031).</summary>
-    private static CreateRegistoClinicoDto PedidoExemplo(int consultaId) => new()
+    private static NovoRegistoClinico PedidoExemplo(int consultaId) => new()
     {
         ConsultaId = consultaId,
         NotasClinicas = "Animal ativo; ligeira inflamação no ouvido esquerdo.",

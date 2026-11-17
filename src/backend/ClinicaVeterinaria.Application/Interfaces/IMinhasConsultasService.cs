@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Application.Models.Consultas;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
@@ -12,5 +12,5 @@ public interface IMinhasConsultasService
     /// </summary>
     /// <param name="clienteId">Cliente do token (nunca do pedido, RNF002).</param>
     /// <param name="query">Tipo e filtro opcional por animal.</param>
-    Task<IReadOnlyList<MinhaConsultaDto>> ListarAsync(int clienteId, MinhasConsultasQuery query);
+    Task<IReadOnlyList<MinhaConsulta>> ListarAsync(int clienteId, PesquisaMinhasConsultas query);
 }

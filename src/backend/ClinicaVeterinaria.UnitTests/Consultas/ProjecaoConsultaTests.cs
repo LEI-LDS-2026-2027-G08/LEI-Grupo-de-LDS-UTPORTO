@@ -1,6 +1,6 @@
 using System.Reflection;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 
 namespace ClinicaVeterinaria.UnitTests.Consultas;
 
@@ -25,34 +25,34 @@ public class ProjecaoConsultaTests
         "Peso"
     ];
 
-    [Fact(DisplayName = "I072 — ConsultaDto (EP-024): só dados administrativos e as notas de preparação")]
+    [Fact(DisplayName = "I072 — DetalheConsulta (EP-024): só dados administrativos e as notas de preparação")]
     public void ConsultaDtoSemDadosClinicos()
     {
-        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,NotasPreparacao,Observacao,Veterinario", Campos(typeof(ConsultaDto)));
+        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,NotasPreparacao,Observacao,Veterinario", Campos(typeof(DetalheConsulta)));
     }
 
-    [Fact(DisplayName = "I072 — ConsultaListItemDto (EP-023): só dados administrativos")]
+    [Fact(DisplayName = "I072 — ResumoConsulta (EP-023): só dados administrativos")]
     public void ConsultaListItemDtoSemDadosClinicos()
     {
-        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,Veterinario", Campos(typeof(ConsultaListItemDto)));
+        Assert.Equal("Animal,ChegadaEm,Cliente,DataHora,DuracaoMinutos,Estado,Id,Motivo,Veterinario", Campos(typeof(ResumoConsulta)));
     }
 
-    [Fact(DisplayName = "I072 — NotaPreparacaoDto e as referências ao animal, ao proprietário e ao Veterinário")]
+    [Fact(DisplayName = "I072 — NotaPreparacao e as referências ao animal, ao proprietário e ao Veterinário")]
     public void DtosAninhadosSemDadosClinicos()
     {
-        Assert.Equal("Autor,ConsultaId,CriadaEm,Id,Texto", Campos(typeof(NotaPreparacaoDto)));
-        Assert.Equal("Especie,Id,Nome", Campos(typeof(AnimalRefDto)));
-        Assert.Equal("Id,Nome,Telefone", Campos(typeof(ClienteRefDto)));
-        Assert.Equal("Id,Nome", Campos(typeof(VeterinarioRefDto)));
+        Assert.Equal("Autor,ConsultaId,CriadaEm,Id,Texto", Campos(typeof(NotaPreparacao)));
+        Assert.Equal("Especie,Id,Nome", Campos(typeof(ReferenciaAnimal)));
+        Assert.Equal("Id,Nome,Telefone", Campos(typeof(ReferenciaCliente)));
+        Assert.Equal("Id,Nome", Campos(typeof(ReferenciaVeterinario)));
     }
 
     [Theory(DisplayName = "I072 — nenhum DTO da agenda tem um campo clínico")]
-    [InlineData(typeof(ConsultaDto))]
-    [InlineData(typeof(ConsultaListItemDto))]
-    [InlineData(typeof(NotaPreparacaoDto))]
-    [InlineData(typeof(AnimalRefDto))]
-    [InlineData(typeof(ClienteRefDto))]
-    [InlineData(typeof(VeterinarioRefDto))]
+    [InlineData(typeof(DetalheConsulta))]
+    [InlineData(typeof(ResumoConsulta))]
+    [InlineData(typeof(NotaPreparacao))]
+    [InlineData(typeof(ReferenciaAnimal))]
+    [InlineData(typeof(ReferenciaCliente))]
+    [InlineData(typeof(ReferenciaVeterinario))]
     public void SemCamposClinicos(Type dto)
     {
         Assert.Empty(NomesDosCampos(dto).Intersect(CamposClinicos, StringComparer.OrdinalIgnoreCase));

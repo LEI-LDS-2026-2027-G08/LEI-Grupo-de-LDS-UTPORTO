@@ -1,7 +1,7 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Utilizadores;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Utilizadores;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -42,7 +42,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<UtilizadorListItemDto>> ListarAsync(UtilizadorFiltroQuery filtro)
+    public async Task<PaginaResultados<ResumoUtilizador>> ListarAsync(PesquisaUtilizadores filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -80,7 +80,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<UtilizadorListItemDto> itens = [];
+        List<ResumoUtilizador> itens = [];
 
         if (salto < total)
         {
@@ -90,7 +90,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 .ThenBy(x => x.Utilizador.Id)
                 .Skip((int)salto)
                 .Take(filtro.Tamanho)
-                .Select(x => new UtilizadorListItemDto
+                .Select(x => new ResumoUtilizador
                 {
                     Id = x.Utilizador.Id,
                     Nome = x.Funcionario.Nome,
@@ -102,7 +102,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
                 .ToListAsync();
         }
 
-        return new PagedResultDto<UtilizadorListItemDto>
+        return new PaginaResultados<ResumoUtilizador>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
@@ -111,7 +111,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         };
     }
 
-    public async Task<UtilizadorDto> ObterAsync(int id)
+    public async Task<DetalheUtilizador> ObterAsync(int id)
     {
         var dados = await (
                 from u in _db.Utilizadores.AsNoTracking()
@@ -121,7 +121,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
-        return new UtilizadorDto
+        return new DetalheUtilizador
         {
             Id = dados.Utilizador.Id,
             Nome = dados.Funcionario.Nome,
@@ -135,7 +135,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         };
     }
 
-    public async Task<UtilizadorListItemDto> CriarAsync(CreateUtilizadorDto pedido)
+    public async Task<ResumoUtilizador> CriarAsync(NovoUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -186,7 +186,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
 
         await transacao.CommitAsync();
 
-        return new UtilizadorListItemDto
+        return new ResumoUtilizador
         {
             Id = utilizador.Id,
             Nome = funcionario.Nome,
@@ -197,7 +197,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         };
     }
 
-    public async Task<UtilizadorDto> AtualizarAsync(int id, int administradorId, UpdateUtilizadorDto pedido)
+    public async Task<DetalheUtilizador> AtualizarAsync(int id, int administradorId, AlteracaoUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -248,7 +248,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         // Um token emitido com o perfil antigo deixa de ser aceite no pedido seguinte (EP-003).
         await GravarAsync(MensagemEmailUsado);
 
-        return new UtilizadorDto
+        return new DetalheUtilizador
         {
             Id = dados.Utilizador.Id,
             Nome = dados.Funcionario.Nome,
@@ -262,7 +262,7 @@ public sealed class UtilizadoresService : IUtilizadoresService
         };
     }
 
-    public async Task BloquearAsync(int id, int administradorId, AlterarEstadoUtilizadorDto pedido)
+    public async Task BloquearAsync(int id, int administradorId, BloqueioUtilizador pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 

@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -43,7 +43,7 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<PreconditionFailedException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
                     Estado = EstadosConsulta.Confirmada,
                 },
@@ -74,7 +74,7 @@ public class AtualizarEstadoConsultaServiceTests
 
         await CriarServico(db).AtualizarEstadoAsync(
             id,
-            new UpdateEstadoConsultaDto
+            new AlteracaoEstadoConsulta
             {
                 Estado = EstadosConsulta.Confirmada,
             },
@@ -109,7 +109,7 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<UnprocessableEntityException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
                     Estado = EstadosConsulta.Realizada,
                 },
@@ -144,7 +144,7 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
                     Estado = estado,
                 },
@@ -159,7 +159,7 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 999,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
                     Estado = EstadosConsulta.Confirmada,
                 },
@@ -182,7 +182,7 @@ public class AtualizarEstadoConsultaServiceTests
 
         await CriarServico(db).AtualizarEstadoAsync(
             id,
-            new UpdateEstadoConsultaDto
+            new AlteracaoEstadoConsulta
             {
                 Estado = EstadosConsulta.Confirmada,
                 Observacao = "  Confirmada por telefone.  ",
@@ -200,7 +200,7 @@ public class AtualizarEstadoConsultaServiceTests
 
         await CriarServico(db).AtualizarEstadoAsync(
             id,
-            new UpdateEstadoConsultaDto
+            new AlteracaoEstadoConsulta
             {
                 Estado = EstadosConsulta.Cancelada,
                 Observacao = "   ",
@@ -234,7 +234,7 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
                     Estado = EstadosConsulta.Confirmada,
                     Observacao = new string('x', 501),

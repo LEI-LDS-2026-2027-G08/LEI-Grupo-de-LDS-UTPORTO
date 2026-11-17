@@ -1,6 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Veterinarios;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -60,7 +60,7 @@ public class VeterinariosServiceTests
 
     // ----- EP-022 — Consultar disponibilidade -----
     [Fact(DisplayName = "I071 — EP-022 devolve os horários livres em HH:mm, com a duração e o Veterinário")]
-    public async Task DisponibilidadeDevolveHorariosEmTexto()
+    public async Task DisponibilidadeDevolveHorariosLivres()
     {
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
@@ -72,8 +72,8 @@ public class VeterinariosServiceTests
         var dia = Assert.Single(disponibilidade.Dias);
         Assert.Equal(Quinta, dia.Data);
         Assert.Equal(18, dia.HorariosLivres.Count);
-        Assert.Equal("09:00", dia.HorariosLivres[0]);
-        Assert.Equal("18:30", dia.HorariosLivres[^1]);
+        Assert.Equal(new TimeOnly(9, 0), dia.HorariosLivres[0]);
+        Assert.Equal(new TimeOnly(18, 30), dia.HorariosLivres[^1]);
     }
 
     [Fact(DisplayName = "I071 — EP-022 retira os horários das marcações guardadas, mas não os das canceladas")]
@@ -87,9 +87,9 @@ public class VeterinariosServiceTests
 
         var livres = (await CriarServico(db).ObterDisponibilidadeAsync(dados.VetA, Periodo(Quinta))).Dias[0].HorariosLivres;
 
-        Assert.DoesNotContain("10:00", livres);
-        Assert.DoesNotContain("14:00", livres);
-        Assert.Contains("15:00", livres);
+        Assert.DoesNotContain(new TimeOnly(10, 0), livres);
+        Assert.DoesNotContain(new TimeOnly(14, 0), livres);
+        Assert.Contains(new TimeOnly(15, 0), livres);
         Assert.Equal(16, livres.Count);
     }
 
@@ -104,8 +104,8 @@ public class VeterinariosServiceTests
         var livresVetA = (await servico.ObterDisponibilidadeAsync(dados.VetA, Periodo(Quinta))).Dias[0].HorariosLivres;
         var livresVetB = (await servico.ObterDisponibilidadeAsync(dados.VetB, Periodo(Quinta))).Dias[0].HorariosLivres;
 
-        Assert.Contains("10:00", livresVetA);
-        Assert.DoesNotContain("10:00", livresVetB);
+        Assert.Contains(new TimeOnly(10, 0), livresVetA);
+        Assert.DoesNotContain(new TimeOnly(10, 0), livresVetB);
     }
 
     [Fact(DisplayName = "I071 — EP-022 usa a duração configurada em EP-010 e ignora os períodos inativos")]
@@ -135,7 +135,9 @@ public class VeterinariosServiceTests
         var domingo = await servico.ObterDisponibilidadeAsync(dados.VetA, Periodo(new DateOnly(2026, 10, 18)));
 
         Assert.Equal(45, quinta.DuracaoConsultaMinutos);
-        Assert.Equal("09:00|09:45|10:30|11:15|12:00", string.Join('|', quinta.Dias[0].HorariosLivres.Take(5)));
+        Assert.Equal(
+            [new TimeOnly(9, 0), new TimeOnly(9, 45), new TimeOnly(10, 30), new TimeOnly(11, 15), new TimeOnly(12, 0)],
+            quinta.Dias[0].HorariosLivres.Take(5));
         Assert.Empty(domingo.Dias[0].HorariosLivres);
     }
 
@@ -161,7 +163,7 @@ public class VeterinariosServiceTests
     {
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
-        var query = new DisponibilidadeQuery
+        var query = new PeriodoDisponibilidade
         {
             DataInicio = dataInicio is null ? null : Data(dataInicio),
             DataFim = Data(dataFim),
@@ -180,7 +182,7 @@ public class VeterinariosServiceTests
         var dados = await CriarBaseAsync(db);
 
         var disponibilidade = await CriarServico(db).ObterDisponibilidadeAsync(
-            dados.VetA, new DisponibilidadeQuery { DataInicio = Quinta });
+            dados.VetA, new PeriodoDisponibilidade { DataInicio = Quinta });
 
         Assert.Equal(Quinta, Assert.Single(disponibilidade.Dias).Data);
     }
@@ -228,7 +230,7 @@ public class VeterinariosServiceTests
     private static VeterinariosService CriarServico(ClinicaDbContext db) =>
         new(db, new RelogioFixo(Relogio));
 
-    private static DisponibilidadeQuery Periodo(DateOnly inicio, DateOnly? fim = null) =>
+    private static PeriodoDisponibilidade Periodo(DateOnly inicio, DateOnly? fim = null) =>
         new() { DataInicio = inicio, DataFim = fim };
 
     private static DateOnly Data(string texto) => DateOnly.Parse(texto, CultureInfo.InvariantCulture);

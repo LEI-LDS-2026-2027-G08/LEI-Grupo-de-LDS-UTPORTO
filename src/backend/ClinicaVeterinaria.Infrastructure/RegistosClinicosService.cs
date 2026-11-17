@@ -1,8 +1,8 @@
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.Data.SqlClient;
@@ -67,7 +67,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         _relogio = relogio;
     }
 
-    public async Task<RegistoClinicoDto> CriarAsync(CreateRegistoClinicoDto pedido, int veterinarioId)
+    public async Task<DetalheRegistoClinico> CriarAsync(NovoRegistoClinico pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -138,10 +138,10 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             await transacao.CommitAsync();
         }
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<RegistoClinicoDto> AtualizarAsync(int id, UpdateRegistoClinicoDto pedido, int veterinarioId)
+    public async Task<DetalheRegistoClinico> AtualizarAsync(int id, AlteracaoRegistoClinico pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -219,10 +219,10 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // Uma só gravação: o EF Core aplica as alterações numa transação.
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(id);
+        return await ObterModeloAsync(id);
     }
 
-    public async Task<RegistoClinicoDto> ObterAsync(int id)
+    public async Task<DetalheRegistoClinico> ObterAsync(int id)
     {
         // Registo existe → 404 (IT-EP033-03). A leitura não depende do Veterinário que fez o
         // registo: o histórico clínico do paciente inclui os registos de todos os Veterinários.
@@ -231,10 +231,10 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             throw new NaoEncontradoException(MensagemRegistoNaoEncontrado);
         }
 
-        return await ObterDtoAsync(id);
+        return await ObterModeloAsync(id);
     }
 
-    public async Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query)
+    public async Task<HistoricoClinico> ObterHistoricoAsync(int animalId, PeriodoHistoricoClinico query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -252,7 +252,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.Id == animalId
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new ReferenciaAnimal { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
             ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
@@ -294,7 +294,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             .ToListAsync();
 
         var registos = linhas
-            .Select(l => new RegistoClinicoResumoDto
+            .Select(l => new ResumoRegistoClinico
             {
                 Id = l.Id,
                 ConsultaId = l.MarcacaoId,
@@ -306,14 +306,14 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             })
             .ToList();
 
-        return new HistoricoClinicoDto { Animal = animal, Registos = registos };
+        return new HistoricoClinico { Animal = animal, Registos = registos };
     }
 
     /// <summary>
     /// Registo com o paciente da consulta, o nome do Veterinário, o autor da última alteração e as
     /// listas, por identificador.
     /// </summary>
-    private async Task<RegistoClinicoDto> ObterDtoAsync(int id)
+    private async Task<DetalheRegistoClinico> ObterModeloAsync(int id)
     {
         var linha = await (
                 from r in _db.RegistosClinicos.AsNoTracking()
@@ -347,13 +347,13 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         var tratamentos = await _db.Tratamentos.AsNoTracking()
             .Where(t => t.RegistoClinicoId == id)
             .OrderBy(t => t.Id)
-            .Select(t => new TratamentoDto { Id = t.Id, Descricao = t.Descricao, DataAplicacao = t.DataAplicacao })
+            .Select(t => new TratamentoRegistado { Id = t.Id, Descricao = t.Descricao, DataAplicacao = t.DataAplicacao })
             .ToListAsync();
 
         var prescricoes = await _db.Prescricoes.AsNoTracking()
             .Where(p => p.RegistoClinicoId == id)
             .OrderBy(p => p.Id)
-            .Select(p => new PrescricaoDto
+            .Select(p => new PrescricaoRegistada
             {
                 Id = p.Id,
                 Medicamento = p.Medicamento,
@@ -363,7 +363,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             })
             .ToListAsync();
 
-        return new RegistoClinicoDto
+        return new DetalheRegistoClinico
         {
             Id = linha.Id,
             ConsultaId = linha.MarcacaoId,
@@ -379,7 +379,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         };
     }
 
-    private static void Validar(UpdateRegistoClinicoDto pedido)
+    private static void Validar(AlteracaoRegistoClinico pedido)
     {
         var erros = ValidadorRegistoClinico.ObterErros(pedido);
 
@@ -389,14 +389,14 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         }
     }
 
-    private static Tratamento NovoTratamento(int registoId, CreateTratamentoDto tratamento) => new()
+    private static Tratamento NovoTratamento(int registoId, DadosTratamento tratamento) => new()
     {
         RegistoClinicoId = registoId,
         Descricao = tratamento.Descricao.Trim(),
         DataAplicacao = tratamento.DataAplicacao!.Value,
     };
 
-    private static Prescricao NovaPrescricao(int registoId, CreatePrescricaoDto prescricao) => new()
+    private static Prescricao NovaPrescricao(int registoId, DadosPrescricao prescricao) => new()
     {
         RegistoClinicoId = registoId,
         Medicamento = prescricao.Medicamento.Trim(),

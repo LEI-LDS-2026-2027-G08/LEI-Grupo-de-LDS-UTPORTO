@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -86,7 +86,7 @@ public class CriarConsultaServiceTests
     public async Task IdentificadorZeroDevolve400(int animalId, int veterinarioId)
     {
         using var db = AjudaBaseDados.CriarContexto();
-        var pedido = new CreateConsultaDto
+        var pedido = new NovaConsulta
         {
             AnimalId = animalId,
             VeterinarioId = veterinarioId,
@@ -102,7 +102,7 @@ public class CriarConsultaServiceTests
         using var db = AjudaBaseDados.CriarContexto();
 
         var erro = await Assert.ThrowsAsync<ValidacaoException>(
-            () => CriarServico(db).CriarConsultaAsync(new CreateConsultaDto(), 1));
+            () => CriarServico(db).CriarConsultaAsync(new NovaConsulta(), 1));
 
         Assert.Contains("animalId", erro.Message, StringComparison.Ordinal);
         Assert.Contains("veterinarioId", erro.Message, StringComparison.Ordinal);
@@ -331,7 +331,7 @@ public class CriarConsultaServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
-        var pedido = new CreateConsultaDto
+        var pedido = new NovaConsulta
         {
             AnimalId = d.AnimalA1,
             VeterinarioId = d.VetA,
@@ -361,7 +361,7 @@ public class CriarConsultaServiceTests
     // ----- Auxiliares -----
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
-    private static CreateConsultaDto Pedido(int animalId, int veterinarioId, string dataHoraUtc, string? motivo = null) =>
+    private static NovaConsulta Pedido(int animalId, int veterinarioId, string dataHoraUtc, string? motivo = null) =>
         new()
         {
             AnimalId = animalId,

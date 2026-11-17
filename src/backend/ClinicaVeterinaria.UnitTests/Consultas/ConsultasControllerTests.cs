@@ -1,10 +1,12 @@
 using System.Reflection;
 using System.Security.Claims;
 using ClinicaVeterinaria.Api.Controllers;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Api.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -126,15 +128,15 @@ public class ConsultasControllerTests
             41,
             criada.RouteValues!["id"]);
 
-        Assert.Same(
+        Assert.Equivalent(
             servico.Consulta,
-            criada.Value);
+            Assert.IsType<ConsultaDto>(criada.Value), strict: true);
 
         Assert.Equal(
             "\"AAAAAAAAB9E=\"",
             controlador.Response.Headers.ETag.ToString());
 
-        Assert.Same(
+        Assert.Equivalent(
             pedido,
             servico.UltimoPedido);
 
@@ -232,15 +234,15 @@ public class ConsultasControllerTests
             Assert.IsType<OkObjectResult>(
                 resposta.Result);
 
-        Assert.Same(
+        Assert.Equivalent(
             servico.Consulta,
-            ok.Value);
+            Assert.IsType<ConsultaDto>(ok.Value), strict: true);
 
         Assert.Equal(
             41,
             servico.UltimoId);
 
-        Assert.Same(
+        Assert.Equivalent(
             pedido,
             servico.UltimoUpdateConsulta);
 
@@ -312,7 +314,7 @@ public class ConsultasControllerTests
             41,
             servico.UltimoId);
 
-        Assert.Same(
+        Assert.Equivalent(
             pedido,
             servico.UltimoUpdateEstado);
 
@@ -371,7 +373,7 @@ public class ConsultasControllerTests
         Assert.IsType<OkObjectResult>(
             resposta.Result);
 
-        Assert.Same(
+        Assert.Equivalent(
             filtro,
             servico.UltimoFiltro);
 
@@ -398,9 +400,9 @@ public class ConsultasControllerTests
             Assert.IsType<OkObjectResult>(
                 resposta.Result);
 
-        Assert.Same(
+        Assert.Equivalent(
             servico.Consulta,
-            ok.Value);
+            Assert.IsType<ConsultaDto>(ok.Value), strict: true);
 
         Assert.Equal(
             "\"AAAAAAAAB9E=\"",
@@ -448,13 +450,13 @@ public class ConsultasControllerTests
     private sealed class ConsultasServiceDeTeste
         : IConsultasService
     {
-        public ConsultaDto Consulta { get; } =
+        public DetalheConsulta Consulta { get; } =
             new()
             {
                 Id = 41,
             };
 
-        public ConsultaFiltroQuery? UltimoFiltro
+        public PesquisaConsultas? UltimoFiltro
         {
             get;
             private set;
@@ -472,7 +474,7 @@ public class ConsultasControllerTests
             private set;
         }
 
-        public CreateConsultaDto? UltimoPedido
+        public NovaConsulta? UltimoPedido
         {
             get;
             private set;
@@ -484,13 +486,13 @@ public class ConsultasControllerTests
             private set;
         }
 
-        public UpdateConsultaDto? UltimoUpdateConsulta
+        public AlteracaoConsulta? UltimoUpdateConsulta
         {
             get;
             private set;
         }
 
-        public UpdateEstadoConsultaDto? UltimoUpdateEstado
+        public AlteracaoEstadoConsulta? UltimoUpdateEstado
         {
             get;
             private set;
@@ -502,16 +504,16 @@ public class ConsultasControllerTests
             private set;
         }
 
-        public Task<PagedResultDto<ConsultaListItemDto>>
+        public Task<PaginaResultados<ResumoConsulta>>
             ObterConsultasAsync(
-                ConsultaFiltroQuery filtro,
+                PesquisaConsultas filtro,
                 AcessoConsultas acesso)
         {
             UltimoFiltro = filtro;
             UltimoAcesso = acesso;
 
             return Task.FromResult(
-                new PagedResultDto<ConsultaListItemDto>
+                new PaginaResultados<ResumoConsulta>
                 {
                     Pagina = 1,
                     Tamanho = 20,
@@ -534,7 +536,7 @@ public class ConsultasControllerTests
 
         public Task<ConsultaComVersao>
             CriarConsultaAsync(
-                CreateConsultaDto pedido,
+                NovaConsulta pedido,
                 int criadaPorId)
         {
             UltimoPedido = pedido;
@@ -549,7 +551,7 @@ public class ConsultasControllerTests
         public Task<ConsultaComVersao>
             AtualizarConsultaAsync(
                 int id,
-                UpdateConsultaDto pedido,
+                AlteracaoConsulta pedido,
                 string? ifMatch)
         {
             UltimoId = id;
@@ -564,7 +566,7 @@ public class ConsultasControllerTests
 
         public Task<string> AtualizarEstadoAsync(
             int id,
-            UpdateEstadoConsultaDto pedido,
+            AlteracaoEstadoConsulta pedido,
             string? ifMatch)
         {
             UltimoId = id;
@@ -580,18 +582,18 @@ public class ConsultasControllerTests
             UltimoIfMatch = ifMatch;
 
             return Task.FromResult(new ChegadaComVersao(
-                new ChegadaDto { Id = id, ChegadaEm = DateTime.UnixEpoch },
+                new ChegadaRegistada { Id = id, ChegadaEm = DateTime.UnixEpoch },
                 "\"AAAAAAAAB9E=\""));
         }
 
-        public Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(
+        public Task<NotaPreparacao> CriarNotaPreparacaoAsync(
             int id,
-            CreateNotaPreparacaoDto pedido,
+            NovaNotaPreparacao pedido,
             int auxiliarId)
         {
             UltimoId = id;
 
-            return Task.FromResult(new NotaPreparacaoDto
+            return Task.FromResult(new NotaPreparacao
             {
                 Id = 2,
                 ConsultaId = id,

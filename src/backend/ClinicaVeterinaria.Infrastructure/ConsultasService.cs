@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -55,8 +55,8 @@ public sealed class ConsultasService : IConsultasService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<ConsultaListItemDto>> ObterConsultasAsync(
-        ConsultaFiltroQuery filtro,
+    public async Task<PaginaResultados<ResumoConsulta>> ObterConsultasAsync(
+        PesquisaConsultas filtro,
         AcessoConsultas acesso)
     {
         ArgumentNullException.ThrowIfNull(filtro);
@@ -109,7 +109,7 @@ public sealed class ConsultasService : IConsultasService
         // Em long, como em EP-004: uma página muito alta não pode dar um salto negativo.
         var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        List<ConsultaListItemDto> itens = [];
+        List<ResumoConsulta> itens = [];
 
         if (salto < total)
         {
@@ -121,7 +121,7 @@ public sealed class ConsultasService : IConsultasService
             itens = linhas.Select(ParaItem).ToList();
         }
 
-        return new PagedResultDto<ConsultaListItemDto>
+        return new PaginaResultados<ResumoConsulta>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
@@ -151,7 +151,7 @@ public sealed class ConsultasService : IConsultasService
                 select new { i.Id, i.Descricao, Autor = f.Nome, i.DataRegisto })
             .ToListAsync();
 
-        var consulta = new ConsultaDto
+        var consulta = new DetalheConsulta
         {
             Id = linha.Id,
             DataHora = Utc(linha.DataHoraInicio),
@@ -164,7 +164,7 @@ public sealed class ConsultasService : IConsultasService
             Veterinario = Veterinario(linha),
             ChegadaEm = Utc(linha.DataHoraChegada),
             NotasPreparacao = notas
-                .Select(n => new NotaPreparacaoDto
+                .Select(n => new NotaPreparacao
                 {
                     Id = n.Id,
                     Texto = n.Descricao,
@@ -177,7 +177,7 @@ public sealed class ConsultasService : IConsultasService
         return new ConsultaComVersao(consulta, VersaoMarcacao.ParaETag(linha.RowVersion));
     }
 
-    public async Task<ConsultaComVersao> CriarConsultaAsync(CreateConsultaDto pedido, int criadaPorId)
+    public async Task<ConsultaComVersao> CriarConsultaAsync(NovaConsulta pedido, int criadaPorId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(criadaPorId);
@@ -284,7 +284,7 @@ public sealed class ConsultasService : IConsultasService
 
     public async Task<ConsultaComVersao> AtualizarConsultaAsync(
     int id,
-    UpdateConsultaDto pedido,
+    AlteracaoConsulta pedido,
     string? ifMatch)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -425,7 +425,7 @@ public sealed class ConsultasService : IConsultasService
 
     public async Task<string> AtualizarEstadoAsync(
         int id,
-        UpdateEstadoConsultaDto pedido,
+        AlteracaoEstadoConsulta pedido,
         string? ifMatch)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -523,7 +523,7 @@ public sealed class ConsultasService : IConsultasService
         return new DateTime(utc.Ticks - (utc.Ticks % TimeSpan.TicksPerSecond), DateTimeKind.Utc);
     }
 
-    private static ConsultaListItemDto ParaItem(LinhaMarcacao linha) => new()
+    private static ResumoConsulta ParaItem(LinhaMarcacao linha) => new()
     {
         Id = linha.Id,
         DataHora = Utc(linha.DataHoraInicio),
@@ -536,14 +536,14 @@ public sealed class ConsultasService : IConsultasService
         ChegadaEm = Utc(linha.DataHoraChegada),
     };
 
-    private static AnimalRefDto Animal(LinhaMarcacao linha) =>
+    private static ReferenciaAnimal Animal(LinhaMarcacao linha) =>
         new() { Id = linha.AnimalId, Nome = linha.AnimalNome, Especie = linha.Especie };
 
     // O telefone do proprietário só é devolvido na ficha do animal (EP-016).
-    private static ClienteRefDto Cliente(LinhaMarcacao linha) =>
+    private static ReferenciaCliente Cliente(LinhaMarcacao linha) =>
         new() { Id = linha.ClienteId, Nome = linha.ClienteNome };
 
-    private static VeterinarioRefDto Veterinario(LinhaMarcacao linha) =>
+    private static ReferenciaVeterinario Veterinario(LinhaMarcacao linha) =>
         new() { Id = linha.VeterinarioId, Nome = linha.VeterinarioNome };
 
     // As colunas datetime2 guardam UTC (Modelo de Dados, D15), mas são lidas sem indicação de fuso.
@@ -643,13 +643,13 @@ public sealed class ConsultasService : IConsultasService
         }
 
         return new ChegadaComVersao(
-            new ChegadaDto { Id = marcacao.Id, ChegadaEm = agora },
+            new ChegadaRegistada { Id = marcacao.Id, ChegadaEm = agora },
             VersaoMarcacao.ParaETag(marcacao.RowVersion));
     }
 
-    public async Task<NotaPreparacaoDto> CriarNotaPreparacaoAsync(
+    public async Task<NotaPreparacao> CriarNotaPreparacaoAsync(
         int id,
-        CreateNotaPreparacaoDto pedido,
+        NovaNotaPreparacao pedido,
         int auxiliarId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
@@ -698,7 +698,7 @@ public sealed class ConsultasService : IConsultasService
         _db.InformacoesApoio.Add(nota);
         await _db.SaveChangesAsync();
 
-        return new NotaPreparacaoDto
+        return new NotaPreparacao
         {
             Id = nota.Id,
             ConsultaId = id,

@@ -1,4 +1,4 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Comum;
 
 namespace ClinicaVeterinaria.Api.DTOs.Clientes;
 

@@ -1,3 +1,4 @@
+using ClinicaVeterinaria.Application.Models.Veterinarios;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.Application.Agenda;
@@ -6,8 +7,6 @@ namespace ClinicaVeterinaria.Application.Agenda;
 public sealed record MarcacaoAgendada(DateTime InicioUtc, int DuracaoMinutos, string Estado);
 
 /// <summary>Horários livres de um dia, em hora local da clínica.</summary>
-public sealed record DiaDisponivel(DateOnly Data, IReadOnlyList<TimeOnly> HorariosLivres);
-
 /// <summary>
 /// Cálculo da disponibilidade de um Veterinário (RF020, EP-022), isolado da base de dados:
 /// recebe o horário de funcionamento, a duração das consultas, as marcações do Veterinário
