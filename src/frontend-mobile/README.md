@@ -1,6 +1,6 @@
 # Frontend mobile (Android)
 
-Aplicação Android do **Cliente** da clínica (consulta dos próprios animais, Consultas futuras e histórico, boletim de vacinação). Esta pasta contém a **base** da aplicação (Issue I120) e a autenticação do Cliente (Issue I121); as consultas são implementadas nas Issues I122 e I123.
+Aplicação Android do **Cliente** da clínica (consulta dos próprios animais, Consultas futuras e histórico, boletim de vacinação). Esta pasta contém a **base** da aplicação (Issue I120), a autenticação do Cliente (Issue I121) e os animais e o boletim de vacinação e desparasitação (Issue I122); as Consultas são implementadas na Issue I123.
 
 Stack (Regulamento Interno do Grupo v02, secção 11): Kotlin 2.2, Jetpack Compose com Material 3, Android SDK API 37 (`minSdk` 26), JDK 21, Gradle 9.6 e Android Gradle Plugin 9.4.
 
@@ -59,11 +59,14 @@ app/src/main/java/pt/ipp/estg/g08/clinica
 ├── core/
 │   ├── config/AppConfig.kt                  URL da API (BuildConfig) e tempo limite
 │   ├── api/ApiClient.kt, ApiException.kt    camada única de comunicação com a API
+│   ├── formatacao/Formatadores.kt           datas e pesos em português europeu
 │   └── storage/                             TokenStorage: sessão cifrada (Android Keystore)
 ├── sessao/                                  AuthService, SessaoViewModel, DTOs de sessão, SessaoLocal
 ├── navegacao/                               Rotas, AppNavHost, AuthGate, MainShell (Navigation Compose)
 ├── features/login, features/tecnico         M01 (início de sessão) e ecrã técnico (só em debug)
-└── shared/                                  EstadoCarregamento e componentes comuns
+├── features/animais                         M02 e M03: AnimaisService, ViewModels, ecrãs e DTOs
+├── features/boletim                         M06: BoletimService, BoletimViewModel, ecrã e DTOs
+└── shared/                                  EstadoCarregamento, carregarEstado e componentes comuns
 ```
 
 ### Comunicação com a API (`ApiClient`)
@@ -113,6 +116,31 @@ O token e a palavra-passe nunca aparecem no texto dos objetos (`toString()` de `
 
 Contas de demonstração para verificar os fluxos (scripts em `04.13-scripts-de-base-de-dados/m3-v02/dados-demonstracao`; as palavras-passe estão só no ficheiro de credenciais da submissão): `cliente.joao@clinica-g08.test`, `cliente.maria@clinica-g08.test` (Cliente), `rececao.bloqueada@clinica-g08.test` (conta bloqueada) e `admin@`, `rececao@`, `vet.ana@`, `aux.carla@clinica-g08.test` (perfis internos, que têm de ser recusados).
 
+### Animais e boletim do Cliente (I122)
+
+A área autenticada abre em M02. Os ecrãs só consultam: não há ações para criar, alterar ou eliminar animais ou administrações. Cada `ViewModel` usa o seu serviço, que só chama rotas `/me/*`; nenhum pedido envia o identificador do Cliente, que o servidor obtém do token (RNF002).
+
+| Ecrã | ViewModel e serviço | Endpoint | O que mostra |
+|---|---|---|---|
+| M02 — Os meus animais (RF018) | `AnimaisViewModel`, `AnimaisService.listar()` | EP-019 `GET /me/animais` | Nome, espécie e raça, idade e peso de cada animal; tocar abre M03 |
+| M03 — Detalhe do animal (RF018) | `AnimalDetalheViewModel`, `AnimaisService.obter()` | EP-020 `GET /me/animais/{id}` | Nome, espécie, raça, sexo, data de nascimento, idade e peso; "Ver boletim" (M06) e "Ver consultas" (M04 filtrado pelo animal) |
+| M06 — Boletim (RF047) | `BoletimViewModel`, `BoletimService.obter()` | EP-044 `GET /me/animais/{id}/vacinacoes` | Próximas administrações previstas e histórico, pela ordem da API |
+
+As idades e as datas das próximas administrações são as calculadas pela API; a aplicação só as formata (`dd/MM/aaaa`, peso com vírgula decimal). Um dado opcional em falta aparece como "Sem informação" em M03 e é omitido em M02.
+
+| Situação | Comportamento |
+|---|---|
+| A carregar | Indicador de progresso (`estado-a-carregar`) |
+| Cliente sem animais (UC08, A1) | "Ainda não tem animais associados à sua conta." (`m02-vazio`) |
+| Animal sem vacinações nem desparasitações (UC17, A1) | "Este animal ainda não tem vacinações nem desparasitações registadas." (`m06-vazio`) |
+| Só uma das listas do boletim vazia | A secção vazia mostra "Não há administrações previstas." ou "Ainda não há administrações registadas." |
+| Animal de outro Cliente (`403`; UC08 E1, UC17 E1) | "Não tem acesso a esta informação.", sem qualquer dado do animal |
+| Animal inexistente (`404`; UC08 E2) | "A informação pedida já não existe." |
+| Sem rede, tempo esgotado ou `5xx` | Mensagem do `ApiClient` e "Tentar novamente" |
+| `401` (token revogado ou expirado) | A sessão termina e a aplicação volta ao início de sessão (I121) |
+
+M03 e M06 têm o botão "Voltar" (`m03-voltar`, `m06-voltar`), além do botão de recuar do Android. As etiquetas dos ecrãs são as da secção 13 do Modelo de Classes Mobile.
+
 ## Ecrã técnico (só em debug)
 
 Em debug, o início de sessão tem o botão **Abrir ecrã técnico**, que permite verificar a configuração sem iniciar sessão:
@@ -128,4 +156,4 @@ O ecrã técnico não dá acesso à área autenticada. Em release, o botão não
 
 - ktlint 1.5 (plugin Gradle 14.2), estilo `android_studio`, configurado em `.editorconfig`.
 - Android Lint com `warningsAsErrors` e `lint.xml`. Regras desativadas: `GradleDependency`, `NewerVersionAvailable` e `AndroidGradlePluginVersion`, todas por dependerem de consultar versões externas, o que tornaria o resultado da pipeline não determinístico. As versões do Gradle e do AGP são as fixadas pelo Regulamento.
-- Testes unitários (JUnit 4, MockK, `kotlinx-coroutines-test`) e de componentes (Compose UI Test com Robolectric) em `app/src/test`; o `ApiClient` e o `AuthService` são testados sem rede, com um servidor falso. Na primeira execução, o Robolectric descarrega a imagem do Android usada nos testes (`@Config(sdk = [35])`).
+- Testes unitários (JUnit 4, MockK, `kotlinx-coroutines-test`) e de componentes (Compose UI Test com Robolectric) em `app/src/test`; o `ApiClient`, o `AuthService`, o `AnimaisService` e o `BoletimService` são testados sem rede, com um servidor falso. Na primeira execução, o Robolectric descarrega a imagem do Android usada nos testes (`@Config(sdk = [35])`).
