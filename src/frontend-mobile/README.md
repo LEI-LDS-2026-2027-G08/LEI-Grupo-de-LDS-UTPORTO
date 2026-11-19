@@ -1,6 +1,6 @@
 # Frontend mobile (Android)
 
-Aplicação Android do **Cliente** da clínica (consulta dos próprios animais, Consultas futuras e histórico, boletim de vacinação). Esta pasta contém a **base** da aplicação (Issue I120), a autenticação do Cliente (Issue I121) e os animais e o boletim de vacinação e desparasitação (Issue I122); as Consultas são implementadas na Issue I123.
+Aplicação Android do **Cliente** da clínica (consulta dos próprios animais, Consultas futuras e histórico, boletim de vacinação). Esta pasta contém a **base** da aplicação (Issue I120), a autenticação do Cliente (Issue I121), os animais e o boletim de vacinação e desparasitação (Issue I122) e as Consultas futuras e o histórico administrativo (Issue I123).
 
 Stack (Regulamento Interno do Grupo v02, secção 11): Kotlin 2.2, Jetpack Compose com Material 3, Android SDK API 37 (`minSdk` 26), JDK 21, Gradle 9.6 e Android Gradle Plugin 9.4.
 
@@ -59,12 +59,13 @@ app/src/main/java/pt/ipp/estg/g08/clinica
 ├── core/
 │   ├── config/AppConfig.kt                  URL da API (BuildConfig) e tempo limite
 │   ├── api/ApiClient.kt, ApiException.kt    camada única de comunicação com a API
-│   ├── formatacao/Formatadores.kt           datas e pesos em português europeu
+│   ├── formatacao/Formatadores.kt           datas, horas e pesos em português europeu
 │   └── storage/                             TokenStorage: sessão cifrada (Android Keystore)
 ├── sessao/                                  AuthService, SessaoViewModel, DTOs de sessão, SessaoLocal
 ├── navegacao/                               Rotas, AppNavHost, AuthGate, MainShell (Navigation Compose)
 ├── features/login, features/tecnico         M01 (início de sessão) e ecrã técnico (só em debug)
 ├── features/animais                         M02 e M03: AnimaisService, ViewModels, ecrãs e DTOs
+├── features/consultas                       M04: ConsultasService, ConsultasViewModel, ecrã e DTOs
 ├── features/boletim                         M06: BoletimService, BoletimViewModel, ecrã e DTOs
 └── shared/                                  EstadoCarregamento, carregarEstado e componentes comuns
 ```
@@ -141,6 +142,28 @@ As idades e as datas das próximas administrações são as calculadas pela API;
 
 M03 e M06 têm o botão "Voltar" (`m03-voltar`, `m06-voltar`), além do botão de recuar do Android. As etiquetas dos ecrãs são as da secção 13 do Modelo de Classes Mobile.
 
+### Consultas do Cliente (I123)
+
+M04 só consulta (RF028, RF029): não há ações para marcar, alterar, confirmar ou cancelar Consultas. O `ConsultasViewModel` pede as duas listas ao `ConsultasService`, que usa só EP-030 `GET /me/consultas?tipo=&animalId=` (sem enviar o identificador do Cliente, RNF002).
+
+| Entrada | Rota | O que mostra |
+|---|---|---|
+| Separador Consultas | `consultas` | Marcações de todos os animais do Cliente |
+| "Ver consultas" em M03 | `animais/{animalId}/consultas` | Só as marcações desse animal (`animalId`), com "Voltar" (`m04-voltar`) e o separador Animais assinalado |
+
+O ecrã tem dois separadores: **Próximas** (`tipo=futuras`, `m04-lista-futuras`) e **Histórico** (`tipo=historico`, `m04-lista-historico`). A API decide o que é futuro (Pendentes ou Confirmadas que ainda não começaram) e o que é histórico (marcações passadas e as Realizadas ou Canceladas) e devolve as listas já ordenadas — futuras por data crescente, histórico por data decrescente; a aplicação não reordena nem filtra. Cada marcação (`m04-consulta-{id}`) mostra só informação administrativa: estado, data e hora na hora local do dispositivo (`dd/MM/aaaa • HH:mm`), animal e Veterinário. O DTO não tem motivo, notas nem nada do registo clínico.
+
+| Situação | Comportamento |
+|---|---|
+| A carregar | Indicador de progresso no separador |
+| Sem Consultas futuras | "Não tem Consultas marcadas." (`m04-vazio-futuras`); só de um animal: "Este animal não tem Consultas marcadas." |
+| Sem histórico | "Ainda não há Consultas no histórico." (`m04-vazio-historico`); só de um animal: "Este animal ainda não tem Consultas no histórico." |
+| Animal de outro Cliente (`403`; UC11 E1) | "Não tem acesso a esta informação.", sem qualquer marcação |
+| Sem rede, tempo esgotado ou `5xx` | Mensagem do `ApiClient` e "Tentar novamente", que volta a pedir só a lista desse separador; um erro numa lista não esconde a outra |
+| `401` (token revogado ou expirado) | A sessão termina e a aplicação volta ao início de sessão (I121) |
+
+Com os dados de demonstração (datas fixas, a última marcação é de 05/11/2026), nenhum Cliente tem Consultas futuras: para verificar o separador Próximas, criar uma marcação futura para um animal do Cliente no frontend web (perfil Rececionista).
+
 ## Ecrã técnico (só em debug)
 
 Em debug, o início de sessão tem o botão **Abrir ecrã técnico**, que permite verificar a configuração sem iniciar sessão:
@@ -156,4 +179,4 @@ O ecrã técnico não dá acesso à área autenticada. Em release, o botão não
 
 - ktlint 1.5 (plugin Gradle 14.2), estilo `android_studio`, configurado em `.editorconfig`.
 - Android Lint com `warningsAsErrors` e `lint.xml`. Regras desativadas: `GradleDependency`, `NewerVersionAvailable` e `AndroidGradlePluginVersion`, todas por dependerem de consultar versões externas, o que tornaria o resultado da pipeline não determinístico. As versões do Gradle e do AGP são as fixadas pelo Regulamento.
-- Testes unitários (JUnit 4, MockK, `kotlinx-coroutines-test`) e de componentes (Compose UI Test com Robolectric) em `app/src/test`; o `ApiClient`, o `AuthService`, o `AnimaisService` e o `BoletimService` são testados sem rede, com um servidor falso. Na primeira execução, o Robolectric descarrega a imagem do Android usada nos testes (`@Config(sdk = [35])`).
+- Testes unitários (JUnit 4, MockK, `kotlinx-coroutines-test`) e de componentes (Compose UI Test com Robolectric) em `app/src/test`; o `ApiClient`, o `AuthService`, o `AnimaisService`, o `ConsultasService` e o `BoletimService` são testados sem rede, com um servidor falso. Na primeira execução, o Robolectric descarrega a imagem do Android usada nos testes (`@Config(sdk = [35])`).

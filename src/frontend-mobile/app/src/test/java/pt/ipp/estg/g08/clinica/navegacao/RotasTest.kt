@@ -11,15 +11,15 @@ class RotasTest {
     }
 
     @Test
-    fun `consultas com e sem filtro por animal`() {
-        assertEquals("consultas", Rotas.consultas())
-        assertEquals("consultas?animalId=5", Rotas.consultas(5))
+    fun `consultas de todos os animais e so de um animal`() {
+        assertEquals("consultas", Rotas.CONSULTAS)
+        assertEquals("animais/5/consultas", Rotas.consultasDoAnimal(5))
     }
 
     @Test
     fun `os padroes de rota usam o nome do argumento`() {
         assertEquals("animais/{animalId}", Rotas.ANIMAL_DETALHE)
-        assertEquals("consultas?animalId={animalId}", Rotas.CONSULTAS)
+        assertEquals("animais/{animalId}/consultas", Rotas.CONSULTAS_ANIMAL)
         assertEquals("boletim/{animalId}", Rotas.BOLETIM)
     }
 }
