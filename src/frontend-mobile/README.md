@@ -120,6 +120,8 @@ Contas de demonstração para verificar os fluxos (scripts em `04.13-scripts-de-
 
 A área autenticada abre em M02. Os ecrãs só consultam: não há ações para criar, alterar ou eliminar animais ou administrações. Cada `ViewModel` usa o seu serviço, que só chama rotas `/me/*`; nenhum pedido envia o identificador do Cliente, que o servidor obtém do token (RNF002).
 
+Na barra inferior, cada separador abre sempre o seu ecrã inicial (`abrirSeparador`): Animais volta à lista "Os meus animais" a partir de qualquer ecrã (detalhe, boletim ou Consultas de um animal) e Consultas abre por cima da lista, para onde se volta ao recuar. A pilha de cada separador não é guardada nem restaurada.
+
 | Ecrã | ViewModel e serviço | Endpoint | O que mostra |
 |---|---|---|---|
 | M02 — Os meus animais (RF018) | `AnimaisViewModel`, `AnimaisService.listar()` | EP-019 `GET /me/animais` | Nome, espécie e raça, idade e peso de cada animal; tocar abre M03 |
