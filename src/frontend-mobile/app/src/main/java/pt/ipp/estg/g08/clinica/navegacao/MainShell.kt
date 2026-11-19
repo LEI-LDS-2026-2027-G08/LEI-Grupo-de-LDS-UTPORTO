@@ -123,13 +123,7 @@ fun MainShell(
                     NavigationBarItem(
                         selected =
                         destinoAtual?.hierarchy?.any { it.route in separador.rotas } == true,
-                        onClick = {
-                            navController.navigate(separador.destino) {
-                                popUpTo(Rotas.ANIMAIS) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        onClick = { navController.abrirSeparador(separador.destino) },
                         icon = { Icon(imageVector = separador.icone, contentDescription = null) },
                         label = { Text(text = stringResource(separador.rotulo)) },
                         modifier = Modifier.testTag(separador.etiqueta),
