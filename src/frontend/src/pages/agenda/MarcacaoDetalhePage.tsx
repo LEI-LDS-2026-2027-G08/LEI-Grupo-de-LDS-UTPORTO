@@ -4,6 +4,7 @@ import { FormErro } from "../../components/FormErro";
 import { SoPara } from "../../components/SoPara";
 import { ApiRequestError } from "../../core/api";
 import { formatarDataHoraLisboa, utcParaLisboa } from "../../core/horaLisboa";
+import { ESTADOS_COM_REGISTO_CLINICO } from "../../models/registosClinicos";
 import {
   TRANSICOES_ESTADO,
   marcacaoAlteravel,
@@ -233,6 +234,29 @@ function DetalheMarcacao({
             : "Não registada"}
         </dd>
       </dl>
+
+      <SoPara acao="registarClinico">
+        <section aria-labelledby={`${idCampos}-clinico`}>
+          <h2 id={`${idCampos}-clinico`}>Registo clínico</h2>
+          {(ESTADOS_COM_REGISTO_CLINICO as readonly string[]).includes(
+            marcacao.estado,
+          ) ? (
+            <div className="acoes">
+              <Link
+                to={`/agenda/${marcacao.id}/registo-clinico`}
+                className="botao"
+              >
+                Abrir registo clínico
+              </Link>
+            </div>
+          ) : (
+            <p className="detalhe-conta">
+              O registo clínico só está disponível em consultas Confirmada ou
+              Realizada.
+            </p>
+          )}
+        </section>
+      </SoPara>
 
       <SoPara acao="gerirMarcacoes">
         <section aria-labelledby={`${idCampos}-acoes`}>
