@@ -443,3 +443,32 @@ describe("I114 — acesso à agenda e à preparação de consultas", () => {
     },
   );
 });
+
+describe("I115 — acesso ao registo clínico da consulta", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["Rececionista", "/agenda/41/registo-clinico"],
+    ["AuxiliarVeterinario", "/agenda/41/registo-clinico"],
+    ["Administrador", "/agenda/41/registo-clinico"],
+  ] as const)(
+    "%s não acede a %s por endereço direto",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("o Veterinário abre o registo clínico da consulta", async () => {
+    const { servico } = montar("/agenda/41/registo-clinico");
+    await iniciarSessao("Veterinario", servico);
+    expect(
+      await screen.findByRole("heading", {
+        name: "Registo clínico da consulta",
+      }),
+    ).toBeInTheDocument();
+  });
+});

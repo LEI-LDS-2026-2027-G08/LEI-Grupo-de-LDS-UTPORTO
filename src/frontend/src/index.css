@@ -412,3 +412,38 @@ button.ligacao.perigo-texto {
   margin: 0.25rem 0 0;
   padding-left: 1.25rem;
 }
+
+/* W13 — Registo clínico da consulta (I115) */
+.campo textarea {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+.campo textarea[aria-invalid="true"] {
+  border-color: var(--cor-erro);
+}
+
+.campo .contador {
+  align-self: flex-end;
+  color: #667085;
+  font-size: 0.75rem;
+}
+
+.elemento-clinico {
+  border: 1px dashed var(--cor-borda);
+  border-radius: 8px;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.elemento-clinico legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+
+.grupo > button.secundario {
+  margin-bottom: 0.75rem;
+}
