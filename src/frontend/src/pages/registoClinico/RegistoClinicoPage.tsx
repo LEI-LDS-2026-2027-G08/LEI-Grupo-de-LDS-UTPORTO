@@ -11,7 +11,7 @@ import { FormErro } from "../../components/FormErro";
 import { FormField } from "../../components/FormField";
 import { ApiRequestError } from "../../core/api";
 import { formatarDataHoraLisboa, utcParaLisboa } from "../../core/horaLisboa";
-import { useAvisoAlteracoes } from "../../core/useAvisoAlteracoes";
+import { AvisoAlteracoes } from "../../core/AvisoAlteracoes";
 import type { MarcacaoDetalhe } from "../../models/agenda";
 import {
   ESTADOS_COM_REGISTO_CLINICO,
@@ -106,7 +106,6 @@ function RegistoDaConsulta({
 
   const comAlteracoes =
     carregado && assinaturaFormulario(formulario) !== assinaturaGuardada;
-  useAvisoAlteracoes(comAlteracoes);
 
   /** Mostra o registo vindo da API e marca-o como "tudo guardado". */
   const aplicarRegisto = useCallback((dados: RegistoClinico | null) => {
@@ -300,6 +299,7 @@ function RegistoDaConsulta({
 
   return (
     <section>
+      <AvisoAlteracoes ativo={comAlteracoes} />
       <h1>{titulo}</h1>
       {aviso ? (
         <p role="status" className="sucesso">
