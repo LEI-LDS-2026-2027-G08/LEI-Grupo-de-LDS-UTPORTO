@@ -660,7 +660,7 @@ O resultado esperado dos cenários de F004 e F006 não depende dos rótulos: est
 - **Passos:**
   1. PC-01 com `rececao@`; abrir `/pacientes/999999`.
   2. Abrir `/pacientes/abc`.
-- **Resultado esperado:** nos dois casos aparece «O registo pedido não foi encontrado.» com «Voltar à lista de pacientes», sem dados de outro paciente; no passo 2 não é feito nenhum pedido à API (endereço inválido).
+- **Resultado esperado:** no passo 1 a API responde 404 e aparece a mensagem do `detail` da API, «O animal indicado não existe.»; no passo 2 aparece «O registo pedido não foi encontrado.» sem nenhum pedido à API (endereço inválido). Nos dois casos aparece «Voltar à lista de pacientes», sem dados de outro paciente.
 - **Dados criados e removidos:** nenhum.
 
 ### ST-WEB-F002-06 — Atualizar os dados administrativos do paciente
