@@ -16,26 +16,27 @@
 
 ## Histórico de versões
 
-| Versão | Data       | Autor                     | Alterações                                                                                                                                                                                                       |
-| ------ | ---------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Versão inicial: 30 cenários de sistema para os 9 requisitos funcionais do Cliente na aplicação móvel e para os requisitos não funcionais com verificação na aplicação (RNF001, RNF002, RNF003, RNF005 e RNF006). |
+| Versão | Data       | Autor                     | Alterações                                                                                                                                                                                                                                                                                                                                                  |
+| ------ | ---------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Versão inicial: 30 cenários de sistema para os 9 requisitos funcionais do Cliente na aplicação móvel e para os requisitos não funcionais com verificação na aplicação (RNF001, RNF002, RNF003, RNF005 e RNF006).                                                                                                                                            |
+| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Correções da revisão (PR, Gonçalo Dinis Magalhães Teixeira): D1 — tipo `Vacina` em PD-04; D2 — datas do boletim relativas ao dia da carga dos dados de demonstração (`{carga}`); D3 — F006-01 alinhado com o que M06 e EP-044 mostram (tipo, produto e data); M1 — hora das marcações preparadas e condição de reposição da base; M2 — índice com ligações. |
 
 ## Índice
 
-1. Introdução
-2. Documentos de referência
-3. Âmbito
-4. Convenções
-5. Ambiente, dados e regras de execução
-6. Estado das funcionalidades na data desta versão
-7. Cenários — F001 Autenticação e sessão
-8. Cenários — F002 Os meus animais
-9. Cenários — F003 Consultas futuras e histórico administrativo
-10. Cenários — F006 Boletim de vacinação e desparasitação
-11. Cenários transversais — perfis, isolamento, rede e erros
-12. Matriz cenários ↔ requisitos
-13. Automação e casos não automatizados
-14. Decisões e pontos em aberto
+1. [Introdução](#1-introdução)
+2. [Documentos de referência](#2-documentos-de-referência)
+3. [Âmbito](#3-âmbito)
+4. [Convenções](#4-convenções)
+5. [Ambiente, dados e regras de execução](#5-ambiente-dados-e-regras-de-execução)
+6. [Estado das funcionalidades na data desta versão](#6-estado-das-funcionalidades-na-data-desta-versão)
+7. [Cenários — F001 Autenticação e sessão](#7-cenários--f001-autenticação-e-sessão)
+8. [Cenários — F002 Os meus animais](#8-cenários--f002-os-meus-animais)
+9. [Cenários — F003 Consultas futuras e histórico administrativo](#9-cenários--f003-consultas-futuras-e-histórico-administrativo)
+10. [Cenários — F006 Boletim de vacinação e desparasitação](#10-cenários--f006-boletim-de-vacinação-e-desparasitação)
+11. [Cenários transversais — perfis, isolamento, rede e erros](#11-cenários-transversais--perfis-isolamento-rede-e-erros)
+12. [Matriz cenários ↔ requisitos](#12-matriz-cenários--requisitos)
+13. [Automação e casos não automatizados](#13-automação-e-casos-não-automatizados)
+14. [Decisões e pontos em aberto](#14-decisões-e-pontos-em-aberto)
 
 ## 1. Introdução
 
@@ -107,7 +108,9 @@ Os testes automáticos têm no nome o identificador do cenário (critério 1 da 
 
 - «Texto» — texto visível na aplicação, tal como aparece.
 - `m02-lista-animais` — `testTag` do elemento (Modelo de Classes v03, secção 13; D-12 do Plano), usado pela automação.
-- `{D}` — data da marcação futura preparada (secção 5.4); `{hoje}` — data de hoje em Lisboa.
+- `{D}` — data da marcação futura preparada (secção 5.4); `{h1}` e `{h2}` — horas das marcações de PD-01 e PD-02 (secção 5.4); `{hoje}` — data de hoje em Lisboa.
+- `{carga}` — dia (em Lisboa) em que os dados de demonstração foram carregados: o script `02-dados-demonstracao.sql` calcula as datas do boletim a partir desse dia. É a data do registo `dados-execucao-AAAAMMDD-HHMMSS.log` deixado pelo `executar-dados.ps1`; numa execução completa, com a base reposta no próprio dia, `{carga}` = `{hoje}`.
+- `{carga} − 30` — data calculada (dias de calendário), mostrada no formato `dd/MM/aaaa`.
 - Datas e horas na aplicação: formato `dd/MM/aaaa • HH:mm`, no fuso do dispositivo; o emulador está em `Europe/Lisbon`.
 
 ## 5. Ambiente, dados e regras de execução
@@ -139,12 +142,12 @@ As palavras-passe nunca ficam no repositório, no código dos testes nem nos rel
 
 Os cenários só **leem** estes dados. Datas e horas em Lisboa.
 
-| Cliente                       | Animais (M02)                                                                                            | Marcações (EP-030)                                                                                                                  | Boletim (EP-044)                                                                                                                                                                                                             |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| João Costa (`cliente.joao`)   | Bobi (Cão, Labrador Retriever, Macho, nascido a 10/03/2022, 28,4 kg) e Mia (Gato, Europeu Comum, 4,2 kg) | Bobi: 14/10/2026 10:30 Realizada (com registo clínico «Otite externa») e 05/11/2026 11:00 Pendente; Mia: 20/10/2026 11:00 Cancelada | Bobi: vacina antirrábica (fictícia, 14/10/2025, 365 dias), vacina polivalente (fictícia, 14/10/2026, 365 dias) e desparasitante interno (fictício, 14/10/2026, 90 dias); próximas 12/01/2027 e 14/10/2027. Mia: sem registos |
-| Maria Silva (`cliente.maria`) | Kiko (Cão, sem raça definida, 12,8 kg)                                                                   | Kiko: 03/11/2026 09:00 Confirmada                                                                                                   | Kiko: uma desparasitação a 01/08/2026, sem próxima prevista                                                                                                                                                                  |
+| Cliente                       | Animais (M02)                                                                                            | Marcações (EP-030)                                                                                                                  | Boletim (EP-044)                                                                                                                                                                                                                                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| João Costa (`cliente.joao`)   | Bobi (Cão, Labrador Retriever, Macho, nascido a 10/03/2022, 28,4 kg) e Mia (Gato, Europeu Comum, 4,2 kg) | Bobi: 14/10/2026 10:30 Realizada (com registo clínico «Otite externa») e 05/11/2026 11:00 Pendente; Mia: 20/10/2026 11:00 Cancelada | Bobi: vacina antirrábica (fictícia, administrada a `{carga} − 400`, 365 dias), vacina polivalente (fictícia, `{carga} − 30`, 365 dias) e desparasitante interno (fictício, `{carga} − 30`, 90 dias); próximas a `{carga} + 60` (desparasitante) e `{carga} + 335` (polivalente). Mia: sem registos |
+| Maria Silva (`cliente.maria`) | Kiko (Cão, sem raça definida, 12,8 kg)                                                                   | Kiko: 03/11/2026 09:00 Confirmada                                                                                                   | Kiko: desparasitante externo (fictício) a `{carga} − 60`, sem próxima prevista                                                                                                                                                                                                                     |
 
-A antirrábica do Bobi (próxima a 14/10/2026) já passou e não aparece nas próximas administrações (comportamento da API verificado na I122).
+As marcações têm datas fixas; as datas do boletim são relativas a `{carga}` (secção 4.3). A próxima da antirrábica do Bobi (`{carga} − 35`) já passou e não aparece nas próximas administrações (comportamento da API verificado na I122). O boletim não mostra o lote nem o Veterinário: EP-044 devolve só o tipo, o produto e a data.
 
 ### 5.4. Dados preparados antes da execução (D-13 do Plano)
 
@@ -152,12 +155,12 @@ Os dados de demonstração têm datas fixas: depois de 2026-11-05 nenhum Cliente
 
 | ID    | Dado                    | Operação e conta                                      | Valores                                                                                                                                                                                       |
 | ----- | ----------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PD-01 | Marcação futura do Bobi | EP-025 (`POST /consultas`), Rececionista              | Bobi, Dra. Ana Veterinária, `{D}` às 10:00, motivo «Teste ST-MOB {execução}». `{D}` é o primeiro dia útil a pelo menos 7 dias de hoje                                                         |
-| PD-02 | Marcação futura do Kiko | EP-025, Rececionista                                  | Kiko, Dra. Ana Veterinária, `{D}` às 11:00, motivo «Teste ST-MOB {execução}»                                                                                                                  |
+| PD-01 | Marcação futura do Bobi | EP-025 (`POST /consultas`), Rececionista              | Bobi, Dra. Ana Veterinária, `{D}` às `{h1}` (10:00, com a base reposta), motivo «Teste ST-MOB {execução}». `{D}` é o primeiro dia útil a pelo menos 7 dias de hoje                            |
+| PD-02 | Marcação futura do Kiko | EP-025, Rececionista                                  | Kiko, Dra. Ana Veterinária, `{D}` às `{h2}` (11:00, com a base reposta), motivo «Teste ST-MOB {execução}»                                                                                     |
 | PD-03 | Cliente sem animais     | EP-013 (`POST /clientes`), Rececionista               | Nome «Cliente ST-MOB {execução}», e-mail `st.mob.{execução}@clinica-g08.test`, palavra-passe gerada na execução (12 caracteres, com minúscula, maiúscula, algarismo e símbolo), só em memória |
-| PD-04 | Vacinação nova do Bobi  | EP-043 (`POST /animais/{id}/vacinacoes`), Veterinário | Tipo Vacinacao, produto «Vacina ST-MOB {execução} (fictícia)», lote «ST-{execução}», data de administração `{hoje}`, intervalo 30 dias (próxima prevista `{hoje}` + 30 dias)                  |
+| PD-04 | Vacinação nova do Bobi  | EP-043 (`POST /animais/{id}/vacinacoes`), Veterinário | Tipo `Vacina`, produto «Vacina ST-MOB {execução} (fictícia)», lote «ST-{execução}», data de administração `{hoje}`, intervalo 30 dias (próxima prevista `{hoje}` + 30 dias)                   |
 
-`{execução}` é a marca temporal da execução (por exemplo `20261120-1700`). Os dados ficam na base até à reposição seguinte e não interferem com outras execuções.
+`{execução}` é a marca temporal da execução (por exemplo `20261120-1700`). Os dados ficam na base até à reposição seguinte. **A preparação pressupõe a base reposta** (secção 5.1): repetida no mesmo dia sem reposição, PD-01 e PD-02 recebem 422 (horário ocupado). Para repetir só alguns cenários sem repor a base, `{h1}` e `{h2}` passam a ser os primeiros horários livres da Dra. Ana em `{D}` devolvidos por EP-022 (`GET /veterinarios/{id}/disponibilidade`), e os resultados esperados usam essas horas. PD-03 e PD-04 levam a marca `{execução}` e podem ser repetidas.
 
 A preparação nunca altera a Mia, que continua sem registos de profilaxia e sem marcações futuras (boletim vazio e lista vazia). Os cenários indicam sempre se dependem da preparação.
 
@@ -372,7 +375,7 @@ Os textos esperados foram confirmados no código destas três tarefas (`strings.
 - **Pré-condições:** aplicação sem sessão guardada; PD-01 e PD-02 executadas.
 - **Dados:** PD-01 (Bobi) e PD-02 (Kiko).
 - **Passos:** 1. PC-01 com `cliente.joao`. 2. Na barra inferior, carregar em «Consultas». 3. Confirmar que o separador «Próximas» (`m04-separador-futuras`) está selecionado.
-- **Resultado esperado:** a lista `m04-lista-futuras` mostra a marcação de PD-01: estado «Pendente», «`{D}` • 10:00», «Bobi • Cão» e «Dra. Ana Veterinária (demonstração)»; o motivo não aparece; a marcação do Kiko (PD-02) e as marcações passadas não aparecem; as marcações estão por data crescente.
+- **Resultado esperado:** a lista `m04-lista-futuras` mostra a marcação de PD-01: estado «Pendente», «`{D}` • `{h1}`», «Bobi • Cão» e «Dra. Ana Veterinária (demonstração)»; o motivo não aparece; a marcação do Kiko (PD-02) e as marcações passadas não aparecem; as marcações estão por data crescente.
 - **Dados criados e removidos:** nenhum.
 
 ### ST-MOB-F003-02 — Ver o histórico administrativo sem dados clínicos
@@ -448,7 +451,7 @@ Os textos esperados foram confirmados no código destas três tarefas (`strings.
 - **Pré-condições:** aplicação sem sessão guardada.
 - **Dados:** boletim do Bobi (secção 5.3).
 - **Passos:** 1. PC-01 com `cliente.joao`. 2. Abrir o detalhe do Bobi e carregar em «Ver boletim». 3. Carregar em «Voltar» (`m06-voltar`).
-- **Resultado esperado:** abre «Boletim de vacinação e desparasitação»; «Histórico» (`m06-historico`) mostra, pelo menos, as três administrações dos dados de demonstração (antirrábica, polivalente e desparasitante interno), cada uma com o produto, «Administrada em …», o lote e o Veterinário; não há ações de registar ou alterar; no passo 3 volta ao detalhe do Bobi.
+- **Resultado esperado:** abre «Boletim de vacinação e desparasitação»; «Histórico» (`m06-historico`) mostra, pelo menos, as três administrações dos dados de demonstração (antirrábica, polivalente e desparasitante interno), cada uma com o tipo («Vacina» ou «Desparasitação»), o produto e «Administrada em …» com a data (`{carga} − 400` e `{carga} − 30`); o lote e o Veterinário não aparecem, porque EP-044 não os devolve; não há ações de registar ou alterar; no passo 3 volta ao detalhe do Bobi.
 - **Dados criados e removidos:** nenhum.
 
 ### ST-MOB-F006-02 — Próximas administrações calculadas pela API
@@ -460,7 +463,7 @@ Os textos esperados foram confirmados no código destas três tarefas (`strings.
 - **Pré-condições:** aplicação sem sessão guardada; PD-04 executada.
 - **Dados:** boletim do Bobi, com a vacinação criada em PD-04.
 - **Passos:** 1. PC-01 com `cliente.joao`. 2. Abrir o detalhe do Bobi e «Ver boletim».
-- **Resultado esperado:** «Próximas administrações previstas» (`m06-proximas`) mostra a vacina de PD-04 com «Prevista para `{hoje}` + 30 dias» (o valor de `dataProximaPrevista` devolvido pela API em PD-04), «Prevista para 12/01/2027» (desparasitante interno) e «Prevista para 14/10/2027» (polivalente), e não mostra a antirrábica, cuja data prevista já passou; o «Histórico» mostra a vacina de PD-04 com «Administrada em `{hoje}`». Os dados registados por um Veterinário pela API aparecem na consulta posterior do Cliente (RNF005).
+- **Resultado esperado:** «Próximas administrações previstas» (`m06-proximas`) mostra a vacina de PD-04 com «Prevista para `{hoje}` + 30 dias» (o valor de `dataProximaPrevista` devolvido pela API em PD-04), «Prevista para `{carga} + 60`» (desparasitante interno) e «Prevista para `{carga} + 335`» (polivalente), e não mostra a antirrábica, cuja data prevista já passou; o «Histórico» mostra a vacina de PD-04 com «Administrada em `{hoje}`». Os dados registados por um Veterinário pela API aparecem na consulta posterior do Cliente (RNF005).
 - **Dados criados e removidos:** nenhum.
 
 ### ST-MOB-F006-03 — Boletim sem registos e boletim sem próximas
@@ -474,7 +477,7 @@ Os textos esperados foram confirmados no código destas três tarefas (`strings.
 - **Passos:**
   1. PC-01 com `cliente.maria`; abrir o detalhe do Kiko e «Ver boletim».
   2. PC-02; PC-01 com `cliente.joao`; abrir o detalhe da Mia e «Ver boletim».
-- **Resultado esperado:** no passo 1 «Histórico» mostra a desparasitação de «Administrada em 01/08/2026» e «Próximas administrações previstas» mostra «Não há administrações previstas.»; no passo 2 aparece «Este animal ainda não tem vacinações nem desparasitações registadas.» (`m06-vazio`); nenhum dos casos mostra erro.
+- **Resultado esperado:** no passo 1 «Histórico» mostra o desparasitante externo com «Administrada em `{carga} − 60`» e «Próximas administrações previstas» mostra «Não há administrações previstas.»; no passo 2 aparece «Este animal ainda não tem vacinações nem desparasitações registadas.» (`m06-vazio`); nenhum dos casos mostra erro.
 - **Dados criados e removidos:** nenhum.
 
 ### ST-MOB-F006-04 — Recusar o boletim de um animal de outro Cliente
