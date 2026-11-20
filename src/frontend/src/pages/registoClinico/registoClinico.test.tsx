@@ -1,6 +1,6 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { RouterProvider, createMemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiRequestError } from "../../core/api";
 import {
@@ -105,38 +105,49 @@ function sessaoDe(perfil: PerfilWeb): AuthContextValue {
   };
 }
 
+/**
+ * Monta as páginas num data router em memória (como a aplicação, que usa
+ * createBrowserRouter), para o bloqueio da navegação (useBlocker) funcionar.
+ * `anteriores` são entradas do histórico antes de `caminho` (para testar o
+ * botão «Retroceder»).
+ */
 function montar(
   caminho: string,
-  { perfil = "Veterinario" as PerfilWeb, servicos = servicosFalsos() } = {},
+  {
+    perfil = "Veterinario" as PerfilWeb,
+    servicos = servicosFalsos(),
+    anteriores = [] as string[],
+  } = {},
 ) {
+  const entradas = [...anteriores, caminho];
+  const router = createMemoryRouter(
+    [
+      {
+        path: "/agenda/:id/registo-clinico",
+        element: (
+          <RegistoClinicoPage
+            servico={servicos.registos as unknown as ServicoRegistosClinicos}
+            servicoAgenda={servicos.agenda}
+          />
+        ),
+      },
+      {
+        path: "/agenda/:id",
+        element: (
+          <MarcacaoDetalhePage
+            servico={servicos.agenda as unknown as ServicoAgenda}
+          />
+        ),
+      },
+    ],
+    { initialEntries: entradas, initialIndex: entradas.length - 1 },
+  );
   render(
     <AuthContext.Provider value={sessaoDe(perfil)}>
-      <MemoryRouter initialEntries={[caminho]}>
-        <Routes>
-          <Route
-            path="/agenda/:id/registo-clinico"
-            element={
-              <RegistoClinicoPage
-                servico={
-                  servicos.registos as unknown as ServicoRegistosClinicos
-                }
-                servicoAgenda={servicos.agenda}
-              />
-            }
-          />
-          <Route
-            path="/agenda/:id"
-            element={
-              <MarcacaoDetalhePage
-                servico={servicos.agenda as unknown as ServicoAgenda}
-              />
-            }
-          />
-        </Routes>
-      </MemoryRouter>
+      <RouterProvider router={router} />
     </AuthContext.Provider>,
   );
-  return servicos;
+  return Object.assign(servicos, { router });
 }
 
 const CAMINHO = "/agenda/41/registo-clinico";
@@ -380,7 +391,7 @@ describe("W13 — alterações por guardar (I115, critério 6)", () => {
     await u.type(await screen.findByLabelText("Notas clínicas"), "Rascunho");
     await u.click(screen.getByRole("link", { name: "Voltar à marcação" }));
 
-    expect(confirmar).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(confirmar).toHaveBeenCalledTimes(1));
     expect(
       screen.getByRole("heading", { name: "Registo clínico da consulta" }),
     ).toBeInTheDocument();
@@ -396,6 +407,59 @@ describe("W13 — alterações por guardar (I115, critério 6)", () => {
     expect(
       await screen.findByRole("heading", { name: "Detalhe da marcação" }),
     ).toBeInTheDocument();
+  });
+
+  it("botão «Retroceder» do navegador: pede confirmação e, ao cancelar, mantém os dados (D1 da revisão)", async () => {
+    const confirmar = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const { router } = montar(CAMINHO, { anteriores: ["/agenda/41"] });
+    const u = userEvent.setup();
+    await u.type(await screen.findByLabelText("Notas clínicas"), "Rascunho");
+
+    await act(async () => {
+      await router.navigate(-1);
+    });
+
+    await waitFor(() =>
+      expect(confirmar).toHaveBeenCalledWith(
+        "Tem alterações por guardar. Se sair agora, perde-as. Quer mesmo sair?",
+      ),
+    );
+    expect(router.state.location.pathname).toBe(CAMINHO);
+    expect(
+      screen.getByRole("heading", { name: "Registo clínico da consulta" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Notas clínicas")).toHaveValue("Rascunho");
+  });
+
+  it("botão «Retroceder» do navegador: sai se o utilizador confirmar", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const { router } = montar(CAMINHO, { anteriores: ["/agenda/41"] });
+    const u = userEvent.setup();
+    await u.type(await screen.findByLabelText("Notas clínicas"), "Rascunho");
+
+    await act(async () => {
+      await router.navigate(-1);
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "Detalhe da marcação" }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/agenda/41");
+  });
+
+  it("botão «Retroceder» sem alterações: sai sem perguntar", async () => {
+    const confirmar = vi.spyOn(window, "confirm");
+    const { router } = montar(CAMINHO, { anteriores: ["/agenda/41"] });
+    await screen.findByLabelText("Notas clínicas");
+
+    await act(async () => {
+      await router.navigate(-1);
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "Detalhe da marcação" }),
+    ).toBeInTheDocument();
+    expect(confirmar).not.toHaveBeenCalled();
   });
 
   it("sem alterações sai sem perguntar", async () => {
