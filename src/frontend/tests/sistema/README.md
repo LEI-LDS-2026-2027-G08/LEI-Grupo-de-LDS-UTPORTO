@@ -4,7 +4,7 @@ Automação com Playwright dos cenários da Especificação dos Testes de Sistem
 
 ## Antes de executar
 
-1. **Backend** a correr em `http://localhost:5159`, com a base reposta e os dados de demonstração (I061) carregados. Os cenários contam com esses dados (por exemplo, os animais do João Costa e o horário da clínica).
+1. **Backend** a correr em `http://localhost:5159`, ligado à base de teste isolada `ClinicaVeterinaria_E2E`, reposta e com os dados de demonstração (I061) carregados (secção seguinte). Os cenários contam com esses dados (por exemplo, os animais do João Costa e o horário da clínica).
 2. **Palavras-passe** das contas de demonstração em variáveis de ambiente (nunca no repositório):
 
    ```powershell
@@ -18,6 +18,34 @@ Automação com Playwright dos cenários da Especificação dos Testes de Sistem
 3. **Chromium** do Playwright, na primeira vez: `npx playwright install chromium`.
 
 Opcional: `E2E_WEB_URL` (por omissão `http://localhost:5173`) e `E2E_API_URL` (por omissão `http://localhost:5159`). Se o frontend não estiver a correr, o `npm run test:sistema` arranca o `npm run dev` uma só vez para as duas fases (com `VITE_API_URL` igual a `E2E_API_URL`) e para-o no fim.
+
+## Base de teste isolada
+
+Os testes criam e alteram dados, por isso correm numa base própria, `ClinicaVeterinaria_E2E`, e nunca na base de desenvolvimento configurada nos _user-secrets_ do backend. Os comandos abaixo usam o SQL Server local com autenticação do Windows, sem palavra-passe; noutra instalação muda só o `Server=`. Com login SQL, a palavra-passe nunca vai para o repositório nem para a linha de comandos: o `executar-dados.ps1` recebe `-Utilizador` e lê a palavra-passe da variável `SQLCMDPASSWORD`.
+
+1. **Criar ou repor a base e aplicar as migrações** (backend parado), na pasta `src/backend`:
+
+   ```powershell
+   $e2e = "Server=.;Database=ClinicaVeterinaria_E2E;Trusted_Connection=True;TrustServerCertificate=True"
+   .\scripts\reposicao-base-dados.ps1 -ConnectionString $e2e
+   ```
+
+2. **Carregar os dados de demonstração** (I061), na raiz do repositório:
+
+   ```powershell
+   .\04-artefactos-tecnicos\04.13-scripts-de-base-de-dados\m3-v02\dados-demonstracao\executar-dados.ps1 -Servidor "." -ConfiarCertificado -BaseDados "ClinicaVeterinaria_E2E" -PastaRegistos $env:TEMP
+   ```
+
+   O registo `dados-execucao-*.log` tem de terminar com todas as verificações aprovadas.
+
+3. **Arrancar o backend ligado a essa base**, na pasta `src/backend` e no mesmo terminal do passo 1 (a variável `ConnectionStrings__ClinicaDb` sobrepõe-se aos _user-secrets_ só nesse terminal):
+
+   ```powershell
+   $env:ConnectionStrings__ClinicaDb = $e2e
+   dotnet run --project .\ClinicaVeterinaria.Api\ClinicaVeterinaria.Api.csproj --urls http://localhost:5159
+   ```
+
+Basta repor a base uma vez antes de uma série de execuções: a suite pode correr várias vezes seguidas sem nova reposição, porque cada execução cria os seus dados com um sufixo próprio. Para voltar ao estado inicial, parar o backend e repetir os passos 1 a 3.
 
 ## Executar
 
@@ -34,7 +62,7 @@ Quando um teste falha, a captura de ecrã e o _trace_ ficam em `test-results/` e
 - A API nunca é simulada; o navegador corre sem interface.
 - Cada teste inicia a sua sessão e cria os dados de que precisa, com o `{sufixo}` do cenário e da execução; nenhum depende de outro nem da ordem.
 - Não há pausas fixas: cada passo espera por uma condição visível ou pela resposta da API.
-- Os dados criados ficam até à reposição da base, feita antes de cada execução completa.
+- Os dados criados ficam na base de teste até à reposição seguinte; não impedem execuções seguidas.
 
 ## Estrutura
 
