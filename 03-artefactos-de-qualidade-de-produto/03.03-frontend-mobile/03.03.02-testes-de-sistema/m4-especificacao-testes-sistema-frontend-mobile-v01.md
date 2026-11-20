@@ -20,6 +20,7 @@
 | ------ | ---------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Versão inicial: 30 cenários de sistema para os 9 requisitos funcionais do Cliente na aplicação móvel e para os requisitos não funcionais com verificação na aplicação (RNF001, RNF002, RNF003, RNF005 e RNF006).                                                                                                                                            |
 | v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Correções da revisão (PR, Gonçalo Dinis Magalhães Teixeira): D1 — tipo `Vacina` em PD-04; D2 — datas do boletim relativas ao dia da carga dos dados de demonstração (`{carga}`); D3 — F006-01 alinhado com o que M06 e EP-044 mostram (tipo, produto e data); M1 — hora das marcações preparadas e condição de reposição da base; M2 — índice com ligações. |
+| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Correções da auditoria inicial (PR, Ivan Cristiano Silva Mendes): PD-03 com o telefone obrigatório de EP-013; ST-MOB-F001-06 confirma o pedido a EP-002 e que o token antigo deixa de ser aceite (CT-MOB-F001-05); técnica correspondente na secção 13.2.                                                                                                   |
 
 ## Índice
 
@@ -153,12 +154,12 @@ As marcações têm datas fixas; as datas do boletim são relativas a `{carga}` 
 
 Os dados de demonstração têm datas fixas: depois de 2026-11-05 nenhum Cliente tem Consultas futuras, e todos os Clientes têm animais. Antes de cada execução completa, a preparação cria pela API, com as contas internas de demonstração, os dados seguintes. Na automação, a preparação é feita pela I137 (pedidos HTTP antes dos testes); na execução manual, pelo Swagger do backend ou pelo frontend web com o perfil indicado.
 
-| ID    | Dado                    | Operação e conta                                      | Valores                                                                                                                                                                                       |
-| ----- | ----------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PD-01 | Marcação futura do Bobi | EP-025 (`POST /consultas`), Rececionista              | Bobi, Dra. Ana Veterinária, `{D}` às `{h1}` (10:00, com a base reposta), motivo «Teste ST-MOB {execução}». `{D}` é o primeiro dia útil a pelo menos 7 dias de hoje                            |
-| PD-02 | Marcação futura do Kiko | EP-025, Rececionista                                  | Kiko, Dra. Ana Veterinária, `{D}` às `{h2}` (11:00, com a base reposta), motivo «Teste ST-MOB {execução}»                                                                                     |
-| PD-03 | Cliente sem animais     | EP-013 (`POST /clientes`), Rececionista               | Nome «Cliente ST-MOB {execução}», e-mail `st.mob.{execução}@clinica-g08.test`, palavra-passe gerada na execução (12 caracteres, com minúscula, maiúscula, algarismo e símbolo), só em memória |
-| PD-04 | Vacinação nova do Bobi  | EP-043 (`POST /animais/{id}/vacinacoes`), Veterinário | Tipo `Vacina`, produto «Vacina ST-MOB {execução} (fictícia)», lote «ST-{execução}», data de administração `{hoje}`, intervalo 30 dias (próxima prevista `{hoje}` + 30 dias)                   |
+| ID    | Dado                    | Operação e conta                                      | Valores                                                                                                                                                                                                                                                                                                                                                                         |
+| ----- | ----------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PD-01 | Marcação futura do Bobi | EP-025 (`POST /consultas`), Rececionista              | Bobi, Dra. Ana Veterinária, `{D}` às `{h1}` (10:00, com a base reposta), motivo «Teste ST-MOB {execução}». `{D}` é o primeiro dia útil a pelo menos 7 dias de hoje                                                                                                                                                                                                              |
+| PD-02 | Marcação futura do Kiko | EP-025, Rececionista                                  | Kiko, Dra. Ana Veterinária, `{D}` às `{h2}` (11:00, com a base reposta), motivo «Teste ST-MOB {execução}»                                                                                                                                                                                                                                                                       |
+| PD-03 | Cliente sem animais     | EP-013 (`POST /clientes`), Rececionista               | Nome «Cliente ST-MOB {execução}», telefone `+351 900 000 000` (fictício; obrigatório em EP-013, 9 a 20 algarismos), e-mail `st.mob.{execução}@clinica-g08.test` e palavra-passe inicial gerada na execução (12 caracteres, com minúscula, maiúscula, algarismo e símbolo), só em memória; sem NIF nem morada (opcionais). Resposta esperada: 201, com a conta de Cliente criada |
+| PD-04 | Vacinação nova do Bobi  | EP-043 (`POST /animais/{id}/vacinacoes`), Veterinário | Tipo `Vacina`, produto «Vacina ST-MOB {execução} (fictícia)», lote «ST-{execução}», data de administração `{hoje}`, intervalo 30 dias (próxima prevista `{hoje}` + 30 dias)                                                                                                                                                                                                     |
 
 `{execução}` é a marca temporal da execução (por exemplo `20261120-1700`). Os dados ficam na base até à reposição seguinte. **A preparação pressupõe a base reposta** (secção 5.1): repetida no mesmo dia sem reposição, PD-01 e PD-02 recebem 422 (horário ocupado). Para repetir só alguns cenários sem repor a base, `{h1}` e `{h2}` passam a ser os primeiros horários livres da Dra. Ana em `{D}` devolvidos por EP-022 (`GET /veterinarios/{id}/disponibilidade`), e os resultados esperados usam essas horas. PD-03 e PD-04 levam a marca `{execução}` e podem ser repetidas.
 
@@ -268,8 +269,13 @@ Os textos esperados foram confirmados no código destas três tarefas (`strings.
 
 - **Pré-condições:** aplicação sem sessão guardada.
 - **Dados:** `cliente.joao`.
-- **Passos:** 1. PC-01 com `cliente.joao`. 2. PC-02. 3. Fechar e reabrir a aplicação.
-- **Resultado esperado:** no passo 2 aparece «Iniciar sessão» com «Terminou a sessão.»; no passo 3 continua em «Iniciar sessão» (a sessão foi apagada do dispositivo) e não aparece «Os meus animais».
+- **Passos:**
+  1. PC-01 com `cliente.joao`.
+  2. Guardar o token da sessão aberta (automação: lido do `TokenStorage` da aplicação, técnica da secção 13.2).
+  3. PC-02.
+  4. Pedir `GET /auth/me` (EP-003) com o token guardado no passo 2.
+  5. Fechar e reabrir a aplicação.
+- **Resultado esperado:** no passo 3 a aplicação faz `POST /auth/logout` (EP-002) com o token da sessão e a API responde 204 (registo dos pedidos do `ApiClient`), e aparece «Iniciar sessão» com «Terminou a sessão.»; no passo 4 a API responde 401, porque o token antigo deixou de ser aceite; no passo 5 continua em «Iniciar sessão» (a sessão foi apagada do dispositivo) e não aparece «Os meus animais».
 - **Dados criados e removidos:** nenhum.
 
 ### ST-MOB-F001-07 — Restaurar a sessão ao reabrir a aplicação
@@ -676,14 +682,15 @@ Total: 30 cenários (12 positivos e 18 negativos). Todas as condições do Plano
 
 Todos os cenários são automatizáveis com Compose UI Test instrumentado contra o backend real. As situações que à mão exigem intervenção fora da aplicação têm uma técnica equivalente:
 
-| Cenário                   | Intervenção manual                                              | Técnica na automação                                                                                                                                                           |
-| ------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| F002-04, F003-06, F006-04 | Não há forma de pedir pela interface um animal de outro Cliente | Navegação direta para a rota do ecrã (`animais/{id}`, `animais/{id}/consultas`, `animais/{id}/boletim`) com o `NavController` do teste e o `id` do Kiko; o pedido à API é real |
-| F001-09                   | Revogar o token no servidor                                     | `POST /auth/logout` feito pelo teste com o token lido do `TokenStorage` da aplicação                                                                                           |
-| TRV-03, TRV-04            | Parar o backend                                                 | Remover o túnel (`adb reverse --remove tcp:5159`) durante o passo e repô-lo depois, ou parar o backend de teste; nunca simular uma resposta com dados                          |
-| TRV-05                    | Provocar um erro 500                                            | `ApiClient` do teste apontado para um servidor intermédio que devolve 500 só para `GET /me/animais`; os restantes pedidos seguem para o backend real                           |
-| TRV-06                    | Limitar a rede                                                  | O mesmo servidor intermédio atrasa a resposta real até o indicador ser verificado (espera por condição)                                                                        |
-| TRV-02                    | —                                                               | Registo dos pedidos feitos pelo `ApiClient` (interceptor de teste)                                                                                                             |
+| Cenário                   | Intervenção manual                                              | Técnica na automação                                                                                                                                                                     |
+| ------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F002-04, F003-06, F006-04 | Não há forma de pedir pela interface um animal de outro Cliente | Navegação direta para a rota do ecrã (`animais/{id}`, `animais/{id}/consultas`, `animais/{id}/boletim`) com o `NavController` do teste e o `id` do Kiko; o pedido à API é real           |
+| F001-09                   | Revogar o token no servidor                                     | `POST /auth/logout` feito pelo teste com o token lido do `TokenStorage` da aplicação                                                                                                     |
+| TRV-03, TRV-04            | Parar o backend                                                 | Remover o túnel (`adb reverse --remove tcp:5159`) durante o passo e repô-lo depois, ou parar o backend de teste; nunca simular uma resposta com dados                                    |
+| TRV-05                    | Provocar um erro 500                                            | `ApiClient` do teste apontado para um servidor intermédio que devolve 500 só para `GET /me/animais`; os restantes pedidos seguem para o backend real                                     |
+| TRV-06                    | Limitar a rede                                                  | O mesmo servidor intermédio atrasa a resposta real até o indicador ser verificado (espera por condição)                                                                                  |
+| TRV-02                    | —                                                               | Registo dos pedidos feitos pelo `ApiClient` (interceptor de teste)                                                                                                                       |
+| F001-06                   | Confirmar no servidor que o token antigo deixou de ser aceite   | O teste lê o token do `TokenStorage` antes de terminar a sessão, regista os pedidos do `ApiClient` (EP-002 e a resposta 204) e, depois, faz `GET /auth/me` com esse token, esperando 401 |
 
 Se algum cenário não puder ser automatizado, a tarefa de automação regista a justificação no Pull Request e o cenário é executado à mão e registado no relatório de resultados (I139).
 
@@ -696,7 +703,7 @@ Para a verificação 2 do Revisor da I136 e para repetir um cenário à mão:
 3. Instalar a aplicação com `-PapiBaseUrl=http://localhost:5159`, fazer `adb reverse tcp:5159 tcp:5159` e limpar os dados da aplicação (PC-03).
 4. Seguir os passos e comparar com o resultado esperado.
 
-Os cenários F002-04, F003-06 e F006-04 não são executáveis à mão pela interface (a aplicação não oferece forma de pedir um animal de outro Cliente); à mão verifica-se a resposta 403 de EP-020, EP-030 com `animalId` e EP-044 com o token do João no Swagger, e a apresentação do 403 está coberta pelos testes de componentes da I122 e da I123.
+Os cenários F002-04, F003-06 e F006-04 não são executáveis à mão pela interface (a aplicação não oferece forma de pedir um animal de outro Cliente); à mão verifica-se a resposta 403 de EP-020, EP-030 com `animalId` e EP-044 com o token do João no Swagger, e a apresentação do 403 está coberta pelos testes de componentes da I122 e da I123. No ST-MOB-F001-06, à mão verificam-se os passos 1, 3 e 5; os passos 2 e 4 (token antigo recusado) só são verificáveis na automação, porque a aplicação nunca mostra o token (ST-MOB-TRV-07).
 
 ### 13.4. Verificação estática
 
