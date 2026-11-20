@@ -16,27 +16,28 @@
 
 ## Histórico de versões
 
-| Versão | Data       | Autor                     | Alterações                                                                                                                                                                                                                                                                                                  |
-| ------ | ---------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Versão inicial: 9 cenários de aceitação na perspetiva do Cliente para as 4 funcionalidades da aplicação móvel (F001, F002, F003 e F006), os 9 requisitos funcionais do Cliente e os requisitos não funcionais RNF002, RNF003, RNF005 e RNF006; critérios globais de aceitação e participantes da simulação. |
+| Versão | Data       | Autor                     | Alterações                                                                                                                                                                                                                                                                                                                                                                  |
+| ------ | ---------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Versão inicial: 9 cenários de aceitação na perspetiva do Cliente para as 4 funcionalidades da aplicação móvel (F001, F002, F003 e F006), os 9 requisitos funcionais do Cliente e os requisitos não funcionais RNF002, RNF003, RNF005 e RNF006; critérios globais de aceitação e participantes da simulação.                                                                 |
+| v01    | 2026-11-20 | Gonçalo Magalhães Ribeiro | Alinhamento com as correções da revisão da I136 (PR da I136, Revisor Gonçalo Dinis Magalhães Teixeira): datas do boletim relativas ao dia da carga dos dados de demonstração; o boletim mostra tipo, produto e data (sem lote nem Veterinário, que EP-044 não devolve); hora das Consultas preparadas; índice com ligações. Os critérios de aceitação não mudam de sentido. |
 
 ## Índice
 
-1. Introdução
-2. Documentos de referência
-3. Âmbito
-4. Como se lê um cenário
-5. Preparação da simulação
-6. Participantes da simulação
-7. Critérios globais de aceitação
-8. Cenários — F001 Entrar e sair da aplicação
-9. Cenários — F002 Os meus animais
-10. Cenários — F003 As minhas Consultas
-11. Cenários — F006 Boletim de vacinação e desparasitação
-12. Cenários — só a minha informação, sem rede
-13. Matriz cenários ↔ funcionalidades e requisitos
-14. Execução manual e relação com os testes de sistema
-15. Decisões e pontos em aberto
+1. [Introdução](#1-introdução)
+2. [Documentos de referência](#2-documentos-de-referência)
+3. [Âmbito](#3-âmbito)
+4. [Como se lê um cenário](#4-como-se-lê-um-cenário)
+5. [Preparação da simulação](#5-preparação-da-simulação)
+6. [Participantes da simulação](#6-participantes-da-simulação)
+7. [Critérios globais de aceitação](#7-critérios-globais-de-aceitação)
+8. [Cenários — F001 Entrar e sair da aplicação](#8-cenários--f001-entrar-e-sair-da-aplicação)
+9. [Cenários — F002 Os meus animais](#9-cenários--f002-os-meus-animais)
+10. [Cenários — F003 As minhas Consultas](#10-cenários--f003-as-minhas-consultas)
+11. [Cenários — F006 Boletim de vacinação e desparasitação](#11-cenários--f006-boletim-de-vacinação-e-desparasitação)
+12. [Cenários — só a minha informação, sem rede](#12-cenários--só-a-minha-informação-sem-rede)
+13. [Matriz cenários ↔ funcionalidades e requisitos](#13-matriz-cenários--funcionalidades-e-requisitos)
+14. [Execução manual e relação com os testes de sistema](#14-execução-manual-e-relação-com-os-testes-de-sistema)
+15. [Decisões e pontos em aberto](#15-decisões-e-pontos-em-aberto)
 
 ## 1. Introdução
 
@@ -88,8 +89,8 @@ Os nomes entre «» são os textos que aparecem no ecrã. Nenhum passo pede para
 1. **Versão:** antes da sessão, o grupo identifica o commit da aplicação Android e o do backend e regista-os no relatório (I141). Os testes de sistema dessa versão (I137 e I138) têm de estar a passar (Plano de Testes do Frontend Mobile, secção 8.1).
 2. **Ambiente:** o emulador Android de referência (Pixel 8, Android 17 / API 37, fuso `Europe/Lisbon`) com a aplicação de debug ligada ao backend local (`adb reverse tcp:5159 tcp:5159` e `-PapiBaseUrl=http://localhost:5159`), ou ao ambiente público de avaliação. A base é reposta e os dados de demonstração carregados no início da sessão.
 3. **Preparação dos dados:** depois da reposição, um elemento do grupo cria, no frontend web ou pela API, os dados da preparação da Especificação dos Testes de Sistema (I136, secção 5.4) de que os cenários precisam:
-   - **PD-01** — uma Consulta futura para o Bobi (Rececionista, «Nova marcação»): Dra. Ana Veterinária, num dia útil a pelo menos 7 dias da sessão, às 10:00, com o motivo «Simulação {data}»;
-   - **PD-02** — uma Consulta futura para o Kiko, no mesmo dia, às 11:00;
+   - **PD-01** — uma Consulta futura para o Bobi (Rececionista, «Nova marcação»): Dra. Ana Veterinária, num dia útil a pelo menos 7 dias da sessão, às 10:00 (ou, se esse horário já estiver ocupado, no primeiro horário livre que a aplicação web mostrar), com o motivo «Simulação {data}»; o registador anota o dia e a hora;
+   - **PD-02** — uma Consulta futura para o Kiko, no mesmo dia, às 11:00 (ou no primeiro horário livre seguinte);
    - **PD-04** — uma vacinação nova do Bobi (Veterinário, `vet.ana`): «Vacina simulação {data} (fictícia)», administrada no dia da sessão, com 30 dias até à próxima.
      `{data}` é a data da sessão no formato AAAAMMDD. A PD-03 (Cliente sem animais) não é usada na aceitação.
 4. **Contas:** as contas de demonstração da Especificação dos Testes de Sistema (secção 5.2). As palavras-passe são comunicadas aos participantes fora do repositório e não ficam escritas no relatório.
@@ -224,7 +225,7 @@ A aplicação móvel é **aceite** quando os seis critérios se verificam. Os re
   3. Tocar na Consulta do Bobi.
   4. Voltar a «Animais», abrir o detalhe do Bobi e carregar em «Ver consultas».
 - **Critério de aceitação:**
-  1. Em «Próximas» aparece a Consulta do Bobi marcada pela receção, com o dia e a hora certos (10:00), o estado, o nome do Bobi e a Dra. Ana Veterinária.
+  1. Em «Próximas» aparece a Consulta do Bobi marcada pela receção, com o dia e a hora anotados na preparação, o estado, o nome do Bobi e a Dra. Ana Veterinária.
   2. Não aparece a Consulta do Kiko nem Consultas que já passaram.
   3. Não há nenhuma forma de marcar, mudar, confirmar ou cancelar a Consulta na aplicação; tocar na Consulta não abre nenhuma dessas ações.
   4. A partir do Bobi, «Ver consultas» mostra «Só as Consultas deste animal.» e a mesma Consulta.
@@ -257,14 +258,14 @@ A aplicação móvel é **aceite** quando os seis critérios se verificam. Os re
 
 - **Situação:** o Bobi foi vacinado hoje na clínica. À noite, o João quer ver no boletim a vacina de hoje e saber quando são as próximas vacinas e a próxima desparasitação. Quer também confirmar que a Mia ainda não tem nada registado.
 - **Pré-condições:** aplicação sem sessão aberta; PD-04 criada no início da sessão (secção 5).
-- **Dados:** boletim do Bobi (vacina antirrábica de 14/10/2025, vacina polivalente e desparasitante interno de 14/10/2026, e a vacina de PD-04); Mia sem registos.
+- **Dados:** boletim do Bobi (vacina antirrábica, vacina polivalente e desparasitante interno dos dados de demonstração, com datas calculadas a partir do dia em que os dados foram carregados, e a vacina de PD-04); Mia sem registos. Antes da sessão, o registador anota as datas que a clínica tem no boletim do Bobi (com a conta do Veterinário: EP-042 no Swagger ou o boletim no frontend web).
 - **Passos:**
   1. Entrar com a conta do João.
   2. Abrir o detalhe do Bobi e carregar em «Ver boletim».
   3. Carregar em «Voltar», voltar à lista e abrir o boletim da Mia.
 - **Critério de aceitação:**
-  1. O boletim do Bobi mostra a vacina dada hoje, com a data de hoje, o lote e o Veterinário, e as vacinações e a desparasitação anteriores.
-  2. Em «Próximas administrações previstas» aparecem a próxima da vacina de hoje (daqui a 30 dias), 12/01/2027 (desparasitante interno) e 14/10/2027 (polivalente), com datas iguais às que a clínica calculou.
+  1. O boletim do Bobi mostra a vacina dada hoje, com o tipo, o produto e a data de hoje, e as vacinações e a desparasitação anteriores, com as datas que a clínica tem registadas.
+  2. Em «Próximas administrações previstas» aparecem a próxima da vacina de hoje (daqui a 30 dias) e as próximas do desparasitante interno e da vacina polivalente, com datas iguais às que a clínica calculou (anotadas antes da sessão).
   3. A antirrábica, cuja data prevista já passou, não aparece como próxima.
   4. O boletim da Mia diz «Este animal ainda não tem vacinações nem desparasitações registadas.».
   5. Não há nenhuma forma de registar ou alterar vacinas ou desparasitações na aplicação.
@@ -279,7 +280,7 @@ A aplicação móvel é **aceite** quando os seis critérios se verificam. Os re
 
 - **Situação:** a Maria, vizinha do João, usa o telemóvel dele para ver as Consultas do Kiko. O João saiu da conta antes de lhe emprestar o telemóvel.
 - **Pré-condições:** aplicação sem sessão aberta; PD-01 e PD-02 criadas.
-- **Dados:** Kiko (Cão, uma desparasitação a 01/08/2026, Consulta de 03/11/2026 09:00 Confirmada e a Consulta futura de PD-02); animais e Consultas do João.
+- **Dados:** Kiko (Cão, uma desparasitação com desparasitante externo, sem próxima prevista, Consulta de 03/11/2026 09:00 Confirmada e a Consulta futura de PD-02); animais e Consultas do João.
 - **Passos:**
   1. Entrar com a conta da Maria.
   2. Ver «Os meus animais», «Consultas» (os dois separadores) e o boletim do Kiko.
@@ -287,7 +288,7 @@ A aplicação móvel é **aceite** quando os seis critérios se verificam. Os re
 - **Critério de aceitação:**
   1. A Maria só vê o Kiko; o Bobi e a Mia não aparecem em lado nenhum.
   2. Em «Próximas» só aparece a Consulta futura do Kiko; no «Histórico» só a de 03/11/2026 (Confirmada).
-  3. O boletim do Kiko mostra a desparasitação de 01/08/2026 e «Não há administrações previstas.».
+  3. O boletim do Kiko mostra a desparasitação, com a data que a clínica tem registada, e «Não há administrações previstas.».
   4. Depois de o João entrar, só aparecem o Bobi e a Mia e as suas Consultas; nada da Maria fica visível.
 
 ### AT-MOB-09 — Usar a aplicação com a ligação em baixo
