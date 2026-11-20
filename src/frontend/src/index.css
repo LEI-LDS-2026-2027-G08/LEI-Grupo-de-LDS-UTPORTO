@@ -447,3 +447,12 @@ button.ligacao.perigo-texto {
 .grupo > button.secundario {
   margin-bottom: 0.75rem;
 }
+
+/* W13 — Histórico clínico do paciente (I116) */
+.texto-clinico {
+  white-space: pre-wrap;
+}
+
+.detalhe-registo {
+  margin-top: 1.5rem;
+}

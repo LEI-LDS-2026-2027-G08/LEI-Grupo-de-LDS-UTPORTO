@@ -472,3 +472,32 @@ describe("I115 — acesso ao registo clínico da consulta", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("I116 — acesso ao histórico clínico do paciente", () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it.each([
+    ["Rececionista", "/pacientes/3/registo"],
+    ["Administrador", "/pacientes/3/registo"],
+  ] as const)(
+    "%s não acede a %s por endereço direto",
+    async (perfil, caminho) => {
+      const { servico } = montar(caminho);
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Acesso negado" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it.each(["Veterinario", "AuxiliarVeterinario"] as const)(
+    "%s abre o histórico clínico do paciente",
+    async (perfil) => {
+      const { servico } = montar("/pacientes/3/registo");
+      await iniciarSessao(perfil, servico);
+      expect(
+        await screen.findByRole("heading", { name: "Histórico clínico" }),
+      ).toBeInTheDocument();
+    },
+  );
+});
