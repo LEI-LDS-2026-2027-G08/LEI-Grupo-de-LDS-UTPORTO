@@ -6,6 +6,7 @@ import { MarcacaoFormPage } from "../pages/agenda/MarcacaoFormPage";
 import { PreparacaoConsultaPage } from "../pages/agenda/PreparacaoConsultaPage";
 import { PacienteDetalhePage } from "../pages/pacientes/PacienteDetalhePage";
 import { PacientesPage } from "../pages/pacientes/PacientesPage";
+import { HistoricoClinicoPage } from "../pages/registoClinico/HistoricoClinicoPage";
 import { RegistoClinicoPage } from "../pages/registoClinico/RegistoClinicoPage";
 import type { ComponentType } from "react";
 import type { PerfilWeb } from "../models/auth";
@@ -147,9 +148,10 @@ export const ROTAS: readonly RotaApp[] = [
   },
   {
     ecra: "W13",
-    titulo: "Registo clínico",
+    titulo: "Histórico clínico",
     caminho: "/pacientes/:id/registo",
     perfis: [VET, AUX],
+    pagina: HistoricoClinicoPage,
   },
   {
     ecra: "W16",
