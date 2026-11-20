@@ -55,7 +55,6 @@ function servicoFalso(boletim: Boletim = BOLETIM): {
   return {
     obterBoletim: vi.fn().mockResolvedValue(boletim),
     registar: vi.fn(),
-    atualizar: vi.fn(),
   };
 }
 
@@ -291,76 +290,28 @@ describe("W16 — registar vacinação e desparasitação (I118)", () => {
   });
 });
 
-describe("W16 — atualizar uma administração (I118, RF056)", () => {
-  it("abre o registo existente e mostra a próxima administração recalculada pela API", async () => {
-    const servico = montar();
-    servico.atualizar.mockResolvedValue({
-      ...NOBIVAC,
-      intervaloDias: 180,
-      dataProximaPrevista: "2026-05-09",
-    });
-    const u = userEvent.setup();
-    await u.click(
-      await screen.findByRole("button", {
-        name: "Alterar Nobivac de 10/11/2025",
-      }),
-    );
-
-    expect(screen.getByLabelText("Produto")).toHaveValue("Nobivac");
-    expect(screen.getByLabelText("Lote")).toHaveValue("L-2025-07");
-    const intervalo = screen.getByLabelText(
-      "Intervalo até à próxima, em dias (opcional)",
-    );
-    expect(intervalo).toHaveValue(365);
-    await u.clear(intervalo);
-    await u.type(intervalo, "180");
-    await u.click(screen.getByRole("button", { name: "Guardar" }));
-
-    await waitFor(() =>
-      expect(servico.atualizar).toHaveBeenCalledWith(3, 21, {
-        tipo: "Vacina",
-        produto: "Nobivac",
-        lote: "L-2025-07",
-        dataAdministracao: "2025-11-10",
-        intervaloDias: 180,
-      }),
-    );
+describe("W16 — âmbito da I118 (RF056 excluído, deliberação 5)", () => {
+  it("o boletim não tem ação para alterar administrações", async () => {
+    montar();
+    await screen.findByText(/Paciente:/);
     expect(
-      await screen.findByText(/Vacina Nobivac atualizada/),
-    ).toHaveTextContent("Próxima administração prevista: 09/05/2026.");
-  });
-
-  it("403 de outro Veterinário: mostra o erro da API no formulário", async () => {
-    const servico = montar();
-    servico.atualizar.mockRejectedValue(
-      new ApiRequestError(
-        403,
-        "semPermissao",
-        "Só o Veterinário que registou a administração a pode alterar.",
-      ),
-    );
-    const u = userEvent.setup();
-    await u.click(
-      await screen.findByRole("button", {
-        name: "Alterar Milbemax de 01/10/2026",
+      screen.queryByRole("button", { name: /^Alterar/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(seccao("Boletim")).queryByRole("columnheader", {
+        name: "Ações",
       }),
-    );
-    await u.click(screen.getByRole("button", { name: "Guardar" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Só o Veterinário que registou a administração a pode alterar.",
-    );
+    ).not.toBeInTheDocument();
   });
 
   it("Cancelar fecha o formulário sem enviar nada", async () => {
     const servico = montar();
     const u = userEvent.setup();
     await u.click(
-      await screen.findByRole("button", {
-        name: "Alterar Nobivac de 10/11/2025",
-      }),
+      await screen.findByRole("button", { name: "Registar administração" }),
     );
     await u.click(screen.getByRole("button", { name: "Cancelar" }));
     expect(screen.queryByLabelText("Produto")).not.toBeInTheDocument();
-    expect(servico.atualizar).not.toHaveBeenCalled();
+    expect(servico.registar).not.toHaveBeenCalled();
   });
 });

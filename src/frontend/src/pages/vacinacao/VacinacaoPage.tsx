@@ -23,7 +23,6 @@ import {
   MAX_INTERVALO_DIAS,
   MAX_LOTE,
   MAX_PRODUTO,
-  formularioDeAdministracao,
   formularioVazio,
   pedidoDoFormulario,
   validarAdministracao,
@@ -41,10 +40,6 @@ interface ResultadoBoletim {
   erro: unknown;
 }
 
-/** Formulário aberto: nova administração ou alteração de uma existente. */
-type Edicao =
-  { modo: "nova" } | { modo: "alterar"; administracao: Administracao };
-
 /** Texto da próxima administração devolvida pela API (RF045). */
 function textoProxima(dataProximaPrevista: string | null): string {
   return dataProximaPrevista
@@ -53,13 +48,17 @@ function textoProxima(dataProximaPrevista: string | null): string {
 }
 
 /**
- * W16 — Boletim de vacinação e desparasitação do paciente (RF043–RF046,
- * RF056; EP-042, EP-043 e a atualização do RF056). Só o Veterinário: a rota
- * está protegida por perfil e a API recusa (403) os outros perfis.
+ * W16 — Boletim de vacinação e desparasitação do paciente (RF043–RF046;
+ * EP-042 e EP-043). Só o Veterinário: a rota está protegida por perfil e a
+ * API recusa (403) os outros perfis.
  *
  * A próxima administração é sempre a que a API calcula e devolve: o
- * frontend não a calcula. Depois de registar ou alterar, mostra-se a data
- * devolvida e o boletim é lido de novo.
+ * frontend não a calcula. Depois de registar, mostra-se a data devolvida e o
+ * boletim é lido de novo.
+ *
+ * A alteração de administrações (RF056) não faz parte desta tarefa: o RF056
+ * ficou excluído da I118 (deliberação 5 do Backlog Refinement de
+ * 2026-11-13), até ser especificado e aprovado.
  *
  * A chave obriga a montar a página de novo quando o :id muda.
  */
@@ -84,7 +83,7 @@ function BoletimDoPaciente({
   const [versao, setVersao] = useState(0);
   const [resultado, setResultado] = useState<ResultadoBoletim | null>(null);
 
-  const [edicao, setEdicao] = useState<Edicao | null>(null);
+  const [formularioAberto, setFormularioAberto] = useState(false);
   const [formulario, setFormulario] =
     useState<AdministracaoForm>(formularioVazio);
   const [errosCampos, setErrosCampos] = useState<ErrosAdministracao>({});
@@ -112,23 +111,15 @@ function BoletimDoPaciente({
   }, [servico, animalId, idInvalido, chave]);
 
   function abrirNova() {
-    setEdicao({ modo: "nova" });
+    setFormularioAberto(true);
     setFormulario(formularioVazio(hojeEmLisboa()));
     setErrosCampos({});
     setErro(null);
     setAviso(null);
   }
 
-  function abrirAlteracao(administracao: Administracao) {
-    setEdicao({ modo: "alterar", administracao });
-    setFormulario(formularioDeAdministracao(administracao));
-    setErrosCampos({});
-    setErro(null);
-    setAviso(null);
-  }
-
   function fecharFormulario() {
-    setEdicao(null);
+    setFormularioAberto(false);
     setErrosCampos({});
     setErro(null);
   }
@@ -142,7 +133,7 @@ function BoletimDoPaciente({
 
   async function guardar(evento: FormEvent) {
     evento.preventDefault();
-    if (edicao === null) return;
+    if (!formularioAberto) return;
     setErro(null);
     const erros = validarAdministracao(formulario);
     setErrosCampos(erros);
@@ -151,19 +142,14 @@ function BoletimDoPaciente({
     setAGuardar(true);
     try {
       const pedido = pedidoDoFormulario(formulario);
-      const guardada =
-        edicao.modo === "nova"
-          ? await servico.registar(animalId, pedido)
-          : await servico.atualizar(animalId, edicao.administracao.id, pedido);
+      const guardada = await servico.registar(animalId, pedido);
       const rotulo = ROTULO_TIPO_ADMINISTRACAO[guardada.tipo] ?? guardada.tipo;
       setAviso(
-        `${rotulo} ${guardada.produto} ${
-          edicao.modo === "nova" ? "registada" : "atualizada"
-        } (administrada em ${formatarData(guardada.dataAdministracao)}). ${textoProxima(
+        `${rotulo} ${guardada.produto} registada (administrada em ${formatarData(guardada.dataAdministracao)}). ${textoProxima(
           guardada.dataProximaPrevista,
         )}`,
       );
-      setEdicao(null);
+      setFormularioAberto(false);
       setVersao((v) => v + 1);
     } catch (e) {
       setErro(e);
@@ -222,27 +208,9 @@ function BoletimDoPaciente({
       celula: (a) => formatarData(a.dataProximaPrevista),
     },
     { cabecalho: "Veterinário", celula: (a) => a.veterinario },
-    {
-      cabecalho: "Ações",
-      celula: (a) => (
-        <SoPara acao="registarVacinacao">
-          <button
-            type="button"
-            className="ligacao"
-            aria-label={`Alterar ${a.produto} de ${formatarData(a.dataAdministracao)}`}
-            onClick={() => abrirAlteracao(a)}
-          >
-            Alterar
-          </button>
-        </SoPara>
-      ),
-    },
   ];
 
-  const tituloFormulario =
-    edicao?.modo === "alterar"
-      ? `Alterar administração de ${formatarData(edicao.administracao.dataAdministracao)}`
-      : "Registar vacinação ou desparasitação";
+  const tituloFormulario = "Registar vacinação ou desparasitação";
 
   return (
     <section>
@@ -261,7 +229,7 @@ function BoletimDoPaciente({
       ) : null}
 
       <SoPara acao="registarVacinacao">
-        {edicao === null ? (
+        {!formularioAberto ? (
           <div className="acoes">
             <button type="button" onClick={abrirNova}>
               Registar administração

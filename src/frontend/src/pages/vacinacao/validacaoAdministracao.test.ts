@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  formularioDeAdministracao,
   formularioVazio,
   lerIntervalo,
   pedidoDoFormulario,
@@ -51,23 +50,20 @@ describe("conversões do formulário", () => {
   });
 
   it("pedidoDoFormulario nunca envia a próxima prevista", () => {
-    const form = formularioDeAdministracao({
-      id: 21,
+    const pedido = pedidoDoFormulario({
       tipo: "Vacina",
       produto: "Nobivac",
       lote: "L1",
       dataAdministracao: "2025-11-10",
-      intervaloDias: null,
-      dataProximaPrevista: null,
-      veterinario: "Dra. Ana",
+      intervaloDias: "",
     });
-    expect(form.intervaloDias).toBe("");
-    expect(pedidoDoFormulario(form)).toEqual({
+    expect(pedido).toEqual({
       tipo: "Vacina",
       produto: "Nobivac",
       lote: "L1",
       dataAdministracao: "2025-11-10",
       intervaloDias: null,
     });
+    expect(pedido).not.toHaveProperty("dataProximaPrevista");
   });
 });

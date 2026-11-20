@@ -6,7 +6,7 @@ import type {
   TipoAdministracao,
 } from "../models/vacinacoes";
 
-/** Corpo de EP-043/RF056: textos aparados. A próxima prevista nunca é enviada. */
+/** Corpo de EP-043: textos aparados. A próxima prevista nunca é enviada. */
 function corpoAdministracao(dados: AdministracaoRequest): AdministracaoRequest {
   return {
     tipo: dados.tipo,
@@ -19,7 +19,9 @@ function corpoAdministracao(dados: AdministracaoRequest): AdministracaoRequest {
 
 /**
  * Chamadas ao backend para o boletim de vacinação e desparasitação no web
- * (EP-042, EP-043 e a atualização do RF056). Só o perfil Veterinário.
+ * (EP-042 e EP-043). Só o perfil Veterinário. A alteração de administrações
+ * (RF056) ficou excluída da I118 (deliberação 5 do Backlog Refinement de
+ * 2026-11-13).
  */
 export class VacinacoesService {
   private readonly api: ApiClient;
@@ -45,26 +47,11 @@ export class VacinacoesService {
       corpoAdministracao(dados),
     );
   }
-
-  /**
-   * RF056 (PUT /animais/{id}/vacinacoes/{administracaoId}) — substitui os
-   * dados e devolve a próxima prevista recalculada pela API.
-   */
-  atualizar(
-    animalId: number,
-    administracaoId: number,
-    dados: AdministracaoRequest,
-  ): Promise<Administracao> {
-    return this.api.put<Administracao>(
-      `/animais/${animalId}/vacinacoes/${administracaoId}`,
-      corpoAdministracao(dados),
-    );
-  }
 }
 
 export type ServicoVacinacoes = Pick<
   VacinacoesService,
-  "obterBoletim" | "registar" | "atualizar"
+  "obterBoletim" | "registar"
 >;
 
 export const vacinacoesService = new VacinacoesService();

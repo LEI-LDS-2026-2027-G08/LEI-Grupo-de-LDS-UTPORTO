@@ -1,7 +1,7 @@
 /**
- * Tipos da vacinação e desparasitação no web (EP-042, EP-043 e a atualização
- * do RF056), iguais aos DTOs da API (BoletimDto, AdministracaoDto,
- * ProximaAdministracaoDto e Create/UpdateAdministracaoDto). As datas são dias
+ * Tipos da vacinação e desparasitação no web (EP-042 e EP-043), iguais aos
+ * DTOs da API (BoletimDto, AdministracaoDto, ProximaAdministracaoDto e
+ * CreateAdministracaoDto). As datas são dias
  * (aaaa-mm-dd). A próxima administração é sempre calculada pelo servidor
  * (RF045): o frontend nunca a calcula nem a envia.
  */
@@ -44,7 +44,7 @@ export interface Boletim {
   proximas: ProximaAdministracao[];
 }
 
-/** Corpo de EP-043 e da atualização (RF056). */
+/** Corpo de EP-043. */
 export interface AdministracaoRequest {
   tipo: TipoAdministracao;
   produto: string;

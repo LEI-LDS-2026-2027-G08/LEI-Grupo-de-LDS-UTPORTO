@@ -1,12 +1,11 @@
 import type {
-  Administracao,
   AdministracaoForm,
   AdministracaoRequest,
 } from "../../models/vacinacoes";
 
 /**
  * Validação local do formulário de W16, só dos campos (obrigatórios,
- * tamanhos e formato), com as mensagens da API (UpdateAdministracaoDto).
+ * tamanhos e formato), com as mensagens da API (CreateAdministracaoDto).
  * As regras de negócio (data não futura, cálculo da próxima administração)
  * ficam na API: os erros dela aparecem no formulário.
  */
@@ -27,16 +26,6 @@ export function formularioVazio(dataAdministracao = ""): AdministracaoForm {
     lote: "",
     dataAdministracao,
     intervaloDias: "",
-  };
-}
-
-export function formularioDeAdministracao(a: Administracao): AdministracaoForm {
-  return {
-    tipo: a.tipo,
-    produto: a.produto,
-    lote: a.lote,
-    dataAdministracao: a.dataAdministracao,
-    intervaloDias: a.intervaloDias === null ? "" : String(a.intervaloDias),
   };
 }
 

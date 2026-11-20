@@ -78,21 +78,4 @@ describe("VacinacoesService", () => {
     });
     expect(criada.dataProximaPrevista).toBe("2027-11-10");
   });
-
-  it("atualizar: PUT /animais/{id}/vacinacoes/{administracaoId} (RF056)", async () => {
-    const { servico, pedido } = preparar(200, administracao);
-    await servico.atualizar(3, 21, {
-      tipo: "Vacina",
-      produto: "Nobivac",
-      lote: "L-2026-01",
-      dataAdministracao: "2026-11-10",
-      intervaloDias: null,
-    });
-    expect(pedido()).toMatchObject({
-      url: "http://api.teste/animais/3/vacinacoes/21",
-      metodo: "PUT",
-      corpo: { intervaloDias: null },
-    });
-    expect(pedido().corpo).not.toHaveProperty("dataProximaPrevista");
-  });
 });
