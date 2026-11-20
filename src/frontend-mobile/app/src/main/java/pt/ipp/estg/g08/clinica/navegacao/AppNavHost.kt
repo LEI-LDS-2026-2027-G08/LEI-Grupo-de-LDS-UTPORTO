@@ -50,7 +50,7 @@ fun AppNavHost(container: AppContainer, modifier: Modifier = Modifier) {
         sessao = sessao,
         modifier = modifier,
         areaNaoAutenticada = { AreaNaoAutenticada(container = container, sessao = sessao) },
-        areaAutenticada = { MainShell(onTerminarSessao = sessao::logout) },
+        areaAutenticada = { MainShell(container = container, onTerminarSessao = sessao::logout) },
     )
 }
 

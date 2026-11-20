@@ -6,12 +6,39 @@
     <string name="nav_terminar_sessao">Terminar sessão</string>
 
     <string name="estado_tentar_novamente">Tentar novamente</string>
+    <string name="voltar">Voltar</string>
+    <string name="sem_informacao">Sem informação</string>
 
-    <string name="ecra_m02">M02 — Os meus animais</string>
-    <string name="ecra_m03">M03 — Detalhe do animal</string>
     <string name="ecra_m04">M04 — Consultas</string>
-    <string name="ecra_m06">M06 — Boletim de vacinação</string>
     <string name="por_implementar">Ecrã a implementar na %1$s.</string>
+
+    <string name="m02_titulo">Os meus animais</string>
+    <string name="m02_vazio">Ainda não tem animais associados à sua conta.</string>
+    <string name="m02_ver_detalhe">Ver detalhe</string>
+
+    <string name="m03_especie">Espécie</string>
+    <string name="m03_raca">Raça</string>
+    <string name="m03_sexo">Sexo</string>
+    <string name="m03_data_nascimento">Data de nascimento</string>
+    <string name="m03_idade">Idade</string>
+    <string name="m03_peso">Peso</string>
+    <string name="m03_ver_boletim">Ver boletim</string>
+    <string name="m03_ver_consultas">Ver consultas</string>
+
+    <string name="idade_menos_de_um_ano">Menos de 1 ano</string>
+    <plurals name="idade_anos">
+        <item quantity="one">%d ano</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
+
+    <string name="m06_titulo">Boletim de vacinação e desparasitação</string>
+    <string name="m06_proximas">Próximas administrações previstas</string>
+    <string name="m06_historico">Histórico</string>
+    <string name="m06_vazio">Este animal ainda não tem vacinações nem desparasitações registadas.</string>
+    <string name="m06_sem_proximas">Não há administrações previstas.</string>
+    <string name="m06_sem_historico">Ainda não há administrações registadas.</string>
+    <string name="m06_prevista_para">Prevista para %1$s</string>
+    <string name="m06_administrada_em">Administrada em %1$s</string>
 
     <string name="login_titulo">Iniciar sessão</string>
     <string name="login_email">Email</string>
