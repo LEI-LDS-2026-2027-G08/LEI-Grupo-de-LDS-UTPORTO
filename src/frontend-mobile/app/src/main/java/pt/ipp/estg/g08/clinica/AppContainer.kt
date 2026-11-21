@@ -9,6 +9,7 @@ import pt.ipp.estg.g08.clinica.core.storage.TokenStorage
 import pt.ipp.estg.g08.clinica.core.storage.TokenStorageCifrado
 import pt.ipp.estg.g08.clinica.features.animais.AnimaisService
 import pt.ipp.estg.g08.clinica.features.boletim.BoletimService
+import pt.ipp.estg.g08.clinica.features.consultas.ConsultasService
 import pt.ipp.estg.g08.clinica.sessao.AuthService
 import pt.ipp.estg.g08.clinica.sessao.MotivoFimSessao
 import pt.ipp.estg.g08.clinica.sessao.SessaoLocal
@@ -37,6 +38,8 @@ class AppContainer(contexto: Context) {
     val animaisService: AnimaisService = AnimaisService(apiClient)
 
     val boletimService: BoletimService = BoletimService(apiClient)
+
+    val consultasService: ConsultasService = ConsultasService(apiClient)
 
     init {
         // Resposta 401 a um pedido autenticado: a sessão terminou no servidor ou expirou.

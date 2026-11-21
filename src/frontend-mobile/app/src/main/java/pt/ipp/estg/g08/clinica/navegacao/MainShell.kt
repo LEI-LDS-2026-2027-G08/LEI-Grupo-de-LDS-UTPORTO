@@ -43,7 +43,8 @@ import pt.ipp.estg.g08.clinica.features.animais.AnimalDetalheScreen
 import pt.ipp.estg.g08.clinica.features.animais.AnimalDetalheViewModel
 import pt.ipp.estg.g08.clinica.features.boletim.BoletimScreen
 import pt.ipp.estg.g08.clinica.features.boletim.BoletimViewModel
-import pt.ipp.estg.g08.clinica.shared.components.EcraPorImplementar
+import pt.ipp.estg.g08.clinica.features.consultas.ConsultasScreen
+import pt.ipp.estg.g08.clinica.features.consultas.ConsultasViewModel
 
 /** Separador da barra inferior; [rotas] são os ecrãs em que fica assinalado. */
 private data class Separador(
@@ -57,7 +58,8 @@ private data class Separador(
 private val SEPARADORES =
     listOf(
         Separador(
-            rotas = setOf(Rotas.ANIMAIS, Rotas.ANIMAL_DETALHE, Rotas.BOLETIM),
+            rotas =
+            setOf(Rotas.ANIMAIS, Rotas.ANIMAL_DETALHE, Rotas.BOLETIM, Rotas.CONSULTAS_ANIMAL),
             destino = Rotas.ANIMAIS,
             rotulo = R.string.nav_animais,
             icone = Icons.Filled.Home,
@@ -65,7 +67,7 @@ private val SEPARADORES =
         ),
         Separador(
             rotas = setOf(Rotas.CONSULTAS),
-            destino = Rotas.consultas(),
+            destino = Rotas.CONSULTAS,
             rotulo = R.string.nav_consultas,
             icone = Icons.Filled.DateRange,
             etiqueta = "nav-consultas",
@@ -76,9 +78,10 @@ private val SEPARADORES =
  * Área autenticada: barra de navegação inferior (Animais e Consultas) e a ação
  * "Terminar sessão", sempre acessível.
  *
- * Os animais (M02, M03) e o boletim (M06) são da Issue I122; as Consultas (M04) são provisórias
- * até à I123. Cada ecrã recebe o seu `ViewModel`, criado com os serviços do [container] e
- * guardado na respetiva entrada da navegação.
+ * Os animais (M02, M03) e o boletim (M06) são da Issue I122; as Consultas (M04) são da I123: o
+ * separador Consultas mostra todos os animais e "Ver consultas" em M03 abre o mesmo ecrã só com
+ * esse animal, no percurso dos animais. Cada ecrã recebe o seu `ViewModel`, criado com os
+ * serviços do [container] e guardado na respetiva entrada da navegação.
  */
 @Composable
 fun MainShell(
@@ -164,21 +167,34 @@ fun MainShell(
                 AnimalDetalheScreen(
                     viewModel = viewModel,
                     onVerBoletim = { navController.navigate(Rotas.boletim(animalId)) },
-                    onVerConsultas = { navController.navigate(Rotas.consultas(animalId)) },
+                    onVerConsultas = {
+                        navController.navigate(Rotas.consultasDoAnimal(animalId))
+                    },
                     onVoltar = { navController.popBackStack() },
                 )
             }
-            composable(
-                Rotas.CONSULTAS,
-                arguments =
-                listOf(
-                    navArgument(Rotas.ARG_ANIMAL_ID) {
-                        type = NavType.IntType
-                        defaultValue = Rotas.SEM_ANIMAL
-                    },
-                ),
-            ) {
-                EcraPorImplementar(titulo = stringResource(R.string.ecra_m04), issue = "I123")
+            composable(Rotas.CONSULTAS) {
+                val viewModel: ConsultasViewModel =
+                    viewModel(
+                        factory =
+                        viewModelFactory {
+                            initializer { ConsultasViewModel(container.consultasService) }
+                        },
+                    )
+                ConsultasScreen(viewModel = viewModel, onVoltar = null)
+            }
+            composable(Rotas.CONSULTAS_ANIMAL, arguments = listOf(argumentoAnimal)) { entrada ->
+                val animalId = entrada.animalId()
+                val viewModel: ConsultasViewModel =
+                    viewModel(
+                        factory =
+                        viewModelFactory {
+                            initializer {
+                                ConsultasViewModel(container.consultasService, animalId)
+                            }
+                        },
+                    )
+                ConsultasScreen(viewModel = viewModel, onVoltar = { navController.popBackStack() })
             }
             composable(Rotas.BOLETIM, arguments = listOf(argumentoAnimal)) { entrada ->
                 val animalId = entrada.animalId()
@@ -195,7 +211,7 @@ fun MainShell(
     }
 }
 
-/** Identificador do animal da rota (`animais/{animalId}` ou `boletim/{animalId}`). */
+/** Identificador do animal da rota (`animais/{animalId}`, `.../consultas` ou `boletim/...`). */
 private fun NavBackStackEntry.animalId(): Int =
     requireNotNull(arguments) { "Rota sem argumentos: ${destination.route}" }
         .getInt(Rotas.ARG_ANIMAL_ID)
