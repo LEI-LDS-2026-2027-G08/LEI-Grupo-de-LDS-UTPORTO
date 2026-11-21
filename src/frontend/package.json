@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:sistema": "node tests/sistema/executar.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
