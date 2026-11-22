@@ -13,6 +13,7 @@ import type { PerfilWeb } from "../models/auth";
 import { ClinicaConfiguracaoPage } from "../pages/clinica/ClinicaConfiguracaoPage";
 import { FuncionarioFormPage } from "../pages/funcionarios/FuncionarioFormPage";
 import { FuncionariosPage } from "../pages/funcionarios/FuncionariosPage";
+import { VacinacaoPage } from "../pages/vacinacao/VacinacaoPage";
 
 export interface RotaApp {
   /** Código do ecrã no Modelo de Classes (W02, W04, ...). */
@@ -158,5 +159,6 @@ export const ROTAS: readonly RotaApp[] = [
     titulo: "Vacinação",
     caminho: "/pacientes/:id/vacinacao",
     perfis: [VET],
+    pagina: VacinacaoPage,
   },
 ];
