@@ -1,0 +1,52 @@
+{
+  "collection": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m4-collection-postman-v02.json",
+  "codigo": 0,
+  "estatisticas": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 270,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 579,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 270,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 270,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 270,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 865,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 540,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 39,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "falhas": []
+}
