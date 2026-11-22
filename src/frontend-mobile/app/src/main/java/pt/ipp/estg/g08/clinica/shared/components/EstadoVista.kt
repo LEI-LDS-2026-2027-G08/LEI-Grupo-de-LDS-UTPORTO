@@ -44,7 +44,11 @@ fun <T> EstadoVista(
                 )
             is EstadoCarregamento.Erro ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = estado.mensagem, modifier = Modifier.testTag("estado-erro"))
+                    Text(
+                        text = estado.mensagem,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag("estado-erro"),
+                    )
                     Button(
                         onClick = onTentarNovamente,
                         modifier = Modifier.testTag("estado-tentar-novamente"),

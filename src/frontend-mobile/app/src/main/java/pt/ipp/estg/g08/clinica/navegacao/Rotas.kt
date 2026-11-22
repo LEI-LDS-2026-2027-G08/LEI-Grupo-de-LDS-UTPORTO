@@ -8,20 +8,27 @@ package pt.ipp.estg.g08.clinica.navegacao
  */
 object Rotas {
     const val ARG_ANIMAL_ID = "animalId"
-    const val SEM_ANIMAL = -1
 
     const val LOGIN = "login"
     const val TECNICO = "tecnico"
 
     const val ANIMAIS = "animais"
     const val ANIMAL_DETALHE = "animais/{$ARG_ANIMAL_ID}"
-    const val CONSULTAS = "consultas?$ARG_ANIMAL_ID={$ARG_ANIMAL_ID}"
     const val BOLETIM = "boletim/{$ARG_ANIMAL_ID}"
+
+    /** M04 de todos os animais do Cliente (separador Consultas). */
+    const val CONSULTAS = "consultas"
+
+    /**
+     * M04 só de um animal, aberto a partir de M03 ("Ver consultas"). É uma rota própria do
+     * percurso dos animais: o separador Consultas mostra sempre todos os animais e não fica
+     * preso ao filtro de um animal aberto antes.
+     */
+    const val CONSULTAS_ANIMAL = "animais/{$ARG_ANIMAL_ID}/consultas"
 
     fun animalDetalhe(animalId: Int): String = "animais/$animalId"
 
-    fun consultas(animalId: Int? = null): String =
-        if (animalId == null) "consultas" else "consultas?$ARG_ANIMAL_ID=$animalId"
+    fun consultasDoAnimal(animalId: Int): String = "animais/$animalId/consultas"
 
     fun boletim(animalId: Int): String = "boletim/$animalId"
 }
