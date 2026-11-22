@@ -175,15 +175,46 @@ describe("W13 — histórico clínico do Veterinário (I116)", () => {
 });
 
 describe("W13 — histórico clínico do Auxiliar Veterinário (I116)", () => {
-  it("vê o mesmo registo, só de leitura, sem botões de criação ou alteração", async () => {
+  it("aceita respostas reduzidas sem as propriedades reservadas ao Veterinário", async () => {
+    const reduzido = { ...REGISTO };
+    delete reduzido.notasClinicas;
+    delete reduzido.diagnostico;
+    const historico = {
+      ...HISTORICO,
+      registos: HISTORICO.registos.map((original) => {
+        const linha = { ...original };
+        delete linha.diagnostico;
+        return linha;
+      }),
+    };
+    const servico = servicoFalso(historico);
+    servico.obter.mockResolvedValue(reduzido);
+    montar({ perfil: "AuxiliarVeterinario", servico });
+    const detalhe = await abrirRegisto(userEvent.setup());
+    expect(within(detalhe).getByText("Limpeza auricular")).toBeInTheDocument();
+    expect(within(detalhe).getByText(/Otomax/)).toBeInTheDocument();
+    expect(
+      within(detalhe).queryByText("Notas clínicas"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Diagnóstico")).not.toBeInTheDocument();
+  });
+
+  it("vê tratamentos e prescrições, sem notas clínicas, diagnóstico ou escrita", async () => {
     montar({ perfil: "AuxiliarVeterinario" });
     const u = userEvent.setup();
     expect(await screen.findByText(/Vista só de leitura/)).toBeInTheDocument();
 
     const detalhe = await abrirRegisto(u);
     expect(
-      await within(detalhe).findByText("Cerúmen abundante no ouvido esquerdo."),
-    ).toBeInTheDocument();
+      within(detalhe).queryByText("Cerúmen abundante no ouvido esquerdo."),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Otite externa")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("columnheader", { name: "Diagnóstico" }),
+    ).not.toBeInTheDocument();
+    expect(within(detalhe).getByText("Limpeza auricular")).toBeInTheDocument();
+    expect(within(detalhe).getByText(/Otomax/)).toBeInTheDocument();
+
     expect(
       screen.queryByRole("link", { name: /Alterar|Criar|Editar/ }),
     ).not.toBeInTheDocument();

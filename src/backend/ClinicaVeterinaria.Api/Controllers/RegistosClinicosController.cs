@@ -100,8 +100,8 @@ public sealed class RegistosClinicosController : ControllerBase
 
     /// <summary>EP-033 — Consultar registo clínico (Veterinário e Auxiliar Veterinário).</summary>
     /// <remarks>
-    /// Devolve o registo completo (notas, diagnóstico, tratamentos e prescrições), no formato da
-    /// resposta de EP-031. Para o Auxiliar Veterinário, o acesso é apenas de leitura.
+    /// Devolve o registo completo ao Veterinário. O Auxiliar recebe apenas contexto, tratamentos
+    /// e prescrições, sem notas clínicas nem diagnóstico.
     /// </remarks>
     /// <response code="200">Registo clínico.</response>
     /// <response code="401">Token ausente ou inválido.</response>
@@ -112,9 +112,15 @@ public sealed class RegistosClinicosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RegistoClinicoDto>> Obter(int id)
+    public async Task<IActionResult> Obter(int id)
     {
         var resultado = await _registosClinicosService.ObterAsync(id);
+
+        if (User.ObterPerfil() == Perfis.AuxiliarVeterinario)
+        {
+            return Ok(resultado.ParaDtoAuxiliar());
+        }
+
         return Ok(resultado.ParaDto());
     }
 
@@ -122,7 +128,7 @@ public sealed class RegistosClinicosController : ControllerBase
     /// <remarks>
     /// Devolve o animal e os seus registos clínicos, do mais recente para o mais antigo, com a data
     /// da consulta (hora de Lisboa), o Veterinário, o diagnóstico e o número de tratamentos e de
-    /// prescrições. <c>dataInicio</c> e <c>dataFim</c> são opcionais (dias em hora de Lisboa, os
+    /// prescrições. Para o Auxiliar, o diagnóstico é omitido. <c>dataInicio</c> e <c>dataFim</c> são opcionais (dias em hora de Lisboa, os
     /// dois incluídos). Um animal sem registos devolve a lista vazia.
     /// </remarks>
     /// <response code="200">Histórico clínico do animal.</response>
@@ -136,9 +142,14 @@ public sealed class RegistosClinicosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<HistoricoClinicoDto>> ObterHistorico(int id, [FromQuery] HistoricoClinicoQuery query)
+    public async Task<IActionResult> ObterHistorico(int id, [FromQuery] HistoricoClinicoQuery query)
     {
         var resultado = await _registosClinicosService.ObterHistoricoAsync(id, query.ParaModelo());
+        if (User.ObterPerfil() == Perfis.AuxiliarVeterinario)
+        {
+            return Ok(resultado.ParaDtoAuxiliar());
+        }
+
         return Ok(resultado.ParaDto());
     }
 }

@@ -1,0 +1,59 @@
+I125 — TESTE MANUAL ANTES DO COMMIT
+Não houve commit, push ou Pull Request nesta sessão. Só existem as issues
+#281 e #282 de defeitos. As alterações de código estão locais.
+
+1. ARRANCAR A VERSÃO NOVA
+No Rider, parar a API antiga e voltar a executar a configuração HTTP do backend.
+Frontend: porta fixa 5173 (strictPort). Se estiver em execução, não iniciar
+outra cópia. Para arrancar, executar npm run dev em src/frontend; confirmar .env com
+VITE_API_URL=http://localhost:5159. Abrir http://localhost:5173.
+Não usar uma API antiga que já estivesse aberta antes da alteração.
+
+2. VETERINÁRIA ANA — DEVE VER TUDO
+Entrar com a conta vet.ana@clinica-g08.test (password no teu KeePass).
+Abrir http://localhost:5173/pacientes/2002/registo
+Paciente: Bobi I125 9998170. Consulta: 2002, em 23/11/2026 às 09:00.
+Abrir Ver registo: notas clínicas, diagnóstico, tratamento e prescrição visíveis.
+A ação Alterar registo deve continuar disponível ao Veterinário.
+Resultado: [ ] passou [ ] falhou. Observação:
+
+3. AUXILIAR CARLA — APENAS TRATAMENTOS E PRESCRIÇÕES
+Terminar sessão e entrar com aux.carla@clinica-g08.test.
+Abrir o mesmo histórico e Ver registo. Sem coluna Diagnóstico, sem campos
+Notas clínicas/Diagnóstico, sem Alterar registo. Tratamento e prescrição visíveis.
+Em Preparação de consultas, selecionar 23/11/2026 e a consulta do Bobi I125
+9998170. Guardar uma nota não clínica identificada como teste.
+Resultado: [ ] passou [ ] falhou. Observação:
+
+4. AUXILIAR DIOGO — APOIO RECUSADO
+Entrar com aux.diogo@clinica-g08.test. Mesma consulta em Preparação.
+Tentar guardar apoio: mensagem de falta de autorização. A leitura do histórico
+continua reduzida, como a de Carla.
+Resultado: [ ] passou [ ] falhou. Observação:
+
+5. RECECIONISTA E SESSÃO
+Entrar com rececao@clinica-g08.test. Abrir /agenda/2002: consulta Confirmada,
+chegada registada e nota de preparação presentes. Abrir /funcionarios:
+Acesso negado. Terminar sessão e abrir /agenda: volta ao login.
+Resultado: [ ] passou [ ] falhou. Observação:
+
+6. DISPONIBILIDADE
+Entrar como Rececionista. Criar nova marcação a partir de um paciente.
+Consultar disponibilidade e mudar Veterinário/período antes da resposta
+(se necessário reduzir a velocidade de rede nas ferramentas do navegador).
+Não podem reaparecer horários da seleção anterior. Não é preciso guardar.
+Este cenário também está coberto por dois testes de regressão automatizados.
+Resultado: [ ] passou [ ] falhou. Observação:
+
+SE OS TESTES PASSAREM
+Rever o diff no Rider e incluir código, testes, API v04 em rascunho, arquivos
+m4-v02/m4-v01 e o roteiro/evidências da I125. Não incluir .env, ficheiro CSV,
+passwords, tokens, bin/obj ou node_modules. A pasta temporária work foi retirada.
+Sugestão de mensagem de commit:
+I125 — Validar fluxos web e restringir informação clínica do Auxiliar
+
+O commit guarda o trabalho para revisão; não equivale a marcar Done.
+Antes da aceitação final, faltam revisão independente, auditoria e arquivar a
+referência formal/autorização aplicável à atualização do contrato.
+A proposta de RF036/UC13/modelos/RTM está em 2-Proposta-de-atualizacao-documental.
+Não substituir documentos aprovados pelo rascunho sem o procedimento do grupo.

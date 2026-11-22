@@ -72,7 +72,7 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
             Assert.Single(raiz.GetProperty("prescricoes").EnumerateArray().ToList()).GetProperty("medicamento").GetString());
     }
 
-    [Theory(DisplayName = "IT-EP033-02 — o Auxiliar Veterinário consulta o mesmo registo (200), com ou sem autorização de apoio")]
+    [Theory(DisplayName = "IT-EP033-02 — o Auxiliar Veterinário consulta o registo reduzido (200), com ou sem autorização de apoio")]
     [InlineData(EmailAuxCarla)]
     [InlineData(EmailAuxDiogo)]
     public async Task AuxiliarConsultaRegisto(string emailAuxiliar)
@@ -84,11 +84,19 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
         using var respostaVeterinario = await veterinario.GetAsync($"/registos-clinicos/{registoId}");
         using var respostaAuxiliar = await auxiliar.GetAsync($"/registos-clinicos/{registoId}");
 
-        // Contrato v02 (PA-08 da I028): o Auxiliar recebe o mesmo RegistoClinicoDto do Veterinário.
         Assert.Equal(HttpStatusCode.OK, respostaAuxiliar.StatusCode);
-        Assert.Equal(
-            await respostaVeterinario.Content.ReadAsStringAsync(),
-            await respostaAuxiliar.Content.ReadAsStringAsync());
+        using var documentoVeterinario = await LerAsync(respostaVeterinario);
+        using var documentoAuxiliar = await LerAsync(respostaAuxiliar);
+        var completo = documentoVeterinario.RootElement;
+        var reduzido = documentoAuxiliar.RootElement;
+        Assert.True(completo.TryGetProperty("notasClinicas", out _));
+        Assert.True(completo.TryGetProperty("diagnostico", out _));
+        Assert.False(reduzido.TryGetProperty("notasClinicas", out _));
+        Assert.False(reduzido.TryGetProperty("diagnostico", out _));
+        foreach (var campo in new[] { "id", "consultaId", "animalId", "veterinario", "tratamentos", "prescricoes" })
+        {
+            Assert.Equal(completo.GetProperty(campo).GetRawText(), reduzido.GetProperty(campo).GetRawText());
+        }
     }
 
     [Fact(DisplayName = "IT-EP033-02 — somente leitura: o Auxiliar recebe 403 ao criar ou alterar e o registo fica como estava")]
@@ -221,7 +229,7 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
         Assert.Empty(documento.RootElement.GetProperty("registos").EnumerateArray());
     }
 
-    [Fact(DisplayName = "I078 — o Auxiliar Veterinário consulta o histórico do paciente (200), o mesmo do Veterinário")]
+    [Fact(DisplayName = "I078 — o Auxiliar Veterinário consulta o histórico do paciente (200), sem diagnóstico")]
     public async Task AuxiliarConsultaHistorico()
     {
         var bobi = await ObterAnimalIdAsync("Bobi");
@@ -232,9 +240,20 @@ public sealed class RegistosClinicosLeituraEndpointsTests :
         using var respostaAuxiliar = await auxiliar.GetAsync($"/animais/{bobi}/historico-clinico");
 
         Assert.Equal(HttpStatusCode.OK, respostaAuxiliar.StatusCode);
-        Assert.Equal(
-            await respostaVeterinario.Content.ReadAsStringAsync(),
-            await respostaAuxiliar.Content.ReadAsStringAsync());
+        using var documentoVeterinario = await LerAsync(respostaVeterinario);
+        using var documentoAuxiliar = await LerAsync(respostaAuxiliar);
+        var completos = documentoVeterinario.RootElement.GetProperty("registos").EnumerateArray().ToArray();
+        var reduzidos = documentoAuxiliar.RootElement.GetProperty("registos").EnumerateArray().ToArray();
+        Assert.NotEmpty(reduzidos);
+        Assert.Equal(completos.Length, reduzidos.Length);
+        for (var i = 0; i < reduzidos.Length; i++)
+        {
+            Assert.True(completos[i].TryGetProperty("diagnostico", out _));
+            Assert.False(reduzidos[i].TryGetProperty("diagnostico", out _));
+            Assert.Equal(completos[i].GetProperty("id").GetInt32(), reduzidos[i].GetProperty("id").GetInt32());
+            Assert.Equal(completos[i].GetProperty("numeroTratamentos").GetInt32(), reduzidos[i].GetProperty("numeroTratamentos").GetInt32());
+            Assert.Equal(completos[i].GetProperty("numeroPrescricoes").GetInt32(), reduzidos[i].GetProperty("numeroPrescricoes").GetInt32());
+        }
     }
 
     // ----- Perfis sem acesso e pedidos sem token (I078, critério 5) -----

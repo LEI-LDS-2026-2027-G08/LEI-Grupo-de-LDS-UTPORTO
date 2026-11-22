@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { FormErro } from "../../components/FormErro";
 import { ApiRequestError } from "../../core/api";
@@ -85,6 +85,7 @@ function FormularioMarcacao({
   const [disponibilidade, setDisponibilidade] =
     useState<Disponibilidade | null>(null);
   const [aConsultar, setAConsultar] = useState(false);
+  const pedidoDisponibilidade = useRef(0);
   const [erroDisponibilidade, setErroDisponibilidade] = useState<unknown>(null);
   const [horario, setHorario] = useState<Horario | null>(null);
   const [motivo, setMotivo] = useState("");
@@ -152,25 +153,36 @@ function FormularioMarcacao({
       }));
       return;
     }
+    const pedido = ++pedidoDisponibilidade.current;
     setAConsultar(true);
     try {
-      setDisponibilidade(
-        await servico.obterDisponibilidade(
-          Number(vetId),
-          inicio,
-          somarDias(inicio, DIAS_DISPONIBILIDADE - 1),
-        ),
+      const dados = await servico.obterDisponibilidade(
+        Number(vetId),
+        inicio,
+        somarDias(inicio, DIAS_DISPONIBILIDADE - 1),
       );
+      if (pedido !== pedidoDisponibilidade.current) return;
+      setDisponibilidade(dados);
     } catch (e) {
+      if (pedido !== pedidoDisponibilidade.current) return;
       setDisponibilidade(null);
       setErroDisponibilidade(e);
     } finally {
-      setAConsultar(false);
+      if (pedido === pedidoDisponibilidade.current) setAConsultar(false);
     }
+  }
+
+  function invalidarDisponibilidade() {
+    // Impede que uma resposta atrasada reponha horários de outra seleção.
+    pedidoDisponibilidade.current += 1;
+    setAConsultar(false);
+    setDisponibilidade(null);
+    setErroDisponibilidade(null);
   }
 
   // Mudar de Veterinário ou de período invalida o horário escolhido (critério 3).
   function alterarVeterinario(valor: string) {
+    invalidarDisponibilidade();
     setVeterinarioId(valor);
     setHorario(null);
     setDisponibilidade(null);
@@ -183,6 +195,7 @@ function FormularioMarcacao({
 
   // Mudar só o período mostrado não muda o horário já escolhido.
   function alterarInicio(valor: string) {
+    invalidarDisponibilidade();
     setInicio(valor);
     setDisponibilidade(null);
   }

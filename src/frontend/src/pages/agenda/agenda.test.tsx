@@ -1,4 +1,11 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -205,6 +212,42 @@ describe("W10 — nova marcação", () => {
     expect(screen.queryByRole("group", { name: "Horários livres" })).toBeNull();
     expect(screen.getByText("nenhum")).toBeInTheDocument();
   });
+
+  it.each(["veterinario", "periodo"])(
+    "ignora disponibilidade antiga depois de mudar %s durante o pedido",
+    async (campo) => {
+      const servico = servicoFalso();
+      let resolver!: (valor: typeof disponibilidade) => void;
+      servico.obterDisponibilidade.mockReturnValue(
+        new Promise<typeof disponibilidade>((resolve) => {
+          resolver = resolve;
+        }),
+      );
+      montar(novaComPaciente, { servico });
+      const u = userEvent.setup();
+      await u.selectOptions(
+        await screen.findByLabelText("Veterinário"),
+        await screen.findByRole("option", { name: "Dra. Ana" }),
+      );
+      await u.click(
+        screen.getByRole("button", { name: "Consultar disponibilidade" }),
+      );
+      if (campo === "veterinario") {
+        await u.selectOptions(screen.getByLabelText("Veterinário"), "6");
+      } else {
+        fireEvent.change(screen.getByLabelText("A partir de"), {
+          target: { value: somarDias(hojeEmLisboa(), 7) },
+        });
+      }
+      await act(async () => resolver(disponibilidade));
+      expect(
+        screen.queryByRole("group", { name: "Horários livres" }),
+      ).toBeNull();
+      expect(
+        screen.getByRole("button", { name: "Consultar disponibilidade" }),
+      ).toBeEnabled();
+    },
+  );
 
   it("se a vaga deixou de estar livre, mostra a resposta e atualiza a disponibilidade (critério 5)", async () => {
     const servico = servicoFalso();

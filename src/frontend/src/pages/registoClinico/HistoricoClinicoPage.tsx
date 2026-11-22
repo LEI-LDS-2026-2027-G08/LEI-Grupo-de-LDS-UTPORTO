@@ -9,6 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import { DataTable, type ColunaTabela } from "../../components/DataTable";
 import { FormErro } from "../../components/FormErro";
 import { FormField } from "../../components/FormField";
+import { useAuth } from "../../core/auth/useAuth";
 import { SoPara } from "../../components/SoPara";
 import { formatarDataHoraLisboa } from "../../core/horaLisboa";
 import type {
@@ -46,7 +47,7 @@ interface ResultadoRegisto {
  * Veterinário e Auxiliar Veterinário: a rota está protegida por perfil e a
  * API recusa (403) os outros perfis.
  *
- * Os dois perfis veem a informação clínica que a API lhes devolve; só o
+ * O Auxiliar vê apenas tratamentos e prescrições; só o
  * Veterinário tem a ação «Alterar registo» (W13 da consulta, I115). O
  * Auxiliar tem uma vista só de leitura, sem botões de criação ou alteração.
  *
@@ -66,6 +67,7 @@ function HistoricoDoPaciente({
   servico = registosClinicosService,
 }: HistoricoDoPacienteProps) {
   const idCampos = useId();
+  const { temPerfil } = useAuth();
   const animalId = Number(idTexto);
   const idInvalido = !Number.isInteger(animalId) || animalId <= 0;
 
@@ -167,7 +169,14 @@ function HistoricoDoPaciente({
   const colunas: ColunaTabela<RegistoClinicoResumo>[] = [
     { cabecalho: "Data da consulta", celula: (r) => formatarData(r.data) },
     { cabecalho: "Veterinário", celula: (r) => r.veterinario },
-    { cabecalho: "Diagnóstico", celula: (r) => r.diagnostico ?? "—" },
+    ...(temPerfil(["Veterinario"])
+      ? [
+          {
+            cabecalho: "Diagnóstico",
+            celula: (r: RegistoClinicoResumo) => r.diagnostico ?? "—",
+          },
+        ]
+      : []),
     { cabecalho: "Tratamentos", celula: (r) => r.numeroTratamentos },
     { cabecalho: "Prescrições", celula: (r) => r.numeroPrescricoes },
     {
@@ -341,10 +350,12 @@ function DetalheRegisto({
           className="formulario formulario-largo"
           aria-label="Registo clínico"
         >
-          <dt>Notas clínicas</dt>
-          <dd className="texto-clinico">{r.notasClinicas ?? "—"}</dd>
-          <dt>Diagnóstico</dt>
-          <dd className="texto-clinico">{r.diagnostico ?? "—"}</dd>
+          <SoPara acao="registarClinico">
+            <dt>Notas clínicas</dt>
+            <dd className="texto-clinico">{r.notasClinicas ?? "—"}</dd>
+            <dt>Diagnóstico</dt>
+            <dd className="texto-clinico">{r.diagnostico ?? "—"}</dd>
+          </SoPara>
           <dt>Tratamentos</dt>
           <dd>
             {r.tratamentos.length === 0 ? (
