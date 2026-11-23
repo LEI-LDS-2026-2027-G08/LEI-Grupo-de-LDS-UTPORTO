@@ -165,6 +165,7 @@ function DetalheMarcacao({
         <div role="alert" className="form-erro">
           O registo pedido não foi encontrado.
         </div>
+        <Link to="/agenda">Voltar à agenda</Link>
       </section>
     );
   }
@@ -174,7 +175,10 @@ function DetalheMarcacao({
       <section>
         <h1>{titulo}</h1>
         {erroCarregar ? (
-          <FormErro erro={erroCarregar} />
+          <>
+            <FormErro erro={erroCarregar} />
+            <Link to="/agenda">Voltar à agenda</Link>
+          </>
         ) : (
           <p role="status">A carregar…</p>
         )}
