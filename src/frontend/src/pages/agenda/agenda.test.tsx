@@ -469,6 +469,20 @@ describe("W11 — detalhe e estado da marcação", () => {
     expect(servico.obterConsulta).toHaveBeenCalledTimes(2);
   });
 
+  it("marcação inexistente: mostra o erro da API e a ligação de regresso à agenda (I132, ST-WEB-TRV-09)", async () => {
+    const servico = servicoFalso();
+    servico.obterConsulta.mockRejectedValue(
+      new ApiRequestError(404, "naoEncontrado", "A marcação não existe."),
+    );
+    montar("/agenda/999999", { servico });
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "A marcação não existe.",
+    );
+    expect(
+      screen.getByRole("link", { name: "Voltar à agenda" }),
+    ).toHaveAttribute("href", "/agenda");
+  });
+
   it("o Veterinário vê a marcação sem ações e com a ligação para a ficha", async () => {
     montar("/agenda/41", { perfil: "Veterinario" });
     expect(
