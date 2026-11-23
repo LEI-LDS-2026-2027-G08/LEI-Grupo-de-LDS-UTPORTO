@@ -73,6 +73,20 @@ export const VARIAVEIS_I129 = [
   CONTAS.auxCarla,
 ].map((c) => c.variavel);
 
+/** Variáveis de ambiente das contas usadas pelos testes da I132. */
+export const VARIAVEIS_I132 = [
+  CONTAS.admin,
+  CONTAS.rececao,
+  CONTAS.vetAna,
+  CONTAS.auxCarla,
+  CONTAS.clienteJoao,
+].map((c) => c.variavel);
+
+/** Todas as variáveis de que a suite de sistema precisa (I129 e I132). */
+export const VARIAVEIS_SISTEMA = [
+  ...new Set([...VARIAVEIS_I129, ...VARIAVEIS_I132]),
+];
+
 /** Palavra-passe de uma conta de demonstração, lida da variável de ambiente. */
 export function senhaDe(conta: Conta): string {
   const valor = process.env[conta.variavel];
