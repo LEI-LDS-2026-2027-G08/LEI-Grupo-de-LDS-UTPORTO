@@ -9,9 +9,6 @@
     <string name="voltar">Voltar</string>
     <string name="sem_informacao">Sem informação</string>
 
-    <string name="ecra_m04">M04 — Consultas</string>
-    <string name="por_implementar">Ecrã a implementar na %1$s.</string>
-
     <string name="m02_titulo">Os meus animais</string>
     <string name="m02_vazio">Ainda não tem animais associados à sua conta.</string>
     <string name="m02_ver_detalhe">Ver detalhe</string>
@@ -30,6 +27,15 @@
         <item quantity="one">%d ano</item>
         <item quantity="other">%d anos</item>
     </plurals>
+
+    <string name="m04_titulo">Consultas</string>
+    <string name="m04_so_deste_animal">Só as Consultas deste animal.</string>
+    <string name="m04_separador_futuras">Próximas</string>
+    <string name="m04_separador_historico">Histórico</string>
+    <string name="m04_sem_futuras">Não tem Consultas marcadas.</string>
+    <string name="m04_sem_futuras_animal">Este animal não tem Consultas marcadas.</string>
+    <string name="m04_sem_historico">Ainda não há Consultas no histórico.</string>
+    <string name="m04_sem_historico_animal">Este animal ainda não tem Consultas no histórico.</string>
 
     <string name="m06_titulo">Boletim de vacinação e desparasitação</string>
     <string name="m06_proximas">Próximas administrações previstas</string>

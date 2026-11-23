@@ -41,16 +41,10 @@ class NavegacaoSeparadoresTest {
                     Text("detalhe")
                 }
                 composable(Rotas.BOLETIM, arguments = listOf(argumentoAnimal)) { Text("boletim") }
-                composable(
-                    Rotas.CONSULTAS,
-                    arguments =
-                    listOf(
-                        navArgument(Rotas.ARG_ANIMAL_ID) {
-                            type = NavType.IntType
-                            defaultValue = Rotas.SEM_ANIMAL
-                        },
-                    ),
-                ) { Text("consultas") }
+                composable(Rotas.CONSULTAS) { Text("consultas") }
+                composable(Rotas.CONSULTAS_ANIMAL, arguments = listOf(argumentoAnimal)) {
+                    Text("consultas do animal")
+                }
             }
         }
     }
@@ -75,13 +69,13 @@ class NavegacaoSeparadoresTest {
     @Test
     fun `Animais nas Consultas de um animal volta a lista (defeito da revisao)`() {
         ir(Rotas.animalDetalhe(5))
-        ir(Rotas.consultas(5))
-        compose.onNodeWithText("consultas").assertExists()
+        ir(Rotas.consultasDoAnimal(5))
+        compose.onNodeWithText("consultas do animal").assertExists()
 
         separador(Rotas.ANIMAIS)
 
         verificarListaNaRaiz()
-        compose.onNodeWithText("consultas").assertDoesNotExist()
+        compose.onNodeWithText("consultas do animal").assertDoesNotExist()
     }
 
     @Test
@@ -108,7 +102,7 @@ class NavegacaoSeparadoresTest {
     @Test
     fun `depois de ir a Consultas, Animais volta a lista e nao ao detalhe anterior`() {
         ir(Rotas.animalDetalhe(5))
-        separador(Rotas.consultas())
+        separador(Rotas.CONSULTAS)
         compose.onNodeWithText("consultas").assertExists()
 
         separador(Rotas.ANIMAIS)
@@ -121,7 +115,7 @@ class NavegacaoSeparadoresTest {
     fun `Consultas abre por cima da lista e recuar volta a lista`() {
         ir(Rotas.animalDetalhe(5))
 
-        separador(Rotas.consultas())
+        separador(Rotas.CONSULTAS)
 
         compose.onNodeWithText("consultas").assertExists()
         compose.runOnIdle {
@@ -129,6 +123,21 @@ class NavegacaoSeparadoresTest {
             nav.popBackStack()
         }
         verificarListaNaRaiz()
+    }
+
+    @Test
+    fun `Consultas nas Consultas de um animal mostra as de todos os animais`() {
+        ir(Rotas.animalDetalhe(5))
+        ir(Rotas.consultasDoAnimal(5))
+
+        separador(Rotas.CONSULTAS)
+
+        compose.onNodeWithText("consultas").assertExists()
+        compose.onNodeWithText("consultas do animal").assertDoesNotExist()
+        compose.runOnIdle {
+            assertEquals(Rotas.CONSULTAS, nav.currentDestination?.route)
+            assertEquals(Rotas.ANIMAIS, nav.previousBackStackEntry?.destination?.route)
+        }
     }
 
     @Test
