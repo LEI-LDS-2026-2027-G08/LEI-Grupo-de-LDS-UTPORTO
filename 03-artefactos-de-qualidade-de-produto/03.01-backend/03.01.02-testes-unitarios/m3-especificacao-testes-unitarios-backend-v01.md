@@ -6,7 +6,7 @@
 | Projeto | Gestão de Clínica Veterinária |
 | Artefacto | Especificação dos Testes Unitários do Backend |
 | Ficheiro | `m3-especificacao-testes-unitarios-backend-v01.md` |
-| Versão | v01 — rascunho do Executor |
+| Versão | v01 |
 | Milestone | m3 |
 | Issue | I028 — Especificar os Testes Unitários do Backend |
 | Sprint | S04 |
