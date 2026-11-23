@@ -2,6 +2,27 @@
 
 Backend da aplicação de Gestão de Clínica Veterinária desenvolvido em .NET 10 com ASP.NET Core Web API.
 
+## Arquivo de entrega — I125
+
+### Origem
+
+- Pasta de origem: `src/backend`.
+- Commit de referência: `a3bf22afb3a50e23a0d6b90a97c8e49884948412`.
+- Árvore Git de `src/backend`: `cec37113c205fe1ee5da510110813aec2dc8a6cf`.
+- Data de atualização do arquivo: 23/11/2026.
+
+Os caminhos e os conteúdos das fontes correspondem ao backend desse commit. Os DTOs de leitura da auxiliar estão em `ClinicaVeterinaria.Api/DTOs/RegistosClinicos`, como no código de origem.
+
+### Configuração e exclusões
+
+Em `ClinicaVeterinaria.Api/appsettings.json`, os valores de `ConnectionStrings:ClinicaDb` e `Jwt:Key` estão vazios e devem ser configurados no ambiente de execução.
+
+O arquivo exclui `appsettings.Development.json`, configurações locais do IDE, ficheiros `*.DotSettings.user`, pastas de compilação e resultados locais de testes.
+
+### Estado
+
+Arquivo preparado para revisão. A decisão/autorização da alteração de contrato da API continua pendente de registo em ata.
+
 ## Pré-requisitos
 
 - .NET SDK 10

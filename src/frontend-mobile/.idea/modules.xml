@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Gestão_de_Clínica_Veterinária.iml" filepath="$PROJECT_DIR$/.idea/modules/Gestão_de_Clínica_Veterinária.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Gestão_de_Clínica_Veterinária.app.unitTest.iml" />
+    </modules>
+  </component>
+</project>
