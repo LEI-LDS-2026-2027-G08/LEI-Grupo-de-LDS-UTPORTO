@@ -1,0 +1,250 @@
+{
+  "ambiente": "Azure",
+  "url": "https://clinica-g08-api-ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net",
+  "tipo": "Pedidos diretos à API; não corresponde a execução da interface Android",
+  "resultados": [
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "POST",
+      "rota": "/auth/login",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais",
+      "esperado": 200,
+      "obtido": 200,
+      "animais": [
+        {
+          "id": 1,
+          "nome": "Bobi"
+        },
+        {
+          "id": 3,
+          "nome": "Mia"
+        }
+      ]
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/1",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/1/vacinacoes",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/3",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/3/vacinacoes",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 0
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras&animalId=1",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 0
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras&animalId=3",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 0
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 3
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico&animalId=1",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 2
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico&animalId=3",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 1
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "POST",
+      "rota": "/auth/login",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais",
+      "esperado": 200,
+      "obtido": 200,
+      "animais": [
+        {
+          "id": 2,
+          "nome": "Kiko"
+        }
+      ]
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/2",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/2/vacinacoes",
+      "esperado": 200,
+      "obtido": 200
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 0
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras&animalId=2",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 0
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 1
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico&animalId=2",
+      "esperado": 200,
+      "obtido": 200,
+      "quantidade": 1
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/2",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/2/vacinacoes",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras&animalId=2",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico&animalId=2",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.joao@clinica-g08.test",
+      "metodo": "POST",
+      "rota": "/auth/logout",
+      "esperado": 204,
+      "obtido": 204
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/1",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/animais/1/vacinacoes",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=futuras&animalId=1",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "GET",
+      "rota": "/me/consultas?tipo=historico&animalId=1",
+      "esperado": 403,
+      "obtido": 403
+    },
+    {
+      "conta": "cliente.maria@clinica-g08.test",
+      "metodo": "POST",
+      "rota": "/auth/logout",
+      "esperado": 204,
+      "obtido": 204
+    },
+    {
+      "conta": "sem sessão",
+      "metodo": "GET",
+      "rota": "/auth/me",
+      "esperado": 401,
+      "obtido": 401
+    }
+  ]
+}
