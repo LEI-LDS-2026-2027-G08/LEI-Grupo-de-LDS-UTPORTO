@@ -56,7 +56,8 @@ class Ambiente:
             "cliente.joao", "cliente.maria", "rececao.bloqueada", "rececao", "vet.ana"
         )}
         self.private = [self.sa, self.key, self.control, *self.passwords.values()]
-        self.env = {**os.environ, "MSSQL_SA_PASSWORD": self.sa, "SQLCMDPASSWORD": self.sa}
+        self.env = {**os.environ, "ANDROID_HOME": str(sdk),
+                    "MSSQL_SA_PASSWORD": self.sa, "SQLCMDPASSWORD": self.sa}
         self.repetitions = []
 
     def clean_text(self, value):

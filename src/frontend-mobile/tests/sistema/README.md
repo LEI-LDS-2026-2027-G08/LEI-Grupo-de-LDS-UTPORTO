@@ -6,6 +6,8 @@ Automação dos **18 cenários atribuídos à I137** na secção 13.1 da [Especi
 
 Pré-requisitos: Docker ligado, .NET 10, JDK 21, Android SDK 37 e um AVD API 37 instalado. As portas locais **5159 e 5160 têm de estar livres**. O script recusa portas ocupadas; não termina serviços existentes.
 
+No macOS, o script encontra o SDK em `~/Library/Android/sdk` e transmite essa localização ao Gradle. Se o SDK estiver noutra pasta, definir `ANDROID_HOME` antes da execução.
+
 Na pasta `src/frontend-mobile`:
 
 ```sh

@@ -1,13 +1,13 @@
 {
-  "evidencias-i137/execucao-1/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "9e914b768767e44c6473f4655570096b8d1910193e679e55dd5d8daef9cc4ca7",
-  "evidencias-i137/execucao-1/registo-gradle.md": "459e0a06ea3f3198fb91215a5349a9d7c0bc1196405f193d06f3d6895baa0ba2",
-  "evidencias-i137/execucao-2/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "ef808b0855c43d09bc0192e28466e1f2427b2e4d544b8a094ad0105b6e609349",
-  "evidencias-i137/execucao-2/registo-gradle.md": "360c65dede7932ba13de76a1860f0e0f107fd32afe7119475eb032fe51a3cb75",
+  "evidencias-i137/execucao-1/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "c3508e58a7017fce073b82fe6ec6c7a26be4b2269fe8aace9abd120299714d90",
+  "evidencias-i137/execucao-1/registo-gradle.md": "096618bb6c656089e0106079fd6ee134a70c5ffaf455062436ac38809e51d580",
+  "evidencias-i137/execucao-2/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "06d5c6c87b2e5bff08add7fab013fecf3c97fd996309152a38cda8ff332ffadc",
+  "evidencias-i137/execucao-2/registo-gradle.md": "849d1f888a6de09477d26d153fee2b6e608bd2bfe523fd3e9dcbb4f3c0d57c1e",
   "evidencias-i137/falha-controlada/ST-MOB-F001-01.png": "0f6d6b569b2042606eae5389c86bd9486258422f64f084e3ec8146371d1e9fc7",
   "m4-i137-falha-controlada-v01.json": "b1d26306a2b61a3ee412d31c65c5216b95555bdaaad184e6b906a35950e25894",
-  "m4-i137-fontes-executadas-v01.json": "aeb478b76e8250ad886454d73e1505e5b35053a471df5c3b0e59efcb0b6b6994",
+  "m4-i137-fontes-executadas-v01.json": "eaa9b0376d24e491a9858036c75ffb044fa5defebfe9dd2c7b39b8dbf020e8c0",
   "m4-i137-matriz-cenarios-testes-v01.md": "72c04bd953905ea29ce290df8a8b2477010448bbc2b059667738780d706f8e69",
-  "m4-i137-relatorio-executor-v01.md": "e0567b50da7d0372b606df25b69cb6c8527f61c4ee43f78c00fd9d8115952799",
-  "m4-i137-resultados-execucoes-v01.json": "b76705aaae626478254ff54cfa45e2ce003b8570e4ff5a74945f9d295a57b571",
+  "m4-i137-relatorio-executor-v01.md": "3b97a2406415777817a89505e7a71d5b335e705e0ba8ae77c04e87e598a90782",
+  "m4-i137-resultados-execucoes-v01.json": "d47429cc6993e0675f62b24596bfaabee293793221617d155a58ffe52070bd31",
   "m4-i137-verificacao-local-v01.md": "0daff7b47490d349c93938d13a803d28b0942e7a46ae16cb497386b0e7738e19"
 }

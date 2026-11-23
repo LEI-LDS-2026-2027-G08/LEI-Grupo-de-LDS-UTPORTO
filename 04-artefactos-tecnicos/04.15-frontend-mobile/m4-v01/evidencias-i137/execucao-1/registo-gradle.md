@@ -1,9 +1,11 @@
-# I137 — Execução 1
+# I137 — Execução 1 — correção da localização do SDK
+
+Execução: `d27fcc4bc41c`. Sem `ANDROID_HOME` ou `ANDROID_SDK_ROOT` definidos no terminal.
 
 ```text
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
-> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugBuildConfig
 > Task :app:generateDebugResources UP-TO-DATE
 > Task :app:packageDebugResources UP-TO-DATE
 > Task :app:processDebugNavigationResources UP-TO-DATE
@@ -21,21 +23,21 @@
 > Task :app:processDebugManifestForPackage UP-TO-DATE
 > Task :app:processDebugResources UP-TO-DATE
 > Task :app:preDebugAndroidTestBuild SKIPPED
-> Task :app:mergeDebugAndroidTestManifest UP-TO-DATE
-> Task :app:processDebugAndroidTestManifest UP-TO-DATE
-> Task :app:generateDebugAndroidTestBuildConfig UP-TO-DATE
-> Task :app:generateDebugAndroidTestResources UP-TO-DATE
-> Task :app:packageDebugAndroidTestResources UP-TO-DATE
-> Task :app:processDebugAndroidTestNavigationResources UP-TO-DATE
-> Task :app:parseDebugAndroidTestLocalResources UP-TO-DATE
-> Task :app:generateDebugAndroidTestRFile UP-TO-DATE
-> Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :app:mergeDebugAndroidTestManifest
+> Task :app:processDebugAndroidTestManifest
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:generateDebugAndroidTestResources
+> Task :app:packageDebugAndroidTestResources
+> Task :app:processDebugAndroidTestNavigationResources
 > Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebugAndroidTest
+> Task :app:parseDebugAndroidTestLocalResources
 > Task :app:mergeDebugAssets UP-TO-DATE
 > Task :app:compressDebugAssets UP-TO-DATE
 > Task :app:generateDebugGlobalSynthetics UP-TO-DATE
 > Task :app:checkDebugDuplicateClasses UP-TO-DATE
 > Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:generateDebugAndroidTestRFile
 > Task :app:mergeExtDexDebug UP-TO-DATE
 > Task :app:mergeLibDexDebug UP-TO-DATE
 > Task :app:mergeDebugJniLibFolders UP-TO-DATE
@@ -45,44 +47,44 @@
 > Task :app:writeDebugAppMetadata UP-TO-DATE
 > Task :app:writeDebugSigningConfigVersions UP-TO-DATE
 > Task :app:generateDebugAndroidTestAssets UP-TO-DATE
-> Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
-> Task :app:compressDebugAndroidTestAssets UP-TO-DATE
-> Task :app:generateDebugAndroidTestGlobalSynthetics UP-TO-DATE
-> Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
-> Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
-> Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
-> Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
-> Task :app:checkDebugAndroidTestAarMetadata UP-TO-DATE
-> Task :app:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
-> Task :app:compileDebugAndroidTestNavigationResources UP-TO-DATE
-> Task :app:mergeDebugAndroidTestResources UP-TO-DATE
-> Task :app:processDebugAndroidTestResources UP-TO-DATE
-> Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
-> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
-> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
-> Task :app:validateSigningDebugAndroidTest UP-TO-DATE
-> Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:generateDebugAndroidTestGlobalSynthetics
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:checkDebugAndroidTestAarMetadata
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mapDebugAndroidTestSourceSetPaths
+> Task :app:compileDebugAndroidTestNavigationResources
 > Task :app:compileDebugKotlin
-> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestResources
+> Task :app:compileDebugJavaWithJavac
 > Task :app:processDebugJavaRes UP-TO-DATE
 > Task :app:mergeDebugJavaResource UP-TO-DATE
 > Task :app:bundleDebugClassesToCompileJar
 > Task :app:dexBuilderDebug
+> Task :app:mergeDebugAndroidTestJniLibFolders
 > Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:processDebugAndroidTestResources
 > Task :app:compileDebugAndroidTestKotlin
-> Task :app:compileDebugAndroidTestJavaWithJavac UP-TO-DATE
-> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
-> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:processDebugAndroidTestJavaRes
 > Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeDebugAndroidTestJavaResource
 > Task :app:mergeProjectDexDebugAndroidTest
 > Task :app:packageDebugAndroidTest
-> Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :app:createDebugAndroidTestApkListingFileRedirect
 
 > Task :app:connectedDebugAndroidTest
 Running tests on devices: Medium_Phone_API_37.0(AVD) - 17
 
-BUILD SUCCESSFUL in 2m 8s
-72 actionable tasks: 10 executed, 62 up-to-date
+BUILD SUCCESSFUL in 3m 7s
+72 actionable tasks: 40 executed, 32 up-to-date
 ```

@@ -1,6 +1,6 @@
 {
-  "base": "c45180e8a6b6fe93e4aeed9882f059fbd32b465a",
-  "estado": "alterações locais ainda sem commit",
+  "base": "bc25b2dc2563be0f8c8c9b61b714280635a2a48b",
+  "estado": "Testes já em commit; correção da localização do SDK ainda local durante a execução",
   "ficheiros": {
     ".github/workflows/mobile-sistema.yml": "adb313e18939c776d2715e3d95431f85a548ebfd8f4402e5e94d798936bf6f74",
     "src/frontend-mobile/app/build.gradle.kts": "ce1287ced27fdce2b8ff3b23496add36bc9ada58d5f504abc09954e9c0552be5",
@@ -115,6 +115,7 @@
     "src/frontend-mobile/app/src/test/java/pt/ipp/estg/g08/clinica/sessao/SessaoViewModelTest.kt": "ef97e869c9588198fdb57a32ed644cf175c7627f1bfcc6a584892b104bc9b7dd",
     "src/frontend-mobile/app/src/test/java/pt/ipp/estg/g08/clinica/sessao/ValidacaoLoginTest.kt": "bb729c8f750f15c5beae44669e5bdb017d421cfe0dfdb2227d22c2ee52e62c86",
     "src/frontend-mobile/gradle/libs.versions.toml": "933b7ef842a1a80daee841fff74f0b22f4102003c7d9c5a99f41914dc1a32441",
-    "src/frontend-mobile/tests/sistema/executar.py": "38584a9fc7ea98afe7fc5f16a465e80000f5308d0c36439f3898bb8756e07a4d"
-  }
+    "src/frontend-mobile/tests/sistema/executar.py": "377d702ac7056243b109d4d5bb1a7ba3a770ce481f26d6d09bf5fa923e7244a8"
+  },
+  "execucao": "d27fcc4bc41c"
 }

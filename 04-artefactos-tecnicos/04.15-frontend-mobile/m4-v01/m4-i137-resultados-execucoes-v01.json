@@ -1,6 +1,6 @@
 {
-  "base": "c45180e8a6b6fe93e4aeed9882f059fbd32b465a",
-  "data": "2026-11-23T18:45:59.342365+00:00",
+  "base": "bc25b2dc2563be0f8c8c9b61b714280635a2a48b",
+  "data": "2026-11-23T20:36:48.508253+00:00",
   "sql_image": "mcr.microsoft.com/mssql/server:2025-latest",
   "execucoes": [
     {

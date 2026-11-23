@@ -19,13 +19,15 @@ O contentor da base habitual do utilizador não foi usado. Os serviços de teste
 
 ## 2. Identificação do código verificado
 
-Base Git: `c45180e8a6b6fe93e4aeed9882f059fbd32b465a`.
+Base Git das execuções mais recentes: `bc25b2dc2563be0f8c8c9b61b714280635a2a48b`.
 
-Os novos testes e as alterações desta I137 ainda não estavam em commit quando foram executados. A versão local verificada está identificada pelas somas SHA-256 de 114 ficheiros relevantes em [m4-i137-fontes-executadas-v01.json](m4-i137-fontes-executadas-v01.json). A correspondência foi novamente conferida depois da falha controlada e da reposição das fontes. O commit de base não é apresentado como contendo os testes novos.
+Os testes e o workflow já constam desse commit. A correção que transmite a localização do Android SDK ao Gradle ainda era uma alteração local durante estas execuções. A versão verificada está identificada pelas somas SHA-256 de 114 ficheiros relevantes em [m4-i137-fontes-executadas-v01.json](m4-i137-fontes-executadas-v01.json).
 
-Em 23/11/2026, as alterações foram recuperadas na branch de trabalho do Executor, já sobre a integração da I127. Os 114 ficheiros conferidos continuam iguais à versão executada; o backend também não mudou relativamente à base indicada. Depois da recuperação, foram repetidos os 166 testes unitários e de componentes, a formatação, o Android Lint e a compilação debug: todos aprovados (`BUILD SUCCESSFUL in 39s`). As duas execuções instrumentadas documentadas abaixo não foram repetidas nesta recuperação, porque os 114 ficheiros verificados continuam iguais.
+O ensaio do Executor `a8c2ffaf7fdd` não chegou a executar testes: o Gradle não encontrou o SDK. O script encontrava o emulador na pasta predefinida do macOS, mas não transmitia essa pasta ao Gradle. Foi corrigido para incluir `ANDROID_HOME` no ambiente dos processos. A execução `d27fcc4bc41c` repetiu a suite duas vezes, sem `ANDROID_HOME` nem `ANDROID_SDK_ROOT` definidos no terminal, com sucesso em ambas.
 
-O Executor deve guardar a versão testada em commit antes de exportar as fontes diretamente para a pasta de entrega. O script de arquivo recusa um commit que não contenha os ficheiros verificados. O commit de entrega e o endereço do PR devem ser associados ao processo quando forem criados.
+As duas execuções iniciais, sobre a base `c45180e8a6b6fe93e4aeed9882f059fbd32b465a`, também tinham passado. Os resultados arquivados abaixo correspondem à repetição após a correção do SDK. Os testes da aplicação não foram alterados nesta correção.
+
+O Executor deve guardar a correção e as evidências em commit antes de exportar as fontes diretamente para a pasta de entrega. O script de arquivo recusa um commit que não contenha os ficheiros verificados. O commit de entrega e o endereço do PR devem ser associados ao processo quando forem criados.
 
 ## 3. Duas execuções completas consecutivas
 
@@ -34,15 +36,15 @@ Ambiente observado: macOS, emulador Android 17/API 37 ARM64 sem janela, fuso `Eu
 Comando executado na pasta `src/frontend-mobile`:
 
 ```sh
-python3 tests/sistema/executar.py --serial emulator-5580
+env -u ANDROID_HOME -u ANDROID_SDK_ROOT JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" python3 tests/sistema/executar.py
 ```
 
-O emulador foi previamente iniciado com `-no-window -no-audio -no-snapshot -no-boot-anim -timezone Europe/Lisbon`. A opção `--serial` identifica esse emulador; a execução predefinida do script também sabe iniciar e fechar um emulador sem janela.
+O próprio script iniciou o emulador sem janela e fechou-o no fim. A localização do SDK foi descoberta pela configuração predefinida do macOS e transmitida ao Gradle pelo script.
 
 | Execução | Testes | Falhas | Erros | Ignorados | Resultado Gradle |
 |---|---:|---:|---:|---:|---|
-| 1 | 18 | 0 | 0 | 0 | Aprovada, 2 min 8 s |
-| 2 | 18 | 0 | 0 | 0 | Aprovada, 2 min 5 s |
+| 1 | 18 | 0 | 0 | 0 | Aprovada, 3 min 7 s |
+| 2 | 18 | 0 | 0 | 0 | Aprovada, 2 min 9 s |
 
 Evidências:
 
@@ -55,7 +57,7 @@ Não houve falhas intermitentes nestas duas execuções completas da versão fin
 
 ## 4. Falha controlada e captura
 
-Depois das duas execuções aprovadas, foi alterado temporariamente o serviço de animais para omitir o Bobi da lista devolvida pela API. Foi executado apenas ST-MOB-F001-01: o teste falhou como esperado, por faltar o Bobi, e guardou a captura com o identificador do cenário.
+Depois das duas execuções iniciais aprovadas, antes da correção da localização do SDK, foi alterado temporariamente o serviço de animais para omitir o Bobi da lista devolvida pela API. Foi executado apenas ST-MOB-F001-01: o teste falhou como esperado, por faltar o Bobi, e guardou a captura com o identificador do cenário.
 
 O ficheiro original foi reposto byte a byte e a soma SHA-256 foi conferida. A alteração temporária não integra a entrega. Esta verificação do Executor não substitui a quebra de um fluxo e a execução independente exigidas ao Revisor.
 

@@ -1,4 +1,6 @@
-# I137 — Execução 2
+# I137 — Execução 2 — correção da localização do SDK
+
+Execução: `d27fcc4bc41c`. Sem `ANDROID_HOME` ou `ANDROID_SDK_ROOT` definidos no terminal.
 
 ```text
 > Task :app:preBuild UP-TO-DATE
@@ -83,6 +85,6 @@
 > Task :app:connectedDebugAndroidTest
 Running tests on devices: Medium_Phone_API_37.0(AVD) - 17
 
-BUILD SUCCESSFUL in 2m 5s
+BUILD SUCCESSFUL in 2m 9s
 72 actionable tasks: 1 executed, 71 up-to-date
 ```
