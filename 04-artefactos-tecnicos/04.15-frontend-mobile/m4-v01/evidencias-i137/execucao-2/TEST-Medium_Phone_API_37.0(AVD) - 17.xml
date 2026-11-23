@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="18" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-11-23T18:45:57" hostname="localhost">
+  <testsuite name="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" tests="18" failures="0" errors="0" skipped="0" time="118.685" timestamp="2026-11-23T18:45:57" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5580" />
+    </properties>
+    <testcase name="ST-MOB-F001-01" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="7.284" />
+    <testcase name="ST-MOB-F001-02" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="7.239" />
+    <testcase name="ST-MOB-F001-03" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="7.428" />
+    <testcase name="ST-MOB-F001-04" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.023" />
+    <testcase name="ST-MOB-F002-01" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.248" />
+    <testcase name="ST-MOB-F002-02" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.585" />
+    <testcase name="ST-MOB-F002-03" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="5.976" />
+    <testcase name="ST-MOB-F002-04" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.116" />
+    <testcase name="ST-MOB-F003-01" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.312" />
+    <testcase name="ST-MOB-F003-02" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.396" />
+    <testcase name="ST-MOB-F003-03" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.511" />
+    <testcase name="ST-MOB-F003-04" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.565" />
+    <testcase name="ST-MOB-F003-05" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="7.354" />
+    <testcase name="ST-MOB-F003-06" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.280" />
+    <testcase name="ST-MOB-F006-01" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.570" />
+    <testcase name="ST-MOB-F006-02" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.100" />
+    <testcase name="ST-MOB-F006-03" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="7.614" />
+    <testcase name="ST-MOB-F006-04" classname="pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest" time="6.084" />
+  </testsuite>
+</testsuites>

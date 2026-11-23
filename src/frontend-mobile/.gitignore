@@ -16,3 +16,7 @@ local.properties
 
 # Ficheiros do Android Studio (cada developer tem os seus)
 /.idea
+
+# Evidências locais das execuções instrumentadas (publicadas separadamente).
+/tests/sistema/resultados/
+/tests/sistema/__pycache__/

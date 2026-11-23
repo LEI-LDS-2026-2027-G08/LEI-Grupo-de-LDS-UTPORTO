@@ -1,11 +1,13 @@
 package pt.ipp.estg.g08.clinica.navegacao
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,7 +26,11 @@ import pt.ipp.estg.g08.clinica.sessao.SessaoViewModel
  * ao início de sessão e a pilha de navegação da área autenticada é descartada.
  */
 @Composable
-fun AppNavHost(container: AppContainer, modifier: Modifier = Modifier) {
+fun AppNavHost(
+    container: AppContainer,
+    modifier: Modifier = Modifier,
+    aoCriarNavegacaoAutenticada: ((NavHostController) -> Unit)? = null,
+) {
     val sessao: SessaoViewModel =
         viewModel(
             factory =
@@ -50,7 +56,15 @@ fun AppNavHost(container: AppContainer, modifier: Modifier = Modifier) {
         sessao = sessao,
         modifier = modifier,
         areaNaoAutenticada = { AreaNaoAutenticada(container = container, sessao = sessao) },
-        areaAutenticada = { MainShell(container = container, onTerminarSessao = sessao::logout) },
+        areaAutenticada = {
+            val navegacao = rememberNavController()
+            SideEffect { aoCriarNavegacaoAutenticada?.invoke(navegacao) }
+            MainShell(
+                container = container,
+                onTerminarSessao = sessao::logout,
+                navController = navegacao,
+            )
+        },
     )
 }
 

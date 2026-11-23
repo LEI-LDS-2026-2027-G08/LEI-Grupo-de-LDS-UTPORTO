@@ -1,0 +1,26 @@
+{
+  "base": "c45180e8a6b6fe93e4aeed9882f059fbd32b465a",
+  "data": "2026-11-23T18:45:59.342365+00:00",
+  "sql_image": "mcr.microsoft.com/mssql/server:2025-latest",
+  "execucoes": [
+    {
+      "execucao": 1,
+      "codigo": 0,
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passou": true
+    },
+    {
+      "execucao": 2,
+      "codigo": 0,
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passou": true
+    }
+  ],
+  "ambiente": "API e contentor SQL descartáveis; emulador Android sem interface"
+}
