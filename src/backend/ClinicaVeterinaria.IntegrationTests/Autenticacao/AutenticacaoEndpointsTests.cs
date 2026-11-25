@@ -39,7 +39,6 @@ public sealed class AutenticacaoEndpointsTests :
     }
 
     // ----- EP-001 -----
-
     [Fact(DisplayName = "IT-EP001-01 — conta ativa com credenciais válidas devolve 200 e JWT com sub, email, role, jti e exp")]
     public async Task LoginValidoDevolveTokenComClaims()
     {
@@ -144,7 +143,6 @@ public sealed class AutenticacaoEndpointsTests :
     }
 
     // ----- EP-002 -----
-
     [Fact(DisplayName = "IT-EP002-01 — logout com JWT válido devolve 204 e o jti fica revogado")]
     public async Task LogoutRevogaJti()
     {
@@ -202,7 +200,6 @@ public sealed class AutenticacaoEndpointsTests :
     }
 
     // ----- EP-003 (o IT-EP003-01 está em AutenticacaoInfraestruturaTests) -----
-
     [Fact(DisplayName = "IT-EP003-02 — /auth/me sem token devolve 401")]
     public async Task MeSemTokenDevolve401()
     {
@@ -251,7 +248,6 @@ public sealed class AutenticacaoEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private async Task DefinirPalavraPasseAsync(string email)
     {
         using var scope = Fixture.Factory.Services.CreateScope();

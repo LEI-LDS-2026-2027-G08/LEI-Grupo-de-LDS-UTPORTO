@@ -220,7 +220,6 @@ public sealed class ConcorrenciaMarcacoesEndpointsTests :
     }
 
     // ----- Cenários -----
-
     private sealed record Cenario(
         string Operacao,
         int MarcacaoId,
@@ -322,20 +321,19 @@ public sealed class ConcorrenciaMarcacoesEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static Dictionary<string, object?> CorpoAlteracao(int veterinarioId, DateTime dataHoraUtc, string motivo) =>
         new()
         {
             ["veterinarioId"] = veterinarioId,
             ["dataHora"] = Texto(dataHoraUtc),
-            ["motivo"] = motivo
+            ["motivo"] = motivo,
         };
 
     private static Dictionary<string, object?> CorpoEstado(string estado) =>
         new()
         {
             ["estado"] = estado,
-            ["observacao"] = null
+            ["observacao"] = null,
         };
 
     private static async Task<HttpResponseMessage> EnviarAsync(
@@ -347,7 +345,7 @@ public sealed class ConcorrenciaMarcacoesEndpointsTests :
     {
         using var pedido = new HttpRequestMessage(metodo, url)
         {
-            Content = corpo is null ? null : JsonContent.Create(corpo)
+            Content = corpo is null ? null : JsonContent.Create(corpo),
         };
 
         if (ifMatch is not null)

@@ -1,4 +1,3 @@
-using System.Globalization;
 using ClinicaVeterinaria.Application.Vacinacao;
 
 namespace ClinicaVeterinaria.UnitTests.Vacinacao;
@@ -10,23 +9,25 @@ namespace ClinicaVeterinaria.UnitTests.Vacinacao;
 public class CalculadoraProximaAdministracaoTests
 {
     [Theory(DisplayName = "UT-F006-001, UT-F006-003, UT-F006-004, UT-F006-005, UT-F006-006 e UT-F006-007 — data de administração + intervalo em dias de calendário")]
-    [InlineData("2026-10-14", 90, "2027-01-12")]
-    [InlineData("2026-01-31", 1, "2026-02-01")]
-    [InlineData("2028-02-28", 1, "2028-02-29")]
-    [InlineData("2027-02-28", 1, "2027-03-01")]
-    [InlineData("2026-12-31", 1, "2027-01-01")]
-    [InlineData("2027-03-01", 365, "2028-02-29")]
-    public void SomaOIntervalo(string dataAdministracao, int intervaloDias, string esperada)
+    [InlineData("90 dias")]
+    [InlineData("fim de mês")]
+    [InlineData("dia bissexto")]
+    [InlineData("fevereiro comum")]
+    [InlineData("fim de ano")]
+    [InlineData("intervalo de 365 dias")]
+    public void SomaOIntervalo(string caso)
     {
-        var proxima = CalculadoraProximaAdministracao.Calcular(Data(dataAdministracao), intervaloDias);
+        var (dataAdministracao, intervaloDias, esperada) = DatasVacinacaoTeste.CasoDeCalendario(caso);
 
-        Assert.Equal(Data(esperada), proxima);
+        var proxima = CalculadoraProximaAdministracao.Calcular(dataAdministracao, intervaloDias);
+
+        Assert.Equal(esperada, proxima);
     }
 
     [Fact(DisplayName = "UT-F006-002 — sem intervalo não há próxima administração (null)")]
     public void SemIntervaloDevolveNull()
     {
-        Assert.Null(CalculadoraProximaAdministracao.Calcular(Data("2026-10-14"), null));
+        Assert.Null(CalculadoraProximaAdministracao.Calcular(DatasVacinacaoTeste.Hoje, null));
     }
 
     [Theory(DisplayName = "I082 — intervalo indicado e não superior a 0 é recusado")]
@@ -35,8 +36,6 @@ public class CalculadoraProximaAdministracaoTests
     public void IntervaloNaoPositivoERecusado(int intervaloDias)
     {
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => CalculadoraProximaAdministracao.Calcular(Data("2026-10-14"), intervaloDias));
+            () => CalculadoraProximaAdministracao.Calcular(DatasVacinacaoTeste.Hoje, intervaloDias));
     }
-
-    private static DateOnly Data(string texto) => DateOnly.Parse(texto, CultureInfo.InvariantCulture);
 }

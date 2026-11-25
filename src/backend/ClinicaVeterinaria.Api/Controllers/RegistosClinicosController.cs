@@ -1,5 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Api.DTOs.RegistosClinicos;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -48,6 +49,7 @@ public sealed class RegistosClinicosController : ControllerBase
     /// <response code="409">A consulta já tem registo clínico.</response>
     /// <response code="422">Consulta Pendente ou Cancelada.</response>
     [HttpPost]
+
     // Soma-se ao [Authorize] do controlador: dos dois perfis de leitura, só o Veterinário regista.
     [Authorize(Policy = PoliticasAutorizacao.Veterinario)]
     [ProducesResponseType<RegistoClinicoDto>(StatusCodes.Status201Created)]
@@ -61,11 +63,11 @@ public sealed class RegistosClinicosController : ControllerBase
     {
         var veterinarioId = User.ObterVeterinarioId() ?? throw new ForbiddenException(MensagemSemVeterinario);
 
-        var registo = await _registosClinicosService.CriarAsync(pedido, veterinarioId);
+        var registo = await _registosClinicosService.CriarAsync(pedido.ParaModelo(), veterinarioId);
 
         var local = new Uri("/registos-clinicos/" + registo.Id.ToString(CultureInfo.InvariantCulture), UriKind.Relative);
 
-        return Created(local, registo);
+        return Created(local, registo.ParaDto());
     }
 
     /// <summary>EP-032 — Atualizar registo clínico (só Veterinário).</summary>
@@ -80,6 +82,7 @@ public sealed class RegistosClinicosController : ControllerBase
     /// <response code="403">Perfil sem permissão ou registo de outro Veterinário.</response>
     /// <response code="404">Registo inexistente.</response>
     [HttpPut("{id:int}")]
+
     // Soma-se ao [Authorize] do controlador: o Auxiliar Veterinário não altera registos.
     [Authorize(Policy = PoliticasAutorizacao.Veterinario)]
     [ProducesResponseType<RegistoClinicoDto>(StatusCodes.Status200OK)]
@@ -91,7 +94,8 @@ public sealed class RegistosClinicosController : ControllerBase
     {
         var veterinarioId = User.ObterVeterinarioId() ?? throw new ForbiddenException(MensagemSemVeterinario);
 
-        return Ok(await _registosClinicosService.AtualizarAsync(id, pedido, veterinarioId));
+        var resultado = await _registosClinicosService.AtualizarAsync(id, pedido.ParaModelo(), veterinarioId);
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-033 — Consultar registo clínico (Veterinário e Auxiliar Veterinário).</summary>
@@ -110,7 +114,8 @@ public sealed class RegistosClinicosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RegistoClinicoDto>> Obter(int id)
     {
-        return Ok(await _registosClinicosService.ObterAsync(id));
+        var resultado = await _registosClinicosService.ObterAsync(id);
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-034 — Consultar histórico clínico do paciente (Veterinário e Auxiliar Veterinário).</summary>
@@ -133,6 +138,7 @@ public sealed class RegistosClinicosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<HistoricoClinicoDto>> ObterHistorico(int id, [FromQuery] HistoricoClinicoQuery query)
     {
-        return Ok(await _registosClinicosService.ObterHistoricoAsync(id, query));
+        var resultado = await _registosClinicosService.ObterHistoricoAsync(id, query.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 }

@@ -1,7 +1,7 @@
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -28,7 +28,7 @@ public class AtualizarEstadoConsultaServiceTests
         var versaoAtual = new byte[]
         {
         0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x07, 0xD2
+        0x00, 0x00, 0x07, 0xD2,
         };
 
         var id = await AdicionarMarcacaoAsync(
@@ -43,9 +43,9 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<PreconditionFailedException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
-                    Estado = EstadosConsulta.Confirmada
+                    Estado = EstadosConsulta.Confirmada,
                 },
                 "\"AAAAAAAAB9E=\""));
 
@@ -58,7 +58,6 @@ public class AtualizarEstadoConsultaServiceTests
     }
 
     // ----- I074 / EP-027 — Atualizar estado -----
-
     [Fact(DisplayName = "I074 — EP-027 altera Pendente para Confirmada")]
     public async Task AtualizarEstadoGravaTransicaoValida()
     {
@@ -75,9 +74,9 @@ public class AtualizarEstadoConsultaServiceTests
 
         await CriarServico(db).AtualizarEstadoAsync(
             id,
-            new UpdateEstadoConsultaDto
+            new AlteracaoEstadoConsulta
             {
-                Estado = EstadosConsulta.Confirmada
+                Estado = EstadosConsulta.Confirmada,
             },
             null);
 
@@ -110,9 +109,9 @@ public class AtualizarEstadoConsultaServiceTests
         await Assert.ThrowsAsync<UnprocessableEntityException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
-                    Estado = EstadosConsulta.Realizada
+                    Estado = EstadosConsulta.Realizada,
                 },
                 null));
 
@@ -142,12 +141,12 @@ public class AtualizarEstadoConsultaServiceTests
             30,
             EstadosConsulta.Pendente);
 
-        await Assert.ThrowsAsync<ArgumentException>(
+        await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 id,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
-                    Estado = estado
+                    Estado = estado,
                 },
                 null));
     }
@@ -157,18 +156,102 @@ public class AtualizarEstadoConsultaServiceTests
     {
         using var db = AjudaBaseDados.CriarContexto();
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).AtualizarEstadoAsync(
                 999,
-                new UpdateEstadoConsultaDto
+                new AlteracaoEstadoConsulta
                 {
-                    Estado = EstadosConsulta.Confirmada
+                    Estado = EstadosConsulta.Confirmada,
                 },
                 null));
     }
 
-    // ----- Auxiliares -----
+    [Fact(DisplayName = "I074 — EP-027 guarda a observação sem espaços nas pontas; a alteração seguinte substitui-a e vazia fica sem observação")]
+    public async Task AtualizarEstadoGuardaAObservacao()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
 
+        var id = await AdicionarMarcacaoAsync(
+            db,
+            d.AnimalA1,
+            d.VetA,
+            "2026-10-15T09:00:00Z",
+            30,
+            EstadosConsulta.Pendente);
+
+        await CriarServico(db).AtualizarEstadoAsync(
+            id,
+            new AlteracaoEstadoConsulta
+            {
+                Estado = EstadosConsulta.Confirmada,
+                Observacao = "  Confirmada por telefone.  ",
+            },
+            null);
+
+        Assert.Equal(
+            "Confirmada por telefone.",
+            (await db.Marcacoes.AsNoTracking().SingleAsync(m => m.Id == id)).Observacao);
+
+        // EP-024 devolve a observação no detalhe da marcação.
+        Assert.Equal(
+            "Confirmada por telefone.",
+            (await CriarServico(db).ObterConsultaAsync(id, AcessoConsultas.Rececionista)).Consulta.Observacao);
+
+        await CriarServico(db).AtualizarEstadoAsync(
+            id,
+            new AlteracaoEstadoConsulta
+            {
+                Estado = EstadosConsulta.Cancelada,
+                Observacao = "   ",
+            },
+            null);
+
+        var gravada = await db.Marcacoes.AsNoTracking()
+            .SingleAsync(m => m.Id == id);
+
+        Assert.Equal(
+            EstadosConsulta.Cancelada,
+            gravada.Estado);
+
+        Assert.Null(gravada.Observacao);
+    }
+
+    [Fact(DisplayName = "I074 — EP-027 recusa uma observação com mais de 500 caracteres (400) e não altera a marcação")]
+    public async Task ObservacaoDemasiadoLongaDevolve400()
+    {
+        using var db = AjudaBaseDados.CriarContexto();
+        var d = await CriarBaseAsync(db);
+
+        var id = await AdicionarMarcacaoAsync(
+            db,
+            d.AnimalA1,
+            d.VetA,
+            "2026-10-15T09:00:00Z",
+            30,
+            EstadosConsulta.Pendente);
+
+        await Assert.ThrowsAsync<ValidacaoException>(
+            () => CriarServico(db).AtualizarEstadoAsync(
+                id,
+                new AlteracaoEstadoConsulta
+                {
+                    Estado = EstadosConsulta.Confirmada,
+                    Observacao = new string('x', 501),
+                },
+                null));
+
+        var gravada = await db.Marcacoes.AsNoTracking()
+            .SingleAsync(m => m.Id == id);
+
+        Assert.Equal(
+            EstadosConsulta.Pendente,
+            gravada.Estado);
+
+        Assert.Null(gravada.Observacao);
+    }
+
+    // ----- Auxiliares -----
     private static ConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private static DateTime Utc(string texto) => DateTime.Parse(
@@ -201,7 +284,7 @@ public class AtualizarEstadoConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizadorCliente);
         await db.SaveChangesAsync();
@@ -211,7 +294,7 @@ public class AtualizarEstadoConsultaServiceTests
             UtilizadorId = utilizadorCliente.Id,
             Nome = "Joana Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -221,14 +304,14 @@ public class AtualizarEstadoConsultaServiceTests
             ClienteId = cliente.Id,
             Nome = "Bobi",
             EspecieId = especie.Id,
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         var animalA2 = new Paciente
         {
             ClienteId = cliente.Id,
             Nome = "Mia",
             EspecieId = especie.Id,
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         };
         db.Pacientes.AddRange(animalA1, animalA2);
         await db.SaveChangesAsync();
@@ -241,7 +324,7 @@ public class AtualizarEstadoConsultaServiceTests
         DiaSemana = dia,
         HoraAbertura = TimeOnly.Parse(abertura, CultureInfo.InvariantCulture),
         HoraFecho = TimeOnly.Parse(fecho, CultureInfo.InvariantCulture),
-        Ativo = true
+        Ativo = true,
     };
 
     private static async Task<int> AdicionarFuncionarioAsync(ClinicaDbContext db, string nome, string perfil)
@@ -252,7 +335,7 @@ public class AtualizarEstadoConsultaServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -260,7 +343,7 @@ public class AtualizarEstadoConsultaServiceTests
         db.Funcionarios.Add(new Funcionario
         {
             UtilizadorId = utilizador.Id,
-            Nome = nome
+            Nome = nome,
         });
         await db.SaveChangesAsync();
 
@@ -285,7 +368,7 @@ public class AtualizarEstadoConsultaServiceTests
             Estado = estado,
             CriadaPorId = 1,
             DataCriacao = Relogio.UtcDateTime,
-            RowVersion = rowVersion ?? new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }
+            RowVersion = rowVersion ?? new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 },
         };
 
         db.Marcacoes.Add(marcacao);

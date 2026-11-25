@@ -30,7 +30,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- EP-015 -----
-
     [Fact(DisplayName = "IT-EP015-01 — existem animais: 200 com envelope paginado, por ordem do nome")]
     public async Task ListarDevolveEnvelopePaginado()
     {
@@ -126,7 +125,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- EP-016 -----
-
     [Fact(DisplayName = "IT-EP016-01 — animal existente: 200 só com dados administrativos")]
     public async Task ObterFichaAdministrativa()
     {
@@ -188,7 +186,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- EP-017 -----
-
     [Fact(DisplayName = "IT-EP017-01 — dados válidos e Cliente existente: 201 com Location e o animal fica persistido")]
     public async Task RegistarAnimalValido()
     {
@@ -314,7 +311,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- EP-018 -----
-
     [Fact(DisplayName = "IT-EP018-01 — animal existente e dados válidos: 200 e as alterações ficam persistidas")]
     public async Task AtualizarAnimalValido()
     {
@@ -390,7 +386,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- 401 e 403 (contrato da API v02) -----
-
     [Theory(DisplayName = "I092 — EP-015 a EP-018: Administrador e Cliente recebem 403 e nada é alterado")]
     [InlineData("Administrador")]
     [InlineData("Cliente")]
@@ -450,7 +445,6 @@ public sealed class AnimaisEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static Dictionary<string, object?> Pedido(int clienteId, string nome) => new()
     {
         ["nome"] = nome,
@@ -459,7 +453,7 @@ public sealed class AnimaisEndpointsTests :
         ["sexo"] = "Macho",
         ["dataNascimento"] = "2022-05-10",
         ["peso"] = 25.40m,
-        ["clienteId"] = clienteId
+        ["clienteId"] = clienteId,
     };
 
     private static string DataFutura() =>
@@ -517,7 +511,7 @@ public sealed class AnimaisEndpointsTests :
                 Nome = string.Create(CultureInfo.InvariantCulture, $"Paginacao {i:D3}"),
                 EspecieId = especieId,
                 Sexo = "Desconhecido",
-                DataRegisto = DateTime.UtcNow
+                DataRegisto = DateTime.UtcNow,
             });
         }
 

@@ -1,5 +1,6 @@
+using ClinicaVeterinaria.Api.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,6 +39,7 @@ public sealed class MinhasVacinacoesController : ClienteAutenticadoControllerBas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MeuBoletimDto>> ObterBoletim(int id)
     {
-        return Ok(await _vacinacoesService.ObterBoletimDoClienteAsync(ClienteIdAutenticado, id));
+        var resultado = await _vacinacoesService.ObterBoletimDoClienteAsync(ClienteIdAutenticado, id);
+        return Ok(resultado.ParaDto());
     }
 }

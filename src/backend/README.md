@@ -222,7 +222,7 @@ Um pedido sem token válido recebe `401`; um perfil sem permissão recebe `403`.
 
 As contas de funcionário criadas em `POST /utilizadores` (EP-006) exigem uma palavra-passe com 8 a 128 caracteres e com pelo menos uma letra minúscula, uma letra maiúscula, um algarismo e um símbolo (o espaço não conta como símbolo). Uma palavra-passe fraca devolve `400`.
 
-O e-mail das contas de funcionário segue a regra R-EMAIL da Especificação de Testes Unitários (I028): até 256 caracteres, sem espaços, com um único `@`, parte local não vazia e domínio com pelo menos um ponto e sem partes vazias. A regra está em `EmailValidoAttribute`; um e-mail inválido devolve `400`.
+O e-mail segue uma única regra, a R-EMAIL da Especificação de Testes Unitários (I028), nas contas de funcionário (EP-006, EP-007), nos Clientes (EP-013, EP-014) e nos dados da clínica (EP-010): até 256 caracteres, sem espaços, com um único `@`, parte local não vazia e domínio com pelo menos um ponto e sem partes vazias. A regra está em `EmailValidoAttribute`; um e-mail inválido devolve `400`.
 
 A regra está em `PalavraPasseForteAttribute` (`ClinicaVeterinaria.Application/Validacao`) e aplica-se a um DTO com `[PalavraPasseForte]`. As palavras-passe são guardadas apenas como hash (`PasswordHasher` v3) e nenhuma resposta da API devolve o hash.
 
@@ -240,7 +240,7 @@ Regras verificadas em cada pedido:
 
 **Decisão sobre os tokens já emitidos (I066, critério 4):** o bloqueio e a mudança de perfil têm efeito imediato. Uma conta bloqueada deixa de iniciar sessão (EP-001 devolve `403`) e os tokens emitidos antes do bloqueio ou da mudança de perfil são rejeitados com `401` no pedido seguinte, porque cada pedido autenticado confirma o estado e o perfil atuais da conta (ver acima). Não é preciso revogar os tokens um a um na tabela `TokenRevogado`.
 
-**Divergência registada:** o campo `motivo` de EP-008 é aceite (até 500 caracteres), mas não é guardado, porque o Modelo de Dados (I016) não tem uma coluna para ele.
+**Motivo do bloqueio.** O campo opcional `motivo` de EP-008 (até 500 caracteres) fica guardado na coluna `Utilizador.MotivoBloqueio` (migração `ObservacaoEMotivoBloqueio`) e pode ser consultado em EP-005. Um motivo vazio ou só com espaços é guardado como `NULL`. Em pedidos simultâneos, o SQL Server só atualiza a conta enquanto estiver ativa. O primeiro bloqueio gravado devolve `204` e mantém o seu motivo. O pedido seguinte devolve `422`.
 
 ### Verificação manual
 
@@ -379,13 +379,11 @@ O estado `Pendente` não pode ser escolhido manualmente. Estados inexistentes de
 
 EP-026 e EP-027 suportam concorrência otimista através de `ETag`/`If-Match`. Um `If-Match` desatualizado devolve `412 Precondition Failed` sem alterar a marcação. Em caso de sucesso é emitido um novo `ETag`.
 
-### Divergência conhecida — `observacao` de EP-027
+### `observacao` de EP-027
 
-O corpo de EP-027 inclui o campo opcional `observacao`, representado por `UpdateEstadoConsultaDto.Observacao`.
+O corpo de EP-027 inclui o campo opcional `observacao` (até 500 caracteres; mais do que isso dá `400`), representado por `UpdateEstadoConsultaDto.Observacao`.
 
-O Modelo de Dados atualmente integrado e a entidade `Marcacao` não possuem, contudo, qualquer coluna ou propriedade destinada a persistir essa observação. Por esse motivo, a implementação atual aceita `observacao` no pedido para manter compatibilidade com o contrato de EP-027, mas o valor não é persistido nem devolvido posteriormente.
-
-Nesta Issue não foi criada qualquer alteração ao esquema nem migration para este campo. Caso a observação de mudança de estado deva ser persistente, essa decisão exige uma alteração explícita ao Modelo de Dados e respetiva tarefa de implementação/migração.
+A observação fica guardada na coluna `Marcacao.Observacao` (migração `ObservacaoEMotivoBloqueio`) e é devolvida no detalhe da marcação (EP-024). Cada alteração de estado aceite substitui a observação anterior. Uma observação vazia ou só com espaços é guardada como `NULL`.
 
 Os pedidos de verificação manual de EP-026 e EP-027 encontram-se na secção I074 de `ClinicaVeterinaria.Api.http`.
 
@@ -525,9 +523,7 @@ Os casos estão nos testes unitários `CalculadoraDisponibilidadeTests`, `Valida
 
 `POST /animais/{id}/vacinacoes` (EP-043) regista uma vacinação ou desparasitação e devolve `201` com a administração (`AdministracaoDto`) e o cabeçalho `Location: /animais/{id}/vacinacoes/{administracaoId}`. `GET /animais/{id}/vacinacoes` (EP-042) devolve o boletim do animal (`BoletimDto`). `PUT /animais/{id}/vacinacoes/{administracaoId}` atualiza uma administração (RF056; ver «Divergência» abaixo). As três operações são só do perfil Veterinário (política `Veterinario`): a Rececionista, o Auxiliar Veterinário, o Administrador e o Cliente recebem `403`. O Veterinário vem sempre da claim `veterinarioId` do token.
 
-```json
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
-```
+No exemplo executável da secção I082 do [HTTP Client](ClinicaVeterinaria.Api/ClinicaVeterinaria.Api.http), a desparasitação é registada com data de há 30 dias e um intervalo de 90 dias. A próxima data fica 60 dias à frente de hoje em Lisboa.
 
 - **400:** `tipo` em falta ou diferente de `Vacina`/`Desparasitacao`; `produto` ou `lote` em falta (texto só com espaços não conta) ou acima do tamanho das colunas (produto 150, lote 50); `dataAdministracao` em falta ou futura (hoje é aceite, em hora de Lisboa); `intervaloDias` indicado e fora de 1 a 32767.
 - **404:** animal inexistente.

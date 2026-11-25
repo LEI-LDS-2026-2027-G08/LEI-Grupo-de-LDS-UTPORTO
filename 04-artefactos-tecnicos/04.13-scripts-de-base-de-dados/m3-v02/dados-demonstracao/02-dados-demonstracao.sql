@@ -33,9 +33,9 @@
                     /projeto/00-indice-e-submissao/m3-credenciais-avaliacao-v01.md.
    Dados          : Fictícios. E-mails no domínio reservado .test (RFC 2606),
                     NIF e telefones fictícios; nenhum dado pessoal real.
-   Datas          : Fixas e em UTC, para que a reexecução nunca duplique dados.
-                    Marcações passadas (outubro de 2026) e futuras (novembro de
-                    2026), dentro do horário de funcionamento.
+   Datas          : As marcações de demonstração usam as datas dos cenários da
+                    agenda. O boletim usa datas relativas ao dia em Lisboa na
+                    primeira carga de cada registo.
    ============================================================================= */
 
 SET NOCOUNT ON;
@@ -236,16 +236,19 @@ SET @N = @@ROWCOUNT;
 PRINT CONCAT(N'[02] Prescricao: ', @N, N' linha(s) inserida(s).');
 
 /* --- 9. Boletim de vacinação e desparasitação (RF043 a RF047) --------------- */
+DECLARE @RegistoProfilaxiaUtc DATETIME2(0) = SYSUTCDATETIME();
+DECLARE @HojeProfilaxia DATE = CAST(@RegistoProfilaxiaUtc AT TIME ZONE 'UTC' AT TIME ZONE 'GMT Standard Time' AS DATE);
+
 INSERT INTO dbo.RegistoProfilaxia (PacienteId, VeterinarioId, MarcacaoId, Tipo, Produto, Lote, DataAdministracao, IntervaloDias, DataRegisto)
-SELECT v.PacienteId, @VetAna, v.MarcacaoId, v.Tipo, v.Produto, v.Lote, v.DataAdministracao, v.IntervaloDias, v.DataRegisto
+SELECT v.PacienteId, @VetAna, NULL, v.Tipo, v.Produto, v.Lote, DATEADD(DAY, v.DeslocamentoDias, @HojeProfilaxia), v.IntervaloDias, @RegistoProfilaxiaUtc
 FROM (VALUES
-    (@Bobi, CAST(NULL AS INT), N'Vacina',         N'Vacina antirrábica (fictícia)',     N'RB-2291', CAST('2025-10-14' AS DATE), CAST(365 AS SMALLINT), CAST('2025-10-14T10:00:00' AS DATETIME2(0))),
-    (@Bobi, @M1,               N'Vacina',         N'Vacina polivalente (fictícia)',     N'PV-1187', CAST('2026-10-14' AS DATE), CAST(365 AS SMALLINT), CAST('2026-10-14T10:10:00' AS DATETIME2(0))),
-    (@Bobi, @M1,               N'Desparasitacao', N'Desparasitante interno (fictício)', N'DP-0042', CAST('2026-10-14' AS DATE), CAST(90 AS SMALLINT),  CAST('2026-10-14T10:12:00' AS DATETIME2(0))),
-    (@Kiko, CAST(NULL AS INT), N'Desparasitacao', N'Desparasitante externo (fictício)', N'DE-0310', CAST('2026-08-01' AS DATE), NULL,                  CAST('2026-08-01T15:00:00' AS DATETIME2(0)))
-) AS v (PacienteId, MarcacaoId, Tipo, Produto, Lote, DataAdministracao, IntervaloDias, DataRegisto)
+    (@Bobi, N'Vacina',         N'Vacina antirrábica (fictícia)',     N'RB-2291', -400, 365),
+    (@Bobi, N'Vacina',         N'Vacina polivalente (fictícia)',     N'PV-1187',  -30, 365),
+    (@Bobi, N'Desparasitacao', N'Desparasitante interno (fictício)', N'DP-0042',  -30,  90),
+    (@Kiko, N'Desparasitacao', N'Desparasitante externo (fictício)', N'DE-0310',  -60, NULL)
+) AS v (PacienteId, Tipo, Produto, Lote, DeslocamentoDias, IntervaloDias)
 WHERE NOT EXISTS (SELECT 1 FROM dbo.RegistoProfilaxia AS x
-                  WHERE x.PacienteId = v.PacienteId AND x.Tipo = v.Tipo AND x.Produto = v.Produto AND x.DataAdministracao = v.DataAdministracao);
+                  WHERE x.PacienteId = v.PacienteId AND x.Tipo = v.Tipo AND x.Produto = v.Produto AND x.Lote = v.Lote);
 SET @N = @@ROWCOUNT;
 PRINT CONCAT(N'[02] RegistoProfilaxia: ', @N, N' linha(s) inserida(s).');
 

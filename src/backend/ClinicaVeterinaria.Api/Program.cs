@@ -12,7 +12,6 @@ var allowedOrigins =
     builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 
 // Add services to the container.
-
 builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -24,32 +23,22 @@ builder.Services.AddInfrastructure();
 // Falha no arranque se a secção Jwt estiver incompleta.
 builder.Services.AddAutenticacaoJwt(builder.Configuration);
 
-// Fim de sessão (EP-002) — I064: apaga periodicamente as revogações de tokens expirados.
+// Fim de sessão (EP-002) — I064: apaga periodicamente as revogações de "tokens" expirados.
 builder.Services.AddLimpezaTokensRevogados(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        if (allowedOrigins.Length > 0)
-        {
-            policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders(HeaderNames.ETag);
-        }
-        else
-        {
-            policy
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders(HeaderNames.ETag);
-        }
+        // Só as origens configuradas em Cors:AllowedOrigins; sem configuração.
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithExposedHeaders(HeaderNames.ETag);
     });
 });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -60,7 +49,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Introduza o token JWT."
+        Description = "Introduza o token JWT.",
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -72,10 +61,10 @@ builder.Services.AddSwaggerGen(options =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
             },
             Array.Empty<string>()
-        }
+        },
     });
 });
 
@@ -84,38 +73,34 @@ builder.Services.AddDbContext<ClinicaDbContext>(options =>
 
 var app = builder.Build();
 
-// Ambiente público de avaliação — I104: aplica as migrações da I062 no arranque
-// quando BaseDados:AplicarMigracoesNoArranque = true (só nas definições do Azure).
-// Nos restantes ambientes a base de dados continua a ser preparada à parte.
-// A base serverless em pausa demora cerca de 1 minuto a acordar e recusa as ligações
-// entretanto (erro transitório 40613): tenta de novo durante até 3 minutos.
 if (app.Configuration.GetValue<bool>("BaseDados:AplicarMigracoesNoArranque"))
 {
     var avisoBaseIndisponivel = LoggerMessage.Define<int>(
         LogLevel.Warning,
         new EventId(1, "BaseDadosIndisponivel"),
         "Base de dados indisponível ao aplicar as migrações (tentativa {Tentativa}); nova tentativa em 15 s.");
-
-    for (var tentativa = 1; ; tentativa++)
+    const int maxTentativas = 12;
+    for (var tentativa = 1; tentativa <= maxTentativas; tentativa++)
     {
         try
         {
             using var scope = app.Services.CreateScope();
-            scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.Migrate();
+            await scope.ServiceProvider.GetRequiredService<ClinicaDbContext>().Database.MigrateAsync();
             break;
         }
-        catch (Exception ex) when (tentativa < 12 && (ex is SqlException || ex.InnerException is SqlException))
+        catch (Exception ex) when (tentativa < maxTentativas && (ex is SqlException || ex.InnerException is SqlException))
         {
             avisoBaseIndisponivel(app.Logger, tentativa, ex);
-            Thread.Sleep(TimeSpan.FromSeconds(15));
+            await Task.Delay(TimeSpan.FromSeconds(15));
         }
     }
 }
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
-// O Swagger fica ativo em Development e, com Swagger:Ativo = true, no ambiente
+// O Swagger fica ativo em Development e, com Swagger: Ativo = true, no ambiente
 // público de avaliação (I104, critério 1: iniciar sessão pelo Swagger).
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Ativo"))
 {
@@ -133,6 +118,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
-
-public partial class Program { }
+await app.RunAsync();

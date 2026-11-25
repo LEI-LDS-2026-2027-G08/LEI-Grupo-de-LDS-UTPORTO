@@ -1,10 +1,11 @@
 using System.Reflection;
 using System.Security.Claims;
 using ClinicaVeterinaria.Api.Controllers;
+using ClinicaVeterinaria.Api.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Vacinacoes;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.UnitTests.Consultas;
 using ClinicaVeterinaria.UnitTests.Seguranca;
@@ -78,9 +79,9 @@ public class VacinacoesControllerTests
         var resposta = await controlador.ObterBoletim(3, query);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Boletim, ok.Value);
+        Assert.Equivalent(servico.Boletim, Assert.IsType<BoletimDto>(ok.Value), strict: true);
         Assert.Equal(3, servico.UltimoAnimalId);
-        Assert.Same(query, servico.UltimaQuery);
+        Assert.Equivalent(query, servico.UltimaQuery);
     }
 
     [Fact(DisplayName = "I082 — EP-043 devolve 201 com Location /animais/{id}/vacinacoes/{administracaoId} e usa o Veterinário do token")]
@@ -94,8 +95,8 @@ public class VacinacoesControllerTests
 
         var criado = Assert.IsType<CreatedResult>(resposta.Result);
         Assert.Equal("/animais/3/vacinacoes/22", criado.Location);
-        Assert.Same(servico.Administracao, criado.Value);
-        Assert.Same(pedido, servico.UltimoPedido);
+        Assert.Equivalent(servico.Administracao, Assert.IsType<AdministracaoDto>(criado.Value), strict: true);
+        Assert.Equivalent(pedido, servico.UltimoPedido);
         Assert.Equal(3, servico.UltimoAnimalId);
         Assert.Equal(4, servico.UltimoVeterinarioId);
     }
@@ -110,10 +111,10 @@ public class VacinacoesControllerTests
         var resposta = await controlador.Atualizar(3, 22, pedido);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.Administracao, ok.Value);
+        Assert.Equivalent(servico.Administracao, Assert.IsType<AdministracaoDto>(ok.Value), strict: true);
         Assert.Equal(3, servico.UltimoAnimalId);
         Assert.Equal(22, servico.UltimaAdministracaoId);
-        Assert.Same(pedido, servico.UltimoPedido);
+        Assert.Equivalent(pedido, servico.UltimoPedido);
         Assert.Equal(4, servico.UltimoVeterinarioId);
     }
 
@@ -134,13 +135,13 @@ public class VacinacoesControllerTests
         var servico = new VacinacoesServiceDeTeste();
         var controlador = new MinhasVacinacoesController(servico)
         {
-            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente, clienteId: 7))
+            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente, clienteId: 7)),
         };
 
         var resposta = await controlador.ObterBoletim(3);
 
         var ok = Assert.IsType<OkObjectResult>(resposta.Result);
-        Assert.Same(servico.MeuBoletim, ok.Value);
+        Assert.Equivalent(servico.MeuBoletim, Assert.IsType<MeuBoletimDto>(ok.Value), strict: true);
         Assert.Equal(7, servico.UltimoClienteId);
         Assert.Equal(3, servico.UltimoAnimalId);
     }
@@ -151,7 +152,7 @@ public class VacinacoesControllerTests
         var servico = new VacinacoesServiceDeTeste();
         var controlador = new MinhasVacinacoesController(servico)
         {
-            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente))
+            ControllerContext = Contexto(AjudaSeguranca.Principal(Perfis.Cliente)),
         };
 
         await Assert.ThrowsAsync<ForbiddenException>(() => controlador.ObterBoletim(3));
@@ -166,15 +167,15 @@ public class VacinacoesControllerTests
 
     private sealed class VacinacoesServiceDeTeste : IVacinacoesService
     {
-        public BoletimDto Boletim { get; } = new();
+        public BoletimProfilaxia Boletim { get; } = new();
 
-        public MeuBoletimDto MeuBoletim { get; } = new();
+        public BoletimDoCliente MeuBoletim { get; } = new();
 
-        public AdministracaoDto Administracao { get; } = new() { Id = 22, Tipo = "Vacina" };
+        public AdministracaoRegistada Administracao { get; } = new() { Id = 22, Tipo = "Vacina" };
 
-        public BoletimQuery? UltimaQuery { get; private set; }
+        public FiltroBoletim? UltimaQuery { get; private set; }
 
-        public UpdateAdministracaoDto? UltimoPedido { get; private set; }
+        public DadosAdministracao? UltimoPedido { get; private set; }
 
         public int? UltimoAnimalId { get; private set; }
 
@@ -184,7 +185,7 @@ public class VacinacoesControllerTests
 
         public int? UltimoClienteId { get; private set; }
 
-        public Task<BoletimDto> ObterBoletimAsync(int animalId, BoletimQuery query)
+        public Task<BoletimProfilaxia> ObterBoletimAsync(int animalId, FiltroBoletim query)
         {
             UltimoAnimalId = animalId;
             UltimaQuery = query;
@@ -192,7 +193,7 @@ public class VacinacoesControllerTests
             return Task.FromResult(Boletim);
         }
 
-        public Task<AdministracaoDto> RegistarAsync(int animalId, CreateAdministracaoDto pedido, int veterinarioId)
+        public Task<AdministracaoRegistada> RegistarAsync(int animalId, DadosAdministracao pedido, int veterinarioId)
         {
             UltimoAnimalId = animalId;
             UltimoPedido = pedido;
@@ -201,7 +202,7 @@ public class VacinacoesControllerTests
             return Task.FromResult(Administracao);
         }
 
-        public Task<AdministracaoDto> AtualizarAsync(int animalId, int administracaoId, UpdateAdministracaoDto pedido, int veterinarioId)
+        public Task<AdministracaoRegistada> AtualizarAsync(int animalId, int administracaoId, DadosAdministracao pedido, int veterinarioId)
         {
             UltimoAnimalId = animalId;
             UltimaAdministracaoId = administracaoId;
@@ -211,7 +212,7 @@ public class VacinacoesControllerTests
             return Task.FromResult(Administracao);
         }
 
-        public Task<MeuBoletimDto> ObterBoletimDoClienteAsync(int clienteId, int animalId)
+        public Task<BoletimDoCliente> ObterBoletimDoClienteAsync(int clienteId, int animalId)
         {
             UltimoClienteId = clienteId;
             UltimoAnimalId = animalId;

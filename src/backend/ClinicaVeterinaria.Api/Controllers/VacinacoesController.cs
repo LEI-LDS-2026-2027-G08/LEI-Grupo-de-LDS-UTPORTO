@@ -1,5 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Api.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -50,7 +51,8 @@ public sealed class VacinacoesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BoletimDto>> ObterBoletim(int id, [FromQuery] BoletimQuery query)
     {
-        return Ok(await _vacinacoesService.ObterBoletimAsync(id, query));
+        var resultado = await _vacinacoesService.ObterBoletimAsync(id, query.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-043 — Registar vacinação ou desparasitação.</summary>
@@ -74,14 +76,14 @@ public sealed class VacinacoesController : ControllerBase
     {
         var veterinarioId = User.ObterVeterinarioId() ?? throw new ForbiddenException(MensagemSemVeterinario);
 
-        var administracao = await _vacinacoesService.RegistarAsync(id, pedido, veterinarioId);
+        var administracao = await _vacinacoesService.RegistarAsync(id, pedido.ParaModelo(), veterinarioId);
 
         var local = new Uri(
             "/animais/" + id.ToString(CultureInfo.InvariantCulture)
             + "/vacinacoes/" + administracao.Id.ToString(CultureInfo.InvariantCulture),
             UriKind.Relative);
 
-        return Created(local, administracao);
+        return Created(local, administracao.ParaDto());
     }
 
     /// <summary>RF056 — Atualizar vacinação ou desparasitação (I082, critério 4).</summary>
@@ -105,6 +107,7 @@ public sealed class VacinacoesController : ControllerBase
     {
         var veterinarioId = User.ObterVeterinarioId() ?? throw new ForbiddenException(MensagemSemVeterinario);
 
-        return Ok(await _vacinacoesService.AtualizarAsync(id, administracaoId, pedido, veterinarioId));
+        var resultado = await _vacinacoesService.AtualizarAsync(id, administracaoId, pedido.ParaModelo(), veterinarioId);
+        return Ok(resultado.ParaDto());
     }
 }

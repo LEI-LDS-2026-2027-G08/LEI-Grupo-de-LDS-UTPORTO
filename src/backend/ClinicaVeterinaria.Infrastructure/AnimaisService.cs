@@ -1,7 +1,7 @@
-using ClinicaVeterinaria.Application.DTOs.Animais;
-using ClinicaVeterinaria.Application.DTOs.Comum;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Animais;
+using ClinicaVeterinaria.Application.Models.Comum;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,8 +29,8 @@ public sealed class AnimaisService : IAnimaisService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<AnimalListItemDto>> PesquisarAsync(
-        AnimalFiltroQuery filtro)
+    public async Task<PaginaResultados<ResumoAnimal>> PesquisarAsync(
+        PesquisaAnimais filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -48,7 +48,7 @@ public sealed class AnimaisService : IAnimaisService
                 Raca = _db.Racas
                     .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
                     .Select(r => r.Nome)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
             };
 
         if (filtro.ClienteId.HasValue)
@@ -76,51 +76,60 @@ public sealed class AnimaisService : IAnimaisService
 
         var total = await consulta.CountAsync();
 
-        var dados = await consulta
-            .OrderBy(x => x.Paciente.Nome)
-            .ThenBy(x => x.Paciente.Id)
-            .Skip((filtro.Pagina - 1) * filtro.Tamanho)
-            .Take(filtro.Tamanho)
-            .Select(x => new
-            {
-                x.Paciente.Id,
-                x.Paciente.Nome,
-                x.Especie,
-                x.Raca,
-                x.Paciente.DataNascimento,
-                x.Paciente.Peso,
-                ClienteId = x.Cliente.Id,
-                ClienteNome = x.Cliente.Nome
-            })
-            .ToListAsync();
+        // Em long, como em EP-004: com uma página muito alta, (pagina - 1) * tamanho ultrapassava
+        // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
+        var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        var itens = dados
-            .Select(x => new AnimalListItemDto
-            {
-                Id = x.Id,
-                Nome = x.Nome,
-                Especie = x.Especie,
-                Raca = x.Raca,
-                IdadeAnos = CalcularIdade(x.DataNascimento),
-                Peso = x.Peso,
-                Cliente = new ClienteResumoDto
+        List<ResumoAnimal> itens = [];
+
+        if (salto < total)
+        {
+            var dados = await consulta
+                .OrderBy(x => x.Paciente.Nome)
+                .ThenBy(x => x.Paciente.Id)
+                .Skip((int)salto)
+                .Take(filtro.Tamanho)
+                .Select(x => new
                 {
-                    Id = x.ClienteId,
-                    Nome = x.ClienteNome
-                }
-            })
-            .ToList();
+                    x.Paciente.Id,
+                    x.Paciente.Nome,
+                    x.Especie,
+                    x.Raca,
+                    x.Paciente.DataNascimento,
+                    x.Paciente.Peso,
+                    ClienteId = x.Cliente.Id,
+                    ClienteNome = x.Cliente.Nome,
+                })
+                .ToListAsync();
 
-        return new PagedResultDto<AnimalListItemDto>
+            itens = dados
+                .Select(x => new ResumoAnimal
+                {
+                    Id = x.Id,
+                    Nome = x.Nome,
+                    Especie = x.Especie,
+                    Raca = x.Raca,
+                    IdadeAnos = CalcularIdade(x.DataNascimento),
+                    Peso = x.Peso,
+                    Cliente = new DonoAnimal
+                    {
+                        Id = x.ClienteId,
+                        Nome = x.ClienteNome,
+                    },
+                })
+                .ToList();
+        }
+
+        return new PaginaResultados<ResumoAnimal>
         {
             Itens = itens,
             Pagina = filtro.Pagina,
             Tamanho = filtro.Tamanho,
-            Total = total
+            Total = total,
         };
     }
 
-    public async Task<AnimalDto> ObterAsync(int id)
+    public async Task<DetalheAnimal> ObterAsync(int id)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -137,12 +146,12 @@ public sealed class AnimaisService : IAnimaisService
                 Raca = _db.Racas
                     .Where(r => r.Id == p.RacaId && r.EspecieId == p.EspecieId)
                     .Select(r => r.Nome)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
             })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
-        return new AnimalDto
+        return new DetalheAnimal
         {
             Id = dados.Paciente.Id,
             Nome = dados.Paciente.Nome,
@@ -152,17 +161,17 @@ public sealed class AnimaisService : IAnimaisService
             DataNascimento = dados.Paciente.DataNascimento,
             IdadeAnos = CalcularIdade(dados.Paciente.DataNascimento),
             Peso = dados.Paciente.Peso,
-            Cliente = new ClienteDetalheDto
+            Cliente = new ContactoDonoAnimal
             {
                 Id = dados.Cliente.Id,
                 Nome = dados.Cliente.Nome,
-                Telefone = dados.Cliente.Telefone
+                Telefone = dados.Cliente.Telefone,
             },
-            AtualizadoEm = dados.Paciente.DataUltimaAlteracao
+            AtualizadoEm = dados.Paciente.DataUltimaAlteracao,
         };
     }
 
-    public async Task<AnimalDto> CriarAsync(CreateAnimalDto pedido)
+    public async Task<DetalheAnimal> CriarAsync(DadosAnimal pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
@@ -173,12 +182,12 @@ public sealed class AnimaisService : IAnimaisService
 
         if (!clienteExiste)
         {
-            throw new KeyNotFoundException(MensagemClienteNaoEncontrado);
+            throw new NaoEncontradoException(MensagemClienteNaoEncontrado);
         }
 
         var especie = await _db.Especies
             .FirstOrDefaultAsync(e => e.Nome == pedido.Especie.Trim())
-            ?? throw new ArgumentException("A espécie indicada não existe.");
+            ?? throw new ValidacaoException("A espécie indicada não existe.");
 
         int? racaId = null;
 
@@ -188,7 +197,7 @@ public sealed class AnimaisService : IAnimaisService
                 .FirstOrDefaultAsync(r =>
                     r.EspecieId == especie.Id
                     && r.Nome == pedido.Raca.Trim())
-                ?? throw new ArgumentException(
+                ?? throw new ValidacaoException(
                     "A raça indicada não existe para a espécie selecionada.");
 
             racaId = raca.Id;
@@ -205,7 +214,7 @@ public sealed class AnimaisService : IAnimaisService
             Sexo = pedido.Sexo,
             DataNascimento = pedido.DataNascimento,
             Peso = pedido.Peso,
-            DataRegisto = agora
+            DataRegisto = agora,
         };
 
         _db.Pacientes.Add(paciente);
@@ -214,15 +223,15 @@ public sealed class AnimaisService : IAnimaisService
         return await ObterAsync(paciente.Id);
     }
 
-    public async Task<AnimalDto> AtualizarAsync(
+    public async Task<DetalheAnimal> AtualizarAsync(
         int id,
-        UpdateAnimalDto pedido)
+        DadosAnimal pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
         var paciente = await _db.Pacientes
             .FirstOrDefaultAsync(p => p.Id == id)
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         ValidarDadosAdministrativos(pedido);
 
@@ -231,12 +240,12 @@ public sealed class AnimaisService : IAnimaisService
 
         if (!clienteExiste)
         {
-            throw new KeyNotFoundException(MensagemClienteNaoEncontrado);
+            throw new NaoEncontradoException(MensagemClienteNaoEncontrado);
         }
 
         var especie = await _db.Especies
             .FirstOrDefaultAsync(e => e.Nome == pedido.Especie.Trim())
-            ?? throw new ArgumentException("A espécie indicada não existe.");
+            ?? throw new ValidacaoException("A espécie indicada não existe.");
 
         int? racaId = null;
 
@@ -246,7 +255,7 @@ public sealed class AnimaisService : IAnimaisService
                 .FirstOrDefaultAsync(r =>
                     r.EspecieId == especie.Id
                     && r.Nome == pedido.Raca.Trim())
-                ?? throw new ArgumentException(
+                ?? throw new ValidacaoException(
                     "A raça indicada não existe para a espécie selecionada.");
 
             racaId = raca.Id;
@@ -265,7 +274,8 @@ public sealed class AnimaisService : IAnimaisService
 
         return await ObterAsync(paciente.Id);
     }
-    public async Task<IReadOnlyList<MeuAnimalListItemDto>> ListarDoClienteAsync(int clienteId)
+
+    public async Task<IReadOnlyList<ResumoMeuAnimal>> ListarDoClienteAsync(int clienteId)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -283,24 +293,24 @@ public sealed class AnimaisService : IAnimaisService
                     .Select(r => r.Nome)
                     .FirstOrDefault(),
                 p.DataNascimento,
-                p.Peso
+                p.Peso,
             })
             .ToListAsync();
 
         return dados
-            .Select(x => new MeuAnimalListItemDto
+            .Select(x => new ResumoMeuAnimal
             {
                 Id = x.Id,
                 Nome = x.Nome,
                 Especie = x.Especie,
                 Raca = x.Raca,
                 IdadeAnos = CalcularIdade(x.DataNascimento),
-                Peso = x.Peso
+                Peso = x.Peso,
             })
             .ToList();
     }
 
-    public async Task<MeuAnimalDto> ObterDoClienteAsync(int clienteId, int animalId)
+    public async Task<DetalheMeuAnimal> ObterDoClienteAsync(int clienteId, int animalId)
     {
         var dados = await (
             from p in _db.Pacientes.AsNoTracking()
@@ -319,10 +329,10 @@ public sealed class AnimaisService : IAnimaisService
                     .FirstOrDefault(),
                 p.Sexo,
                 p.DataNascimento,
-                p.Peso
+                p.Peso,
             })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // O dono é comparado com o Cliente do token; nenhum dado do animal
         // é devolvido quando pertence a outro Cliente (RNF002).
@@ -331,7 +341,7 @@ public sealed class AnimaisService : IAnimaisService
             throw new ForbiddenException(MensagemAnimalDeOutroCliente);
         }
 
-        return new MeuAnimalDto
+        return new DetalheMeuAnimal
         {
             Id = dados.Id,
             Nome = dados.Nome,
@@ -340,7 +350,7 @@ public sealed class AnimaisService : IAnimaisService
             Sexo = dados.Sexo,
             DataNascimento = dados.DataNascimento,
             IdadeAnos = CalcularIdade(dados.DataNascimento),
-            Peso = dados.Peso
+            Peso = dados.Peso,
         };
     }
 
@@ -363,11 +373,12 @@ public sealed class AnimaisService : IAnimaisService
 
         return idade;
     }
-    private void ValidarDadosAdministrativos(UpdateAnimalDto pedido)
+
+    private void ValidarDadosAdministrativos(DadosAnimal pedido)
     {
         if (pedido.Peso.HasValue && pedido.Peso.Value <= 0)
         {
-            throw new ArgumentException("O peso deve ser superior a 0.");
+            throw new ValidacaoException("O peso deve ser superior a 0.");
         }
 
         if (pedido.DataNascimento.HasValue)
@@ -377,7 +388,7 @@ public sealed class AnimaisService : IAnimaisService
 
             if (pedido.DataNascimento.Value > hoje)
             {
-                throw new ArgumentException(
+                throw new ValidacaoException(
                     "A data de nascimento não pode ser futura.");
             }
         }

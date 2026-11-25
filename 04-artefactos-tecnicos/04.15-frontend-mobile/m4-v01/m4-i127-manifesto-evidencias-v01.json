@@ -1,0 +1,72 @@
+[
+  {
+    "original": "Screenshot_20261123_001837.png",
+    "copia": "imagens/local/01-joao-animais.png",
+    "sha256": "d57689887d349910f5909626b3f36dac30a6006d5598baff34904926ae879112"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.18.55.png",
+    "copia": "imagens/local/02-joao-bobi-detalhe.png",
+    "sha256": "f7b748e072884d6f07fc1fa5429334fd8b5c6613f29bd289a2255566c484e049"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.19.04.png",
+    "copia": "imagens/local/03-joao-bobi-boletim.png",
+    "sha256": "4914c87ac26edeaeda1a961beab328d65fed2e1d04977dc72cd3e461fb4efe51"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.19.21.png",
+    "copia": "imagens/local/04-joao-bobi-proxima.png",
+    "sha256": "f0d87b9af6d375c232ab29a6cd6f05f22fbc4ebd4f683ad480532c5980d63cf6"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.20.12.png",
+    "copia": "imagens/local/05-maria-animais.png",
+    "sha256": "00d8724766c8b19f9b3b0bf6ac342c235022a7d0f97f865bd57cbb6cc8afca76"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.20.19.png",
+    "copia": "imagens/local/06-maria-kiko-detalhe.png",
+    "sha256": "4678c76407b477ac5d91714c5908ba1a20ac6cdbf137305c9d8d861f05ec2a1e"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.20.30.png",
+    "copia": "imagens/local/07-maria-kiko-boletim.png",
+    "sha256": "12c9dee1e489a9f3f1226800dbf0822fe6efb5fcd84b68e6fe1f6720509da648"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.20.46.png",
+    "copia": "imagens/local/08-maria-kiko-proxima.png",
+    "sha256": "492746d32be61a04181f7bafce52bddcc454f3973a56ca71941d2b05291aebe2"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.33.48.png",
+    "copia": "imagens/publico/09-api-joao-animais.png",
+    "sha256": "4bd950b69c7fe6adeb53736ae02f0b4ff2a535eca03213ab4a12e65ad8e59403"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.34.56.png",
+    "copia": "imagens/publico/10-api-maria-animais.png",
+    "sha256": "434d9f6336e0232697d957738e7d262f41f9276ccf6c43e23ce267553e65e17d"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.37.06.png",
+    "copia": "imagens/publico/11-joao-animais.png",
+    "sha256": "073e1d04003c18116d3ea2f8973fca69d968417342dd7aea16b03881b57efd17"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.37.22.png",
+    "copia": "imagens/publico/12-joao-bobi-detalhe.png",
+    "sha256": "bbc82f8bd2890922feb40ec695970a8408bf8253ca07739ab598e351efc4a0f6"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.37.29.png",
+    "copia": "imagens/publico/13-joao-bobi-boletim.png",
+    "sha256": "6b1bc98dae897968d22c3ba0eadd378a09d92fcf2728bd80eebdc9478eebcbe5"
+  },
+  {
+    "original": "Captura de ecrã 2026-11-23, às 00.37.45.png",
+    "copia": "imagens/publico/14-joao-bobi-proximas-vazias.png",
+    "sha256": "60509fa92ba90928b3c9ae9564b08a00d27802d3fda88bc4c3c1b9922f63c406"
+  }
+]

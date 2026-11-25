@@ -1,0 +1,22 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Ficheiros do Android Studio (cada developer tem os seus)
+/.idea
+
+# Evidências locais das execuções instrumentadas (publicadas separadamente).
+/tests/sistema/resultados/
+/tests/sistema/__pycache__/

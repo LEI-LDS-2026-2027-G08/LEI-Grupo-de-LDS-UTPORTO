@@ -1214,10 +1214,10 @@ Authorization: Bearer {{loginVet.response.body.$.token}}
 # só dos seus animais. Usa "passwordVet" (vet.ana), "passwordCliente" (João),
 # "passwordClienteMaria" (Maria), "passwordRececao", "passwordAux" e
 # "passwordAdmin" do http-client.env.json.user.
-# Numa base acabada de repor com os dados da I061: Bobi = 1 (João; vacinas de
-# 2025-10-14 e 2026-10-14 e desparasitante de 2026-10-14 com 90 dias), Kiko = 2
-# (Maria; desparasitante de 2026-08-01, sem intervalo) e Mia = 3 (João, sem
-# registos). Confirmar em EP-015 se os ids forem outros.
+# Numa base acabada de repor com os dados da I061: Bobi = 1 (João, duas
+# vacinas e uma desparasitação), Kiko = 2 (Maria, desparasitação sem intervalo)
+# e Mia = 3 (João, sem registos). Confirmar em EP-015 se os ids forem outros.
+# As datas dos pedidos são calculadas em relação ao dia em Lisboa ao executar.
 # Executar os logins primeiro (Rececionista: secção I068; Auxiliar: secção
 # I069; Maria: secção I070; Administrador e João: início do ficheiro) e os
 # pedidos pela ordem: a atualização usa a administração criada no 201.
@@ -1258,80 +1258,90 @@ Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 GET {{host}}/animais/999999/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 
-### EP-043 · 201 — desparasitação da Mia com 90 dias (dataProximaPrevista = 2027-01-12)
+### EP-043 · 201 — desparasitação da Mia com 90 dias (próxima daqui a 60 dias)
 # @name registarDesparasitacao
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-14", "intervaloDias": 90 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{vacDataPassada}}", "intervaloDias": 90 }
 
 ### EP-043 · 201 — vacina da Mia sem intervalo (dataProximaPrevista = null)
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina felina (fictícia)", "lote": "VF-0001", "dataAdministracao": "2026-10-20" }
+{ "tipo": "Vacina", "produto": "Vacina felina (fictícia)", "lote": "VF-0001", "dataAdministracao": "{{vacDataAtualizacao}}" }
 
 ### EP-043 · 400 — lote em falta
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina X", "dataAdministracao": "2026-10-14" }
+{ "tipo": "Vacina", "produto": "Vacina X", "dataAdministracao": "{{vacDataPassada}}" }
 
 ### EP-043 · 400 — data de administração futura
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2099-01-01" }
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "{{vacDataFutura}}" }
 
 ### EP-043 · 400 — intervaloDias = 0
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14", "intervaloDias": 0 }
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "{{vacDataPassada}}", "intervaloDias": 0 }
 
 ### EP-043 · 404 — animal inexistente
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/999999/vacinacoes
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "{{vacDataPassada}}" }
 
-### RF056 · 200 — atualizar a desparasitação criada: nova data e 30 dias (próxima 2026-11-19)
+### RF056 · 200 — atualizar a desparasitação criada: nova data e 30 dias (próxima daqui a 20 dias)
+< scripts/datas-vacinacao.js
 PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{vacDataAtualizacao}}", "intervaloDias": 30 }
 
 ### RF056 · 400 — intervaloDias negativo
+< scripts/datas-vacinacao.js
 PUT {{host}}/animais/{{vacMia}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": -30 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{vacDataAtualizacao}}", "intervaloDias": -30 }
 
 ### RF056 · 404 — a administração não é deste animal (pedida pelo Bobi)
+< scripts/datas-vacinacao.js
 PUT {{host}}/animais/{{vacBobi}}/vacinacoes/{{registarDesparasitacao.response.body.$.id}}
 Authorization: Bearer {{loginVetVacinas.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "2026-10-20", "intervaloDias": 30 }
+{ "tipo": "Desparasitacao", "produto": "Desparasitante interno Y", "lote": "DP-0042", "dataAdministracao": "{{vacDataAtualizacao}}", "intervaloDias": 30 }
 
 ### EP-042 · 403 — Rececionista
 GET {{host}}/animais/{{vacBobi}}/vacinacoes
 Authorization: Bearer {{loginRececao.response.body.$.token}}
 
 ### EP-043 · 403 — Auxiliar Veterinário
+< scripts/datas-vacinacao.js
 POST {{host}}/animais/{{vacMia}}/vacinacoes
 Authorization: Bearer {{loginAux.response.body.$.token}}
 Content-Type: application/json
 
-{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "2026-10-14" }
+{ "tipo": "Vacina", "produto": "Vacina X", "lote": "L1", "dataAdministracao": "{{vacDataPassada}}" }
 
 ### EP-042 · 403 — Administrador
 GET {{host}}/animais/{{vacBobi}}/vacinacoes

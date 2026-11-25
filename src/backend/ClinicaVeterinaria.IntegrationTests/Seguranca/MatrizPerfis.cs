@@ -46,6 +46,7 @@ public static class MatrizPerfis
 
     public static readonly IReadOnlyList<Operacao> Operacoes =
     [
+
         // F001 — Autenticação, utilizadores, clínica e Clientes
         new("EP-001", HttpMethod.Post, "auth/login", true),
         new("EP-002", HttpMethod.Post, "auth/logout", false, A, R, V, X, C),

@@ -242,7 +242,7 @@ public sealed class MeusAnimaisEndpointsTests :
             Email = email,
             PasswordHash = "nao-usado-neste-teste",
             Perfil = "Cliente",
-            Estado = "Ativo"
+            Estado = "Ativo",
         };
 
         db.Utilizadores.Add(utilizador);
@@ -252,7 +252,7 @@ public sealed class MeusAnimaisEndpointsTests :
         {
             UtilizadorId = utilizador.Id,
             Nome = DadosTeste.NomeUnico("Cliente"),
-            Telefone = "960000099"
+            Telefone = "960000099",
         });
 
         await db.SaveChangesAsync();

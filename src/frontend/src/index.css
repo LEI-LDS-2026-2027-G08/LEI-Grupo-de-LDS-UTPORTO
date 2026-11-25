@@ -1,0 +1,458 @@
+:root {
+  --cor-texto: #1f2937;
+  --cor-fundo: #f5f6f8;
+  --cor-cartao: #ffffff;
+  --cor-borda: #d8dce3;
+  --cor-primaria: #0f766e;
+  --cor-primaria-escura: #0b5a54;
+  --cor-erro: #b42318;
+  --cor-erro-fundo: #fef3f2;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--cor-primaria);
+}
+
+button {
+  background: var(--cor-primaria);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--cor-primaria-escura);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Formulários */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.campo input {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.campo input[aria-invalid="true"] {
+  border-color: var(--cor-erro);
+}
+
+.campo-erro {
+  margin: 0;
+  color: var(--cor-erro);
+  font-size: 0.875rem;
+}
+
+.form-erro {
+  background: var(--cor-erro-fundo);
+  color: var(--cor-erro);
+  border: 1px solid var(--cor-erro);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Tabelas */
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--cor-cartao);
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela-vazia {
+  color: #667085;
+}
+
+/* Login */
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-cartao {
+  width: 100%;
+  max-width: 360px;
+  background: var(--cor-cartao);
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.login-cartao button {
+  width: 100%;
+}
+
+/* Layout autenticado */
+.app-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "cabecalho cabecalho"
+    "menu conteudo";
+}
+
+.app-cabecalho {
+  grid-area: cabecalho;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+.app-utilizador {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-utilizador button {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.app-menu {
+  grid-area: menu;
+  background: var(--cor-cartao);
+  border-right: 1px solid var(--cor-borda);
+  padding: 1rem 0;
+}
+
+.app-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-menu a {
+  display: block;
+  padding: 0.6rem 1.25rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-menu a.active {
+  background: #e6f4f2;
+  color: var(--cor-primaria-escura);
+  font-weight: 600;
+}
+
+.app-conteudo {
+  grid-area: conteudo;
+  padding: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "cabecalho"
+      "menu"
+      "conteudo";
+  }
+}
+
+.aviso {
+  background: #fffaeb;
+  color: #93370d;
+  border: 1px solid #f0c36d;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Páginas de gestão (W02, W03) */
+.titulo-pagina {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.titulo-pagina h1 {
+  margin: 0;
+}
+
+a.botao {
+  display: inline-block;
+  background: var(--cor-primaria);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+}
+
+a.botao:hover {
+  background: var(--cor-primaria-escura);
+}
+
+button.secundario,
+a.botao.secundario {
+  background: transparent;
+  color: var(--cor-primaria);
+  border: 1px solid var(--cor-primaria);
+}
+
+button.secundario:hover:not(:disabled),
+a.botao.secundario:hover {
+  background: #e6f4f2;
+}
+
+button.perigo {
+  background: var(--cor-erro);
+}
+
+button.perigo:hover:not(:disabled) {
+  background: #912018;
+}
+
+button.ligacao {
+  background: none;
+  color: var(--cor-primaria);
+  padding: 0;
+  text-decoration: underline;
+}
+
+button.ligacao:hover:not(:disabled) {
+  background: none;
+}
+
+button.ligacao.perigo-texto {
+  color: var(--cor-erro);
+}
+
+.campo select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.campo-caixa {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filtros .campo {
+  margin-bottom: 0;
+}
+
+.formulario {
+  max-width: 480px;
+  background: var(--cor-cartao);
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.acoes,
+.acoes-linha,
+.paginacao {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.paginacao {
+  margin-top: 1rem;
+}
+
+.acoes-linha a,
+.acoes-linha button {
+  white-space: nowrap;
+}
+
+.confirmacao {
+  max-width: 480px;
+  background: var(--cor-erro-fundo);
+  border: 1px solid var(--cor-erro);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.confirmacao p {
+  margin-top: 0;
+}
+
+.sucesso {
+  background: #ecfdf3;
+  color: #05603a;
+  border: 1px solid #6ce9a6;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.detalhe-conta {
+  color: #475467;
+}
+
+/* W06 — Clínica e horários */
+.formulario-largo {
+  max-width: 720px;
+}
+
+.grupo {
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+.grupo legend {
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+
+.horario-dia {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.horario-dia:last-child {
+  border-bottom: 0;
+}
+
+.horario-dia-nome {
+  flex: 0 0 6rem;
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+}
+
+.horario-periodos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.horario-periodo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.horario-periodo input[type="time"] {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.horario-encerrado {
+  margin: 0.35rem 0 0;
+  color: #475467;
+}
+
+.form-erro ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+/* W13 — Registo clínico da consulta (I115) */
+.campo textarea {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+.campo textarea[aria-invalid="true"] {
+  border-color: var(--cor-erro);
+}
+
+.campo .contador {
+  align-self: flex-end;
+  color: #667085;
+  font-size: 0.75rem;
+}
+
+.elemento-clinico {
+  border: 1px dashed var(--cor-borda);
+  border-radius: 8px;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.elemento-clinico legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+
+.grupo > button.secundario {
+  margin-bottom: 0.75rem;
+}
+
+/* W13 — Histórico clínico do paciente (I116) */
+.texto-clinico {
+  white-space: pre-wrap;
+}
+
+.detalhe-registo {
+  margin-top: 1.5rem;
+}
