@@ -19,34 +19,88 @@ import signal
 import socket
 import struct
 import subprocess
+import sys
 import threading
 import time
 import urllib.error
 import urllib.request
 import uuid
 import xml.etree.ElementTree as ET
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 MOBILE = Path(__file__).resolve().parents[2]
 ROOT = MOBILE.parents[1]
 SQL_DATA = ROOT / "04-artefactos-tecnicos/04.13-scripts-de-base-de-dados/m3-v02/dados-demonstracao/02-dados-demonstracao.sql"
 CLASS = "pt.ipp.estg.g08.clinica.sistema.FluxosClienteSistemaTest"
 PACKAGE = "pt.ipp.estg.g08.clinica"
+WINDOWS = os.name == "nt"
+
+
+def localizar_sdk():
+    configured = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
+    if configured:
+        return Path(configured).expanduser()
+    if WINDOWS:
+        local = Path(os.environ.get("LOCALAPPDATA", str(Path.home() / "AppData/Local")))
+        return local / "Android/Sdk"
+    if sys.platform == "darwin":
+        return Path.home() / "Library/Android/sdk"
+    return Path.home() / "Android/Sdk"
+
+
+def fuso_lisboa():
+    try:
+        return ZoneInfo("Europe/Lisbon")
+    except ZoneInfoNotFoundError as error:
+        raise RuntimeError(
+            "Faltam os dados do fuso Europe/Lisbon. Execute, com o mesmo Python dos testes: "
+            "python -m pip install tzdata. Depois repita a execução."
+        ) from error
+
+
+def terminar_arvore(process):
+    """Termina apenas a árvore de um processo iniciado por esta execução."""
+    if process is None or process.poll() is not None:
+        return
+    if WINDOWS:
+        result = subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                                capture_output=True, timeout=20)
+        if result.returncode and process.poll() is None:
+            raise RuntimeError(f"Não foi possível terminar a árvore do processo {process.pid}.")
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return
+    try:
+        process.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        if WINDOWS:
+            raise RuntimeError(f"O processo {process.pid} não terminou depois de taskkill.")
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait(timeout=15)
 
 
 class Ambiente:
     def __init__(self, args):
+        # Verificar antes de criar recursos: no Windows os dados IANA vêm de tzdata.
+        self.timezone = fuso_lisboa()
         self.args = args
         self.id = uuid.uuid4().hex[:12]
         self.name = "i137-" + self.id
         self.database = "I137_" + self.id
         self.output = MOBILE / "tests/sistema/resultados" / self.id
         self.output.mkdir(parents=True)
-        sdk = Path(os.environ.get("ANDROID_HOME", str(Path.home() / "Library/Android/sdk")))
-        self.adb = str(sdk / "platform-tools/adb")
-        self.emulator = str(sdk / "emulator/emulator")
+        sdk = localizar_sdk()
+        suffix = ".exe" if WINDOWS else ""
+        self.adb = str(sdk / ("platform-tools/adb" + suffix))
+        self.emulator = str(sdk / ("emulator/emulator" + suffix))
+        self.gradle_wrapper = str(MOBILE / ("gradlew.bat" if WINDOWS else "gradlew"))
         self.serial = args.serial or "emulator-5580"
-        self.api = self.emu = self.server = None
+        self.api = self.emu = self.gradle = self.server = None
         self.container = False
         self.tunnels = False
         self.sa = "Aa1!" + secrets.token_hex(20)
@@ -57,7 +111,8 @@ class Ambiente:
         )}
         self.private = [self.sa, self.key, self.control, *self.passwords.values()]
         self.env = {**os.environ, "ANDROID_HOME": str(sdk),
-                    "MSSQL_SA_PASSWORD": self.sa, "SQLCMDPASSWORD": self.sa}
+                    "MSSQL_SA_PASSWORD": self.sa, "SQLCMDPASSWORD": self.sa,
+                    "PYTHONIOENCODING": "utf-8"}
         self.repetitions = []
 
     def clean_text(self, value):
@@ -66,7 +121,8 @@ class Ambiente:
         return value
 
     def run(self, command, *, input=None, env=None, check=True):
-        result = subprocess.run(command, input=input, text=True, capture_output=True,
+        result = subprocess.run(command, input=input, text=True, encoding="utf-8", errors="replace",
+                                capture_output=True,
                                 env=env or self.env, cwd=ROOT)
         if check and result.returncode:
             raise RuntimeError(self.clean_text(result.stdout + result.stderr))
@@ -135,15 +191,15 @@ class Ambiente:
                        "Jwt__Key": self.key, "Jwt__Issuer": "I137", "Jwt__Audience": "I137",
                        "Jwt__ExpirationHours": "8", "ASPNETCORE_ENVIRONMENT": "Development",
                        "BaseDados__AplicarMigracoesNoArranque": "true"}
-        self.api_log = (self.output / "backend.log").open("w")
+        self.api_log = (self.output / "backend.log").open("w", encoding="utf-8")
         self.api = subprocess.Popen([
             "dotnet", "run", "--no-launch-profile", "--project",
             str(ROOT / "src/backend/ClinicaVeterinaria.Api"), "--urls", "http://127.0.0.1:5159"
         ], cwd=ROOT, env=environment, stdout=self.api_log, stderr=subprocess.STDOUT,
-            start_new_session=True)
+            start_new_session=not WINDOWS)
         self.until(lambda: self.api.poll() is None and self.api_request("/auth/me", expected=401) is not None,
                    240, "API com migrações aplicadas")
-        self.carga = dt.datetime.now(ZoneInfo("Europe/Lisbon")).date()
+        self.carga = dt.datetime.now(self.timezone).date()
         self.sql(SQL_DATA.read_text(encoding="utf-8-sig"), self.database)
         for account, password in self.passwords.items():
             salt = secrets.token_bytes(16)
@@ -157,11 +213,11 @@ class Ambiente:
         if not self.args.serial:
             if self.serial in self.run([self.adb, "devices"]).stdout:
                 raise RuntimeError("A porta do emulador de testes já está em uso: " + self.serial)
-            self.emu_log = (self.output / "emulador.log").open("w")
+            self.emu_log = (self.output / "emulador.log").open("w", encoding="utf-8")
             self.emu = subprocess.Popen([
                 self.emulator, "-avd", self.args.avd, "-port", "5580", "-no-window",
                 "-no-audio", "-no-snapshot", "-no-boot-anim", "-timezone", "Europe/Lisbon"
-            ], stdout=self.emu_log, stderr=subprocess.STDOUT)
+            ], stdout=self.emu_log, stderr=subprocess.STDOUT, start_new_session=not WINDOWS)
         self.until(lambda: self.adb_run("get-state", check=False).stdout.strip() == "device",
                    240, "ligação ao emulador")
         self.until(lambda: self.adb_run("shell", "getprop", "sys.boot_completed").stdout.strip() == "1",
@@ -183,13 +239,13 @@ class Ambiente:
                  f"RESTORE DATABASE [{self.database}] FROM DISK=N'/tmp/i137-baseline.bak' WITH REPLACE;\n"
                  f"ALTER DATABASE [{self.database}] SET MULTI_USER;")
         token = self.login("rececao")
-        today = dt.datetime.now(ZoneInfo("Europe/Lisbon")).date()
+        today = dt.datetime.now(self.timezone).date()
         day = today + dt.timedelta(days=7)
         while day.weekday() >= 5:
             day += dt.timedelta(days=1)
         execution = uuid.uuid4().hex[:12]
         for animal, hour in ((1, 10), (2, 11)):
-            when = dt.datetime.combine(day, dt.time(hour), tzinfo=ZoneInfo("Europe/Lisbon"))
+            when = dt.datetime.combine(day, dt.time(hour), tzinfo=self.timezone)
             result = self.api_request("/consultas", token=token, data={
                 "animalId": animal, "veterinarioId": 4,
                 "dataHora": when.astimezone(dt.timezone.utc).isoformat(),
@@ -241,7 +297,7 @@ class Ambiente:
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
 
     def test(self, number):
-        command = [str(MOBILE / "gradlew"), "connectedDebugAndroidTest", "--no-configuration-cache",
+        command = [self.gradle_wrapper, "connectedDebugAndroidTest", "--no-configuration-cache",
                    "--console=plain", "-PapiBaseUrl=http://localhost:5159",
                    f"-Pandroid.testInstrumentationRunnerArguments.class={CLASS}",
                    f"-Pandroid.testInstrumentationRunnerArguments.tokenPreparacao={self.control}",
@@ -254,10 +310,12 @@ class Ambiente:
             command[5] += "#" + self.args.case
         environment = {**self.env, "ANDROID_SERIAL": self.serial}
         process = subprocess.Popen(command, cwd=MOBILE, env=environment, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT, text=True)
+                                   stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace",
+                                   start_new_session=not WINDOWS)
+        self.gradle = process
         folder = self.output / f"execucao-{number}"
         folder.mkdir()
-        with (folder / "gradle.log").open("w") as log:
+        with (folder / "gradle.log").open("w", encoding="utf-8") as log:
             for line in process.stdout:
                 safe = self.clean_text(line)
                 print(safe, end="", flush=True)
@@ -290,42 +348,44 @@ class Ambiente:
             raise RuntimeError("Execução instrumentada sem aprovação: " + json.dumps(self.repetitions[-1]))
 
     def close(self):
-        if self.server:
-            self.server.shutdown()
-            self.server.server_close()
-        if self.api and self.api.poll() is None:
-            os.killpg(self.api.pid, signal.SIGTERM)
+        errors = []
+
+        def cleanup(description, action):
             try:
-                self.api.wait(timeout=15)
-            except subprocess.TimeoutExpired:
-                os.killpg(self.api.pid, signal.SIGKILL)
-                self.api.wait()
+                action()
+            except Exception as error:
+                errors.append(description + ": " + self.clean_text(str(error)))
+
+        if self.server:
+            cleanup("Serviço de preparação", self.server.shutdown)
+            cleanup("Porta de preparação", self.server.server_close)
+        cleanup("Gradle", lambda: terminar_arvore(self.gradle))
+        cleanup("API", lambda: terminar_arvore(self.api))
         if hasattr(self, "api_log"):
-            self.api_log.close()
+            cleanup("Registo da API", self.api_log.close)
         if self.tunnels:
             for port in (5159, 5160):
-                self.adb_run("reverse", "--remove", f"tcp:{port}", check=False)
+                cleanup(f"Túnel {port}", lambda port=port: self.adb_run("reverse", "--remove", f"tcp:{port}"))
         if self.emu:
-            self.adb_run("emu", "kill", check=False)
-            try:
-                self.emu.wait(timeout=20)
-            except subprocess.TimeoutExpired:
-                self.emu.kill()
-            self.emu_log.close()
+            cleanup("Emulador", lambda: terminar_arvore(self.emu))
+            cleanup("Registo do emulador", self.emu_log.close)
         if self.container:
-            self.run(["docker", "rm", "-f", self.name], check=False)
+            cleanup("Contentor SQL", lambda: self.run(["docker", "rm", "-f", self.name]))
         report = {"base": self.run(["git", "rev-parse", "HEAD"]).stdout.strip(),
-                  "data": dt.datetime.now(ZoneInfo("Europe/Lisbon")).isoformat(),
+                  "data": dt.datetime.now(self.timezone).isoformat(),
                   "sql_image": self.args.sql_image, "execucoes": self.repetitions,
+                  "erros_limpeza": errors,
                   "ambiente": "API e contentor SQL descartáveis; emulador Android sem interface"}
-        (self.output / "resultado.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+        (self.output / "resultado.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         # Inclui eventuais mensagens de erro do runner Android, sem deixar credenciais no artefacto.
         for root in (self.output, MOBILE / "app/build/outputs/androidTest-results", MOBILE / "app/build/reports/androidTests"):
             if root.exists():
                 for path in root.rglob("*"):
                     if path.is_file() and path.suffix in (".log", ".xml", ".json", ".html", ".txt"):
-                        path.write_text(self.clean_text(path.read_text(errors="replace")))
+                        path.write_text(self.clean_text(path.read_text(encoding="utf-8", errors="replace")), encoding="utf-8")
         print("Resultados: " + str(self.output), flush=True)
+        if errors:
+            raise RuntimeError("Limpeza incompleta: " + "; ".join(errors))
 
 
 def main():
@@ -336,7 +396,10 @@ def main():
     parser.add_argument("--execucoes", type=int, default=2, choices=(1, 2))
     parser.add_argument("--case", help="Um identificador ST-MOB para diagnóstico; não substitui a suite")
     args = parser.parse_args()
-    environment = Ambiente(args)
+    try:
+        environment = Ambiente(args)
+    except RuntimeError as error:
+        parser.error(str(error))
     try:
         environment.start()
         for number in range(1, args.execucoes + 1):
