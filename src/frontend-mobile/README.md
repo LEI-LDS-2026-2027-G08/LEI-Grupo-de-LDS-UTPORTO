@@ -48,6 +48,16 @@ No Windows (PowerShell), usar `.\gradlew.bat` em vez de `./gradlew`. Fora do And
 
 Para instalar e abrir no emulador: abrir a pasta no Android Studio e carregar em *Run*, ou `./gradlew installDebug`.
 
+### Testes de sistema — I137
+
+Com Docker ligado e as portas 5159 e 5160 livres:
+
+```sh
+python3 tests/sistema/executar.py
+```
+
+Executa os 18 cenários da I137 duas vezes num emulador sem interface, contra uma API e uma base SQL descartáveis. A base é reposta e os dados são preparados pela API antes de cada cenário. O [guia de execução](tests/sistema/README.md) explica os requisitos, resultados, capturas de falhas e o uso de outro emulador. Os restantes 12 cenários da especificação pertencem à I138.
+
 ## Arquitetura
 
 MVVM com fluxo de dados unidirecional (DM-01 do Modelo de Classes Mobile): o ecrã (`@Composable`) observa o `StateFlow` do seu `ViewModel`; o `ViewModel` usa serviços; os serviços usam apenas o `ApiClient`.

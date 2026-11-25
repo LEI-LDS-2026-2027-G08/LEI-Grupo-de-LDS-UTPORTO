@@ -1,7 +1,9 @@
 package pt.ipp.estg.g08.clinica
 
 import android.content.Context
+import okhttp3.OkHttpClient
 import pt.ipp.estg.g08.clinica.core.api.ApiClient
+import pt.ipp.estg.g08.clinica.core.api.criarHttpClient
 import pt.ipp.estg.g08.clinica.core.config.AppConfig
 import pt.ipp.estg.g08.clinica.core.storage.CifraKeystore
 import pt.ipp.estg.g08.clinica.core.storage.SharedPreferencesArmazenamento
@@ -20,10 +22,12 @@ private const val FICHEIRO_SESSAO = "sessao"
  * Contentor de dependências (DM-05): injeção manual pelo construtor, sem framework.
  * Criado uma vez em [ClinicaApplication]; os testes constroem os seus próprios objetos.
  */
-class AppContainer(contexto: Context) {
-    val config: AppConfig = AppConfig.deBuildConfig()
-
-    val apiClient: ApiClient = ApiClient(config)
+class AppContainer(
+    contexto: Context,
+    val config: AppConfig = AppConfig.deBuildConfig(),
+    httpClient: OkHttpClient = criarHttpClient(config),
+) {
+    val apiClient: ApiClient = ApiClient(config, httpClient)
 
     val tokenStorage: TokenStorage =
         TokenStorageCifrado(

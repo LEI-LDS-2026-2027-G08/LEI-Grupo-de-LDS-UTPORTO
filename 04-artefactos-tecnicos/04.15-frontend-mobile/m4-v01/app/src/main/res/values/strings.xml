@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Gestão de Clínica Veterinária</string>
+
+    <string name="nav_animais">Animais</string>
+    <string name="nav_consultas">Consultas</string>
+    <string name="nav_terminar_sessao">Terminar sessão</string>
+
+    <string name="estado_tentar_novamente">Tentar novamente</string>
+    <string name="voltar">Voltar</string>
+    <string name="sem_informacao">Sem informação</string>
+
+    <string name="m02_titulo">Os meus animais</string>
+    <string name="m02_vazio">Ainda não tem animais associados à sua conta.</string>
+    <string name="m02_ver_detalhe">Ver detalhe</string>
+
+    <string name="m03_especie">Espécie</string>
+    <string name="m03_raca">Raça</string>
+    <string name="m03_sexo">Sexo</string>
+    <string name="m03_data_nascimento">Data de nascimento</string>
+    <string name="m03_idade">Idade</string>
+    <string name="m03_peso">Peso</string>
+    <string name="m03_ver_boletim">Ver boletim</string>
+    <string name="m03_ver_consultas">Ver consultas</string>
+
+    <string name="idade_menos_de_um_ano">Menos de 1 ano</string>
+    <plurals name="idade_anos">
+        <item quantity="one">%d ano</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
+
+    <string name="m04_titulo">Consultas</string>
+    <string name="m04_so_deste_animal">Só as Consultas deste animal.</string>
+    <string name="m04_separador_futuras">Próximas</string>
+    <string name="m04_separador_historico">Histórico</string>
+    <string name="m04_sem_futuras">Não tem Consultas marcadas.</string>
+    <string name="m04_sem_futuras_animal">Este animal não tem Consultas marcadas.</string>
+    <string name="m04_sem_historico">Ainda não há Consultas no histórico.</string>
+    <string name="m04_sem_historico_animal">Este animal ainda não tem Consultas no histórico.</string>
+
+    <string name="m06_titulo">Boletim de vacinação e desparasitação</string>
+    <string name="m06_proximas">Próximas administrações previstas</string>
+    <string name="m06_historico">Histórico</string>
+    <string name="m06_vazio">Este animal ainda não tem vacinações nem desparasitações registadas.</string>
+    <string name="m06_sem_proximas">Não há administrações previstas.</string>
+    <string name="m06_sem_historico">Ainda não há administrações registadas.</string>
+    <string name="m06_prevista_para">Prevista para %1$s</string>
+    <string name="m06_administrada_em">Administrada em %1$s</string>
+
+    <string name="login_titulo">Iniciar sessão</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Palavra-passe</string>
+    <string name="login_entrar">Entrar</string>
+    <string name="login_abrir_tecnico">Abrir ecrã técnico</string>
+    <string name="aviso_sessao_terminada">A sua sessão terminou. Inicie sessão novamente.</string>
+    <string name="aviso_sessao_terminada_utilizador">Terminou a sessão.</string>
+
+    <string name="tecnico_titulo">Ecrã técnico</string>
+    <string name="tecnico_nota">Diagnóstico da base da aplicação, apenas em desenvolvimento. Não faz parte do produto final.</string>
+    <string name="tecnico_url_api">URL da API: %1$s</string>
+    <string name="tecnico_sessao_guardada">Sessão guardada (cifrada): %1$s</string>
+    <string name="tecnico_sessao_detalhe">Perfil: %1$s. Expira em %2$s.</string>
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
+    <string name="tecnico_guardar_teste">Guardar sessão de teste</string>
+    <string name="tecnico_testar_ligacao">Testar ligação à API (GET /auth/me)</string>
+    <string name="tecnico_limpar">Limpar dados de sessão</string>
+    <string name="tecnico_ligacao_ok">Ligação à API estabelecida.</string>
+</resources>
