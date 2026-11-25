@@ -120,7 +120,7 @@ O trabalho foi publicado pelo Executor nos commits 16c8513 e f54d2de e submetido
 
 ## PENDÊNCIAS DE ACEITAÇÃO
 
-CA 4: falta arquivar a referência formal da decisão/autorização aplicável à alteração do contrato. O acordo do grupo comunicado pelo Executor não é apresentado como essa autorização. Revisão e auditoria não são declaradas concluídas. A organização dos DTOs foi alinhada com o namespace `RegistosClinicos`, e os finais de linha dos ficheiros do backend foram repostos em LF, como na base de origem. A base do `develop`, incluindo I118 e I123, foi integrada no commit `4b22f3f`. Os ZIP antigos continuam pendentes de regeneração a partir do commit de código identificado para a entrega.
+Atualização documental de 25/11/2026 — CA 4: decisão funcional referenciada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5. A confirmação final do critério cabe ao Revisor. Revisão e auditoria não são declaradas concluídas. A organização dos DTOs foi alinhada com o namespace `RegistosClinicos`, e os finais de linha dos ficheiros do backend foram repostos em LF, como na base de origem. A base do `develop`, incluindo I118 e I123, foi integrada no commit `4b22f3f`. O arquivo atual do backend está em fontes na pasta `04.12-backend/m4-v02`, alinhado no commit `42ac9e2`; a origem está identificada no respetivo `README.md`.
 
 ## TESTES ADICIONAIS DE MARCAÇÕES
 

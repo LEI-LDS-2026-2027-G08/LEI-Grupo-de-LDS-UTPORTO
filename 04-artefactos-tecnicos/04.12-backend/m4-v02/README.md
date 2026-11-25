@@ -21,7 +21,7 @@ O arquivo exclui `appsettings.Development.json`, configurações locais do IDE, 
 
 ### Estado
 
-Arquivo preparado para revisão. A decisão/autorização da alteração de contrato da API continua pendente de registo em ata.
+Arquivo preparado para revisão. A decisão funcional sobre a alteração de contrato da API está registada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5. O fecho da I125 depende da confirmação do Revisor e do Auditor.
 
 ## Pré-requisitos
 

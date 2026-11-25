@@ -45,7 +45,7 @@ Backend: 04-artefactos-tecnicos/04.12-backend/m4-v02, sem alterar m3-v01. Fronte
 
 ## ACEITAÇÃO — PENDÊNCIAS EXPLÍCITAS
 
-CA 4 NÃO CONCLUÍDO: falta arquivar a referência formal da decisão e a autorização aplicável à alteração do contrato. O acordo do grupo comunicado pelo Executor não é apresentado como essa autorização. A API v04 continua a ser um rascunho, não uma aprovação. Fechar a revisão documental. Os DTOs foram colocados na pasta correspondente ao namespace `RegistosClinicos`, e os finais de linha do backend foram repostos em LF para evitar alterações de ficheiro completo. A base do `develop`, incluindo I118 e I123, foi integrada no commit `4b22f3f`. Falta regenerar os ZIP a partir do commit de código identificado para aceitação; os arquivos antigos não são apresentados como a versão final atualizada. Revisor repetir os fluxos com contas independentes; concluir relatório de revisão, auditoria e aceitação/merge. A tarefa não fica concluída apenas por este relatório.
+Atualização documental de 25/11/2026 — CA 4: decisão funcional referenciada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5. O arquivo atual do backend está em fontes na pasta `04.12-backend/m4-v02`, alinhado no commit `42ac9e2`; a origem está identificada no respetivo `README.md`. O Revisor confirma os critérios da I125; revisão independente, auditoria e aceitação/integração continuam pendentes. Os resultados anteriores mantêm as datas e os limites aqui registados.
 
 ## REFERÊNCIAS DA ENTREGA
 
@@ -61,4 +61,4 @@ PR #283: https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/pull/
 - Não foi feita uma nova execução manual dos fluxos nesta revisão documental e de organização.
 - Os ZIP ainda não foram regenerados: devem identificar o commit de código já guardado, em vez de uma cópia de alterações intermédias.
 
-A autorização aplicável ao contrato continua pendente de comprovação. Estes resultados não a substituem.
+A decisão funcional está registada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5. Estes resultados não substituem a revisão independente nem a auditoria.

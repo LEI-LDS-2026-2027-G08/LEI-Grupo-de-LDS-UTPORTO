@@ -1,6 +1,6 @@
 # I125 — PROPOSTA DOCUMENTAL PARA REVISÃO — 22/11/2026
 
-Não substitui documentos aprovados ou homologados. Decisão funcional comunicada pelo Executor: o grupo concordou em reservar notas clínicas e diagnóstico ao Veterinário e disponibilizar tratamentos e prescrições ao Auxiliar. Falta arquivar a referência formal da decisão e a autorização aplicável.
+Não substitui documentos aprovados ou homologados. Decisão funcional comunicada pelo Executor: o grupo concordou em reservar notas clínicas e diagnóstico ao Veterinário e disponibilizar tratamentos e prescrições ao Auxiliar. A decisão funcional está registada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5. A revisão e a auditoria permanecem pendentes.
 
 ## API
 
@@ -27,19 +27,16 @@ UC13; EP-033 e EP-034; I078/I116 e correção da I125 #39, defeito #281. Impleme
 
 ## DECLARAÇÃO DE ÂMBITO E AUTORIZAÇÃO
 
-Confrontar a clarificação com a DA homologada. Se alterar compromissos do âmbito, cumprir as secções 7.4–7.5 do regulamento e arquivar pedido/decisão do docente. O rascunho da API e o código não constituem autorização documental.
+A [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5 formaliza a decisão do grupo sobre EP-033 e EP-034, no âmbito do RF036. A referência é reproduzida no campo «Estado» da API v04 e nos documentos de alinhamento. Qualquer alteração posterior ao âmbito homologado segue as secções 7.4–7.5 do regulamento.
 
 ## TESTES DOCUMENTAIS
 
 Rever o pressuposto antigo que permitia ao Auxiliar o mesmo DTO do Veterinário (PA-08/contrato anterior) nas especificações de testes. Substituir por casos que verifiquem ausência das propriedades reservadas no JSON e ausência dos campos no ecrã, mantendo tratamentos/prescrições. A implementação dos testes afetados já foi preparada; as especificações aprovadas precisam de revisão coordenada.
 
-## REGISTO A ARQUIVAR PARA O CA 4
+## REGISTO DA DECISÃO PARA O CA 4
 
-A referência de autorização deve identificar expressamente:
+Referência: [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5.
 
-- A alteração anterior/posterior: resposta completa para os dois perfis versus resposta reduzida do Auxiliar em EP-033 e EP-034.
-- A regra aprovada: tratamentos e prescrições disponíveis ao Auxiliar; notas clínicas e diagnóstico reservados ao Veterinário, no detalhe e no histórico.
-- A pessoa ou órgão que autoriza, a data e o meio formal de decisão exigido pelo procedimento aplicável.
-- A versão autorizada da API e as atualizações de RF036, UC13, modelos, RTM e testes afetados.
+A decisão foi aprovada por unanimidade pelo grupo: o Auxiliar deixa de receber notas clínicas e diagnóstico em EP-033 e EP-034; mantém os restantes elementos autorizados. O Veterinário continua a receber o registo completo. A alteração fica registada na API v04 e é implementada e verificada na I125.
 
-Não existe neste pacote um registo que comprove essa autorização. É necessário obtê-lo e arquivá-lo, referenciando-o no PR #283. Se houver alteração ao âmbito homologado, aplica-se o procedimento do docente das secções 7.4–7.5; não se presume que uma declaração escrita pelo Executor substitua a decisão exigida. A competência de autorização e o registo aceite devem ser confirmados com o Revisor antes de considerar o CA 4 cumprido.
+A referência consta também do PR #283. A confirmação final dos critérios, a revisão e a auditoria continuam a cargo dos respetivos responsáveis.

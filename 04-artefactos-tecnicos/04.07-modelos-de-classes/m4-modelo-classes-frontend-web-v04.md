@@ -5,8 +5,8 @@
 **Milestone:** m4  
 **Versão:** v04  
 **Alteração desta versão:** R01 — leitura clínica do Auxiliar Veterinário.
-**Estado:** Para revisão
-**Processo desta versão:** Tarefa documental, autoria, Sprint, Executor, Revisor e Auditor por atribuir. Decisão formal e enquadramento no âmbito por registar; ver a Especificação de Requisitos v03.
+**Estado:** Para revisão e auditoria. Decisão funcional sobre a leitura do Auxiliar registada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5.
+**Processo desta versão:** Tarefa documental, autoria, Sprint, Executor, Revisor e Auditor por atribuir. Decisão funcional registada na deliberação 5 da ata do Sprint Review S07; ver a Especificação de Requisitos v03.
 **Referências do R01:** `m4-especificacao-requisitos-v03.md`; `m4-documentacao-api-v04.md`
 
 ## Histórico de versões

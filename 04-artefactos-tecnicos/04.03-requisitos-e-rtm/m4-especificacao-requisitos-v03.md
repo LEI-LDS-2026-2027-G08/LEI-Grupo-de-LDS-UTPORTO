@@ -5,13 +5,13 @@
 **Milestone:** m4  
 **Versão:** v03  
 **Alteração desta versão:** R01 — leitura clínica do Auxiliar Veterinário.
-**Estado:** Para revisão
-**Processo desta versão:** Tarefa documental, autoria, Sprint, Executor, Revisor e Auditor por atribuir. Decisão formal e enquadramento no âmbito por registar; ver a Especificação de Requisitos v03.
+**Estado:** Para revisão e auditoria. Decisão funcional sobre a leitura do Auxiliar registada na [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5.
+**Processo desta versão:** Tarefa documental, autoria, Sprint, Executor, Revisor e Auditor por atribuir. Decisão funcional registada na deliberação 5 da ata do Sprint Review S07; ver a Especificação de Requisitos v03.
 **Referências do R01:** `m4-especificacoes-casos-uso-v03.md`; `m4-documentacao-api-v04.md`
 
 **Referência R01:** identificação de trabalho desta concretização proposta do RF036, associada à correção da I125 (#39), defeito #281. Não corresponde a uma deliberação ou a uma Issue documental.
 
-**Decisão e enquadramento:** falta arquivar a ata e a deliberação que aprovam a regra e confirmar se é uma concretização do RF036 ou uma alteração de âmbito. Neste último caso, aplica-se o processo das secções 7.4–7.5 do Regulamento da UC, com o docente.
+**Decisão e enquadramento:** a [m4-s07-20261122-sprint-review-ata-v01.pdf](https://github.com/LEI-LDS-2026-2027-G08/LEI-Grupo-de-LDS-UTPORTO/blob/bf68c704f2823c520e5ef030431e97c9842f0138/01-artefactos-de-gestao/01.03-reunioes-de-grupo/m4-s07-20261122-sprint-review-ata-v01.pdf), deliberação 5 decide, no âmbito do RF036, retirar as notas clínicas e o diagnóstico das respostas de EP-033 e EP-034 ao Auxiliar, mantendo os restantes elementos autorizados e a resposta completa do Veterinário. A implementação e verificação pertencem à I125, com continuidade no Sprint 08 conforme a deliberação 6. A revisão e a auditoria da versão documental continuam pendentes.
 
 ---
 
