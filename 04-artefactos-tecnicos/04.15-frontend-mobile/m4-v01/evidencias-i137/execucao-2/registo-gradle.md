@@ -1,6 +1,6 @@
-# I137 — Execução 2 — correção da localização do SDK
+# I137 — Execução 2 — correções de portabilidade
 
-Execução: `d27fcc4bc41c`. Sem `ANDROID_HOME` ou `ANDROID_SDK_ROOT` definidos no terminal.
+Data: 25/11/2026. Execução: `37a6c5d4af4a`. Ambiente macOS, API e SQL reais isolados. Sem `ANDROID_HOME` ou `ANDROID_SDK_ROOT` definidos no terminal.
 
 ```text
 > Task :app:preBuild UP-TO-DATE
@@ -85,6 +85,6 @@ Execução: `d27fcc4bc41c`. Sem `ANDROID_HOME` ou `ANDROID_SDK_ROOT` definidos n
 > Task :app:connectedDebugAndroidTest
 Running tests on devices: Medium_Phone_API_37.0(AVD) - 17
 
-BUILD SUCCESSFUL in 2m 9s
+BUILD SUCCESSFUL in 2m 11s
 72 actionable tasks: 1 executed, 71 up-to-date
 ```

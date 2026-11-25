@@ -1,13 +1,14 @@
 {
-  "evidencias-i137/execucao-1/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "c3508e58a7017fce073b82fe6ec6c7a26be4b2269fe8aace9abd120299714d90",
-  "evidencias-i137/execucao-1/registo-gradle.md": "096618bb6c656089e0106079fd6ee134a70c5ffaf455062436ac38809e51d580",
-  "evidencias-i137/execucao-2/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "06d5c6c87b2e5bff08add7fab013fecf3c97fd996309152a38cda8ff332ffadc",
-  "evidencias-i137/execucao-2/registo-gradle.md": "849d1f888a6de09477d26d153fee2b6e608bd2bfe523fd3e9dcbb4f3c0d57c1e",
+  "evidencias-i137/execucao-1/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "d622d9b0659017adeaf1d2b9fa88583eaa0c5abd357a40353886fb0acf1ea11e",
+  "evidencias-i137/execucao-1/registo-gradle.md": "cace74720ae7d32b3521651c5cfd26b566b7c346f1645551a0f0447cd0ddd324",
+  "evidencias-i137/execucao-2/TEST-Medium_Phone_API_37.0(AVD) - 17.xml": "17ac07d8ffef0eea87511a4b9fc1721ccf0b1927f4465de36b2f0eb7cca90367",
+  "evidencias-i137/execucao-2/registo-gradle.md": "dceca007059b0593b40d053dfc29bb8becd3fd47aeddc0c96e84a4a751a78cd4",
   "evidencias-i137/falha-controlada/ST-MOB-F001-01.png": "0f6d6b569b2042606eae5389c86bd9486258422f64f084e3ec8146371d1e9fc7",
   "m4-i137-falha-controlada-v01.json": "b1d26306a2b61a3ee412d31c65c5216b95555bdaaad184e6b906a35950e25894",
-  "m4-i137-fontes-executadas-v01.json": "eaa9b0376d24e491a9858036c75ffb044fa5defebfe9dd2c7b39b8dbf020e8c0",
+  "m4-i137-fontes-executadas-v01.json": "35b9ed1a67961898f28abb11291ba34209695ffb743fb0c2c1ce7f2261eb2b5d",
   "m4-i137-matriz-cenarios-testes-v01.md": "72c04bd953905ea29ce290df8a8b2477010448bbc2b059667738780d706f8e69",
-  "m4-i137-relatorio-executor-v01.md": "3b97a2406415777817a89505e7a71d5b335e705e0ba8ae77c04e87e598a90782",
-  "m4-i137-resultados-execucoes-v01.json": "d47429cc6993e0675f62b24596bfaabee293793221617d155a58ffe52070bd31",
-  "m4-i137-verificacao-local-v01.md": "0daff7b47490d349c93938d13a803d28b0942e7a46ae16cb497386b0e7738e19"
+  "m4-i137-relatorio-executor-v01.md": "36c1747f7486677ed4f7d5aad78afe784d32f4f52672ac808ee5006783f93f9f",
+  "m4-i137-resultados-execucoes-v01.json": "fd0e1af522a2e22de346094825508be2f2452ad062cafc7a3b827514ef10a33b",
+  "m4-i137-verificacao-local-v01.md": "0daff7b47490d349c93938d13a803d28b0942e7a46ae16cb497386b0e7738e19",
+  "evidencias-i137/regressoes-orquestrador.md": "448286de15f0bbfcf83ee79fdee82385ca0c308914bedd3485f9459c5be6149d"
 }
