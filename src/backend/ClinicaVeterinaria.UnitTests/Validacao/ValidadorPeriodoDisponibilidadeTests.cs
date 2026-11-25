@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Api.DTOs.Veterinarios;
 using ClinicaVeterinaria.Application.Validacao;
 
 namespace ClinicaVeterinaria.UnitTests.Validacao;
@@ -74,7 +74,7 @@ public class ValidadorPeriodoDisponibilidadeTests
         var erro = Assert.Single(Validar(new DisponibilidadeQuery
         {
             DataInicio = new DateOnly(2026, 10, 1),
-            DataFim = new DateOnly(2026, 11, 1)
+            DataFim = new DateOnly(2026, 11, 1),
         }));
 
         Assert.Equal(ValidadorPeriodoDisponibilidade.MensagemPeriodoDemasiadoLongo, erro.ErrorMessage);

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ClinicaVeterinaria.Application.DTOs.Vacinacoes;
+using ClinicaVeterinaria.Api.DTOs.Vacinacoes;
 
 namespace ClinicaVeterinaria.UnitTests.Vacinacao;
 
@@ -28,13 +28,13 @@ public class AdministracaoDtoValidacaoTests
         switch (campo)
         {
             case "tipo":
-                pedido.Tipo = "";
+                pedido.Tipo = string.Empty;
                 break;
             case "produto":
                 pedido.Produto = " ";
                 break;
             case "lote":
-                pedido.Lote = "";
+                pedido.Lote = string.Empty;
                 break;
             default:
                 pedido.DataAdministracao = null;
@@ -94,8 +94,8 @@ public class AdministracaoDtoValidacaoTests
         Tipo = "Desparasitacao",
         Produto = "Desparasitante interno Y",
         Lote = "DP-0042",
-        DataAdministracao = new DateOnly(2026, 10, 14),
-        IntervaloDias = 90
+        DataAdministracao = DatasVacinacaoTeste.Hoje,
+        IntervaloDias = 90,
     };
 
     private static List<ValidationResult> Validar(object objeto)

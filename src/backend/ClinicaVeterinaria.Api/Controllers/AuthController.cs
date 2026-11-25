@@ -1,4 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
+using ClinicaVeterinaria.Api.DTOs.Auth;
+using ClinicaVeterinaria.Api.Mapeamento;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +33,8 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto pedido)
     {
-        return Ok(await _authService.LoginAsync(pedido));
+        var resultado = await _authService.LoginAsync(pedido.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 
     /// <summary>EP-002 — Terminar sessão (todos os perfis).</summary>
@@ -53,7 +56,7 @@ public sealed class AuthController : ControllerBase
 
         if (utilizadorId is null || string.IsNullOrEmpty(jti) || expiraEm is null)
         {
-            throw new UnauthorizedAccessException("O token não contém as claims obrigatórias.");
+            throw new NaoAutenticadoException("O token não contém as claims obrigatórias.");
         }
 
         await _authService.TerminarSessaoAsync(utilizadorId.Value, jti, expiraEm.Value);
@@ -71,8 +74,9 @@ public sealed class AuthController : ControllerBase
     public async Task<ActionResult<UtilizadorAutenticadoDto>> ObterUtilizadorAutenticado()
     {
         var utilizadorId = User.ObterUtilizadorId()
-            ?? throw new UnauthorizedAccessException("O token não identifica o utilizador.");
+            ?? throw new NaoAutenticadoException("O token não identifica o utilizador.");
 
-        return Ok(await _authService.ObterAutenticadoAsync(utilizadorId));
+        var resultado = await _authService.ObterAutenticadoAsync(utilizadorId);
+        return Ok(resultado.ParaDto());
     }
 }

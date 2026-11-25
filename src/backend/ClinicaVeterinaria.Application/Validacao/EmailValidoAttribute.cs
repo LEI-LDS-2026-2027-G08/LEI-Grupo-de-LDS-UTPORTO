@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mail;
 
 namespace ClinicaVeterinaria.Application.Validacao;
 
@@ -32,8 +33,10 @@ public sealed class EmailValidoAttribute : ValidationAttribute
 
         var arroba = email.IndexOf('@', StringComparison.Ordinal);
 
-        // Parte local não vazia e um único @.
-        if (arroba <= 0 || arroba != email.LastIndexOf('@'))
+        if (arroba <= 0
+            || arroba != email.LastIndexOf('@')
+            || !MailAddress.TryCreate(email, out var endereco)
+            || !string.Equals(endereco.Address, email, StringComparison.Ordinal))
         {
             return false;
         }

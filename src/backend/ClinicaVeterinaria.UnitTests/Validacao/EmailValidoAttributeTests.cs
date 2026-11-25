@@ -61,6 +61,8 @@ public class EmailValidoAttributeTests
     [InlineData("joao@mail.")]
     [InlineData("joao@mail..pt")]
     [InlineData(" joao@mail.pt")]
+    [InlineData("Nome<joao@mail.pt>")]
+    [InlineData("joao@mail.pt(comentario)")]
     [InlineData(null)]
     [InlineData("")]
     public void FormatoInvalidoERecusado(string? email)

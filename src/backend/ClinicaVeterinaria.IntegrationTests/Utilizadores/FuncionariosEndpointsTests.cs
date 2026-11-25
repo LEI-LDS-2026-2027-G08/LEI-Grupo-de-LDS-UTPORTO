@@ -28,7 +28,6 @@ public sealed class FuncionariosEndpointsTests :
     }
 
     // ----- EP-004 -----
-
     [Fact(DisplayName = "IT-EP004-01 — Administrador lista os funcionários: 200 com envelope paginado e sem contas de Cliente")]
     public async Task ListarDevolveEnvelopePaginado()
     {
@@ -85,7 +84,6 @@ public sealed class FuncionariosEndpointsTests :
     }
 
     // ----- EP-005 -----
-
     [Fact(DisplayName = "IT-EP005-01 — funcionário existente devolve 200 com o UtilizadorDto correto e sem hash")]
     public async Task ObterFuncionarioExistente()
     {
@@ -125,7 +123,6 @@ public sealed class FuncionariosEndpointsTests :
     }
 
     // ----- EP-006 -----
-
     [Fact(DisplayName = "IT-EP006-01 — dados válidos e e-mail livre devolvem 201 com Location e a conta fica persistida e ativa")]
     public async Task CriarFuncionarioValido()
     {
@@ -181,7 +178,7 @@ public sealed class FuncionariosEndpointsTests :
             telefone = "934567890",
             perfil,
             podeRegistarApoio = false,
-            passwordInicial
+            passwordInicial,
         });
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
@@ -245,7 +242,6 @@ public sealed class FuncionariosEndpointsTests :
     }
 
     // ----- 401 e 403 (contrato da API v02) -----
-
     [Theory(DisplayName = "I092 — EP-004 a EP-006: perfis que não são Administrador recebem 403 e nada é criado")]
     [InlineData("Rececionista")]
     [InlineData("Veterinario")]
@@ -287,7 +283,6 @@ public sealed class FuncionariosEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static object Pedido(string email, string perfil, bool podeRegistarApoio = false) => new
     {
         nome = "Rui Lopes",
@@ -295,7 +290,7 @@ public sealed class FuncionariosEndpointsTests :
         telefone = "934567890",
         perfil,
         podeRegistarApoio,
-        passwordInicial = "Temp#2026x"
+        passwordInicial = "Temp#2026x",
     };
 
     /// <summary>Formato único de erro da infraestrutura (I058): <c>code</c> igual ao código HTTP.</summary>

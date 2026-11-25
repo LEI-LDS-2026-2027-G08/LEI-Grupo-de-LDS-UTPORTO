@@ -50,7 +50,7 @@ public sealed class AcessoConsultas
             Perfis.Veterinario => utilizador.ObterVeterinarioId() is int id
                 ? Veterinario(id)
                 : throw new ForbiddenException("O utilizador autenticado não está associado a um Veterinário."),
-            _ => throw new ForbiddenException("O perfil autenticado não tem acesso à agenda.")
+            _ => throw new ForbiddenException("O perfil autenticado não tem acesso à agenda."),
         };
     }
 }

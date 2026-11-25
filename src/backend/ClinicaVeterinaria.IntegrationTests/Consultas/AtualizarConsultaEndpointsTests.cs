@@ -154,7 +154,7 @@ public sealed class AtualizarConsultaEndpointsTests :
                         InicioUtc(
                             QuartaFeiraFutura(),
                             10,
-                            0))
+                            0)),
                 });
 
         await AssertErroAsync(
@@ -499,7 +499,6 @@ public sealed class AtualizarConsultaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private sealed record MarcacaoDemo(
         int Id,
         byte[] RowVersion);
@@ -512,7 +511,7 @@ public sealed class AtualizarConsultaEndpointsTests :
         {
             ["veterinarioId"] = veterinarioId,
             ["dataHora"] = Texto(dataHora),
-            ["motivo"] = motivo
+            ["motivo"] = motivo,
         };
 
     private static Dictionary<string, object?> CorpoCriar(
@@ -524,7 +523,7 @@ public sealed class AtualizarConsultaEndpointsTests :
             ["animalId"] = animalId,
             ["veterinarioId"] = veterinarioId,
             ["dataHora"] = Texto(dataHora),
-            ["motivo"] = "Teste de integração I074"
+            ["motivo"] = "Teste de integração I074",
         };
 
     private static async Task<HttpResponseMessage> EnviarPutAsync(
@@ -538,7 +537,7 @@ public sealed class AtualizarConsultaEndpointsTests :
                 HttpMethod.Put,
                 $"/consultas/{id}")
             {
-                Content = JsonContent.Create(corpo)
+                Content = JsonContent.Create(corpo),
             };
 
         if (ifMatch is not null)

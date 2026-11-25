@@ -1,6 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Clientes;
-using ClinicaVeterinaria.Application.DTOs.Comum;
+using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Clientes;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -37,7 +37,7 @@ public sealed class ClientesService : IClientesService
         _relogio = relogio;
     }
 
-    public async Task<PagedResultDto<ClienteListItemDto>> PesquisarAsync(ClienteFiltroQuery filtro)
+    public async Task<PaginaClientes> PesquisarAsync(PesquisaClientes filtro)
     {
         ArgumentNullException.ThrowIfNull(filtro);
 
@@ -58,32 +58,33 @@ public sealed class ClientesService : IClientesService
 
         var total = await consulta.CountAsync();
 
-        var itens = await consulta
-            .OrderBy(x => x.Cliente.Nome)
-            .ThenBy(x => x.Cliente.Id)
-            .Skip((filtro.Pagina - 1) * filtro.Tamanho)
-            .Take(filtro.Tamanho)
-            .Select(x => new ClienteListItemDto
-            {
-                Id = x.Cliente.Id,
-                Nome = x.Cliente.Nome,
-                Nif = x.Cliente.NIF,
-                Telefone = x.Cliente.Telefone,
-                Email = x.Email,
-                NumeroAnimais = _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)
-            })
-            .ToListAsync();
+        // Em long, como em EP-004: com uma página muito alta, (pagina - 1) * tamanho ultrapassava
+        // o limite de int e dava um salto negativo (erro 500). Depois do fim, a página fica vazia.
+        var salto = (long)(filtro.Pagina - 1) * filtro.Tamanho;
 
-        return new PagedResultDto<ClienteListItemDto>
+        List<ResumoCliente> itens = [];
+
+        if (salto < total)
         {
-            Itens = itens,
-            Pagina = filtro.Pagina,
-            Tamanho = filtro.Tamanho,
-            Total = total
-        };
+            itens = await consulta
+                .OrderBy(x => x.Cliente.Nome)
+                .ThenBy(x => x.Cliente.Id)
+                .Skip((int)salto)
+                .Take(filtro.Tamanho)
+                .Select(x => new ResumoCliente(
+                    x.Cliente.Id,
+                    x.Cliente.Nome,
+                    x.Cliente.NIF,
+                    x.Cliente.Telefone,
+                    x.Email,
+                    _db.Pacientes.Count(p => p.ClienteId == x.Cliente.Id)))
+                .ToListAsync();
+        }
+
+        return new PaginaClientes(itens, filtro.Pagina, filtro.Tamanho, total);
     }
 
-    public async Task<ClienteDto> ObterAsync(int id)
+    public async Task<FichaCliente> ObterAsync(int id)
     {
         var dados = await (
                 from c in _db.Clientes.AsNoTracking()
@@ -91,17 +92,18 @@ public sealed class ClientesService : IClientesService
                 where c.Id == id
                 select new { Cliente = c, Utilizador = u })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
-        return await CriarClienteDtoAsync(dados.Cliente, dados.Utilizador);
+        return await CriarFichaAsync(dados.Cliente, dados.Utilizador);
     }
 
-    public async Task<ClienteDto> CriarAsync(CreateClienteDto pedido)
+    public async Task<FichaCliente> CriarAsync(NovoCliente pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
-        var email = NormalizarEmail(pedido.Email);
-        var nif = NormalizarNif(pedido.Nif);
+        var dados = pedido.Dados;
+        var email = NormalizarEmail(dados.Email);
+        var nif = NormalizarNif(dados.Nif);
 
         await GarantirEmailLivreAsync(email, utilizadorAtualId: null);
         await GarantirNifLivreAsync(nif, clienteAtualId: null);
@@ -113,17 +115,17 @@ public sealed class ClientesService : IClientesService
             Email = email,
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = agora
+            DataCriacao = agora,
         };
         utilizador.PasswordHash = _passwordHasher.HashPassword(utilizador, pedido.PasswordInicial);
 
         var cliente = new Cliente
         {
-            Nome = pedido.Nome.Trim(),
+            Nome = dados.Nome.Trim(),
             NIF = nif,
-            Telefone = pedido.Telefone.Trim(),
-            Morada = NormalizarOpcional(pedido.Morada),
-            DataRegisto = agora
+            Telefone = dados.Telefone.Trim(),
+            Morada = NormalizarOpcional(dados.Morada),
+            DataRegisto = agora,
         };
 
         // Utilizador e Cliente são criados juntos ou não é criado nenhum.
@@ -138,15 +140,15 @@ public sealed class ClientesService : IClientesService
 
         await transacao.CommitAsync();
 
-        return await CriarClienteDtoAsync(cliente, utilizador);
+        return await CriarFichaAsync(cliente, utilizador);
     }
 
-    public async Task<ClienteDto> AtualizarAsync(int id, UpdateClienteDto pedido)
+    public async Task<FichaCliente> AtualizarAsync(int id, AlteracaoCliente pedido)
     {
         ArgumentNullException.ThrowIfNull(pedido);
 
         var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.Id == id)
-            ?? throw new KeyNotFoundException(MensagemNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemNaoEncontrado);
 
         var utilizador = await _db.Utilizadores.FirstAsync(u => u.Id == cliente.UtilizadorId);
 
@@ -165,7 +167,7 @@ public sealed class ClientesService : IClientesService
         // Um único SaveChanges: Cliente e e-mail da conta mudam na mesma transação.
         await GravarAsync();
 
-        return await CriarClienteDtoAsync(cliente, utilizador);
+        return await CriarFichaAsync(cliente, utilizador);
     }
 
     private async Task GarantirEmailLivreAsync(string email, int? utilizadorAtualId)
@@ -176,7 +178,7 @@ public sealed class ClientesService : IClientesService
 
         if (emUso)
         {
-            throw new InvalidOperationException(MensagemEmailRegistado);
+            throw new ConflitoException(MensagemEmailRegistado);
         }
     }
 
@@ -192,7 +194,7 @@ public sealed class ClientesService : IClientesService
 
         if (emUso)
         {
-            throw new InvalidOperationException(MensagemNifRegistado);
+            throw new ConflitoException(MensagemNifRegistado);
         }
     }
 
@@ -209,38 +211,29 @@ public sealed class ClientesService : IClientesService
         catch (DbUpdateException ex) when (ex.InnerException is SqlException
         {
             Number: ErroChaveDuplicada or ErroRestricaoUnica
-        } sql)
+        }
+
+sql)
         {
             var mensagem = sql.Message.Contains("UQ_Cliente_NIF", StringComparison.Ordinal)
                 ? MensagemNifRegistado
                 : MensagemEmailRegistado;
 
-            throw new InvalidOperationException(mensagem, ex);
+            throw new ConflitoException(mensagem, ex);
         }
     }
 
-    private async Task<ClienteDto> CriarClienteDtoAsync(Cliente cliente, Utilizador utilizador)
+    private async Task<FichaCliente> CriarFichaAsync(Cliente cliente, Utilizador utilizador)
     {
         var animais = await (
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.ClienteId == cliente.Id
                 orderby p.Nome, p.Id
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new AnimalDoCliente(p.Id, p.Nome, e.Nome))
             .ToListAsync();
 
-        return new ClienteDto
-        {
-            Id = cliente.Id,
-            Nome = cliente.Nome,
-            Nif = cliente.NIF,
-            Telefone = cliente.Telefone,
-            Email = utilizador.Email,
-            Morada = cliente.Morada,
-            UtilizadorId = utilizador.Id,
-            EstadoConta = utilizador.Estado,
-            Animais = animais
-        };
+        return new FichaCliente(cliente, utilizador.Email, utilizador.Estado, animais);
     }
 
     private DateTime Agora()

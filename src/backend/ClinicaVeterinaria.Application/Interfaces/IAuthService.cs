@@ -1,14 +1,14 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
+using ClinicaVeterinaria.Application.Models.Auth;
 
 namespace ClinicaVeterinaria.Application.Interfaces;
 
 public interface IAuthService
 {
     /// <summary>EP-001 — valida as credenciais e emite o JWT.</summary>
-    Task<LoginResponseDto> LoginAsync(LoginRequestDto pedido);
+    Task<SessaoIniciada> LoginAsync(Credenciais pedido);
 
     /// <summary>EP-003 — devolve o utilizador associado ao token, com o perfil lido da base de dados.</summary>
-    Task<UtilizadorAutenticadoDto> ObterAutenticadoAsync(int utilizadorId);
+    Task<UtilizadorAutenticado> ObterAutenticadoAsync(int utilizadorId);
 
     /// <summary>
     /// Confirma, em cada pedido autenticado, que a conta do token continua ativa,

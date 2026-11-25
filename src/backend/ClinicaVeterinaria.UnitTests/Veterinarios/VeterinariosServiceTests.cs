@@ -1,5 +1,6 @@
 using System.Globalization;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Veterinarios;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
@@ -22,7 +23,6 @@ public class VeterinariosServiceTests
     private static readonly DateOnly Quinta = new(2026, 10, 15);
 
     // ----- EP-021 — Listar veterinários -----
-
     [Fact(DisplayName = "I071 — EP-021 lista só os Veterinários com conta ativa, por nome")]
     public async Task ListaSoVeterinariosAtivosPorNome()
     {
@@ -59,9 +59,8 @@ public class VeterinariosServiceTests
     }
 
     // ----- EP-022 — Consultar disponibilidade -----
-
     [Fact(DisplayName = "I071 — EP-022 devolve os horários livres em HH:mm, com a duração e o Veterinário")]
-    public async Task DisponibilidadeDevolveHorariosEmTexto()
+    public async Task DisponibilidadeDevolveHorariosLivres()
     {
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
@@ -73,8 +72,8 @@ public class VeterinariosServiceTests
         var dia = Assert.Single(disponibilidade.Dias);
         Assert.Equal(Quinta, dia.Data);
         Assert.Equal(18, dia.HorariosLivres.Count);
-        Assert.Equal("09:00", dia.HorariosLivres[0]);
-        Assert.Equal("18:30", dia.HorariosLivres[^1]);
+        Assert.Equal(new TimeOnly(9, 0), dia.HorariosLivres[0]);
+        Assert.Equal(new TimeOnly(18, 30), dia.HorariosLivres[^1]);
     }
 
     [Fact(DisplayName = "I071 — EP-022 retira os horários das marcações guardadas, mas não os das canceladas")]
@@ -88,9 +87,9 @@ public class VeterinariosServiceTests
 
         var livres = (await CriarServico(db).ObterDisponibilidadeAsync(dados.VetA, Periodo(Quinta))).Dias[0].HorariosLivres;
 
-        Assert.DoesNotContain("10:00", livres);
-        Assert.DoesNotContain("14:00", livres);
-        Assert.Contains("15:00", livres);
+        Assert.DoesNotContain(new TimeOnly(10, 0), livres);
+        Assert.DoesNotContain(new TimeOnly(14, 0), livres);
+        Assert.Contains(new TimeOnly(15, 0), livres);
         Assert.Equal(16, livres.Count);
     }
 
@@ -105,8 +104,8 @@ public class VeterinariosServiceTests
         var livresVetA = (await servico.ObterDisponibilidadeAsync(dados.VetA, Periodo(Quinta))).Dias[0].HorariosLivres;
         var livresVetB = (await servico.ObterDisponibilidadeAsync(dados.VetB, Periodo(Quinta))).Dias[0].HorariosLivres;
 
-        Assert.Contains("10:00", livresVetA);
-        Assert.DoesNotContain("10:00", livresVetB);
+        Assert.Contains(new TimeOnly(10, 0), livresVetA);
+        Assert.DoesNotContain(new TimeOnly(10, 0), livresVetB);
     }
 
     [Fact(DisplayName = "I071 — EP-022 usa a duração configurada em EP-010 e ignora os períodos inativos")]
@@ -118,15 +117,16 @@ public class VeterinariosServiceTests
         {
             Chave = "DuracaoPadraoConsultaMinutos",
             Valor = "45",
-            DataUltimaAlteracao = Relogio.UtcDateTime
+            DataUltimaAlteracao = Relogio.UtcDateTime,
         });
+
         // Período inativo ao domingo: não pode criar horários.
         db.HorariosFuncionamento.Add(new HorarioFuncionamento
         {
             DiaSemana = 7,
             HoraAbertura = new TimeOnly(9, 0),
             HoraFecho = new TimeOnly(13, 0),
-            Ativo = false
+            Ativo = false,
         });
         await db.SaveChangesAsync();
         var servico = CriarServico(db);
@@ -135,7 +135,9 @@ public class VeterinariosServiceTests
         var domingo = await servico.ObterDisponibilidadeAsync(dados.VetA, Periodo(new DateOnly(2026, 10, 18)));
 
         Assert.Equal(45, quinta.DuracaoConsultaMinutos);
-        Assert.Equal("09:00|09:45|10:30|11:15|12:00", string.Join('|', quinta.Dias[0].HorariosLivres.Take(5)));
+        Assert.Equal(
+            [new TimeOnly(9, 0), new TimeOnly(9, 45), new TimeOnly(10, 30), new TimeOnly(11, 15), new TimeOnly(12, 0)],
+            quinta.Dias[0].HorariosLivres.Take(5));
         Assert.Empty(domingo.Dias[0].HorariosLivres);
     }
 
@@ -161,13 +163,13 @@ public class VeterinariosServiceTests
     {
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
-        var query = new DisponibilidadeQuery
+        var query = new PeriodoDisponibilidade
         {
             DataInicio = dataInicio is null ? null : Data(dataInicio),
-            DataFim = Data(dataFim)
+            DataFim = Data(dataFim),
         };
 
-        var excecao = await Assert.ThrowsAsync<ArgumentException>(
+        var excecao = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(dados.VetA, query));
 
         Assert.Equal(mensagem, excecao.Message);
@@ -180,7 +182,7 @@ public class VeterinariosServiceTests
         var dados = await CriarBaseAsync(db);
 
         var disponibilidade = await CriarServico(db).ObterDisponibilidadeAsync(
-            dados.VetA, new DisponibilidadeQuery { DataInicio = Quinta });
+            dados.VetA, new PeriodoDisponibilidade { DataInicio = Quinta });
 
         Assert.Equal(Quinta, Assert.Single(disponibilidade.Dias).Data);
     }
@@ -194,7 +196,7 @@ public class VeterinariosServiceTests
         var dados = await CriarBaseAsync(db);
         var id = conta == "REC_A" ? dados.RecA : 999;
 
-        await Assert.ThrowsAsync<KeyNotFoundException>(
+        await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(id, Periodo(Quinta)));
     }
 
@@ -204,7 +206,7 @@ public class VeterinariosServiceTests
         using var db = CriarContexto();
         var dados = await CriarBaseAsync(db);
 
-        var excecao = await Assert.ThrowsAsync<KeyNotFoundException>(
+        var excecao = await Assert.ThrowsAsync<NaoEncontradoException>(
             () => CriarServico(db).ObterDisponibilidadeAsync(dados.VetBloqueado, Periodo(Quinta)));
 
         Assert.Equal("O veterinário indicado não existe ou não está ativo.", excecao.Message);
@@ -215,12 +217,11 @@ public class VeterinariosServiceTests
     {
         using var db = CriarContexto();
 
-        await Assert.ThrowsAsync<ArgumentException>(() => CriarServico(db).ObterDisponibilidadeAsync(
+        await Assert.ThrowsAsync<ValidacaoException>(() => CriarServico(db).ObterDisponibilidadeAsync(
             999, Periodo(new DateOnly(2026, 10, 15), new DateOnly(2026, 10, 14))));
     }
 
     // ----- Preparação dos dados -----
-
     private sealed record DadosBase(int VetA, int VetB, int VetBloqueado, int RecA);
 
     // Base em memória da I064 (I028, secção 4.2); o serviço não abre transações.
@@ -229,7 +230,7 @@ public class VeterinariosServiceTests
     private static VeterinariosService CriarServico(ClinicaDbContext db) =>
         new(db, new RelogioFixo(Relogio));
 
-    private static DisponibilidadeQuery Periodo(DateOnly inicio, DateOnly? fim = null) =>
+    private static PeriodoDisponibilidade Periodo(DateOnly inicio, DateOnly? fim = null) =>
         new() { DataInicio = inicio, DataFim = fim };
 
     private static DateOnly Data(string texto) => DateOnly.Parse(texto, CultureInfo.InvariantCulture);
@@ -265,7 +266,7 @@ public class VeterinariosServiceTests
         DiaSemana = diaSemana,
         HoraAbertura = new TimeOnly(abertura, 0),
         HoraFecho = new TimeOnly(fecho, 0),
-        Ativo = true
+        Ativo = true,
     };
 
     private static async Task<int> AdicionarFuncionarioAsync(
@@ -280,7 +281,7 @@ public class VeterinariosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = perfil,
             Estado = estado,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -299,7 +300,7 @@ public class VeterinariosServiceTests
             PasswordHash = "hash-nao-usado-nestes-testes",
             Perfil = Perfis.Cliente,
             Estado = EstadosUtilizador.Ativo,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         };
         db.Utilizadores.Add(utilizador);
         await db.SaveChangesAsync();
@@ -309,7 +310,7 @@ public class VeterinariosServiceTests
             UtilizadorId = utilizador.Id,
             Nome = "Aaron Cliente",
             Telefone = "960000001",
-            DataRegisto = Relogio.UtcDateTime
+            DataRegisto = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
     }
@@ -330,7 +331,7 @@ public class VeterinariosServiceTests
             DuracaoMinutos = duracaoMinutos,
             Estado = estado,
             CriadaPorId = 1,
-            DataCriacao = Relogio.UtcDateTime
+            DataCriacao = Relogio.UtcDateTime,
         });
         await db.SaveChangesAsync();
     }

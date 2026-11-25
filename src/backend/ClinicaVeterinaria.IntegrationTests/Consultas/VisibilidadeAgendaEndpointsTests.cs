@@ -97,7 +97,6 @@ public sealed class VisibilidadeAgendaEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static async Task<JsonDocument> LerAsync(HttpResponseMessage resposta) =>
         JsonDocument.Parse(await resposta.Content.ReadAsStringAsync());
 

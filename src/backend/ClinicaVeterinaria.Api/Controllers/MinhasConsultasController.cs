@@ -1,5 +1,6 @@
+using ClinicaVeterinaria.Api.DTOs.Consultas;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,7 @@ public sealed class MinhasConsultasController : ClienteAutenticadoControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<MinhaConsultaDto>>> Listar([FromQuery] MinhasConsultasQuery query)
     {
-        return Ok(await _minhasConsultasService.ListarAsync(ClienteIdAutenticado, query));
+        var itens = await _minhasConsultasService.ListarAsync(ClienteIdAutenticado, query.ParaModelo());
+        return Ok(itens.Select(item => item.ParaDto()).ToArray());
     }
 }

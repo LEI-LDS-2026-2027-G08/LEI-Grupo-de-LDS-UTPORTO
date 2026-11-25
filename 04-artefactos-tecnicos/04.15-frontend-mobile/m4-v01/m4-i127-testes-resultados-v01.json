@@ -1,0 +1,194 @@
+{
+  "data": "2026-11-23",
+  "commit": "4b82347dcacaf9e8b082b6675911b42d51f9efae",
+  "total": {
+    "tests": 166,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.api.ApiClientTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.api.ApiExceptionTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.api.InstantSerializerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.api.LocalDateSerializerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.formatacao.FormatadoresTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.core.storage.TokenStorageCifradoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.animais.AnimaisConteudoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.animais.AnimaisServiceTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.animais.AnimaisViewModelTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.animais.AnimalDetalheConteudoTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.animais.AnimalDetalheViewModelTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.boletim.BoletimConteudoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.boletim.BoletimServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.boletim.BoletimViewModelTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.consultas.ConsultasConteudoTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.consultas.ConsultasServiceTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.consultas.ConsultasViewModelTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.features.login.LoginConteudoTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.navegacao.NavegacaoSeparadoresTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.navegacao.RotasTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.AuthServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.DadosSensiveisTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.SessaoAutenticadaTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.SessaoLocalTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.SessaoViewModelTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "pt.ipp.estg.g08.clinica.sessao.ValidacaoLoginTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}

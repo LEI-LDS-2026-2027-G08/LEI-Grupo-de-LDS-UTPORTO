@@ -18,12 +18,8 @@ namespace ClinicaVeterinaria.IntegrationTests.Vacinacoes;
 /// deixa o registo como estava; EP-044 é recusado aos perfis da clínica.
 /// </summary>
 /// <remarks>
-/// Dados da I061 (todos registados pela vet.ana): Bobi (João) com a vacina antirrábica de
-/// 2025-10-14, a vacina polivalente PV-1187 e o desparasitante interno DP-0042 (90 dias, próxima
-/// 2027-01-12); Kiko (Maria) com o desparasitante externo DE-0310 de 2026-08-01, sem intervalo;
-/// Mia (João) sem registos. A base é reposta antes de cada teste. Os testes correm com o relógio
-/// real, por isso as datas de administração usadas são passadas e as próximas que devem aparecer no
-/// boletim são de 2027.
+/// O Bobi tem duas vacinas e uma desparasitação. O Kiko tem uma desparasitação sem intervalo,
+/// e a Mia está sem registos. A fixture repõe a base antes de cada teste e o script usa o dia da carga.
 /// </remarks>
 public sealed class VacinacoesPersistenciaEndpointsTests :
     TesteIntegracaoBase,
@@ -48,14 +44,15 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
         var outrosAntes = await RegistosAsync(r => r.PacienteId != bobi);
         var doBobiAntes = await RegistosAsync(r => r.PacienteId == bobi && r.Id != dp0042);
         var boletimMariaAntes = await LerTextoAsync(EmailMaria, $"/me/animais/{kiko}/vacinacoes");
+        var dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-10);
         using var cliente = await ClienteDeAsync(EmailVetAna);
 
         using var registar = await cliente.PostAsJsonAsync(
             $"/animais/{bobi}/vacinacoes",
-            new { tipo = "Vacina", produto = "Vacina da tosse do canil (fictícia)", lote = "TC-0007", dataAdministracao = "2026-10-20", intervaloDias = 365 });
+            new { tipo = "Vacina", produto = "Vacina da tosse do canil (fictícia)", lote = "TC-0007", dataAdministracao, intervaloDias = 365 });
         using var atualizar = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{dp0042}",
-            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao = "2026-10-20", intervaloDias = 30 });
+            new { tipo = "Desparasitacao", produto = "Desparasitante interno (fictício)", lote = "DP-0042", dataAdministracao, intervaloDias = 30 });
 
         Assert.Equal(HttpStatusCode.Created, registar.StatusCode);
         Assert.Equal(HttpStatusCode.OK, atualizar.StatusCode);
@@ -68,10 +65,10 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
         // O novo registo e a atualização ficam no Bobi.
         var novo = Assert.Single(await RegistosAsync(r => r.Lote == "TC-0007"));
         Assert.Equal(bobi, novo.PacienteId);
-        Assert.Equal(new DateOnly(2027, 10, 20), novo.DataProximaAdministracao);
+        Assert.Equal(dataAdministracao.AddDays(365), novo.DataProximaAdministracao);
         var atualizado = Assert.Single(await RegistosAsync(r => r.Id == dp0042));
         Assert.Equal(bobi, atualizado.PacienteId);
-        Assert.Equal(new DateOnly(2026, 11, 19), atualizado.DataProximaAdministracao);
+        Assert.Equal(dataAdministracao.AddDays(30), atualizado.DataProximaAdministracao);
     }
 
     [Fact(DisplayName = "I095 — dar intervalo à desparasitação do Kiko recalcula a próxima, que aparece no boletim web (EP-042) e no boletim da Maria (EP-044), e não no do João")]
@@ -83,25 +80,27 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
         var produto = (await RegistosAsync(r => r.Id == de0310)).Single().Produto;
         var boletimJoaoAntes = await LerTextoAsync(EmailJoao, $"/me/animais/{bobi}/vacinacoes");
         using var cliente = await ClienteDeAsync(EmailVetAna);
+        var dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-30);
+        var dataProximaPrevista = dataAdministracao.AddDays(365);
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{kiko}/vacinacoes/{de0310}",
-            new { tipo = "Desparasitacao", produto, lote = "DE-0310", dataAdministracao = "2026-08-01", intervaloDias = 365 });
+            new { tipo = "Desparasitacao", produto, lote = "DE-0310", dataAdministracao, intervaloDias = 365 });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         using (var documento = await LerAsync(resposta))
         {
-            Assert.Equal("2027-08-01", documento.RootElement.GetProperty("dataProximaPrevista").GetString());
+            Assert.Equal(dataProximaPrevista, documento.RootElement.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
         }
 
-        Assert.Equal(new DateOnly(2027, 8, 1), (await RegistosAsync(r => r.Id == de0310)).Single().DataProximaAdministracao);
+        Assert.Equal(dataProximaPrevista, (await RegistosAsync(r => r.Id == de0310)).Single().DataProximaAdministracao);
 
         using var web = await cliente.GetAsync($"/animais/{kiko}/vacinacoes");
         Assert.Equal(HttpStatusCode.OK, web.StatusCode);
         using (var documento = await LerAsync(web))
         {
             var proxima = Assert.Single(documento.RootElement.GetProperty("proximas").EnumerateArray().ToList());
-            Assert.Equal("2027-08-01", proxima.GetProperty("dataProximaPrevista").GetString());
+            Assert.Equal(dataProximaPrevista, proxima.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
         }
 
         using var maria = await ClienteDeAsync(EmailMaria);
@@ -112,19 +111,30 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
             var proxima = Assert.Single(documento.RootElement.GetProperty("proximas").EnumerateArray().ToList());
             Assert.Equal("Desparasitacao", proxima.GetProperty("tipo").GetString());
             Assert.Equal(produto, proxima.GetProperty("produto").GetString());
-            Assert.Equal("2027-08-01", proxima.GetProperty("dataProximaPrevista").GetString());
+            Assert.Equal(dataProximaPrevista, proxima.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
         }
 
         Assert.Equal(boletimJoaoAntes, await LerTextoAsync(EmailJoao, $"/me/animais/{bobi}/vacinacoes"));
     }
 
     [Theory(DisplayName = "I095 — a atualização recalcula a próxima nos casos de calendário (fim de ano, fim de mês, 29 de fevereiro), na resposta e na coluna calculada")]
-    [InlineData("2025-12-31", 1, "2026-01-01")]
-    [InlineData("2026-01-31", 30, "2026-03-02")]
-    [InlineData("2024-02-28", 1, "2024-02-29")]
-    [InlineData("2023-03-01", 365, "2024-02-29")]
-    public async Task AtualizacaoRecalculaNosCasosDeCalendario(string dataAdministracao, int intervaloDias, string esperada)
+    [InlineData("fim de ano")]
+    [InlineData("fim de mês")]
+    [InlineData("dia bissexto")]
+    [InlineData("intervalo de 365 dias")]
+    public async Task AtualizacaoRecalculaNosCasosDeCalendario(string caso)
     {
+        var ano = DadosTeste.HojeEmLisboa().Year - 1;
+        var anoBissexto = Enumerable.Range(ano - 7, 8).Last(DateTime.IsLeapYear);
+        var (dataAdministracao, intervaloDias, esperada) = caso switch
+        {
+            "fim de ano" => (new DateOnly(ano, 12, 31), 1, new DateOnly(ano + 1, 1, 1)),
+            "fim de mês" => (new DateOnly(ano, 1, 31), 30, new DateOnly(ano, 3, DateTime.IsLeapYear(ano) ? 1 : 2)),
+            "dia bissexto" => (new DateOnly(anoBissexto, 2, 28), 1, new DateOnly(anoBissexto, 2, 29)),
+            "intervalo de 365 dias" => (new DateOnly(anoBissexto - 1, 3, 1), 365, new DateOnly(anoBissexto, 2, 29)),
+            _ => throw new ArgumentOutOfRangeException(nameof(caso)),
+        };
+
         var bobi = await ObterAnimalIdAsync("Bobi");
         var id = await ObterAdministracaoIdAsync(bobi, "DP-0042");
         using var cliente = await ClienteDeAsync(EmailVetAna);
@@ -135,11 +145,11 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         using var documento = await LerAsync(resposta);
-        Assert.Equal(esperada, documento.RootElement.GetProperty("dataProximaPrevista").GetString());
+        Assert.Equal(esperada, documento.RootElement.GetProperty("dataProximaPrevista").Deserialize<DateOnly>());
 
         // A coluna DataProximaAdministracao é calculada pelo SQL Server e tem de dar o mesmo dia.
         var gravado = (await RegistosAsync(r => r.Id == id)).Single();
-        Assert.Equal(DateOnly.Parse(esperada, System.Globalization.CultureInfo.InvariantCulture), gravado.DataProximaAdministracao);
+        Assert.Equal(esperada, gravado.DataProximaAdministracao);
         Assert.Equal((short)intervaloDias, gravado.IntervaloDias);
     }
 
@@ -153,7 +163,7 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
 
         using var resposta = await cliente.PutAsJsonAsync(
             $"/animais/{bobi}/vacinacoes/{id}",
-            new { tipo = "Vacina", produto = "Outro produto", lote = "XX-9999", dataAdministracao = "2026-10-01", intervaloDias = 7 });
+            new { tipo = "Vacina", produto = "Outro produto", lote = "XX-9999", dataAdministracao = DadosTeste.HojeEmLisboa().AddDays(-45), intervaloDias = 7 });
 
         await AssertErroAsync(resposta, HttpStatusCode.Forbidden);
         Assert.Equal(antes, await RegistosAsync(r => r.PacienteId == bobi));
@@ -173,11 +183,10 @@ public sealed class VacinacoesPersistenciaEndpointsTests :
         await AssertErroAsync(resposta, HttpStatusCode.Forbidden);
         var corpo = await resposta.Content.ReadAsStringAsync();
         Assert.DoesNotContain("DP-0042", corpo, StringComparison.Ordinal);
-        Assert.DoesNotContain("2027-01-12", corpo, StringComparison.Ordinal);
+        Assert.DoesNotContain("dataProximaPrevista", corpo, StringComparison.Ordinal);
     }
 
     // ----- Auxiliares -----
-
     private sealed record Registo(
         int Id,
         int PacienteId,

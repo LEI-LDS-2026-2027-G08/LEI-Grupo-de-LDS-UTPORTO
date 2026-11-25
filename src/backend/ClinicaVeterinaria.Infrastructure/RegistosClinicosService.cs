@@ -1,8 +1,8 @@
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.RegistosClinicos;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
+using ClinicaVeterinaria.Application.Models.Comum;
+using ClinicaVeterinaria.Application.Models.RegistosClinicos;
 using ClinicaVeterinaria.Application.Validacao;
 using ClinicaVeterinaria.Domain.Entities;
 using Microsoft.Data.SqlClient;
@@ -67,7 +67,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         _relogio = relogio;
     }
 
-    public async Task<RegistoClinicoDto> CriarAsync(CreateRegistoClinicoDto pedido, int veterinarioId)
+    public async Task<DetalheRegistoClinico> CriarAsync(NovoRegistoClinico pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -82,7 +82,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             .Where(m => m.Id == consultaId)
             .Select(m => new { m.VeterinarioId, m.Estado })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemConsultaNaoEncontrada);
+            ?? throw new NaoEncontradoException(MensagemConsultaNaoEncontrada);
 
         // (3) Só o Veterinário da consulta → 403.
         if (marcacao.VeterinarioId != veterinarioId)
@@ -99,7 +99,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // (5) No máximo um registo por consulta → 409 (UT-F004-013).
         if (await _db.RegistosClinicos.AnyAsync(r => r.MarcacaoId == consultaId))
         {
-            throw new InvalidOperationException(MensagemJaTemRegisto);
+            throw new ConflitoException(MensagemJaTemRegisto);
         }
 
         var agora = AgoraAoSegundo();
@@ -110,7 +110,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             VeterinarioId = veterinarioId,
             NotasClinicas = Normalizar(pedido.NotasClinicas),
             Diagnostico = Normalizar(pedido.Diagnostico),
-            CriadoEm = agora
+            CriadoEm = agora,
         };
 
         // (6) Registo, tratamentos e prescrições gravados juntos ou nada é gravado (IT-EP031-09).
@@ -130,7 +130,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         catch (DbUpdateException erro) when (ChaveUnicaViolada(erro))
         {
             // Dois pedidos simultâneos para a mesma consulta: o segundo bate no índice único.
-            throw new InvalidOperationException(MensagemJaTemRegisto, erro);
+            throw new ConflitoException(MensagemJaTemRegisto, erro);
         }
 
         if (transacao is not null)
@@ -138,10 +138,10 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             await transacao.CommitAsync();
         }
 
-        return await ObterDtoAsync(registo.Id);
+        return await ObterModeloAsync(registo.Id);
     }
 
-    public async Task<RegistoClinicoDto> AtualizarAsync(int id, UpdateRegistoClinicoDto pedido, int veterinarioId)
+    public async Task<DetalheRegistoClinico> AtualizarAsync(int id, AlteracaoRegistoClinico pedido, int veterinarioId)
     {
         ArgumentNullException.ThrowIfNull(pedido);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(veterinarioId);
@@ -151,7 +151,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
 
         // (2) Registo existe → 404 (UT-F004-021).
         var registo = await _db.RegistosClinicos.FirstOrDefaultAsync(r => r.Id == id)
-            ?? throw new KeyNotFoundException(MensagemRegistoNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemRegistoNaoEncontrado);
 
         // (3) Só o Veterinário que fez o registo → 403.
         if (registo.VeterinarioId != veterinarioId)
@@ -168,12 +168,12 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // (4) Um id indicado tem de ser deste registo → 400 (UT-F004-019; PA-10 da I028).
         if (tratamentosPedido.Any(t => t.Id is int tid && tratamentosAtuais.TrueForAll(a => a.Id != tid)))
         {
-            throw new ArgumentException(MensagemTratamentoDeOutroRegisto);
+            throw new ValidacaoException(MensagemTratamentoDeOutroRegisto);
         }
 
         if (prescricoesPedido.Any(p => p.Id is int pid && prescricoesAtuais.TrueForAll(a => a.Id != pid)))
         {
-            throw new ArgumentException(MensagemPrescricaoDeOutroRegisto);
+            throw new ValidacaoException(MensagemPrescricaoDeOutroRegisto);
         }
 
         // (5) As listas substituem as anteriores: atualizar os indicados, acrescentar os novos e
@@ -219,22 +219,22 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         // Uma só gravação: o EF Core aplica as alterações numa transação.
         await _db.SaveChangesAsync();
 
-        return await ObterDtoAsync(id);
+        return await ObterModeloAsync(id);
     }
 
-    public async Task<RegistoClinicoDto> ObterAsync(int id)
+    public async Task<DetalheRegistoClinico> ObterAsync(int id)
     {
         // Registo existe → 404 (IT-EP033-03). A leitura não depende do Veterinário que fez o
         // registo: o histórico clínico do paciente inclui os registos de todos os Veterinários.
         if (!await _db.RegistosClinicos.AsNoTracking().AnyAsync(r => r.Id == id))
         {
-            throw new KeyNotFoundException(MensagemRegistoNaoEncontrado);
+            throw new NaoEncontradoException(MensagemRegistoNaoEncontrado);
         }
 
-        return await ObterDtoAsync(id);
+        return await ObterModeloAsync(id);
     }
 
-    public async Task<HistoricoClinicoDto> ObterHistoricoAsync(int animalId, HistoricoClinicoQuery query)
+    public async Task<HistoricoClinico> ObterHistoricoAsync(int animalId, PeriodoHistoricoClinico query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -244,7 +244,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
 
         if (erroPeriodo is not null)
         {
-            throw new ArgumentException(erroPeriodo);
+            throw new ValidacaoException(erroPeriodo);
         }
 
         // (2) Animal existe → 404 (UT-F004-027).
@@ -252,9 +252,9 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 from p in _db.Pacientes.AsNoTracking()
                 join e in _db.Especies.AsNoTracking() on p.EspecieId equals e.Id
                 where p.Id == animalId
-                select new AnimalRefDto { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
+                select new ReferenciaAnimal { Id = p.Id, Nome = p.Nome, Especie = e.Nome })
             .FirstOrDefaultAsync()
-            ?? throw new KeyNotFoundException(MensagemAnimalNaoEncontrado);
+            ?? throw new NaoEncontradoException(MensagemAnimalNaoEncontrado);
 
         // (3) Registos das consultas do animal. As datas são dias em hora de Lisboa e as marcações
         // estão em UTC (R-FUSO): conta o início da consulta, da meia-noite de dataInicio à
@@ -289,12 +289,12 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                     Veterinario = v.Nome,
                     r.Diagnostico,
                     NumeroTratamentos = _db.Tratamentos.Count(t => t.RegistoClinicoId == r.Id),
-                    NumeroPrescricoes = _db.Prescricoes.Count(p => p.RegistoClinicoId == r.Id)
+                    NumeroPrescricoes = _db.Prescricoes.Count(p => p.RegistoClinicoId == r.Id),
                 })
             .ToListAsync();
 
         var registos = linhas
-            .Select(l => new RegistoClinicoResumoDto
+            .Select(l => new ResumoRegistoClinico
             {
                 Id = l.Id,
                 ConsultaId = l.MarcacaoId,
@@ -302,18 +302,18 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                 Veterinario = l.Veterinario,
                 Diagnostico = l.Diagnostico,
                 NumeroTratamentos = l.NumeroTratamentos,
-                NumeroPrescricoes = l.NumeroPrescricoes
+                NumeroPrescricoes = l.NumeroPrescricoes,
             })
             .ToList();
 
-        return new HistoricoClinicoDto { Animal = animal, Registos = registos };
+        return new HistoricoClinico { Animal = animal, Registos = registos };
     }
 
     /// <summary>
     /// Registo com o paciente da consulta, o nome do Veterinário, o autor da última alteração e as
     /// listas, por identificador.
     /// </summary>
-    private async Task<RegistoClinicoDto> ObterDtoAsync(int id)
+    private async Task<DetalheRegistoClinico> ObterModeloAsync(int id)
     {
         var linha = await (
                 from r in _db.RegistosClinicos.AsNoTracking()
@@ -330,7 +330,7 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
                     r.NotasClinicas,
                     r.Diagnostico,
                     r.AtualizadoEm,
-                    r.AtualizadoPorId
+                    r.AtualizadoPorId,
                 })
             .FirstAsync();
 
@@ -347,23 +347,23 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
         var tratamentos = await _db.Tratamentos.AsNoTracking()
             .Where(t => t.RegistoClinicoId == id)
             .OrderBy(t => t.Id)
-            .Select(t => new TratamentoDto { Id = t.Id, Descricao = t.Descricao, DataAplicacao = t.DataAplicacao })
+            .Select(t => new TratamentoRegistado { Id = t.Id, Descricao = t.Descricao, DataAplicacao = t.DataAplicacao })
             .ToListAsync();
 
         var prescricoes = await _db.Prescricoes.AsNoTracking()
             .Where(p => p.RegistoClinicoId == id)
             .OrderBy(p => p.Id)
-            .Select(p => new PrescricaoDto
+            .Select(p => new PrescricaoRegistada
             {
                 Id = p.Id,
                 Medicamento = p.Medicamento,
                 Dosagem = p.Dosagem,
                 Frequencia = p.Frequencia,
-                DuracaoDias = p.DuracaoDias
+                DuracaoDias = p.DuracaoDias,
             })
             .ToListAsync();
 
-        return new RegistoClinicoDto
+        return new DetalheRegistoClinico
         {
             Id = linha.Id,
             ConsultaId = linha.MarcacaoId,
@@ -375,34 +375,34 @@ public sealed class RegistosClinicosService : IRegistosClinicosService
             Tratamentos = tratamentos,
             Prescricoes = prescricoes,
             AtualizadoEm = linha.AtualizadoEm is DateTime atualizado ? Utc(atualizado) : null,
-            AtualizadoPor = atualizadoPor
+            AtualizadoPor = atualizadoPor,
         };
     }
 
-    private static void Validar(UpdateRegistoClinicoDto pedido)
+    private static void Validar(AlteracaoRegistoClinico pedido)
     {
         var erros = ValidadorRegistoClinico.ObterErros(pedido);
 
         if (erros.Count > 0)
         {
-            throw new ArgumentException(string.Join(" ", erros));
+            throw new ValidacaoException(string.Join(" ", erros));
         }
     }
 
-    private static Tratamento NovoTratamento(int registoId, CreateTratamentoDto tratamento) => new()
+    private static Tratamento NovoTratamento(int registoId, DadosTratamento tratamento) => new()
     {
         RegistoClinicoId = registoId,
         Descricao = tratamento.Descricao.Trim(),
-        DataAplicacao = tratamento.DataAplicacao!.Value
+        DataAplicacao = tratamento.DataAplicacao!.Value,
     };
 
-    private static Prescricao NovaPrescricao(int registoId, CreatePrescricaoDto prescricao) => new()
+    private static Prescricao NovaPrescricao(int registoId, DadosPrescricao prescricao) => new()
     {
         RegistoClinicoId = registoId,
         Medicamento = prescricao.Medicamento.Trim(),
         Dosagem = prescricao.Dosagem.Trim(),
         Frequencia = prescricao.Frequencia.Trim(),
-        DuracaoDias = (short?)prescricao.DuracaoDias
+        DuracaoDias = (short?)prescricao.DuracaoDias,
     };
 
     // Texto só com espaços conta como vazio (UT-F004-007) e fica nulo na base de dados.

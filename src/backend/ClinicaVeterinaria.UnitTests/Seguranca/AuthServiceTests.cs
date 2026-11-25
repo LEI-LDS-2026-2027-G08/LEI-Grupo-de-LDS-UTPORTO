@@ -1,5 +1,5 @@
-using ClinicaVeterinaria.Application.DTOs.Auth;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Auth;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -37,7 +37,6 @@ public class AuthServiceTests
     private const string MensagemCredenciaisInvalidas = "Credenciais inválidas.";
 
     // ----- EP-001 — Iniciar sessão -----
-
     [Fact(DisplayName = "UT-F001-001 — Login do Administrador devolve o token do IJwtTokenService e regista o último acesso")]
     public async Task LoginDoAdministradorDevolveTokenERegistaUltimoAcesso()
     {
@@ -74,7 +73,7 @@ public class AuthServiceTests
         await db.DisposeAsync();
         var hasher = new HasherDuplo();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db, hasher).LoginAsync(Pedido(string.Empty, PalavraPasse)));
 
         Assert.Equal("O e-mail é obrigatório.", erro.Message);
@@ -86,7 +85,7 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).LoginAsync(Pedido(EmailAdmin, string.Empty)));
 
         Assert.Equal("A palavra-passe é obrigatória.", erro.Message);
@@ -97,7 +96,7 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
             () => CriarServico(db).LoginAsync(Pedido("   ", PalavraPasse)));
 
         Assert.Equal("O e-mail é obrigatório.", erro.Message);
@@ -120,7 +119,7 @@ public class AuthServiceTests
         var hasher = new HasherDuplo();
         var logger = new LoggerDeTeste<AuthService>();
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db, hasher, logger: logger).LoginAsync(Pedido(EmailInexistente, "Qualquer#1")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -135,7 +134,7 @@ public class AuthServiceTests
         var tokens = new TokenServiceDuplo();
         var servico = CriarServico(db, new HasherDuplo(PasswordVerificationResult.Failed), tokens);
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => servico.LoginAsync(Pedido(EmailAdmin, "Errada#0000")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -161,7 +160,7 @@ public class AuthServiceTests
         using var db = CriarBase();
         var servico = CriarServico(db, new HasherDuplo(PasswordVerificationResult.Failed));
 
-        var erro = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var erro = await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => servico.LoginAsync(Pedido(EmailBloqueado, "Errada#0000")));
 
         Assert.Equal(MensagemCredenciaisInvalidas, erro.Message);
@@ -184,7 +183,7 @@ public class AuthServiceTests
         using var db = CriarBase();
         var logger = new LoggerDeTeste<AuthService>();
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db, logger: logger).LoginAsync(Pedido(EmailInexistente, "Segredo#123")));
 
         var mensagem = Assert.Single(logger.Registos).Mensagem;
@@ -194,7 +193,6 @@ public class AuthServiceTests
     }
 
     // ----- Validação da sessão em cada pedido autenticado -----
-
     [Fact(DisplayName = "UT-F001-013 — Conta ativa, com o perfil do token e jti não revogado: a sessão é válida")]
     public async Task SessaoDeContaAtivaEValida()
     {
@@ -240,7 +238,6 @@ public class AuthServiceTests
     }
 
     // ----- EP-003 — Consultar utilizador autenticado -----
-
     [Fact(DisplayName = "UT-F001-018 — Veterinário autenticado: nome do Funcionario, perfil Veterinario e sem clienteId")]
     public async Task VeterinarioAutenticadoTemNomeDoFuncionario()
     {
@@ -269,13 +266,12 @@ public class AuthServiceTests
     {
         using var db = CriarBase();
 
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        await Assert.ThrowsAsync<NaoAutenticadoException>(
             () => CriarServico(db).ObterAutenticadoAsync(Bloqueado));
     }
 
     // ----- Apoio -----
-
-    private static LoginRequestDto Pedido(string email, string password) => new() { Email = email, Password = password };
+    private static Credenciais Pedido(string email, string password) => new() { Email = email, Password = password };
 
     private static AuthService CriarServico(
         ClinicaDbContext db,
@@ -321,6 +317,6 @@ public class AuthServiceTests
         PasswordHash = "hash-guardado",
         Perfil = perfil,
         Estado = estado,
-        DataCriacao = Relogio.UtcDateTime.AddDays(-30)
+        DataCriacao = Relogio.UtcDateTime.AddDays(-30),
     };
 }

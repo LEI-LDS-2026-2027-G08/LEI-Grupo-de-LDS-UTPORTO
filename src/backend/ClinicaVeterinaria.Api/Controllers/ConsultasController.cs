@@ -1,5 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
+using ClinicaVeterinaria.Api.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Consultas;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Exceptions;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
@@ -47,7 +48,8 @@ public sealed class ConsultasController : ControllerBase
     public async Task<ActionResult<PagedResultDto<ConsultaListItemDto>>> GetConsultas(
         [FromQuery] ConsultaFiltroQuery filtro)
     {
-        return Ok(await _consultasService.ObterConsultasAsync(filtro, AcessoConsultas.DoUtilizador(User)));
+        var pagina = await _consultasService.ObterConsultasAsync(filtro.ParaModelo(), AcessoConsultas.DoUtilizador(User));
+        return Ok(pagina.ParaDto(item => item.ParaDto()));
     }
 
     /// <summary>EP-024 — Consultar marcação.</summary>
@@ -70,7 +72,7 @@ public sealed class ConsultasController : ControllerBase
 
         Response.Headers.ETag = resultado.ETag;
 
-        return Ok(resultado.Consulta);
+        return Ok(resultado.Consulta.ParaDto());
     }
 
     /// <summary>EP-025 — Criar marcação (só Rececionista).</summary>
@@ -87,6 +89,7 @@ public sealed class ConsultasController : ControllerBase
     /// <response code="404">Animal inexistente, ou Veterinário inexistente ou não ativo.</response>
     /// <response code="422">Fora do horário de funcionamento ou Veterinário indisponível nesse horário.</response>
     [HttpPost]
+
     // Soma-se ao [Authorize] do controlador: dos três perfis da agenda, só a Rececionista cria.
     [Authorize(Policy = PoliticasAutorizacao.Rececionista)]
     [ProducesResponseType<ConsultaDto>(StatusCodes.Status201Created)]
@@ -100,11 +103,11 @@ public sealed class ConsultasController : ControllerBase
         var criadaPorId = User.ObterUtilizadorId()
             ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
 
-        var resultado = await _consultasService.CriarConsultaAsync(pedido, criadaPorId);
+        var resultado = await _consultasService.CriarConsultaAsync(pedido.ParaModelo(), criadaPorId);
 
         Response.Headers.ETag = resultado.ETag;
 
-        return CreatedAtAction(nameof(GetConsulta), new { id = resultado.Consulta.Id }, resultado.Consulta);
+        return CreatedAtAction(nameof(GetConsulta), new { id = resultado.Consulta.Id }, resultado.Consulta.ParaDto());
     }
 
     /// <summary>EP-026 — Alterar marcação (só Rececionista).</summary>
@@ -136,12 +139,12 @@ public sealed class ConsultasController : ControllerBase
     {
         var resultado = await _consultasService.AtualizarConsultaAsync(
             id,
-            pedido,
+            pedido.ParaModelo(),
             ifMatch);
 
         Response.Headers.ETag = resultado.ETag;
 
-        return Ok(resultado.Consulta);
+        return Ok(resultado.Consulta.ParaDto());
     }
 
     /// <summary>EP-027 — Atualizar estado da marcação (só Rececionista).</summary>
@@ -173,7 +176,7 @@ public sealed class ConsultasController : ControllerBase
     {
         var etag = await _consultasService.AtualizarEstadoAsync(
             id,
-            pedido,
+            pedido.ParaModelo(),
             ifMatch);
 
         Response.Headers.ETag = etag;
@@ -205,7 +208,7 @@ public sealed class ConsultasController : ControllerBase
 
         Response.Headers.ETag = resultado.ETag;
 
-        return Ok(resultado.Chegada);
+        return Ok(resultado.Chegada.ParaDto());
     }
 
     /// <summary>EP-029 — Registar informação não clínica de apoio (só Auxiliar Veterinário).</summary>
@@ -231,8 +234,8 @@ public sealed class ConsultasController : ControllerBase
         var auxiliarId = User.ObterUtilizadorId()
             ?? throw new ForbiddenException("O token não identifica o utilizador autenticado.");
 
-        var nota = await _consultasService.CriarNotaPreparacaoAsync(id, pedido, auxiliarId);
+        var nota = await _consultasService.CriarNotaPreparacaoAsync(id, pedido.ParaModelo(), auxiliarId);
 
-        return CreatedAtAction(nameof(GetConsulta), new { id }, nota);
+        return CreatedAtAction(nameof(GetConsulta), new { id }, nota.ParaDto());
     }
 }

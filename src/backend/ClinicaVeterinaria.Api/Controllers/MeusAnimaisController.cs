@@ -1,5 +1,6 @@
+using ClinicaVeterinaria.Api.DTOs.Animais;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Api.Seguranca;
-using ClinicaVeterinaria.Application.DTOs.Animais;
 using ClinicaVeterinaria.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,8 @@ public sealed class MeusAnimaisController : ClienteAutenticadoControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<MeuAnimalListItemDto>>> Listar()
     {
-        return Ok(await _animaisService.ListarDoClienteAsync(ClienteIdAutenticado));
+        var itens = await _animaisService.ListarDoClienteAsync(ClienteIdAutenticado);
+        return Ok(itens.Select(item => item.ParaDto()).ToArray());
     }
 
     /// <summary>EP-020 — Consultar o meu animal (Cliente).</summary>
@@ -46,6 +48,7 @@ public sealed class MeusAnimaisController : ClienteAutenticadoControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MeuAnimalDto>> Obter(int id)
     {
-        return Ok(await _animaisService.ObterDoClienteAsync(ClienteIdAutenticado, id));
+        var resultado = await _animaisService.ObterDoClienteAsync(ClienteIdAutenticado, id);
+        return Ok(resultado.ParaDto());
     }
 }

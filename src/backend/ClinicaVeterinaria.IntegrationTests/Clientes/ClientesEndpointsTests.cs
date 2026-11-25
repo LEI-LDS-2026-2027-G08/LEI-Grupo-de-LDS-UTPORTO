@@ -34,7 +34,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-011 -----
-
     [Fact(DisplayName = "IT-EP011-01 — existem Clientes: 200 com envelope paginado")]
     public async Task ListarDevolveEnvelopePaginado()
     {
@@ -126,7 +125,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-012 -----
-
     [Fact(DisplayName = "IT-EP012-01 — Cliente existente com animais: 200 com os dados do Cliente e os animais associados")]
     public async Task ObterClienteComAnimais()
     {
@@ -161,7 +159,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-013 -----
-
     [Fact(DisplayName = "IT-EP013-01 — NIF e e-mail livres: 201 com Location e o Cliente e o Utilizador Cliente ficam persistidos")]
     public async Task CriarClienteValido()
     {
@@ -214,6 +211,24 @@ public sealed class ClientesEndpointsTests :
         Assert.Equal(0, await ContarContasAsync(email));
     }
 
+    [Theory(DisplayName = "EP-013 — palavra-passe sem símbolo ou pontuação devolve 400 e nada é persistido")]
+    [InlineData("Abcdef12")]
+    [InlineData("Abcdef1\u0000")]
+    public async Task PalavraPasseSemSimboloDevolve400(string palavraPasse)
+    {
+        var email = DadosTeste.EmailUnico("cliente.senha");
+        var pedido = PedidoCriacao(email, NifLivre());
+        pedido["passwordInicial"] = palavraPasse;
+        var antes = await ContarClientesAsync();
+        using var cliente = await Fixture.CriarClienteAutenticadoAsync("Rececionista");
+
+        using var resposta = await cliente.PostAsJsonAsync("/clientes", pedido);
+
+        await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
+        Assert.Equal(antes, await ContarClientesAsync());
+        Assert.Equal(0, await ContarContasAsync(email));
+    }
+
     [Theory(DisplayName = "IT-EP013-03 — NIF inválido devolve 400 e nada é persistido")]
     [InlineData("123456780")]
     [InlineData("12345678")]
@@ -230,14 +245,17 @@ public sealed class ClientesEndpointsTests :
         Assert.Equal(0, await ContarContasAsync(email));
     }
 
-    [Fact(DisplayName = "IT-EP013-04 — e-mail inválido devolve 400 e nada é persistido")]
-    public async Task EmailInvalidoDevolve400()
+    [Theory(DisplayName = "IT-EP013-04 — e-mail inválido devolve 400 e nada é persistido")]
+    [InlineData("ana.pereira.sem.arroba")]
+    [InlineData("ana.pereira@mail")] // regra R-EMAIL: sem ponto no domínio
+    [InlineData("Ana<ana.pereira@mail.pt>")]
+    public async Task EmailInvalidoDevolve400(string email)
     {
         var antes = await ContarClientesAsync();
 
         using var cliente = await Fixture.CriarClienteAutenticadoAsync("Rececionista");
 
-        using var resposta = await cliente.PostAsJsonAsync("/clientes", PedidoCriacao("ana.pereira.sem.arroba", NifLivre()));
+        using var resposta = await cliente.PostAsJsonAsync("/clientes", PedidoCriacao(email, NifLivre()));
 
         await AssertErroAsync(resposta, HttpStatusCode.BadRequest);
         Assert.Equal(antes, await ContarClientesAsync());
@@ -278,7 +296,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- EP-014 -----
-
     [Fact(DisplayName = "IT-EP014-01 — Cliente existente: 200 e as alterações ficam persistidas")]
     public async Task AtualizarClienteExistente()
     {
@@ -292,7 +309,7 @@ public sealed class ClientesEndpointsTests :
             nif = "210000015",
             telefone = "961234000",
             email = EmailJoao,
-            morada = "Av. Central, 22, Porto"
+            morada = "Av. Central, 22, Porto",
         });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
@@ -331,6 +348,7 @@ public sealed class ClientesEndpointsTests :
     [InlineData("nif", "123456780")]
     [InlineData("telefone", "abc")]
     [InlineData("email", "joao.sem.arroba")]
+    [InlineData("email", "joao@mail")] // regra R-EMAIL: sem ponto no domínio
     public async Task DadosInvalidosDevolvem400(string campo, string valor)
     {
         var id = await ObterClienteIdAsync(EmailJoao);
@@ -419,7 +437,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- 401 e 403 (contrato da API v02) -----
-
     [Theory(DisplayName = "I092 — EP-011 e EP-012: Auxiliar Veterinário e Cliente recebem 403")]
     [InlineData("AuxiliarVeterinario")]
     [InlineData("Cliente")]
@@ -480,7 +497,6 @@ public sealed class ClientesEndpointsTests :
     }
 
     // ----- Auxiliares -----
-
     private static Dictionary<string, object?> PedidoCriacao(string email, string? nif) => new()
     {
         ["nome"] = "Ana Pereira",
@@ -488,7 +504,7 @@ public sealed class ClientesEndpointsTests :
         ["telefone"] = "961234567",
         ["email"] = email,
         ["morada"] = "Rua Nova, 5, Maia",
-        ["passwordInicial"] = "Temp#2026x"
+        ["passwordInicial"] = "Temp#2026x",
     };
 
     private static Dictionary<string, object?> PedidoAtualizacao(
@@ -503,7 +519,7 @@ public sealed class ClientesEndpointsTests :
             ["nif"] = atual.Nif,
             ["telefone"] = atual.Telefone,
             ["email"] = email ?? atual.Email,
-            ["morada"] = atual.Morada
+            ["morada"] = atual.Morada,
         };
 
         if (campo is not null)

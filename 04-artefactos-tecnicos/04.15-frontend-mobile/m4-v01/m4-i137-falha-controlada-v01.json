@@ -1,0 +1,10 @@
+{
+  "cenario": "ST-MOB-F001-01",
+  "tipo": "Falha controlada pelo Executor; não substitui a revisão independente",
+  "alteracao_temporaria": "Filtrar erradamente o Bobi da lista devolvida pelo serviço de animais",
+  "resultado": "O teste falhou como esperado e guardou captura com o identificador do cenário",
+  "codigo_reposto": true,
+  "sha256_antes_e_depois": "70e202cc308067feb555b2d0efd2b28633fc53d27297abd8ee618a723074c66c",
+  "pasta_resultados": "a0a3e18e8e85",
+  "captura": "evidencias-i137/falha-controlada/ST-MOB-F001-01.png"
+}

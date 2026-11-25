@@ -1,5 +1,6 @@
-using ClinicaVeterinaria.Application.DTOs.Comum;
-using ClinicaVeterinaria.Application.DTOs.Veterinarios;
+using ClinicaVeterinaria.Api.DTOs.Comum;
+using ClinicaVeterinaria.Api.DTOs.Veterinarios;
+using ClinicaVeterinaria.Api.Mapeamento;
 using ClinicaVeterinaria.Application.Interfaces;
 using ClinicaVeterinaria.Application.Seguranca;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,8 @@ public sealed class VeterinariosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<VeterinarioRefDto>>> Listar()
     {
-        return Ok(await _veterinariosService.ListarAsync());
+        var itens = await _veterinariosService.ListarAsync();
+        return Ok(itens.Select(item => item.ParaDto()).ToArray());
     }
 
     /// <summary>EP-022 — Consultar disponibilidade de um veterinário (Rececionista).</summary>
@@ -53,6 +55,7 @@ public sealed class VeterinariosController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DisponibilidadeDto>> ObterDisponibilidade(int id, [FromQuery] DisponibilidadeQuery query)
     {
-        return Ok(await _veterinariosService.ObterDisponibilidadeAsync(id, query));
+        var resultado = await _veterinariosService.ObterDisponibilidadeAsync(id, query.ParaModelo());
+        return Ok(resultado.ParaDto());
     }
 }

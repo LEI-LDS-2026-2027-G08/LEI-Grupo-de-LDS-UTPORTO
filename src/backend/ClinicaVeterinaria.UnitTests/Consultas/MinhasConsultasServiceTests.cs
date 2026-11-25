@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using ClinicaVeterinaria.Application.Agenda;
-using ClinicaVeterinaria.Application.DTOs.Consultas;
 using ClinicaVeterinaria.Application.Exceptions;
+using ClinicaVeterinaria.Application.Models.Consultas;
 using ClinicaVeterinaria.Application.Seguranca;
 using ClinicaVeterinaria.Domain.Entities;
 using ClinicaVeterinaria.Infrastructure;
@@ -21,13 +21,12 @@ public class MinhasConsultasServiceTests
     // RELOGIO: terça-feira, 2026-10-20 10:00 UTC.
     private static readonly DateTimeOffset Relogio = new(2026, 10, 20, 10, 0, 0, TimeSpan.Zero);
 
-    // Propriedades de MinhaConsultaDto, por ordem alfabética: só dados administrativos.
+    // Propriedades de MinhaConsulta, por ordem alfabética: só dados administrativos.
     private static readonly string[] CamposDaResposta = ["Animal", "DataHora", "Estado", "Id", "Veterinario"];
 
     private static readonly DateTime Criacao = new(2026, 10, 1, 9, 0, 0, DateTimeKind.Utc);
 
     // ----- tipo = futuras -----
-
     [Fact(DisplayName = "UT-F003-056 — futuras: só marcações Pendentes ou Confirmadas futuras dos animais do Cliente, por data crescente")]
     public async Task FuturasSoDoClientePorDataCrescente()
     {
@@ -39,7 +38,7 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-23T09:00:00Z", EstadosConsulta.Cancelada);
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.Vet, "2026-10-21T09:00:00Z", EstadosConsulta.Pendente);
 
-        var futuras = await CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Futuras });
+        var futuras = await CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Futuras });
 
         Assert.Equal(new[] { a1Pendente, a2Confirmada }, futuras.Select(c => c.Id));
         Assert.All(futuras, c => Assert.Contains(c.Animal.Id, new[] { d.AnimalA1, d.AnimalA2 }));
@@ -53,8 +52,8 @@ public class MinhasConsultasServiceTests
         var agora = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-20T10:00:00Z", EstadosConsulta.Confirmada);
         var servico = CriarServico(db);
 
-        var futuras = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Futuras });
-        var historico = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico });
+        var futuras = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Futuras });
+        var historico = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico });
 
         Assert.Equal(agora, Assert.Single(futuras).Id);
         Assert.Empty(historico);
@@ -72,7 +71,7 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-28T09:00:00Z", EstadosConsulta.Pendente);
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.Vet, "2026-10-14T11:00:00Z", EstadosConsulta.Realizada);
 
-        var historico = await CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico });
+        var historico = await CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico });
 
         Assert.Equal(new[] { canceladaFutura, pendentePassada, canceladaPassada, realizada }, historico.Select(c => c.Id));
     }
@@ -86,8 +85,8 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-22T09:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        var semTipo = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery());
-        var futuras = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Futuras });
+        var semTipo = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas());
+        var futuras = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Futuras });
 
         Assert.Equal(futuras.Select(c => c.Id), semTipo.Select(c => c.Id));
         Assert.Single(semTipo);
@@ -102,8 +101,8 @@ public class MinhasConsultasServiceTests
         using var db = AjudaBaseDados.CriarContexto();
         var d = await CriarBaseAsync(db);
 
-        var erro = await Assert.ThrowsAsync<ArgumentException>(
-            () => CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = tipo }));
+        var erro = await Assert.ThrowsAsync<ValidacaoException>(
+            () => CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = tipo }));
 
         Assert.Equal(TiposMinhasConsultas.MensagemTipoInvalido, erro.Message);
     }
@@ -116,13 +115,12 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.Vet, "2026-10-22T09:00:00Z", EstadosConsulta.Pendente);
 
         var erro = await Assert.ThrowsAsync<ForbiddenException>(
-            () => CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { AnimalId = d.AnimalB1 }));
+            () => CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { AnimalId = d.AnimalB1 }));
 
         Assert.Equal(MinhasConsultasService.MensagemAnimalDeOutroCliente, erro.Message);
     }
 
     // ----- Casos próprios da I076 -----
-
     [Fact(DisplayName = "I076 — animalId inexistente também devolve 403, sem revelar se o animal existe")]
     public async Task AnimalInexistenteDevolve403()
     {
@@ -130,7 +128,7 @@ public class MinhasConsultasServiceTests
         var d = await CriarBaseAsync(db);
 
         await Assert.ThrowsAsync<ForbiddenException>(
-            () => CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { AnimalId = d.AnimalB1 + 1000 }));
+            () => CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { AnimalId = d.AnimalB1 + 1000 }));
     }
 
     [Fact(DisplayName = "I076 — animalId próprio devolve só as marcações desse animal")]
@@ -142,8 +140,8 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalA2, d.Vet, "2026-10-23T09:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        var doA1 = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { AnimalId = d.AnimalA1 });
-        var historicoDoA2 = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico, AnimalId = d.AnimalA2 });
+        var doA1 = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { AnimalId = d.AnimalA1 });
+        var historicoDoA2 = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico, AnimalId = d.AnimalA2 });
 
         Assert.Equal(a1, Assert.Single(doA1).Id);
         Assert.Empty(historicoDoA2);
@@ -157,8 +155,8 @@ public class MinhasConsultasServiceTests
         var realizada = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-20T11:00:00Z", EstadosConsulta.Realizada);
         var servico = CriarServico(db);
 
-        var futuras = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery());
-        var historico = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico });
+        var futuras = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas());
+        var historico = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico });
 
         Assert.Empty(futuras);
         Assert.Equal(realizada, Assert.Single(historico).Id);
@@ -177,8 +175,8 @@ public class MinhasConsultasServiceTests
         }
 
         var servico = CriarServico(db);
-        var futuras = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery());
-        var historico = await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico });
+        var futuras = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas());
+        var historico = await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico });
 
         Assert.Empty(futuras.Select(c => c.Id).Intersect(historico.Select(c => c.Id)));
         Assert.Equal(ids.Order(), futuras.Concat(historico).Select(c => c.Id).Order());
@@ -195,7 +193,7 @@ public class MinhasConsultasServiceTests
         var d = await CriarBaseAsync(db);
         var passada = await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-15T09:00:00Z", EstadosConsulta.Realizada);
 
-        var historico = await CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = tipo });
+        var historico = await CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = tipo });
 
         Assert.Equal(passada, Assert.Single(historico).Id);
     }
@@ -207,7 +205,7 @@ public class MinhasConsultasServiceTests
         var d = await CriarBaseAsync(db);
         await AdicionarMarcacaoAsync(db, d.AnimalA1, d.Vet, "2026-10-22T09:30:00Z", EstadosConsulta.Confirmada, motivo: "Comichão no ouvido");
 
-        var consulta = Assert.Single(await CriarServico(db).ListarAsync(d.ClienteA, new MinhasConsultasQuery()));
+        var consulta = Assert.Single(await CriarServico(db).ListarAsync(d.ClienteA, new PesquisaMinhasConsultas()));
 
         Assert.Equal(new DateTime(2026, 10, 22, 9, 30, 0, DateTimeKind.Utc), consulta.DataHora);
         Assert.Equal(DateTimeKind.Utc, consulta.DataHora.Kind);
@@ -218,7 +216,7 @@ public class MinhasConsultasServiceTests
         Assert.Equal("Ana Vet", consulta.Veterinario);
         Assert.Equal(
             CamposDaResposta,
-            typeof(MinhaConsultaDto).GetProperties().Select(p => p.Name).Order());
+            typeof(MinhaConsulta).GetProperties().Select(p => p.Name).Order());
     }
 
     [Fact(DisplayName = "I076 — Cliente sem marcações recebe listas vazias")]
@@ -229,33 +227,32 @@ public class MinhasConsultasServiceTests
         await AdicionarMarcacaoAsync(db, d.AnimalB1, d.Vet, "2026-10-22T09:00:00Z", EstadosConsulta.Pendente);
         var servico = CriarServico(db);
 
-        Assert.Empty(await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery()));
-        Assert.Empty(await servico.ListarAsync(d.ClienteA, new MinhasConsultasQuery { Tipo = TiposMinhasConsultas.Historico }));
+        Assert.Empty(await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas()));
+        Assert.Empty(await servico.ListarAsync(d.ClienteA, new PesquisaMinhasConsultas { Tipo = TiposMinhasConsultas.Historico }));
     }
 
-    // ----- MinhasConsultasQuery (validação automática do pedido, 400) -----
-
-    [Theory(DisplayName = "I076 — MinhasConsultasQuery aceita futuras, historico ou nada")]
+    // ----- PesquisaMinhasConsultas (validação automática do pedido, 400) -----
+    [Theory(DisplayName = "I076 — PesquisaMinhasConsultas aceita futuras, historico ou nada")]
     [InlineData(null)]
     [InlineData("futuras")]
     [InlineData("historico")]
     public void QueryValida(string? tipo)
     {
-        Assert.Empty(Validar(new MinhasConsultasQuery { Tipo = tipo, AnimalId = 1 }));
+        Assert.Empty(Validar(new PesquisaMinhasConsultas { Tipo = tipo, AnimalId = 1 }));
     }
 
-    [Fact(DisplayName = "I076 — MinhasConsultasQuery recusa tipo desconhecido e animalId inferior a 1 no mesmo pedido")]
+    [Fact(DisplayName = "I076 — PesquisaMinhasConsultas recusa tipo desconhecido e animalId inferior a 1 no mesmo pedido")]
     public void QueryInvalida()
     {
-        var erros = Validar(new MinhasConsultasQuery { Tipo = "todas", AnimalId = 0 });
+        var erros = Validar(new PesquisaMinhasConsultas { Tipo = "todas", AnimalId = 0 });
 
         Assert.Contains(erros, e => e.ErrorMessage == TiposMinhasConsultas.MensagemTipoInvalido
-            && e.MemberNames.Contains(nameof(MinhasConsultasQuery.Tipo)));
-        Assert.Contains(erros, e => e.ErrorMessage == MinhasConsultasQuery.MensagemAnimalIdInvalido
-            && e.MemberNames.Contains(nameof(MinhasConsultasQuery.AnimalId)));
+            && e.MemberNames.Contains(nameof(PesquisaMinhasConsultas.Tipo)));
+        Assert.Contains(erros, e => e.ErrorMessage == PesquisaMinhasConsultas.MensagemAnimalIdInvalido
+            && e.MemberNames.Contains(nameof(PesquisaMinhasConsultas.AnimalId)));
     }
 
-    private static List<ValidationResult> Validar(MinhasConsultasQuery query)
+    private static List<ValidationResult> Validar(PesquisaMinhasConsultas query)
     {
         var erros = new List<ValidationResult>();
         _ = Validator.TryValidateObject(query, new ValidationContext(query), erros, validateAllProperties: true);
@@ -263,7 +260,6 @@ public class MinhasConsultasServiceTests
     }
 
     // ----- Dados -----
-
     private static MinhasConsultasService CriarServico(ClinicaDbContext db) => new(db, new RelogioFixo(Relogio));
 
     private sealed record DadosBase(int Vet, int ClienteA, int AnimalA1, int AnimalA2, int AnimalB1);
@@ -309,7 +305,7 @@ public class MinhasConsultasServiceTests
             UtilizadorId = utilizador.Id,
             Nome = nome,
             Telefone = "960000001",
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Clientes.Add(cliente);
         await db.SaveChangesAsync();
@@ -323,7 +319,7 @@ public class MinhasConsultasServiceTests
         PasswordHash = "hash-nao-usado-nestes-testes",
         Perfil = perfil,
         Estado = EstadosUtilizador.Ativo,
-        DataCriacao = Criacao
+        DataCriacao = Criacao,
     };
 
     private static async Task<int> AdicionarAnimalAsync(ClinicaDbContext db, int clienteId, int especieId, string nome)
@@ -333,7 +329,7 @@ public class MinhasConsultasServiceTests
             ClienteId = clienteId,
             Nome = nome,
             EspecieId = especieId,
-            DataRegisto = Criacao
+            DataRegisto = Criacao,
         };
         db.Pacientes.Add(paciente);
         await db.SaveChangesAsync();
@@ -358,7 +354,7 @@ public class MinhasConsultasServiceTests
             Motivo = motivo,
             Estado = estado,
             CriadaPorId = veterinarioId,
-            DataCriacao = Criacao
+            DataCriacao = Criacao,
         };
         db.Marcacoes.Add(marcacao);
         await db.SaveChangesAsync();
