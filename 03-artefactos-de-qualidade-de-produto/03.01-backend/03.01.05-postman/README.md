@@ -1,9 +1,12 @@
-# Collection Postman da API — m3 (I098, I099, I100)
+# Collection Postman da API — m3 e m4 (I098, I099, I100, I125)
+
+**Atualização I125 (m4 v02):** a pipeline usa `m4-collection-postman-v02.json`, preservando a v01 de m3. O teste EP-033 do Auxiliar exige a ausência de `notasClinicas` e `diagnostico`, mantendo tratamentos/prescrições. Foi acrescentado um pedido de histórico com registos para o Auxiliar (EP-034), também sem diagnóstico. A v02 tem 270 pedidos; o ambiente continua a ser `m3-ambiente-postman-v01.json`.
 
 Collection Postman e ambiente de variáveis para testar a API do backend: autenticação, contas de funcionário, clínica, clientes, pacientes e animais do Cliente (EP-001 a EP-020, I098), agenda e área do Cliente (EP-021 a EP-030, I099), registo clínico (EP-031 a EP-034, I100) e boletim de vacinas e desparasitações (EP-042 a EP-044 e a atualização do RF056, I100).
 
 | Ficheiro | Conteúdo |
 |---|---|
+| `m4-collection-postman-v02.json` | Collection atual da I125, com 270 pedidos e verificação da informação reduzida do Auxiliar em EP-033 e EP-034 |
 | `m3-collection-postman-v01.json` | Collection (formato Postman v2.1), com 269 pedidos e os respetivos testes |
 | `m3-ambiente-postman-v01.json` | Ambiente: URL base, contas de demonstração, palavras-passe vazias e variáveis preenchidas pelos scripts |
 | `m3-s05-i098-20261030-resultado-newman-v01.md` | Evidência da execução de referência com o Newman (critério 6), contra o seed original da I061: 125 pedidos e 403 verificações, sem falhas (ver [Validação da collection](#validação-da-collection)) |
@@ -34,7 +37,7 @@ Com o Node.js instalado:
 
 ```powershell
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-npx -y newman@6.2.1 run m3-collection-postman-v01.json -e <caminho-da-copia>\m3-ambiente-postman-v01.json `
+npx -y newman@6.2.1 run m4-collection-postman-v02.json -e <caminho-da-copia>\m3-ambiente-postman-v01.json `
   --reporters cli --color off --disable-unicode |
   Out-File -Encoding utf8 m3-s05-<issue>-<aaaammdd>-resultado-newman-v01.txt
 ```

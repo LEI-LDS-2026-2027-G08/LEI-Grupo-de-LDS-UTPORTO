@@ -76,7 +76,7 @@
   "Newman": {
     "nome": "Collection Postman executada com o Newman contra a API arrancada na pipeline",
     "versaoNewman": "6.2.1",
-    "collection": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m3-collection-postman-v01.json",
+    "collection": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m4-collection-postman-v02.json",
     "ambiente": "03-artefactos-de-qualidade-de-produto/03.01-backend/03.01.05-postman/m3-ambiente-postman-v01.json",
     "maximoFalhas": 0,
     "dadosDemonstracao": "04-artefactos-tecnicos/04.13-scripts-de-base-de-dados/m3-v02/dados-demonstracao",

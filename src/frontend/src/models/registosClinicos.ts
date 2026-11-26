@@ -32,8 +32,10 @@ export interface RegistoClinico {
   /** Nome do Veterinário que criou o registo. */
   veterinario: string;
   criadoEm: string;
-  notasClinicas: string | null;
-  diagnostico: string | null;
+  /** Ausente nas respostas de leitura do Auxiliar. */
+  notasClinicas?: string | null;
+  /** Ausente nas respostas de leitura do Auxiliar. */
+  diagnostico?: string | null;
   tratamentos: Tratamento[];
   prescricoes: Prescricao[];
   atualizadoEm: string | null;
@@ -79,7 +81,8 @@ export interface RegistoClinicoResumo {
   /** Dia da consulta em Lisboa (aaaa-mm-dd). */
   data: string;
   veterinario: string;
-  diagnostico: string | null;
+  /** Ausente no histórico do Auxiliar. */
+  diagnostico?: string | null;
   numeroTratamentos: number;
   numeroPrescricoes: number;
 }

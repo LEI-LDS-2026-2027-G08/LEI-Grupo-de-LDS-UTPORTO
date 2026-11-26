@@ -1,0 +1,30 @@
+I125 — Correção da verificação Postman do Auxiliar — 22/11/2026
+
+Collection: m4-collection-postman-v02.json. Newman 6.2.1.
+Execução local contra a API compilada da branch I125 e uma base SQL temporária
+independente, criada com as migrações e dados de demonstração do projeto.
+Credenciais descartáveis aplicadas apenas às contas dessa base temporária.
+API e base temporárias removidas no fim; base da aplicação preservada.
+
+RESULTADO
+270 pedidos, 865 verificações, zero falhas.
+
+ALTERAÇÕES VERIFICADAS
+EP-033: o Auxiliar recebe o registo reduzido, com os tratamentos e prescrições;
+notasClinicas e diagnostico não existem na resposta.
+EP-034: novo pedido de histórico do Auxiliar com registos; diagnóstico e notas
+não são expostos, mantendo contexto e contagens.
+A v01 de m3 foi preservada; .github/quality-gates.json aponta para a nova v02.
+
+ORIGEM DA FALHA NA CI
+No commit 16c8513, a collection antiga ainda exigia diagnostico =
+“Otite externa em melhoria” para o Auxiliar. A API omite esse campo conforme a
+correção da I125, originando “expected undefined to deeply equal”.
+Esta correção atualiza a expectativa e acrescenta a verificação do histórico;
+não retira o bloqueio de falhas nem baixa qualquer quality gate.
+
+LIMITES
+O resultado local não substitui a execução da pipeline após o próximo commit.
+A falha de arranque do SQL na pipeline separada é distinta desta asserção;
+a execução original nem chegou a iniciar os testes. Foi pedida uma repetição
+sem modificar o código ou a configuração desse workflow.

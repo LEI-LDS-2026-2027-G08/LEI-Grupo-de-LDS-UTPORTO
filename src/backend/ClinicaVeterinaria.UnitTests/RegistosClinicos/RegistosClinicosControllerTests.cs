@@ -91,19 +91,25 @@ public class RegistosClinicosControllerTests
             Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.Atualizar))!.GetCustomAttributes<HttpPutAttribute>()).Template);
     }
 
-    [Fact(DisplayName = "I078 — As rotas são GET /registos-clinicos/{id} e GET /animais/{id}/historico-clinico")]
-    public void RotasDeLeituraDoContrato()
+    [Fact(DisplayName = "I078 — EP-033 devolve ao Auxiliar o registo reduzido")]
+    public async Task ObterDevolve200()
     {
-        var tipo = typeof(RegistosClinicosController);
+        var servico = new RegistosClinicosServiceDeTeste();
+        var controlador = CriarControlador(
+            servico,
+            AcessoConsultasTests.Principal(Perfis.AuxiliarVeterinario));
 
-        Assert.Equal(
-            "{id:int}",
-            Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.Obter))!.GetCustomAttributes<HttpGetAttribute>()).Template);
+        var resposta = await controlador.Obter(18);
 
-        // Começa por «/»: não se junta ao prefixo «registos-clinicos» do controlador.
-        Assert.Equal(
-            "/animais/{id:int}/historico-clinico",
-            Assert.Single(tipo.GetMethod(nameof(RegistosClinicosController.ObterHistorico))!.GetCustomAttributes<HttpGetAttribute>()).Template);
+        var ok = Assert.IsType<OkObjectResult>(resposta);
+        var dto = Assert.IsType<RegistoClinicoAuxiliarDto>(ok.Value);
+
+        Assert.Equal(servico.Registo.Id, dto.Id);
+        Assert.Equal(servico.Registo.ConsultaId, dto.ConsultaId);
+        Assert.Equal(servico.Registo.AnimalId, dto.AnimalId);
+        Assert.Equivalent(servico.Registo.Tratamentos, dto.Tratamentos);
+        Assert.Equivalent(servico.Registo.Prescricoes, dto.Prescricoes);
+        Assert.Equal(18, servico.UltimoId);
     }
 
     [Fact(DisplayName = "I077 — EP-031 devolve 201 com Location /registos-clinicos/{id} e usa o Veterinário do token")]
@@ -149,15 +155,52 @@ public class RegistosClinicosControllerTests
         Assert.Null(servico.UltimoPedido);
     }
 
-    [Fact(DisplayName = "I078 — EP-033 devolve 200 com o registo do serviço")]
-    public async Task ObterDevolve200()
+    [Fact(DisplayName = "I078 — EP-033 devolve ao Auxiliar o registo reduzido, sem notas clínicas nem diagnóstico")]
+    public async Task ObterComoAuxiliarDevolveRegistoReduzido()
     {
         var servico = new RegistosClinicosServiceDeTeste();
+        servico.Registo.NotasClinicas = "Notas reservadas ao Veterinário";
+        servico.Registo.Diagnostico = "Diagnóstico reservado ao Veterinário";
+        servico.Registo.Tratamentos =
+        [
+            new TratamentoRegistado { Id = 1, Descricao = "Limpeza", DataAplicacao = new DateOnly(2026, 11, 21) },
+        ];
+        servico.Registo.Prescricoes =
+        [
+            new PrescricaoRegistada { Id = 2, Medicamento = "Medicamento de teste", Dosagem = "Dose de teste", Frequencia = "Diária", DuracaoDias = 3 },
+        ];
         var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.AuxiliarVeterinario));
 
         var resposta = await controlador.Obter(18);
 
-        var ok = Assert.IsType<OkObjectResult>(resposta.Result);
+        var ok = Assert.IsType<OkObjectResult>(resposta);
+        var dto = Assert.IsType<RegistoClinicoAuxiliarDto>(ok.Value);
+        Assert.Equal(servico.Registo.Id, dto.Id);
+        Assert.Equal(servico.Registo.ConsultaId, dto.ConsultaId);
+        Assert.Equal(servico.Registo.AnimalId, dto.AnimalId);
+        Assert.Equal(servico.Registo.Veterinario, dto.Veterinario);
+        Assert.Equal(servico.Registo.CriadoEm, dto.CriadoEm);
+        Assert.Equal(servico.Registo.AtualizadoEm, dto.AtualizadoEm);
+        Assert.Equal(servico.Registo.AtualizadoPor, dto.AtualizadoPor);
+        Assert.Equivalent(servico.Registo.Tratamentos, dto.Tratamentos, strict: true);
+        Assert.Equivalent(servico.Registo.Prescricoes, dto.Prescricoes, strict: true);
+        var json = System.Text.Json.JsonSerializer.SerializeToElement(dto);
+        Assert.False(json.TryGetProperty("NotasClinicas", out _));
+        Assert.False(json.TryGetProperty("Diagnostico", out _));
+        Assert.Equal(18, servico.UltimoId);
+    }
+
+    [Fact(DisplayName = "I078 — EP-033 mantém o registo completo para o Veterinário")]
+    public async Task ObterComoVeterinarioDevolveRegistoCompleto()
+    {
+        var servico = new RegistosClinicosServiceDeTeste();
+        servico.Registo.NotasClinicas = "Notas reservadas ao Veterinário";
+        servico.Registo.Diagnostico = "Diagnóstico reservado ao Veterinário";
+        var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.Veterinario, veterinarioId: 4));
+
+        var resposta = await controlador.Obter(18);
+
+        var ok = Assert.IsType<OkObjectResult>(resposta);
         Assert.Equivalent(servico.Registo, Assert.IsType<RegistoClinicoDto>(ok.Value), strict: true);
         Assert.Equal(18, servico.UltimoId);
     }
@@ -171,10 +214,31 @@ public class RegistosClinicosControllerTests
 
         var resposta = await controlador.ObterHistorico(3, query);
 
-        var ok = Assert.IsType<OkObjectResult>(resposta.Result);
+        var ok = Assert.IsType<OkObjectResult>(resposta);
         Assert.Equivalent(servico.Historico, Assert.IsType<HistoricoClinicoDto>(ok.Value), strict: true);
         Assert.Equal(3, servico.UltimoId);
         Assert.Equivalent(query, servico.UltimaQuery);
+    }
+
+    [Fact(DisplayName = "I125 — histórico do Auxiliar omite diagnóstico e mantém as contagens")]
+    public async Task HistoricoComoAuxiliarDevolveRespostaReduzida()
+    {
+        var servico = new RegistosClinicosServiceDeTeste();
+        servico.Historico.Registos =
+        [
+            new ResumoRegistoClinico { Id = 18, ConsultaId = 41, Diagnostico = "Reservado", NumeroTratamentos = 1, NumeroPrescricoes = 2 },
+        ];
+        var controlador = CriarControlador(servico, AcessoConsultasTests.Principal(Perfis.AuxiliarVeterinario));
+
+        var resposta = await controlador.ObterHistorico(3, new HistoricoClinicoQuery());
+
+        var dto = Assert.IsType<HistoricoClinicoAuxiliarDto>(Assert.IsType<OkObjectResult>(resposta).Value);
+        var linha = Assert.Single(dto.Registos);
+        Assert.Equal(18, linha.Id);
+        Assert.Equal(41, linha.ConsultaId);
+        Assert.Equal(1, linha.NumeroTratamentos);
+        Assert.Equal(2, linha.NumeroPrescricoes);
+        Assert.False(System.Text.Json.JsonSerializer.SerializeToElement(linha).TryGetProperty("Diagnostico", out _));
     }
 
     private static RegistosClinicosController CriarControlador(RegistosClinicosServiceDeTeste servico, ClaimsPrincipal utilizador) =>

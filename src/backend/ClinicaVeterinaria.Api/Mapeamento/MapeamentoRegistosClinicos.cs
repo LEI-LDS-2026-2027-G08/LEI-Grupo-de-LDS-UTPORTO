@@ -91,4 +91,31 @@ internal static class MapeamentoRegistosClinicos
         Descricao = origem.Descricao,
         DataAplicacao = origem.DataAplicacao,
     };
+
+    public static RegistoClinicoAuxiliarDto ParaDtoAuxiliar(
+        this DetalheRegistoClinico origem) => new()
+        {
+            Id = origem.Id,
+            ConsultaId = origem.ConsultaId,
+            AnimalId = origem.AnimalId,
+            Veterinario = origem.Veterinario,
+            CriadoEm = origem.CriadoEm,
+            Tratamentos = origem.Tratamentos.Select(item => item.ParaDto()).ToArray(),
+            Prescricoes = origem.Prescricoes.Select(item => item.ParaDto()).ToArray(),
+            AtualizadoEm = origem.AtualizadoEm,
+            AtualizadoPor = origem.AtualizadoPor,
+        };
+    public static HistoricoClinicoAuxiliarDto ParaDtoAuxiliar(this HistoricoClinico origem) => new()
+    {
+        Animal = origem.Animal.ParaDto(),
+        Registos = origem.Registos.Select(item => new RegistoClinicoResumoAuxiliarDto
+        {
+            Id = item.Id,
+            ConsultaId = item.ConsultaId,
+            Data = item.Data,
+            Veterinario = item.Veterinario,
+            NumeroTratamentos = item.NumeroTratamentos,
+            NumeroPrescricoes = item.NumeroPrescricoes,
+        }).ToArray(),
+    };
 }
