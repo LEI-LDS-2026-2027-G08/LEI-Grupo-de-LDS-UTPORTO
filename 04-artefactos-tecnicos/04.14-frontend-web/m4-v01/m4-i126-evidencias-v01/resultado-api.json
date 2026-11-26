@@ -1,0 +1,186 @@
+{
+  "data": "2026-11-26T20:02:43.761Z",
+  "resultados": [
+    {
+      "nome": "Boletim antes das recusas",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 200,
+      "estado": 200,
+      "passou": true
+    },
+    {
+      "nome": "Data futura recusada",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Campos obrigatórios",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Intervalo inválido 0",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Intervalo inválido -1",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Intervalo inválido 32768",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Intervalo inválido 1.5",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Tipo inválido",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 400,
+      "estado": 400,
+      "passou": true
+    },
+    {
+      "nome": "Paciente inexistente",
+      "metodo": "GET",
+      "caminho": "/animais/2147483647/vacinacoes",
+      "esperado": 404,
+      "estado": 404,
+      "passou": true
+    },
+    {
+      "nome": "Leitura sem sessão",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 401,
+      "estado": 401,
+      "passou": true
+    },
+    {
+      "nome": "Escrita sem sessão",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 401,
+      "estado": 401,
+      "passou": true
+    },
+    {
+      "nome": "Leitura recusada admin@clinica-g08.test",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Escrita recusada admin@clinica-g08.test",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Leitura recusada rececao@clinica-g08.test",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Escrita recusada rececao@clinica-g08.test",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Leitura recusada aux.carla@clinica-g08.test",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Escrita recusada aux.carla@clinica-g08.test",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Leitura recusada aux.diogo@clinica-g08.test",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Escrita recusada aux.diogo@clinica-g08.test",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Leitura recusada cliente.joao@clinica-g08.test",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Escrita recusada cliente.joao@clinica-g08.test",
+      "metodo": "POST",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 403,
+      "estado": 403,
+      "passou": true
+    },
+    {
+      "nome": "Boletim após as recusas",
+      "metodo": "GET",
+      "caminho": "/animais/4/vacinacoes",
+      "esperado": 200,
+      "estado": 200,
+      "passou": true
+    },
+    {
+      "nome": "Recusas sem criação de registos; próxima calculada e sem intervalo; duas próximas iguais preservadas",
+      "passou": true
+    }
+  ],
+  "registos": 5
+}

@@ -51,12 +51,12 @@ Não foi identificado outro defeito bloqueador nos fluxos executados. Esta obser
 | Verificação | Resultado |
 |---|---|
 | Vitest: vacinação e `VacinacoesService` | 23 testes passaram, incluindo a regressão da #290. |
-| Backend: filtro `FullyQualifiedName~Vacinacao` | 83 testes unitários passaram; TRX no pacote de evidências. |
+| Backend: filtro `FullyQualifiedName~Vacinacao` | 83 testes unitários passaram; TRX na pasta de evidências. |
 | Compilação do frontend e da API | Passou; API com zero erros e zero avisos. |
 | ESLint e Prettier dos ficheiros alterados | Passaram. |
 | Verificações HTTP auxiliares | 23 passaram; resultados sem tokens nem palavras-passe. |
 
-Pacote: [m4-i126-evidencias-v01.zip](m4-i126-evidencias-v01.zip), com 14 capturas, resultados HTTP, registo da consola antes da correção, confirmação posterior e identificação dos ficheiros de código por SHA-256.
+Pasta: [m4-i126-evidencias-v01](m4-i126-evidencias-v01/README.txt), com 14 capturas, resultados HTTP, registo da consola antes da correção, confirmação posterior e identificação dos ficheiros de código por SHA-256.
 
 A execução automática do navegador pelo Playwright foi bloqueada pelas permissões do sistema. Os percursos visuais foram executados pelo navegador integrado, contra a API real. Não foi executada a suite final de testes de sistema nem um ensaio no ambiente público. A recuperação de falha de rede só tem cobertura nos testes de componente existentes; não foi repetida ponta a ponta nesta execução.
 

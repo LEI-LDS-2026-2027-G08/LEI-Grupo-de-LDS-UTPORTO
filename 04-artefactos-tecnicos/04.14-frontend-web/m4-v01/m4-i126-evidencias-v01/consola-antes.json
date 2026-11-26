@@ -1,0 +1,14 @@
+[
+  {
+    "level": "error",
+    "message": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Vacina-Produto repetido I126-2026-12-26",
+    "timestamp": "2026-11-26T20:00:38.650Z",
+    "url": "http://localhost:5174/@vite/client"
+  },
+  {
+    "level": "error",
+    "message": "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Vacina-Produto repetido I126-2026-12-26",
+    "timestamp": "2026-11-26T20:00:50.940Z",
+    "url": "http://localhost:5174/@vite/client"
+  }
+]
