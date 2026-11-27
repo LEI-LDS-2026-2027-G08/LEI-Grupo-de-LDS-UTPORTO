@@ -99,6 +99,27 @@ function seccao(nome: string) {
 }
 
 describe("W16 — boletim do paciente (I118)", () => {
+  it("mantém próximas administrações com o mesmo tipo, produto e data sem chaves duplicadas", async () => {
+    const primeira = BOLETIM.proximas[0];
+    const segunda = { ...primeira };
+    const erroConsola = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      montar({
+        servico: servicoFalso({
+          ...BOLETIM,
+          proximas: [primeira, segunda],
+        }),
+      });
+      const proximas = await screen.findByRole("region", {
+        name: "Próximas administrações",
+      });
+      expect(within(proximas).getAllByRole("row")).toHaveLength(3);
+      expect(erroConsola.mock.calls.flat().join(" ")).not.toMatch(/same key/);
+    } finally {
+      erroConsola.mockRestore();
+    }
+  });
+
   it("mostra o boletim com tipo, produto, lote, data, intervalo e próxima administração (EP-042)", async () => {
     const servico = montar();
     expect(screen.getByRole("status")).toHaveTextContent("A carregar…");

@@ -1,0 +1,12 @@
+{
+  "data": "2026-11-26",
+  "base": "f3feedd26de33694b23fb203d24b5d92c0fad68f",
+  "ficheiros": {
+    "src/frontend/src/pages/vacinacao/VacinacaoPage.tsx": "321b78e5c56dacad3403d2b07ee8bf9a30c234cc7dc4e67dd30a4a247a08d7c0",
+    "src/frontend/src/pages/vacinacao/vacinacao.test.tsx": "189322749d4420456ead9c1ba5f49bdf2d8cf15dcaa6b4b7f69862ebce9879c4"
+  },
+  "testesFrontend": 23,
+  "testesBackend": 83,
+  "verificacoesApi": 23,
+  "estado": "Para revisão; atualização/recálculo pendentes de decisão (#291)."
+}

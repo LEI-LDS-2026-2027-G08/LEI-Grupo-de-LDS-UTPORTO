@@ -1,0 +1,18 @@
+[
+  {
+    "email": "admin@clinica-g08.test",
+    "negado": true
+  },
+  {
+    "email": "rececao@clinica-g08.test",
+    "negado": true
+  },
+  {
+    "email": "aux.carla@clinica-g08.test",
+    "negado": true
+  },
+  {
+    "email": "aux.diogo@clinica-g08.test",
+    "negado": true
+  }
+]

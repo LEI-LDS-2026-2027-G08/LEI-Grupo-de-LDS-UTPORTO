@@ -353,10 +353,11 @@ function BoletimDoPaciente({
             <h2 id={`${idCampos}-proximas`}>Próximas administrações</h2>
             <DataTable
               colunas={colunasProximas}
-              linhas={boletim.proximas}
-              chaveLinha={(p) =>
-                `${p.tipo}-${p.produto}-${p.dataProximaPrevista}`
-              }
+              linhas={boletim.proximas.map((p, indice) => ({
+                ...p,
+                chave: `${p.tipo}-${p.produto}-${p.dataProximaPrevista}-${indice}`,
+              }))}
+              chaveLinha={(p) => p.chave}
               mensagemVazia="Sem próximas administrações previstas."
             />
           </section>
