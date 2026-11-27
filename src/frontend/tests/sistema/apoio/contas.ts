@@ -82,9 +82,18 @@ export const VARIAVEIS_I132 = [
   CONTAS.clienteJoao,
 ].map((c) => c.variavel);
 
-/** Todas as variáveis de que a suite de sistema precisa (I129 e I132). */
+/** Variáveis de ambiente das contas usadas pelos testes da I130. */
+export const VARIAVEIS_I130 = [
+  CONTAS.rececao,
+  CONTAS.vetAna,
+  CONTAS.vetBruno,
+  CONTAS.auxCarla,
+  CONTAS.auxDiogo,
+].map((c) => c.variavel);
+
+/** Todas as variáveis de que a suite de sistema precisa (I129, I130 e I132). */
 export const VARIAVEIS_SISTEMA = [
-  ...new Set([...VARIAVEIS_I129, ...VARIAVEIS_I132]),
+  ...new Set([...VARIAVEIS_I129, ...VARIAVEIS_I132, ...VARIAVEIS_I130]),
 ];
 
 /** Palavra-passe de uma conta de demonstração, lida da variável de ambiente. */

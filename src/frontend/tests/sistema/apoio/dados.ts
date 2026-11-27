@@ -61,3 +61,58 @@ export function dataLisboa(desvioDias = 0): string {
     day: "2-digit",
   }).format(instante);
 }
+
+/** Soma (ou subtrai) dias a uma data aaaa-mm-dd. */
+export function somarDias(data: string, dias: number): string {
+  const [ano, mes, dia] = data.split("-").map(Number);
+  return new Date(Date.UTC(ano, mes - 1, dia + dias))
+    .toISOString()
+    .slice(0, 10);
+}
+
+/** Dia da semana de uma data aaaa-mm-dd (0 = domingo … 6 = sábado). */
+export function diaDaSemana(data: string): number {
+  const [ano, mes, dia] = data.split("-").map(Number);
+  return new Date(Date.UTC(ano, mes - 1, dia)).getUTCDay();
+}
+
+/**
+ * {D} (I128, secção 5.4) — dia útil (segunda a sexta) das marcações de um
+ * cenário, com o desvio N indicado nos seus dados: o N.º dia útil a seguir a
+ * hoje, em Lisboa. Fica sempre a pelo menos N dias de hoje e, ao contrário do
+ * «primeiro dia útil a pelo menos N dias», dá dias diferentes a desvios
+ * diferentes também perto do fim de semana (a partir de uma sexta-feira, os
+ * desvios 8, 9 e 10 dariam todos a mesma segunda-feira). Assim, dois cenários
+ * a correr em paralelo nunca disputam a mesma vaga do mesmo Veterinário.
+ */
+export function diaDeMarcacao(desvio: number): string {
+  let dia = dataLisboa(0);
+  let uteis = 0;
+  while (uteis < desvio) {
+    dia = somarDias(dia, 1);
+    const semana = diaDaSemana(dia);
+    if (semana >= 1 && semana <= 5) uteis += 1;
+  }
+  return dia;
+}
+
+/** Data aaaa-mm-dd como a aplicação a mostra: dd/mm/aaaa. */
+export function dataPt(data: string): string {
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
+/** Hora atual de Lisboa (HH:mm). */
+export function horaLisboa(instante: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Lisbon",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(instante);
+}
+
+/** Texto para usar dentro de uma expressão regular, sem significado especial. */
+export function literal(texto: string): string {
+  return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
