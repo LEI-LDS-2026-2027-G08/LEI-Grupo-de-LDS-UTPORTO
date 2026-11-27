@@ -11,7 +11,7 @@
 | Executor | Ivan Cristiano Silva Mendes |
 | Revisor | Gonçalo Dinis Magalhães Teixeira |
 | Auditor | Gonçalo Magalhães Ribeiro |
-| Estado | Para revisão. Validação integral por outro elemento ainda não executada. |
+| Estado | Instalação local de raiz validada pelo Revisor em 27/11/2026, com os desvios D1 e D2 registados. Correções documentais preparadas; aguardam confirmação do Revisor e relatório formal. Ensaio público não executado. |
 | Código de referência | `f3feedd26de33694b23fb203d24b5d92c0fad68f` |
 | Fonte editável | `m4-manual-instalacao-configuracao-v02.md` |
 | Pasta de entrega | `04-artefactos-tecnicos/04.17-manual-de-instalacao-e-configuracao` |
@@ -21,7 +21,7 @@
 | Versão | Data | Autor | Alteração |
 |---|---|---|---|
 | v01 | 04/11/2026 | André Filipe Moreira Mesquita | Manual do backend da M3, mantido como histórico. |
-| v02 | 27/11/2026 | Ivan Cristiano Silva Mendes | Sistema completo: API, SQL Server, frontend web React e aplicação Android/Kotlin; ambientes local e público; instalação do APK; verificação e diagnóstico. Atualiza a configuração de CORS e separa verificação técnica de validação independente. |
+| v02 | 27/11/2026 | Ivan Cristiano Silva Mendes | Sistema completo: API, SQL Server, frontend web React e aplicação Android/Kotlin; ambientes local e público; instalação do APK; verificação e diagnóstico. Atualiza a configuração de CORS e separa verificação técnica de validação independente. Atualização após comentário preliminar do Revisor: ficheiros sem BOM, npm 11.19.x, registo da validação local e esclarecimentos operacionais. |
 
 ## 1. Objetivo, ambiente e sequência
 
@@ -45,8 +45,8 @@ Use três janelas: **A - preparação**, **B - API** e **C - web**. As janelas B
 | EF Core e ferramenta `dotnet-ef` | 10.0.13 | Projetos `.csproj`; `dotnet ef --version` |
 | SQL Server | 2025, série 17.x | `SELECT @@VERSION;` |
 | Imagem SQL para Docker | `mcr.microsoft.com/mssql/server:2025-CU9-ubuntu-22.04` | Mesma etiqueta dos testes do projeto |
-| Node.js | 24.22.3, série 24 LTS | `node --version` |
-| npm usado na verificação local | 11.19.1 | `npm --version`; ver nota abaixo |
+| Node.js | Série 24 LTS; 24.20.0 na validação Windows e 24.22.3 na preparação macOS | `node --version` |
+| npm adotado neste procedimento | 11.19.x; 11.19.0 validado em Windows e 11.19.1 na preparação macOS | `npm --version`; ver nota abaixo |
 | React / TypeScript / Vite | 19.3.1 / 6.0.3 / 8.3.4 | `src/frontend/package-lock.json` |
 | JDK do Gradle | Eclipse Temurin 21; verificado 21.0.13+9 | `java -version`; `gradle-daemon-jvm.properties` |
 | Gradle / Android Gradle Plugin | 9.6.0 / 9.4.1 | Gradle Wrapper e `libs.versions.toml` |
@@ -56,7 +56,7 @@ Use três janelas: **A - preparação**, **B - API** e **C - web**. As janelas B
 | Android mínimo do dispositivo | API 26 - Android 8.0 | `minSdk` do projeto |
 | Android Studio observado | Build `262.10968.63.2622.16975389` | Help → About; pode usar outra edição compatível com o AGP indicado |
 
-**Nota sobre npm:** o Backlog v06 indica npm 12. O Node instalado e o README web usam npm 11; a verificação desta preparação foi feita com 11.19.1. Esta diferença está registada como D01 no registo da I054 e deve ser decidida antes da aprovação. Não se declara npm 12 testado. O procedimento usa `npm ci` e mantém o ficheiro de bloqueio de dependências do projeto.
+**Nota sobre npm:** este procedimento adota npm 11.19.x, utilizado com Node 24 e validado pelo Revisor em Windows com npm 11.19.0. A preparação macOS usou 11.19.1. O Backlog v06 indica npm 12; a diferença e a opção pela versão validada ficam registadas como D01 no registo da I054. Não se declara npm 12 testado. Use `npm ci` e preserve o ficheiro de bloqueio de dependências do projeto.
 
 Instale Git 2.40 ou posterior, .NET SDK, Node.js, JDK, Android Studio e `sqlcmd`. Os números das bibliotecas não são versões a instalar manualmente: o npm e o Gradle resolvem-nos a partir dos ficheiros versionados. A versão exata de cada ferramenta utilizada na validação deve ser registada.
 
@@ -218,7 +218,8 @@ Na opção A:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\executar-dados.ps1 `
-    -Servidor $ServidorLds -BaseDados $BaseLds -ConfiarCertificado
+    -Servidor $ServidorLds -BaseDados $BaseLds -ConfiarCertificado `
+    -PastaRegistos $env:TEMP
 ```
 
 Na opção B:
@@ -227,12 +228,12 @@ Na opção B:
 $env:SQLCMDPASSWORD = $SenhaSqlLds
 powershell -ExecutionPolicy Bypass -File .\executar-dados.ps1 `
     -Servidor $ServidorLds -BaseDados $BaseLds `
-    -Utilizador sa -ConfiarCertificado
+    -Utilizador sa -ConfiarCertificado -PastaRegistos $env:TEMP
 Remove-Item Env:SQLCMDPASSWORD
 Remove-Variable SenhaSqlLds
 ```
 
-Resultado esperado: segunda carga sem novas inserções e `28 verificações, 28 OK, 0 falhadas`. Não use `-DadosReferenciaProvisorios` numa base criada pelas migrações. O script gera um registo local; reveja-o antes de o partilhar.
+Resultado esperado: segunda carga sem novas inserções e `28 verificações, 28 OK, 0 falhadas`. Não use `-DadosReferenciaProvisorios` numa base criada pelas migrações. Os registos `dados-execucao-*.log` ficam em `$env:TEMP`, fora do repositório. Guarde-os nas evidências, reveja-os antes de partilhar e não os versione. Sem `-PastaRegistos`, ficam na pasta atual e podem aparecer no `git status`.
 
 As contas incluem `admin@clinica-g08.test`, `rececao@clinica-g08.test`, `vet.ana@clinica-g08.test`, `aux.carla@clinica-g08.test` e `cliente.joao@clinica-g08.test`. A conta `rececao.bloqueada@clinica-g08.test` está bloqueada de propósito. As palavras-passe são as da submissão e os dados são fictícios.
 
@@ -272,16 +273,16 @@ $LoginLds = Invoke-RestMethod -Method Post `
     -Uri "http://localhost:5159/auth/login" `
     -ContentType "application/json" -Body $CorpoLoginLds
 Remove-Variable SenhaContaLds, CorpoLoginLds
-$LoginLds.utilizador | Select-Object nome, perfil
+$LoginLds.utilizador | Select-Object nome, perfil | Format-List
 Invoke-RestMethod -Uri "http://localhost:5159/clinica" `
     -Headers @{ Authorization = "Bearer $($LoginLds.token)" } |
-    Select-Object nome, nif
+    Select-Object nome, nif | Format-List
 Invoke-RestMethod -Method Post -Uri "http://localhost:5159/auth/logout" `
     -Headers @{ Authorization = "Bearer $($LoginLds.token)" }
 Remove-Variable LoginLds
 ```
 
-Resultado esperado: perfil `Administrador`, nome da clínica devolvido sem erro e fim de sessão concluído. Não mostre ou fotografe `$LoginLds.token`. O Swagger pode ser usado em alternativa; não se fixa uma contagem de operações, que varia com a versão do código.
+Resultado esperado: perfil `Administrador`, nome e NIF da clínica devolvidos em listas separadas, sem erro e fim de sessão concluído. Não mostre ou fotografe `$LoginLds.token`. O Swagger pode ser usado em alternativa; não se fixa uma contagem de operações, que varia com a versão do código.
 
 ## 6. Instalar e arrancar o frontend web
 
@@ -293,12 +294,16 @@ Abra a janela C na raiz do clone:
 Set-Location src\frontend
 npm ci
 Copy-Item .env.example .env.local
-Set-Content .env.local "VITE_API_URL=http://localhost:5159" -Encoding utf8
+Set-Content .env.local "VITE_API_URL=http://localhost:5159" -Encoding ascii
 npm run build
 npm run dev
 ```
 
 Resultado esperado: instalação a partir do ficheiro de bloqueio de dependências, compilação concluída e Vite em `http://localhost:5173`. Abra esse endereço no navegador. A página inicial é «Iniciar sessão».
+
+Os endereços indicados neste manual contêm apenas caracteres ASCII. Use `-Encoding ascii` para gravar `.env.local` sem BOM em PowerShell 5.1 e 7. No PowerShell 5.1, `-Encoding utf8` acrescenta um BOM; no ensaio do Revisor, esse ficheiro provocou a mensagem «A aplicação não está configurada (falta VITE_API_URL).».
+
+Na validação de 27/11/2026, `npm ci` apresentou «9 moderate severity vulnerabilities». Esta mensagem não impediu a instalação nem a compilação. Não execute `npm audit fix` ou atualize dependências durante a instalação para eliminar o aviso; a avaliação e correção das vulnerabilidades deve ser tratada separadamente, com revisão e testes.
 
 O `npm ci` destina-se a esta cópia local e substitui as dependências instaladas para coincidir com o ficheiro de bloqueio de dependências. Não use `npm install` para corrigir erros de versão sem os analisar, pois pode alterar o ficheiro de bloqueio de dependências.
 
@@ -350,13 +355,7 @@ Resultado esperado: Gradle 9.6.0 e JVM 21. Se o JDK não for encontrado, confirm
 
 Use **uma** das opções seguintes. O endereço é definido na compilação, através de `apiBaseUrl`; alterar o endereço exige recompilar e reinstalar a aplicação. Não é uma definição alterável no ecrã de início de sessão.
 
-**Emulador Android:** `10.0.2.2` representa o computador que executa o emulador. A API pode continuar a ouvir em `localhost:5159`:
-
-```powershell
-.\gradlew.bat assembleDebug "-PapiBaseUrl=http://10.0.2.2:5159"
-```
-
-**Telemóvel por USB, ou emulador com o tempo de ligação esgotado em `10.0.2.2`:** crie um túnel ADB e compile para `localhost`:
+**Opção principal - emulador ou telemóvel por USB com túnel ADB:** com o dispositivo em estado `device`, crie o túnel e compile para `localhost`:
 
 ```powershell
 & $AdbLds -s $DispositivoLds reverse tcp:5159 tcp:5159
@@ -364,7 +363,17 @@ Use **uma** das opções seguintes. O endereço é definido na compilação, atr
 .\gradlew.bat assembleDebug "-PapiBaseUrl=http://localhost:5159"
 ```
 
-Resultado esperado: túnel listado e `BUILD SUCCESSFUL`. Repita `adb reverse` após reiniciar ou voltar a ligar o dispositivo. Neste caso, `localhost` na aplicação chega ao computador pelo túnel; sem esse túnel, representa o próprio Android.
+Resultado esperado: túnel listado e `BUILD SUCCESSFUL`. Repita `adb reverse` após reiniciar ou voltar a ligar o dispositivo. Neste caso, `localhost` na aplicação chega ao computador pelo túnel; sem esse túnel, representa o próprio Android. Esta foi a opção que funcionou no ensaio do Revisor em Windows 11 com o emulador Medium Phone API 37.0.
+
+**Alternativa só para o emulador Android:** `10.0.2.2` representa o computador que executa o emulador. Se a ligação funcionar no seu ambiente, pode compilar com:
+
+```powershell
+.\gradlew.bat assembleDebug "-PapiBaseUrl=http://10.0.2.2:5159"
+```
+
+No ensaio do Revisor, esta alternativa terminou com `SocketTimeoutException` após 10 segundos; o túnel ADB resolveu a ligação. Se ocorrer esse erro, use a opção principal, recompile para `localhost` e **repita a instalação do passo 14**. Sempre que recompilar ou alterar `apiBaseUrl`, tem de instalar o novo APK; recompilar não substitui a aplicação já instalada.
+
+O `assembleDebug` pode apresentar «Unable to strip … libandroidx.graphics.path.so». Se terminar com `BUILD SUCCESSFUL` e gerar o APK, esse aviso, observado na validação, não impede a instalação. Não confunda o aviso com uma falha de compilação; se a tarefa terminar com erro, analise o erro indicado.
 
 O debug só permite HTTP sem TLS para `10.0.2.2`, `localhost` e `127.0.0.1`. Um endereço HTTP arbitrário da rede local não está autorizado na configuração atual. O caminho por USB evita alterar o manifesto ou expor a API à rede. A variante release exige HTTPS.
 
@@ -416,7 +425,7 @@ A instalação só está confirmada para o sistema completo quando este percurso
 | Componente | API individual/local | API pública de avaliação |
 |---|---|---|
 | Web no computador | `.env.local`: `http://localhost:5159` | `.env.local`: endereço HTTPS público; origem web tem de ser autorizada no CORS público. |
-| Aplicação no emulador | `http://10.0.2.2:5159` | endereço HTTPS público na propriedade Gradle. |
+| Aplicação no emulador | `http://localhost:5159` com túnel ADB; alternativa: `http://10.0.2.2:5159` | endereço HTTPS público na propriedade Gradle. |
 | Aplicação por USB com túnel | `http://localhost:5159` | endereço HTTPS público; não precisa de túnel. |
 | Base de dados | SQL Server do aluno | Azure SQL gerido pelo grupo; credenciais SQL nunca entram nos frontends. |
 
@@ -429,7 +438,7 @@ Na janela C, pare o servidor com Ctrl+C. Defina o endereço HTTPS indicado na se
 ```powershell
 $ApiPublicaLds = "https://clinica-g08-api-" +
     "ehf2bfe5fweuaner.spaincentral-01.azurewebsites.net"
-Set-Content .env.local "VITE_API_URL=$ApiPublicaLds" -Encoding utf8
+Set-Content .env.local "VITE_API_URL=$ApiPublicaLds" -Encoding ascii
 npm run build
 npm run dev
 ```
@@ -451,7 +460,15 @@ Resultado esperado: o ecrã técnico mostra o endereço HTTPS público. Termine 
 
 ### Passo 19 - Voltar ao ambiente individual de defesa
 
-Na aplicação web, volte a definir `VITE_API_URL=http://localhost:5159`, pare e reinicie o Vite; para a pré-visualização, volte também a compilar. Na aplicação, repita a compilação e instalação do passo 13, com `10.0.2.2` ou `localhost` mais `adb reverse`. Confirme o endereço no ecrã técnico e repita o passo 16. A defesa individual não deve depender da API pública para funcionar.
+Na janela C, pare o Vite com Ctrl+C e, em `src/frontend`, reponha o endereço local sem BOM:
+
+```powershell
+Set-Content .env.local "VITE_API_URL=http://localhost:5159" -Encoding ascii
+npm run build
+npm run dev
+```
+
+Para a pré-visualização, use o comando da secção 6 depois de compilar. Na aplicação Android, repita a compilação do passo 13, preferencialmente com `localhost` e túnel ADB, e **a instalação do passo 14**. Confirme o endereço no ecrã técnico e repita o passo 16. A defesa individual não deve depender da API pública para funcionar.
 
 ## 10. Utilização em macOS e Linux
 
@@ -484,6 +501,7 @@ O APK instalado com `-r` conserva os dados locais. Se mudar de ambiente, termine
 | API responde 500 por ligação vazia | O `appsettings.Development.json` deixa a ligação vazia. Configure user secrets ou a variável `ConnectionStrings__ClinicaDb` do processo que arranca a API. |
 | Porta 5159 ou 5173 ocupada | Pare a instância que iniciou ou escolha outra porta. Ao mudar a porta da API, atualize os endereços das aplicações web e Android e o túnel; ao mudar a porta web, atualize CORS. |
 | Web abre, mas os pedidos dão CORS | Confirme a origem exata, incluindo esquema, nome e porta. `localhost` e `127.0.0.1` são origens diferentes. A lista CORS vazia não autoriza todas as origens. Reinicie a API depois de configurar. |
+| Web mostra «A aplicação não está configurada (falta VITE_API_URL).» | Confirme o conteúdo e grave `.env.local` com `-Encoding ascii`, como nos passos 10, 17 e 19. O PowerShell 5.1 grava BOM com `-Encoding utf8`; esse formato provocou o erro no ensaio do Revisor. Reinicie o Vite ou volte a compilar e a arrancar a pré-visualização. |
 | Alterar `.env.local` não muda a API utilizada | Pare e reinicie o Vite. No modo de pré-visualização, volte a compilar. Confirme se uma variável de ambiente `VITE_API_URL` do terminal está a sobrepor o ficheiro. |
 | `npm ci` ou Vite não é reconhecido | Confirme Node/npm e que está em `src/frontend`. Repita `npm ci`; não reutilize `node_modules` de outra máquina ou sistema. |
 | SDK Android ou licença em falta | Abra o SDK Manager, instale Platform 37.0 e Build-Tools 37.0.0 e leia/aceite as licenças aplicáveis. Confirme `ANDROID_HOME` ou `local.properties`. |
@@ -501,7 +519,13 @@ O APK instalado com `-r` conserva os dados locais. Se mudar de ambiente, termine
 
 A v01 tem um registo de validação do backend em 04/11/2026. Esse resultado não valida automaticamente as novas instruções das aplicações web e móvel desta v02.
 
-Nesta preparação foram confrontados os comandos com o código e os manifestos. As verificações locais do Executor, os desvios e os passos ainda não executados estão em `m4-s08-i054-20261127-registo-validacao-v01.md`. O critério de aceitação 4 permanece pendente até outra pessoa seguir esta v02 de raiz, registar máquina, versões, resultados e desvios, e serem confirmadas as correções.
+O Revisor Gonçalo Dinis Magalhães Teixeira comunicou uma validação local de raiz em 27/11/2026, das 16:12 às 16:50 (Lisboa), em Windows 11 x64, build 26200, com Windows PowerShell 5.1. Seguiu o PDF v02 com SHA-256 `f3eae4873ac0f0f34a5568d9ac452cf2cc9ea709630a38bab2a21cb0441d45b3`, sobre um clone em `f3feedd26de33694b23fb203d24b5d92c0fad68f` e a base nova `ClinicaVeterinaria_M4_Local`. Os passos 1 a 16 foram concluídos após a correção local do BOM, incluindo o percurso integrado web → API → aplicação. Os passos 17 a 19, relativos ao ensaio público e regresso ao ambiente local, não foram executados.
+
+As versões, os resultados comunicados, as correções e os limites estão em `m4-s08-i054-20261127-registo-validacao-v02.md`; a v01 conserva o registo da preparação anterior. Esta atualização do manual corrige D1, atualiza o estado e o registo exigidos por D2 e adota npm 11.19.x. O ensaio original não é apresentado como execução desta atualização: o Revisor ainda tem de confirmar as correções e emitir o relatório formal de revisão, que ficará associado ao PR #294 e ao registo v02. Esse relatório ainda não foi recebido à data desta atualização.
+
+O critério de aceitação 4 dispõe agora de evidência comunicada da instalação local de raiz; o seu fecho depende da confirmação dos desvios pelo Revisor. Não se declara validada a ligação à API pública. A auditoria e a autorização de merge continuam pendentes.
+
+O commit de referência mantém-se porque identifica o código efetivamente ensaiado. Na entrega final da M4, deve ser substituído pelo commit aprovado dessa entrega, acompanhado das verificações sobre essa versão; esta atualização documental não valida automaticamente código posterior.
 
 O Revisor indicado no Sprint Planning é Gonçalo Dinis Magalhães Teixeira; o Auditor é Gonçalo Magalhães Ribeiro. Não se regista uma validação em nome de um colega sem que a tenha executado.
 
