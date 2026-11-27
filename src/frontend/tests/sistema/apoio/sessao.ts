@@ -42,4 +42,8 @@ export const entrarComo = {
   rececionista: (page: Page) => iniciarSessao(page, CONTAS.rececao),
   veterinario: (page: Page) => iniciarSessao(page, CONTAS.vetAna),
   auxiliar: (page: Page) => iniciarSessao(page, CONTAS.auxCarla),
+  /** Dr. Bruno: o segundo Veterinário (I130). */
+  outroVeterinario: (page: Page) => iniciarSessao(page, CONTAS.vetBruno),
+  /** Diogo: Auxiliar sem a autorização de registo de apoio (I130). */
+  auxiliarSemApoio: (page: Page) => iniciarSessao(page, CONTAS.auxDiogo),
 };

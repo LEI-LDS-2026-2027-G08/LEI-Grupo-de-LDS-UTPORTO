@@ -1,9 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 import { LayoutApp } from "../paginas/LayoutApp";
+import { PaginaAgenda } from "../paginas/PaginaAgenda";
 import { PaginaClienteForm } from "../paginas/PaginaClienteForm";
 import { PaginaClientes } from "../paginas/PaginaClientes";
+import { PaginaMarcacao } from "../paginas/PaginaMarcacao";
+import { PaginaMarcacaoForm } from "../paginas/PaginaMarcacaoForm";
 import { PaginaPaciente } from "../paginas/PaginaPaciente";
 import { PaginaPacientes } from "../paginas/PaginaPacientes";
+import type { Conta } from "./contas";
 import { emailDe, senhaGerada, telefoneNovo } from "./dados";
 import { entrarComo } from "./sessao";
 
@@ -18,6 +22,16 @@ export interface PacienteDeTeste {
   /** Caminho da ficha (ex.: «/pacientes/42»). */
   caminho: string;
   nome: string;
+}
+
+export interface MarcacaoDeTeste {
+  id: string;
+  /** Dia em Lisboa (aaaa-mm-dd). */
+  data: string;
+  /** Hora de Lisboa (HH:mm). */
+  hora: string;
+  motivo: string;
+  veterinario: Conta;
 }
 
 /**
@@ -79,4 +93,76 @@ export async function criarPacienteDeTeste(
   const caminho = new URL(page.url()).pathname;
   expect(caminho).toMatch(/^\/pacientes\/\d+$/);
   return { caminho, nome };
+}
+
+/** PC-03 e PC-04 — Cliente e paciente de teste, com a sessão da Rececionista. */
+export async function prepararPaciente(
+  page: Page,
+  suf: string,
+): Promise<{ cliente: ClienteDeTeste; paciente: PacienteDeTeste }> {
+  const cliente = await criarClienteDeTeste(page, suf);
+  const paciente = await criarPacienteDeTeste(page, suf, cliente);
+  return { cliente, paciente };
+}
+
+/** Id do paciente a partir do caminho da ficha (ex.: «/pacientes/42» → «42»). */
+export function idDoPaciente(paciente: PacienteDeTeste): string {
+  return paciente.caminho.split("/").pop() ?? "";
+}
+
+/**
+ * PC-05 — Criar uma marcação de teste (Rececionista), com a sessão da
+ * Rececionista aberta: menu «Agenda» → «Nova marcação», paciente de teste,
+ * Veterinário, disponibilidade a partir de {D}, o horário indicado (por
+ * omissão, o primeiro livre de {D}) e «Motivo {sufixo}». Deixa o detalhe da
+ * marcação no ecrã.
+ */
+export async function criarMarcacaoDeTeste(
+  page: Page,
+  suf: string,
+  cliente: ClienteDeTeste,
+  paciente: PacienteDeTeste,
+  opcoes: { veterinario: Conta; data: string; hora?: string },
+): Promise<MarcacaoDeTeste> {
+  await new LayoutApp(page).irPara("Agenda");
+  const agenda = new PaginaAgenda(page);
+  await agenda.titulo.waitFor();
+  await agenda.novaMarcacao.click();
+
+  const formulario = new PaginaMarcacaoForm(page);
+  await formulario.escolherPaciente(paciente.nome, cliente.nome);
+  await formulario.consultarDisponibilidade(
+    opcoes.veterinario.nome,
+    opcoes.data,
+  );
+  const hora = await formulario.escolherHorario(opcoes.data, opcoes.hora);
+  const motivo = `Motivo ${suf}`;
+  await formulario.motivo.fill(motivo);
+  await formulario.criar.click();
+
+  await expect(new PaginaMarcacao(page).aviso).toHaveText(
+    "Marcação criada no estado Pendente.",
+  );
+  const id = /\/agenda\/(\d+)$/.exec(page.url())?.[1];
+  if (!id) {
+    throw new Error(`Endereço inesperado depois da marcação: ${page.url()}`);
+  }
+  return {
+    id,
+    data: opcoes.data,
+    hora,
+    motivo,
+    veterinario: opcoes.veterinario,
+  };
+}
+
+/**
+ * PC-06 — Confirmar a marcação aberta (Rececionista): «Confirmar marcação»,
+ * «Confirmar» na «Confirmação» e «Estado alterado para Confirmada.».
+ */
+export async function confirmarMarcacaoAberta(page: Page): Promise<void> {
+  await new PaginaMarcacao(page).mudarEstado(
+    "Confirmar marcação",
+    "Confirmada",
+  );
 }
