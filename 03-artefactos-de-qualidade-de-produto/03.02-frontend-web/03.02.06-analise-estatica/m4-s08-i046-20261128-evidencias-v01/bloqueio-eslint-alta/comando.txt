@@ -1,0 +1,6 @@
+QG-04 · eslint: FALHOU (código 1)
+QG-01 · typescript: PASSOU (código 0)
+QG-08 · prettier: PASSOU (código 0)
+QG-01 · build: PASSOU (código 0)
+Resultado global: FALHOU
+Resultados: /tmp/i046-20261127/bloqueio-eslint-alta

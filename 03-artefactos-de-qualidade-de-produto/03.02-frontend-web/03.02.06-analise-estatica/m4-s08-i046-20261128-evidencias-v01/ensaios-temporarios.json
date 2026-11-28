@@ -1,0 +1,107 @@
+{
+  "ficheiro": "src/i046-verificacao-temporaria.ts",
+  "removido": true,
+  "casos": [
+    {
+      "nome": "eslint-alta",
+      "conteudo": "export const resultadoI046 = eval(\"1 + 1\");\n"
+    },
+    {
+      "nome": "typescript",
+      "conteudo": "export const resultadoI046: number = \"texto\";\n"
+    },
+    {
+      "nome": "prettier",
+      "conteudo": "export const resultadoI046=1\n"
+    }
+  ],
+  "resultados": {
+    "eslint-alta": [
+      {
+        "gate": "QG-04",
+        "ferramenta": "eslint",
+        "codigo": 1,
+        "passou": false,
+        "ficheiros": 150,
+        "erros": 1,
+        "avisos": 0
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "typescript",
+        "codigo": 0,
+        "passou": true
+      },
+      {
+        "gate": "QG-08",
+        "ferramenta": "prettier",
+        "codigo": 0,
+        "passou": true
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "build",
+        "codigo": 0,
+        "passou": true
+      }
+    ],
+    "typescript": [
+      {
+        "gate": "QG-04",
+        "ferramenta": "eslint",
+        "codigo": 0,
+        "passou": true,
+        "ficheiros": 150,
+        "erros": 0,
+        "avisos": 0
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "typescript",
+        "codigo": 2,
+        "passou": false
+      },
+      {
+        "gate": "QG-08",
+        "ferramenta": "prettier",
+        "codigo": 0,
+        "passou": true
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "build",
+        "codigo": 0,
+        "passou": true
+      }
+    ],
+    "prettier": [
+      {
+        "gate": "QG-04",
+        "ferramenta": "eslint",
+        "codigo": 0,
+        "passou": true,
+        "ficheiros": 150,
+        "erros": 0,
+        "avisos": 0
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "typescript",
+        "codigo": 0,
+        "passou": true
+      },
+      {
+        "gate": "QG-08",
+        "ferramenta": "prettier",
+        "codigo": 1,
+        "passou": false
+      },
+      {
+        "gate": "QG-01",
+        "ferramenta": "build",
+        "codigo": 0,
+        "passou": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+[warn] src/i046-verificacao-temporaria.ts
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.

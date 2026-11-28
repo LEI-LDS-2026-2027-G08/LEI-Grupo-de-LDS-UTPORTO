@@ -30,6 +30,9 @@ dist-ssr
 /playwright/.cache/
 /playwright/.auth/
 
+# Resultados locais da análise estática (arquivar a execução identificada na I046)
+/resultados-analise-estatica/
+
 # Configuração local (nunca commitar)
 .env
 .env.local

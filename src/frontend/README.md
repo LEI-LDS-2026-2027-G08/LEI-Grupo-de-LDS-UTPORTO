@@ -164,3 +164,50 @@ export function ClientesPage() {
 ## Testes
 
 `npm test` corre o Vitest com React Testing Library. Os testes não precisam do backend: simulam as respostas HTTP. Há testes do `ApiClient` (tradução de erros, token, 401, tempo limite), do `AuthService` (mensagens do login), do `TokenStorage`, das permissões por perfil, do menu e das rotas protegidas (login, sessão expirada, fim de sessão, acesso por endereço direto).
+
+## Análise estática e quality gates da I046
+
+```bash
+npm run analise:estatica
+```
+
+O comando executa todas as verificações, guarda os resultados em
+`resultados-analise-estatica/` e termina com código diferente de zero se alguma
+falhar. Não precisa de backend, base de dados, palavras-passe ou SonarQube.
+
+| Gate  | Verificação                                                  | Limite                      |
+| ----- | ------------------------------------------------------------ | --------------------------- |
+| QG-04 | ESLint, TypeScript/React e regras contra execução dinâmica   | Zero erros e zero avisos    |
+| QG-01 | TypeScript estrito na aplicação, Vite e testes Playwright    | Zero erros de tipos         |
+| QG-08 | Prettier, ferramenta adicional de consistência de formatação | Zero ficheiros por formatar |
+| QG-01 | Compilação Vite                                              | Código de saída zero        |
+
+As regras `no-eval`, `no-implied-eval`, `no-new-func` e `no-script-url` são erros
+bloqueantes. A utilização de execução dinâmica é classificada como alta no
+relatório da I046; a severidade 2 do ESLint significa «erro», não uma classificação
+automática de vulnerabilidade. O Prettier verifica formatação, não segurança.
+Não foram alteradas dependências para esta tarefa.
+
+`tsconfig.playwright.json` mantém `strict: true` e usa a resolução de módulos do
+transpilador Playwright. Neste projeto de testes, `erasableSyntaxOnly: false`
+permite as propriedades nos parâmetros dos construtores dos objetos de página.
+A restrição mantém-se na aplicação e na configuração Vite. Isto não desativa a
+verificação de tipos dos testes.
+
+O resumo inclui as versões instaladas, o commit base e o SHA-256 do manifesto dos
+ficheiros analisados. Se houver alterações ainda sem commit, o commit base não
+identifica sozinho a versão testada: use também `SHA256-ficheiros.txt`. Para uma
+pasta de resultados diferente:
+
+```bash
+npm run analise:estatica -- --saida=/caminho/para/evidencias
+```
+
+O workflow `.github/workflows/frontend-estatica.yml` usa o mesmo comando em push,
+pull request ou execução manual e publica os resultados mesmo em falha. A I142
+integra estes gates na pipeline completa `frontend-ci.yml` e confirma a proteção
+dos ramos. A existência do workflow não comprova uma execução remota nem a
+configuração da verificação obrigatória de merge.
+
+O relatório da I046 e as evidências identificadas encontram-se em
+`03-artefactos-de-qualidade-de-produto/03.02-frontend-web/03.02.06-analise-estatica`.

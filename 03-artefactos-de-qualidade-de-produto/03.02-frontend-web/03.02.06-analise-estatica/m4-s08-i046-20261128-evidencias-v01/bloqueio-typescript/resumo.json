@@ -1,0 +1,45 @@
+{
+  "inicio": "2026-11-28T00:01:49.689Z",
+  "commitBase": "340da71cb862b14c7d7073160c9f307ef7451eda",
+  "node": "v24.22.3",
+  "plataforma": "darwin/arm64",
+  "ferramentas": {
+    "eslint": "10.13.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "prettier": "3.9.10",
+    "vite": "8.3.4"
+  },
+  "resultados": [
+    {
+      "gate": "QG-04",
+      "ferramenta": "eslint",
+      "codigo": 0,
+      "passou": true,
+      "ficheiros": 150,
+      "erros": 0,
+      "avisos": 0
+    },
+    {
+      "gate": "QG-01",
+      "ferramenta": "typescript",
+      "codigo": 2,
+      "passou": false
+    },
+    {
+      "gate": "QG-08",
+      "ferramenta": "prettier",
+      "codigo": 0,
+      "passou": true
+    },
+    {
+      "gate": "QG-01",
+      "ferramenta": "build",
+      "codigo": 0,
+      "passou": true
+    }
+  ],
+  "sha256Manifesto": "4aa5d66b32bd52a8007f6160bb943fb85ddf1b9cdc8c35201a95580e3084c93c",
+  "fim": "2026-11-28T00:01:56.191Z",
+  "passou": false
+}

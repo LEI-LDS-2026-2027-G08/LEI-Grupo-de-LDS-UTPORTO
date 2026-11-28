@@ -1,0 +1,71 @@
+Listing tests:
+  [sistema] › f001-clientes.spec.ts:19:1 › ST-WEB-F001-13 — Registar um Cliente com conta de acesso (Rececionista)
+  [sistema] › f001-clientes.spec.ts:67:1 › ST-WEB-F001-14 — Registar um Cliente com NIF e morada (Administrador)
+  [sistema] › f001-clientes.spec.ts:95:1 › ST-WEB-F001-15 — Recusar o registo de um Cliente com dados inválidos
+  [sistema] › f001-clientes.spec.ts:173:1 › ST-WEB-F001-16 — Atualizar os dados de um Cliente
+  [sistema] › f001-clientes.spec.ts:198:1 › ST-WEB-F001-17 — Recusar a atualização de um Cliente com dados inválidos
+  [sistema] › f001-clientes.spec.ts:236:1 › ST-WEB-F001-18 — Pesquisar Clientes
+  [sistema] › f001-funcionarios.spec.ts:40:1 › ST-WEB-F001-06 — Listar e pesquisar funcionários
+  [sistema] › f001-funcionarios.spec.ts:94:1 › ST-WEB-F001-07 — Criar uma conta de funcionário e atribuir-lhe um perfil
+  [sistema] › f001-funcionarios.spec.ts:120:1 › ST-WEB-F001-08 — Recusar a criação de funcionário com dados inválidos
+  [sistema] › f001-funcionarios.spec.ts:179:1 › ST-WEB-F001-09 — Atualizar uma conta de funcionário e a autorização de apoio
+  [sistema] › f001-funcionarios.spec.ts:228:1 › ST-WEB-F001-10 — Mostrar a autorização de apoio só ao Auxiliar Veterinário
+  [sistema] › f001-funcionarios.spec.ts:267:1 › ST-WEB-F001-11 — Bloquear uma conta de funcionário
+  [sistema] › f001-funcionarios.spec.ts:303:1 › ST-WEB-F001-12 — Recusar o bloqueio da própria conta do Administrador
+  [sistema] › f001-sessao.spec.ts:11:1 › ST-WEB-F001-01 — Iniciar sessão com cada perfil interno
+  [sistema] › f001-sessao.spec.ts:47:1 › ST-WEB-F001-02 — Recusar credenciais inválidas
+  [sistema] › f001-sessao.spec.ts:73:1 › ST-WEB-F001-03 — Recusar o início de sessão de uma conta bloqueada
+  [sistema] › f002-pacientes.spec.ts:17:1 › ST-WEB-F002-01 — Registar um paciente associado a um Cliente (Rececionista)
+  [sistema] › f002-pacientes.spec.ts:45:1 › ST-WEB-F002-02 — Registar um paciente a partir da pesquisa por proprietário (Veterinário)
+  [sistema] › f002-pacientes.spec.ts:90:1 › ST-WEB-F002-03 — Recusar o registo de um paciente com dados inválidos
+  [sistema] › f002-pacientes.spec.ts:161:1 › ST-WEB-F002-04 — Consultar a ficha administrativa do paciente
+  [sistema] › f002-pacientes.spec.ts:207:1 › ST-WEB-F002-05 — Abrir a ficha de um paciente inexistente
+  [sistema] › f002-pacientes.spec.ts:231:1 › ST-WEB-F002-06 — Atualizar os dados administrativos do paciente
+  [sistema] › f002-pacientes.spec.ts:260:1 › ST-WEB-F002-07 — Recusar a atualização do paciente com dados inválidos
+  [sistema] › f002-pacientes.spec.ts:286:1 › ST-WEB-F002-08 — Pesquisar os pacientes de um proprietário
+  [sistema] › f002-pacientes.spec.ts:317:1 › ST-WEB-F002-09 — Pesquisa por proprietário sem resultados
+  [sistema] › f003-agenda.spec.ts:67:1 › ST-WEB-F003-03 — Consultar a disponibilidade de um Veterinário
+  [sistema] › f003-agenda.spec.ts:105:1 › ST-WEB-F003-04 — A disponibilidade exclui as marcações não canceladas
+  [sistema] › f003-agenda.spec.ts:141:1 › ST-WEB-F003-05 — Criar uma marcação
+  [sistema] › f003-agenda.spec.ts:182:1 › ST-WEB-F003-06 — Recusar uma marcação incompleta ou numa vaga ocupada
+  [sistema] › f003-agenda.spec.ts:246:1 › ST-WEB-F003-07 — Alterar uma marcação
+  [sistema] › f003-agenda.spec.ts:317:1 › ST-WEB-F003-08 — Recusar a alteração concorrente ou de uma marcação final
+  [sistema] › f003-agenda.spec.ts:388:1 › ST-WEB-F003-09 — Atualizar o estado da marcação segundo as transições permitidas
+  [sistema] › f003-agenda.spec.ts:439:1 › ST-WEB-F003-10 — Não oferecer transições de estado não previstas
+  [sistema] › f003-agenda.spec.ts:483:1 › ST-WEB-F003-11 — Consultar a agenda da clínica (Rececionista)
+  [sistema] › f003-agenda.spec.ts:565:1 › ST-WEB-F003-12 — O Veterinário vê só as consultas que lhe estão atribuídas
+  [sistema] › f003-agenda.spec.ts:614:1 › ST-WEB-F003-13 — Registar a chegada à consulta
+  [sistema] › f003-agenda.spec.ts:656:1 › ST-WEB-F003-14 — Não registar a chegada fora de uma marcação Confirmada nem duas vezes
+  [sistema] › f003-preparacao.spec.ts:27:1 › ST-WEB-F003-15 — Consultar a informação de preparação da consulta
+  [sistema] › f003-preparacao.spec.ts:87:1 › ST-WEB-F003-16 — Registar informação não clínica de apoio com autorização
+  [sistema] › f003-preparacao.spec.ts:145:1 › ST-WEB-F003-17 — Recusar a nota de apoio sem autorização ou numa marcação cancelada
+  [sistema] › f004-registo-clinico.spec.ts:136:1 › ST-WEB-F004-01 — Registar notas clínicas, diagnóstico, tratamento e prescrição numa consulta
+  [sistema] › f004-registo-clinico.spec.ts:233:1 › ST-WEB-F004-02 — Recusar registos clínicos inválidos
+  [sistema] › f004-registo-clinico.spec.ts:325:1 › ST-WEB-F004-03 — Atualizar um registo clínico
+  [sistema] › f004-registo-clinico.spec.ts:395:1 › ST-WEB-F004-04 — Não permitir alterar o registo clínico de outro Veterinário
+  [sistema] › f004-registo-clinico.spec.ts:441:1 › ST-WEB-F004-05 — Consultar o histórico clínico do paciente
+  [sistema] › f004-registo-clinico.spec.ts:505:1 › ST-WEB-F004-06 — Recusar um intervalo de datas inválido no histórico
+  [sistema] › f004-registo-clinico.spec.ts:542:1 › ST-WEB-F004-07 — O Auxiliar Veterinário consulta só a informação clínica autorizada
+  [sistema] › trv-perfis.spec.ts:55:1 › ST-WEB-TRV-01 — Menu de cada perfil sem entradas de outros perfis
+  [sistema] › trv-perfis.spec.ts:69:1 › ST-WEB-TRV-02 — Recusar o acesso por endereço direto a rotas de outro perfil
+  [sistema] › trv-perfis.spec.ts:131:1 › ST-WEB-TRV-03 — Rotas protegidas sem sessão levam ao início de sessão
+  [sistema] › trv-perfis.spec.ts:152:1 › ST-WEB-TRV-04 — O Cliente não usa a aplicação web
+  [sistema] › trv-perfis.spec.ts:170:1 › ST-WEB-TRV-12 — Endereço inexistente
+  [sistema] › trv-perfis.spec.ts:181:1 › ST-WEB-F002-10 — Ficha do paciente só em leitura para o Auxiliar Veterinário
+  [sistema] › trv-perfis.spec.ts:216:1 › ST-WEB-F004-08 — Recusar o acesso ao registo clínico a quem não o pode ver
+  [sistema] › trv-perfis.spec.ts:233:1 › ST-WEB-F006-05 — Recusar o boletim web a quem não é Veterinário
+  [sistema] › trv-rede-erros.spec.ts:25:1 › ST-WEB-TRV-07 — Backend indisponível ao abrir uma página
+  [sistema] › trv-rede-erros.spec.ts:66:1 › ST-WEB-TRV-08 — Backend indisponível ao guardar um formulário
+  [sistema] › trv-rede-erros.spec.ts:106:1 › ST-WEB-TRV-09 — Mostrar os erros da API sem detalhes técnicos
+  [sistema] › trv-rede-erros.spec.ts:158:1 › ST-WEB-TRV-10 — Estados de carregamento e botões inativos durante os pedidos
+  [sistema] › trv-sessao.spec.ts:22:1 › ST-WEB-F001-04 — Terminar sessão e não voltar a páginas protegidas
+  [sistema] › trv-sessao.spec.ts:58:1 › ST-WEB-F001-05 — Manter a sessão ao navegar e ao recarregar
+  [sistema] › trv-sessao.spec.ts:91:1 › ST-WEB-TRV-05 — Sessão revogada durante a utilização
+  [sistema] › trv-sessao.spec.ts:120:1 › ST-WEB-TRV-06 — Sessão inválida ao recarregar
+  [sistema] › trv-sessao.spec.ts:154:1 › ST-WEB-TRV-11 — Palavras-passe e tokens não ficam expostos
+  [sistema-exclusivo] › clinica.exclusivo.spec.ts:89:1 › ST-WEB-F001-19 — Consultar os dados gerais e as configurações da clínica
+  [sistema-exclusivo] › clinica.exclusivo.spec.ts:102:1 › ST-WEB-F001-20 — Atualizar os dados gerais e as configurações da clínica (exclusivo)
+  [sistema-exclusivo] › clinica.exclusivo.spec.ts:134:1 › ST-WEB-F001-21 — Recusar dados gerais inválidos da clínica (exclusivo)
+  [sistema-exclusivo] › clinica.exclusivo.spec.ts:181:1 › ST-WEB-F003-01 — Gerir o horário de funcionamento (exclusivo)
+  [sistema-exclusivo] › clinica.exclusivo.spec.ts:215:1 › ST-WEB-F003-02 — Recusar períodos sobrepostos ou com fecho não posterior à abertura (exclusivo)
+Total: 69 tests in 11 files

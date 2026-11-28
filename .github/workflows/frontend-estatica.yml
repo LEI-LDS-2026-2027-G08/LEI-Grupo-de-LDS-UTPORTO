@@ -1,0 +1,43 @@
+name: Frontend Web — Análise estática (I046)
+
+on:
+  push:
+    paths:
+      - "src/frontend/**"
+      - ".github/workflows/frontend-estatica.yml"
+  pull_request:
+    paths:
+      - "src/frontend/**"
+      - ".github/workflows/frontend-estatica.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - name: QG-01, QG-04 e QG-08
+        run: npm run analise:estatica
+      - name: Guardar resultados mesmo quando um gate falha
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: i046-analise-estatica-${{ github.sha }}
+          path: src/frontend/resultados-analise-estatica/
+          if-no-files-found: warn
+          retention-days: 30
